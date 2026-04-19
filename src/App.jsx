@@ -682,8 +682,18 @@ export default function TravelAgent() {
     setFriends(friendList);
     if (friendList.length>0) {
       const friendIds = friendList.map(f=>f.friendUserId);
-      const { data: fMems } = await supabase.from('memories').select('*, profiles(first_name, last_name)').in('user_id', friendIds).order('ts', { ascending: false });
-      if (fMems) setFriendMemories(fMems.map(m=>({...m,friendName:`${m.profiles?.first_name} ${m.profiles?.last_name}`})));
+      // Récupérer les mémoires sans jointure
+      const { data: fMems } = await supabase.from('memories').select('*').in('user_id', friendIds).order('ts', { ascending: false });
+      if (fMems) {
+        // Récupérer les profils séparément et fusionner
+        const { data: fProfiles } = await supabase.from('profiles').select('user_id, first_name, last_name').in('user_id', friendIds);
+        const profileMap = {};
+        (fProfiles||[]).forEach(p => { profileMap[p.user_id] = p; });
+        setFriendMemories(fMems.map(m => {
+          const p = profileMap[m.user_id];
+          return { ...m, friendName: p ? `${p.first_name} ${p.last_name}` : "Ami" };
+        }));
+      }
     }
     const { data: inReqs } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'pending');
     setPendingIn(inReqs||[]);
