@@ -27,6 +27,20 @@ const DISLIKES_BY_TYPE = {
 const PREFS_LOVES_OPTIONS = ["Cuisine authentique", "Endroits intimistes", "Découvertes locales", "Vins naturels", "Petits producteurs", "Terrasses", "Architecture", "Nature", "Art et culture", "Gastronomie", "Kids friendly"];
 const PREFS_HATES_OPTIONS = ["Chaînes de restaurants", "Endroits bruyants", "Cuisine épicée", "Menus touristiques", "Grandes surfaces", "Foules", "Cuisine industrielle"];
 
+
+const LANGUAGES = [
+  { code: "fr", label: "Français" },
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+  { code: "de", label: "Deutsch" },
+  { code: "it", label: "Italiano" },
+  { code: "pt", label: "Português" },
+  { code: "nl", label: "Nederlands" },
+  { code: "ja", label: "日本語" },
+  { code: "zh", label: "中文" },
+  { code: "ar", label: "العربية" },
+];
+
 const COLORS = {
   bg: "#0f0e0c", card: "#1a1814", border: "#2e2b25",
   accent: "#c9a84c", accentLight: "#e8c97a",
@@ -524,7 +538,7 @@ function RecoPlaceSearch({ onPlaceSelected }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en" };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -746,14 +760,34 @@ export default function TravelAgent() {
 
   const getGPS = () => {
     if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(pos => {
+    setGpsLocation("Localisation en cours...");
+    navigator.geolocation.getCurrentPosition(async pos => {
       const { latitude: lat, longitude: lng } = pos.coords;
       setRecoCoords({ lat, lng });
-      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-        .then(r=>r.json())
-        .then(d=>{const city=d.address?.city||d.address?.town||d.address?.village||""; setGpsLocation(`${city}, ${d.address?.country||""}`);})
-        .catch(()=>setGpsLocation(`${lat.toFixed(3)}, ${lng.toFixed(3)}`));
-    });
+      // Reverse geocode pour avoir une adresse précise
+      try {
+        const res = await fetch("/api/places", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "geocode", input: `${lat},${lng}` })
+        });
+        const data = await res.json();
+        if (data.lat) {
+          // Utiliser l'API Nominatim pour adresse complète
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`);
+          const d = await r.json();
+          const road = d.address?.road || "";
+          const number = d.address?.house_number || "";
+          const city = d.address?.city || d.address?.town || d.address?.village || "";
+          const country = d.address?.country || "";
+          const full = [number, road, city, country].filter(Boolean).join(", ");
+          setGpsLocation(full || `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        }
+      } catch {
+        setGpsLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+      }
+    }, (err) => {
+      setGpsLocation("Erreur de localisation");
+    }, { enableHighAccuracy: true, timeout: 10000 });
   };
 
   const geocodeLocation = async (address) => {
@@ -786,11 +820,11 @@ export default function TravelAgent() {
       .filter(m=>recoPrice==="Tous"||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
 
-    // Géocoder les mémoires qui n'ont pas de coords
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
     try {
-      const toGeocode = candidates.filter(m=>!m._lat&&(m.city||m.name));
-      if (toGeocode.length>0) {
+      // Géocoder TOUS les candidats pour avoir leurs vraies coordonnées
+      const toGeocode = candidates.filter(m=>m.city||m.name);
+      if (toGeocode.length > 0) {
         const geoRes = await fetch("/api/geocode-memories", {
           method:"POST", headers:{"Content-Type":"application/json"},
           body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country})) })
@@ -798,18 +832,19 @@ export default function TravelAgent() {
         const geoData = await geoRes.json();
         const coordsMap = {};
         (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[r.id]={lat:r.lat,lng:r.lng}; });
+
         heartMems = heartMems.map(m=>{
           const c = coordsMap[m.id];
           if (c) {
-            const dist = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
-            return {...m, _lat:c.lat, _lng:c.lng, distanceKm: dist};
+            const distKm = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
+            return {...m, _lat:c.lat, _lng:c.lng, distanceKm: distKm};
           }
-          return m;
-        }).filter(m=>m.distanceKm===undefined||m.distanceKm*1000<=distance);
+          return {...m, distanceKm: 9999}; // pas de coords = exclu
+        }).filter(m => m.distanceKm * 1000 <= distance);
       } else {
-        heartMems = heartMems.filter(m=>!m._lat||(calcDistance(coords.lat,coords.lng,m._lat,m._lng)*1000<=distance));
+        heartMems = [];
       }
-    } catch {}
+    } catch { heartMems = []; }
     heartMems = heartMems.sort((a,b)=>(a.distanceKm||999)-(b.distanceKm||999)||b.rating-a.rating).slice(0,8);
     setHeartMemories(heartMems);
 
@@ -842,7 +877,9 @@ export default function TravelAgent() {
       .join("\n");
 
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
+    const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `Profil utilisateur :
+Langue de réponse OBLIGATOIRE : ${langLabel} — réponds UNIQUEMENT dans cette langue, y compris les noms de champs JSON.
 Aime : ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"non renseigné"}
 Évite : ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"non renseigné"}
 Budget : ${recoPrice!=="Tous"?recoPrice:prefs.budget||"non renseigné"}
@@ -1025,6 +1062,15 @@ RÈGLES IMPORTANTES :
                 <div className="row-2">
                   <div className="field"><label>Prénom</label><input placeholder="Brice" value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
                   <div className="field"><label>Nom</label><input placeholder="Dupont" value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
+                </div>
+              </div>
+              <div className="prefs-card">
+                <div className="prefs-card-title">🌍 Langue préférée</div>
+                <div className="field">
+                  <label>Langue de l'interface et des recommandations</label>
+                  <select value={prefs.language||"en"} onChange={e=>setPrefs(p=>({...p,language:e.target.value}))}>
+                    {LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.label}</option>)}
+                  </select>
                 </div>
               </div>
               <div className="prefs-card">
