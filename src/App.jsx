@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
+import { supabase } from "./supabase.js";
 
-const STORAGE_KEY = "travel-memories";
-const PREFS_KEY = "travel-preferences";
 const TYPES = ["Restaurant", "Hôtel", "Bar / Café", "Destination", "Activité"];
 const PRICES = ["€", "€€", "€€€", "€€€€"];
 const TYPE_ICONS = {
@@ -102,6 +101,7 @@ const css = `
   .empty-sub { font-size: 12px; margin-top: 6px; }
   .inline-input { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; width: 100%; margin-top: 8px; transition: border-color 0.2s; }
   .inline-input:focus { border-color: ${COLORS.accent}; }
+  .loading-overlay { text-align: center; padding: 40px 20px; color: ${COLORS.muted}; font-size: 13px; }
 `;
 
 function formatDate(ts) {
@@ -128,11 +128,6 @@ function StarPicker({ value, onChange }) {
 const DEFAULT_FORM = { name: "", type: "Restaurant", price: "€€", city: "", country: "", rating: 0, why: "", dislike: "" };
 const DEFAULT_PREFS = { loves: "", hates: "", budget: "", notes: "" };
 
-const store = {
-  get: (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } },
-  set: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} },
-};
-
 export default function TravelAgent() {
   const [tab, setTab] = useState("add");
   const [memories, setMemories] = useState([]);
@@ -140,6 +135,7 @@ export default function TravelAgent() {
   const [prefsSaved, setPrefsSaved] = useState(false);
   const [toast, setToast] = useState(false);
   const [form, setForm] = useState(DEFAULT_FORM);
+  const [loading, setLoading] = useState(true);
   const [recoType, setRecoType] = useState("Restaurant");
   const [locMode, setLocMode] = useState("free");
   const [freeLocation, setFreeLocation] = useState("");
@@ -147,27 +143,40 @@ export default function TravelAgent() {
   const [recoResult, setRecoResult] = useState("");
   const [recoLoading, setRecoLoading] = useState(false);
 
+  // Charger les données depuis Supabase au démarrage
   useEffect(() => {
-    const m = store.get(STORAGE_KEY); if (m) setMemories(m);
-    const p = store.get(PREFS_KEY); if (p) setPrefs(p);
+    const load = async () => {
+      setLoading(true);
+      // Mémoires
+      const { data: mems } = await supabase.from('memories').select('*').order('ts', { ascending: false });
+      if (mems) setMemories(mems);
+      // Préférences
+      const { data: pref } = await supabase.from('preferences').select('*').eq('id', 1).single();
+      if (pref) setPrefs(pref);
+      setLoading(false);
+    };
+    load();
   }, []);
 
-  const saveMemories = (data) => store.set(STORAGE_KEY, data);
-  const savePrefs = () => {
-    store.set(PREFS_KEY, prefs);
-    setPrefsSaved(true); setTimeout(() => setPrefsSaved(false), 2000);
-  };
-
-  const addMemory = () => {
+  const addMemory = async () => {
     if (!form.name.trim()) return;
-    const updated = [{ ...form, id: Date.now(), ts: Date.now() }, ...memories];
-    setMemories(updated); saveMemories(updated);
-    setForm(DEFAULT_FORM); setToast(true); setTimeout(() => setToast(false), 2200);
+    const entry = { ...form, id: Date.now(), ts: Date.now() };
+    const { error } = await supabase.from('memories').insert(entry);
+    if (!error) {
+      setMemories(prev => [entry, ...prev]);
+      setForm(DEFAULT_FORM);
+      setToast(true); setTimeout(() => setToast(false), 2200);
+    }
   };
 
-  const deleteMemory = (id) => {
-    const updated = memories.filter(m => m.id !== id);
-    setMemories(updated); saveMemories(updated);
+  const deleteMemory = async (id) => {
+    await supabase.from('memories').delete().eq('id', id);
+    setMemories(prev => prev.filter(m => m.id !== id));
+  };
+
+  const savePrefs = async () => {
+    await supabase.from('preferences').upsert({ ...prefs, id: 1 });
+    setPrefsSaved(true); setTimeout(() => setPrefsSaved(false), 2000);
   };
 
   const getGPS = () => {
@@ -221,7 +230,6 @@ Propose 3 recommandations très personnalisées. Pour chaque lieu :
 N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleureux, francophone.`;
 
     try {
-      // Appel via notre fonction serverless Vercel — la clé reste côté serveur
       const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -251,7 +259,9 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
         </div>
 
         <div className="content">
-          {tab === "add" && (
+          {loading && <div className="loading-overlay">Chargement de vos données... ✈️</div>}
+
+          {!loading && tab === "add" && (
             <div className="form-section">
               <div className="field">
                 <label>Nom du lieu</label>
@@ -301,7 +311,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
             </div>
           )}
 
-          {tab === "memories" && (
+          {!loading && tab === "memories" && (
             <div className="memory-list">
               {memories.length === 0 ? (
                 <div className="empty">
@@ -331,7 +341,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
             </div>
           )}
 
-          {tab === "prefs" && (
+          {!loading && tab === "prefs" && (
             <div className="prefs-section">
               <div className="prefs-card">
                 <div className="prefs-card-title">✨ Ce que j'aime en général</div>
@@ -366,7 +376,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
             </div>
           )}
 
-          {tab === "reco" && (
+          {!loading && tab === "reco" && (
             <div className="reco-section">
               <div className="field">
                 <label>Je cherche un(e)</label>
