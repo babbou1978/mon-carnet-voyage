@@ -939,11 +939,13 @@ export default function TravelAgent() {
   const [recoPrice, setRecoPrice] = useState(ALL);
   const [recoKids, setRecoKids] = useState(false);
   const [distance, setDistance] = useState(1000);
-  const [locMode, setLocMode] = useState("free");
-  const [freeLocation, setFreeLocation] = useState("");
-  const [gpsLocation, setGpsLocation] = useState("");
-  const [recoCoords, setRecoCoords] = useState(null);
-  const recoCoordsRef = useRef(null); // Ref for immediate access in loadRecos
+  const [locMode, setLocMode] = useState(() => localStorage.getItem("outsy_locMode") || "free");
+  const [freeLocation, setFreeLocation] = useState(() => localStorage.getItem("outsy_freeLocation") || "");
+  const [gpsLocation, setGpsLocation] = useState(() => localStorage.getItem("outsy_gpsLocation") || "");
+  const [recoCoords, setRecoCoords] = useState(() => {
+    try { const s = localStorage.getItem("outsy_recoCoords"); return s ? JSON.parse(s) : null; } catch { return null; }
+  });
+  const recoCoordsRef = useRef(null);
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -955,6 +957,14 @@ export default function TravelAgent() {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Init ref from localStorage
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem("outsy_recoCoords");
+      if (s) recoCoordsRef.current = JSON.parse(s);
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -1077,6 +1087,7 @@ export default function TravelAgent() {
       const { latitude: lat, longitude: lng } = pos.coords;
       setRecoCoords({ lat, lng });
       recoCoordsRef.current = { lat, lng };
+      localStorage.setItem('outsy_recoCoords', JSON.stringify({ lat, lng }));
       // Reverse geocode pour avoir une adresse précise
       try {
         const res = await fetch("/api/places", {
@@ -1123,6 +1134,7 @@ export default function TravelAgent() {
       if (!coords) { setGeocoding(false); return; }
       setRecoCoords(coords);
       recoCoordsRef.current = coords;
+      localStorage.setItem('outsy_recoCoords', JSON.stringify(coords));
     }
     setGeocoding(false);
     console.log("Using coords:", coords.lat, coords.lng, "for:", locationLabel);
