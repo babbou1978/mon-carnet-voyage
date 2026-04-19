@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase.js";
+import Auth from "./Auth.jsx";
 
 const TYPES = ["Restaurant", "Hôtel", "Bar / Café", "Destination", "Activité"];
 const PRICES = ["€", "€€", "€€€", "€€€€"];
@@ -21,9 +22,12 @@ const css = `
   body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
   .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
   .header { padding: 28px 24px 16px; border-bottom: 1px solid ${COLORS.border}; position: sticky; top: 0; background: ${COLORS.bg}; z-index: 10; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
   .header-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; letter-spacing: 0.05em; line-height: 1.1; }
   .header-title span { color: ${COLORS.accent}; font-style: italic; }
   .header-sub { font-size: 11px; color: ${COLORS.muted}; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px; }
+  .logout-btn { background: none; border: 1px solid ${COLORS.border}; color: ${COLORS.muted}; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+  .logout-btn:hover { border-color: #e06060; color: #e06060; }
   .tabs { display: flex; margin-top: 14px; background: ${COLORS.card}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
   .tab { flex: 1; padding: 7px 2px; font-size: 10px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; background: none; border: none; color: ${COLORS.muted}; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-weight: 500; }
   .tab.active { background: ${COLORS.accent}; color: #0f0e0c; }
@@ -129,6 +133,7 @@ const DEFAULT_FORM = { name: "", type: "Restaurant", price: "€€", city: "", 
 const DEFAULT_PREFS = { loves: "", hates: "", budget: "", notes: "" };
 
 export default function TravelAgent() {
+  const [session, setSession] = useState(undefined); // undefined = chargement
   const [tab, setTab] = useState("add");
   const [memories, setMemories] = useState([]);
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
@@ -143,24 +148,38 @@ export default function TravelAgent() {
   const [recoResult, setRecoResult] = useState("");
   const [recoLoading, setRecoLoading] = useState(false);
 
-  // Charger les données depuis Supabase au démarrage
+  // Gérer la session auth
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Charger les données quand connecté
+  useEffect(() => {
+    if (!session) return;
     const load = async () => {
       setLoading(true);
-      // Mémoires
-      const { data: mems } = await supabase.from('memories').select('*').order('ts', { ascending: false });
+      const userId = session.user.id;
+      const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
-      // Préférences
-      const { data: pref } = await supabase.from('preferences').select('*').eq('id', 1).single();
+      const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).single();
       if (pref) setPrefs(pref);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [session]);
+
+  if (session === undefined) return null; // chargement initial
+  if (!session) return <Auth />;
+
+  const userId = session.user.id;
 
   const addMemory = async () => {
     if (!form.name.trim()) return;
-    const entry = { ...form, id: Date.now(), ts: Date.now() };
+    const entry = { ...form, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) {
       setMemories(prev => [entry, ...prev]);
@@ -170,14 +189,16 @@ export default function TravelAgent() {
   };
 
   const deleteMemory = async (id) => {
-    await supabase.from('memories').delete().eq('id', id);
+    await supabase.from('memories').delete().eq('id', id).eq('user_id', userId);
     setMemories(prev => prev.filter(m => m.id !== id));
   };
 
   const savePrefs = async () => {
-    await supabase.from('preferences').upsert({ ...prefs, id: 1 });
+    await supabase.from('preferences').upsert({ ...prefs, user_id: userId });
     setPrefsSaved(true); setTimeout(() => setPrefsSaved(false), 2000);
   };
+
+  const logout = () => supabase.auth.signOut();
 
   const getGPS = () => {
     if (!navigator.geolocation) return;
@@ -246,8 +267,13 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
       <style>{css}</style>
       <div className="app">
         <div className="header">
-          <div className="header-title">Mon <span>Carnet</span> de Voyage</div>
-          <div className="header-sub">Agence personnelle • Powered by AI</div>
+          <div className="header-top">
+            <div>
+              <div className="header-title">Mon <span>Carnet</span> de Voyage</div>
+              <div className="header-sub">{session.user.email}</div>
+            </div>
+            <button className="logout-btn" onClick={logout}>Déconnexion</button>
+          </div>
           <div className="tabs">
             <button className={`tab ${tab==="add"?"active":""}`} onClick={() => setTab("add")}>+ Ajouter</button>
             <button className={`tab ${tab==="memories"?"active":""}`} onClick={() => setTab("memories")}>
@@ -347,7 +373,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                 <div className="prefs-card-title">✨ Ce que j'aime en général</div>
                 <div className="field">
                   <label>Mes goûts & atmosphères</label>
-                  <textarea placeholder="Ex: J'aime les endroits chaleureux, la cuisine locale authentique, les terrasses, les vins naturels..." value={prefs.loves} onChange={e => setPrefs(p => ({...p, loves: e.target.value}))} style={{minHeight: 90}} />
+                  <textarea placeholder="Ex: J'aime les endroits chaleureux, la cuisine locale authentique..." value={prefs.loves} onChange={e => setPrefs(p => ({...p, loves: e.target.value}))} style={{minHeight: 90}} />
                 </div>
                 <div className="field">
                   <label>Budget habituel</label>
@@ -361,7 +387,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                 <div className="prefs-card-title" style={{color:"#c07070"}}>🚫 Ce que j'évite toujours</div>
                 <div className="field dislike-field">
                   <label>Mes aversions</label>
-                  <textarea placeholder="Ex: Je n'aime pas les endroits trop bruyants, la cuisine trop épicée, les menus touristiques..." value={prefs.hates} onChange={e => setPrefs(p => ({...p, hates: e.target.value}))} style={{minHeight: 90}} />
+                  <textarea placeholder="Ex: Je n'aime pas les endroits trop bruyants..." value={prefs.hates} onChange={e => setPrefs(p => ({...p, hates: e.target.value}))} style={{minHeight: 90}} />
                 </div>
               </div>
               <div className="prefs-card">
@@ -398,11 +424,6 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                 {locMode==="gps" && !gpsLocation && <div style={{fontSize:12,color:COLORS.muted,marginTop:6}}>Récupération de votre position...</div>}
                 {locMode==="free" && <input className="inline-input" placeholder="Ex: Rome, Tokyo, Bordeaux..." value={freeLocation} onChange={e => setFreeLocation(e.target.value)} />}
               </div>
-              {memories.length===0 && !prefs.loves && (
-                <div style={{fontSize:12,color:COLORS.muted,padding:"8px 12px",background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`}}>
-                  💡 Renseignez votre profil et ajoutez des lieux pour des recommandations ultra-personnalisées
-                </div>
-              )}
               <button className="reco-btn" onClick={getRecos} disabled={recoLoading||(!freeLocation&&!gpsLocation)}>
                 {recoLoading ? "Analyse en cours..." : "✨ Obtenir mes recommandations"}
               </button>
