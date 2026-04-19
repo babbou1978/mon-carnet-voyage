@@ -1229,7 +1229,7 @@ IMPORTANT RULES:
                 </button>
               </div>
 
-              {(heartMemories.length>0||nearbyPlaces.length>0)?(
+              {(heartMemories.length>0||nearbyPlaces.length>0)&&(
                 <div className="reco-block">
                   <div className="reco-block-title">{t.recoHearts}<span>{t.recoHeartsNear}</span></div>
                   {heartMemories.length>0&&(
@@ -1264,7 +1264,7 @@ IMPORTANT RULES:
 
               {(aiLoading||aiRecos.length>0)&&(
                 <div className="reco-block">
-                  <div className="reco-block-title">✨ Outsy AI<span>10 recommandations triées par affinité</span></div>
+                  <div className="reco-block-title">{t.recoAI}<span>{t.recoAISub}</span></div>
                   {aiLoading&&<div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
                   {aiRecos.length>0&&!aiLoading&&(
                     <>
