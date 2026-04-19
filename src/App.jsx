@@ -576,11 +576,11 @@ function TagPicker({ options, selected, onChange, mode="like" }) {
   );
 }
 
-function KidsToggle({ value, onChange }) {
+function KidsToggle({ value, onChange, t }) {
   return (
     <div className={`kids-toggle ${value?"on":""}`} onClick={()=>onChange(!value)}>
       <span style={{fontSize:16}}>👶</span>
-      <span className="kids-toggle-label">{t.addKids}</span>
+      <span className="kids-toggle-label">{t?.addKids||"Kids friendly"}</span>
       <div className="toggle-switch"><div className="toggle-knob"/></div>
     </div>
   );
@@ -840,7 +840,7 @@ function RecoPlaceSearch({ onPlaceSelected }) {
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
 const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en" };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, t }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
   const likesOptions = LIKES_BY_TYPE[form.type]||LIKES_BY_TYPE["Restaurant"];
   const dislikesOptions = DISLIKES_BY_TYPE[form.type]||DISLIKES_BY_TYPE["Restaurant"];
@@ -851,28 +851,28 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false }) {
   };
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {!isEdit?<div className="field"><label>{t.addPlace}</label><PlaceSearch onPlaceSelected={handlePlaceSelected}/></div>
-        :<div className="field"><label>{t.addPlace}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
+      {!isEdit?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch onPlaceSelected={handlePlaceSelected}/></div>
+        :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
       {form.name && <>
         <div className="row-2">
           <div className="field"><label>Type</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="row-2">
-          <div className="field"><label>{t.addCity}</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
-          <div className="field"><label>{t.addCountry}</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
+          <div className="field"><label>{t?.addCity||"City"}</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
+          <div className="field"><label>{t?.addCountry||"Country"}</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
         </div>
-        <div className="field"><label>{t.addRating}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
-        <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))}/>
-        <div className="section-divider"><span>{t.addLiked}</span></div>
+        <div className="field"><label>{t?.addRating||"Rating"}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
+        <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))} t={t}/>
+        <div className="section-divider"><span>{t?.addLiked||"Liked"}</span></div>
         <div className="field"><label>Sélectionner</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
         <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
-        <div className="section-divider"><span>{t.addDisliked}</span></div>
+        <div className="section-divider"><span>{t?.addDisliked||"Disliked"}</span></div>
         <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
         <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
         <div style={{display:"flex",gap:8,marginTop:4}}>
-          {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>Annuler</button>}
-          <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?t.addUpdate:t.addSave}</button>
+          {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>{t?.duplicateCancel||"Cancel"}</button>}
+          <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?(t?.addUpdate||"Update"):(t?.addSave||"Save")}</button>
         </div>
       </>}
     </div>
@@ -1277,7 +1277,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm onSave={handleAdd} />}
+          {!loading && tab === "add" && <MemoryForm onSave={handleAdd} t={t} />}
 
           {!loading && tab === "memories" && (
             <div>
@@ -1526,7 +1526,7 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{t.editTitle} {editMemory.name}</div>
-            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true}/>
+            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t}/>
           </div>
         </div>
       )}
