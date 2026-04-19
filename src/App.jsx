@@ -943,6 +943,7 @@ export default function TravelAgent() {
   const [freeLocation, setFreeLocation] = useState("");
   const [gpsLocation, setGpsLocation] = useState("");
   const [recoCoords, setRecoCoords] = useState(null);
+  const recoCoordsRef = useRef(null); // Ref for immediate access in loadRecos
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -1075,6 +1076,7 @@ export default function TravelAgent() {
     navigator.geolocation.getCurrentPosition(async pos => {
       const { latitude: lat, longitude: lng } = pos.coords;
       setRecoCoords({ lat, lng });
+      recoCoordsRef.current = { lat, lng };
       // Reverse geocode pour avoir une adresse précise
       try {
         const res = await fetch("/api/places", {
@@ -1114,13 +1116,16 @@ export default function TravelAgent() {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
     setGeocoding(true);
-    let coords = recoCoords;
-    if (!coords || locMode==="free") {
+    // Use ref for immediate access (state update is async in React)
+    let coords = recoCoordsRef.current;
+    if (!coords) {
       coords = await geocodeLocation(locationLabel);
       if (!coords) { setGeocoding(false); return; }
       setRecoCoords(coords);
+      recoCoordsRef.current = coords;
     }
     setGeocoding(false);
+    console.log("Using coords:", coords.lat, coords.lng, "for:", locationLabel);
 
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
