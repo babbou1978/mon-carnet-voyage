@@ -6,6 +6,19 @@ const COLORS = {
   accent: "#c9a84c", accentLight: "#e8c97a", text: "#f0ead8", muted: "#8a8070",
 };
 
+const AUTH_T = {
+  fr: { logo: "Outsy AI", tagline: "Votre agent de voyage personnel", login: "Connexion", signup: "Inscription",
+    firstName: "Prénom", lastName: "Nom", email: "Email", password: "Mot de passe",
+    connect: "Se connecter", create: "Créer mon compte",
+    errorLogin: "Email ou mot de passe incorrect.", errorSignup: "Erreur lors de l'inscription.",
+    errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
+  en: { logo: "Outsy AI", tagline: "Your personal travel agent", login: "Sign in", signup: "Sign up",
+    firstName: "First name", lastName: "Last name", email: "Email", password: "Password",
+    connect: "Sign in", create: "Create account",
+    errorLogin: "Incorrect email or password.", errorSignup: "Error during registration.",
+    errorName: "First and last name required.", welcome: "Welcome to Outsy AI!" },
+};
+
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,21 +53,25 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Detect browser language for auth screen
+  const browserLang = navigator.language?.slice(0, 2) || "en";
+  const at = AUTH_T[browserLang] || AUTH_T["en"];
+
   const handle = async () => {
     setLoading(true); setError(""); setSuccess("");
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setError("Email ou mot de passe incorrect.");
+      if (error) setError(at.errorLogin);
     } else {
-      if (!firstName.trim() || !lastName.trim()) { setError("Prénom et nom requis."); setLoading(false); return; }
+      if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError("Erreur lors de l'inscription."); }
+      if (error) { setError(at.errorSignup); }
       else {
         if (data.user) {
           await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
           try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email }) }); } catch {}
         }
-        setSuccess(`Bienvenue ${firstName} sur Outsy AI !`);
+        setSuccess(`${at.welcome} ${firstName}!`);
       }
     }
     setLoading(false);
@@ -65,24 +82,24 @@ export default function Auth() {
       <style>{css}</style>
       <div className="auth-wrapper">
         <div className="auth-logo">Outsy <span>AI</span></div>
-        <div className="auth-tagline">Votre agent de voyage personnel</div>
+        <div className="auth-tagline">{at.tagline}</div>
         <div className="auth-card">
           <div className="auth-tabs">
-            <button className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>Connexion</button>
-            <button className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>Inscription</button>
+            <button className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.login}</button>
+            <button className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
           </div>
           {mode === "signup" && (
             <div className="auth-row">
-              <div className="auth-field"><label>Prénom</label><input placeholder="Brice" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
-              <div className="auth-field"><label>Nom</label><input placeholder="Dupont" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
+              <div className="auth-field"><label>{at.firstName}</label><input placeholder="Brice" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
+              <div className="auth-field"><label>{at.lastName}</label><input placeholder="Dupont" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
             </div>
           )}
-          <div className="auth-field"><label>Email</label><input type="email" placeholder="votre@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
-          <div className="auth-field"><label>Mot de passe</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
+          <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
+          <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
           {error && <div className="auth-error">{error}</div>}
           {success && <div className="auth-success">{success}</div>}
           <button className="auth-btn" onClick={handle} disabled={loading || !email || !password}>
-            {loading ? "..." : mode === "login" ? "Se connecter" : "Créer mon compte"}
+            {loading ? "..." : mode === "login" ? at.connect : at.create}
           </button>
         </div>
       </div>

@@ -41,6 +41,98 @@ const LANGUAGES = [
   { code: "ar", label: "العربية" },
 ];
 
+
+const TRANSLATIONS = {
+  fr: {
+    appTagline: "Votre agent de voyage personnel",
+    tabReco: "Reco ✨", tabFavorites: "❤️ Favoris", tabAdd: "+ Ajouter", tabFriends: "👥 Amis", tabProfile: "Profil",
+    logout: "Déconnexion",
+    addPlace: "Nom du lieu", addType: "Type", addPrice: "Prix", addCity: "Ville", addCountry: "Pays",
+    addRating: "Note globale", addKids: "Kids friendly", addLiked: "Ce que j'ai aimé",
+    addLikedSelect: "Sélectionner", addLikedPrecise: "Préciser", addDisliked: "Ce que j'ai moins aimé",
+    addDislikedSelect: "Sélectionner", addDislikedPrecise: "Préciser",
+    addSave: "Enregistrer", addUpdate: "Sauvegarder",
+    filterType: "Type", filterPrice: "Prix", filterRating: "Note", filterKids: "👶 Kids friendly",
+    filterFriends: "👥 Amis", filterAll: "Tous",
+    emptyFavorites: "Aucun coup de cœur encore", emptyFavoritesSub: "Commencez par ajouter un lieu",
+    emptyResults: "Aucun résultat", emptyResultsSub: "Essayez d'autres filtres",
+    profileIdentity: "👤 Mon identité", profileFirstName: "Prénom", profileLastName: "Nom",
+    profileLanguage: "🌍 Langue préférée", profileLanguageLabel: "Langue de l'interface et des recommandations",
+    profileLikes: "✨ Ce que j'aime", profileLikesSelect: "Sélectionner", profileLikesPrecise: "Préciser",
+    profileBudget: "Budget habituel", profileBudgetNone: "Non renseigné",
+    profileDislikes: "🚫 Ce que j'évite", profileDislikesSelect: "Sélectionner", profileDislikesPrecise: "Préciser",
+    profileNotes: "📝 Notes libres", profileNotesLabel: "Autres infos", profileSave: "Sauvegarder mon profil", profileSaved: "✓ Profil enregistré",
+    friendsRequests: "🔔 Demandes reçues", friendsSearch: "🔍 Ajouter un ami", friendsSearchPlaceholder: "Email de votre ami...",
+    friendsSearchBtn: "Chercher", friendsList: "👥 Mes amis", friendsNone: "Aucun ami pour l'instant.",
+    friendsPending: "⏳ En attente", friendsAlready: "Déjà ami", friendsSent: "Envoyée", friendsAdd: "+ Ajouter",
+    friendsAccept: "✓", friendsView: "Voir ❤️", friendsHeartTitle: "❤️ Coups de cœur de",
+    friendsNoHeart: "n'a pas encore de coups de cœur.",
+    recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
+    recoType: "Type", recoPrice: "Prix", recoFind: "🔍 Trouver des lieux",
+    recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
+    recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
+    recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & amis",
+    recoInCarnet: "Dans votre carnet", recoNearby: "Lieux populaires à proximité",
+    recoAI: "✨ Outsy AI", recoAISub: "10 recommandations triées par affinité",
+    recoAddFav: "+ Ajouter à mes coups de cœur", recoMapsLink: "Maps →",
+    recoNoHeart: "Aucun coup de cœur dans ce rayon. Ajoutez des lieux notés ≥ 4★ !",
+    duplicateTitle: "📍 Lieu déjà existant", duplicateText: "est déjà dans vos coups de cœur. Mettre à jour ?",
+    duplicateCancel: "Annuler", duplicateUpdate: "Mettre à jour",
+    editTitle: "✏️ Modifier", toastSaved: "✓ Souvenir enregistré !", toastUpdated: "✓ Coup de cœur mis à jour !",
+    toastAdded: "✓ Ajouté à vos coups de cœur !", toastFriend: "✓ Demande envoyée !", toastFriendAdded: "✓ Ami ajouté !",
+    loading: "Chargement... ✈️", loginConnect: "Se connecter", loginCreate: "Créer mon compte",
+    loginEmail: "Email", loginPassword: "Mot de passe", loginFirstName: "Prénom", loginLastName: "Nom",
+    loginError: "Email ou mot de passe incorrect.", loginSignupError: "Erreur lors de l'inscription.",
+    loginNameRequired: "Prénom et nom requis.", loginWelcome: "Bienvenue",
+  },
+  en: {
+    appTagline: "Your personal travel agent",
+    tabReco: "Reco ✨", tabFavorites: "❤️ Favorites", tabAdd: "+ Add", tabFriends: "👥 Friends", tabProfile: "Profile",
+    logout: "Sign out",
+    addPlace: "Place name", addType: "Type", addPrice: "Price", addCity: "City", addCountry: "Country",
+    addRating: "Overall rating", addKids: "Kids friendly", addLiked: "What I liked",
+    addLikedSelect: "Select", addLikedPrecise: "Add details", addDisliked: "What I didn't like",
+    addDislikedSelect: "Select", addDislikedPrecise: "Add details",
+    addSave: "Save", addUpdate: "Update",
+    filterType: "Type", filterPrice: "Price", filterRating: "Rating", filterKids: "👶 Kids friendly",
+    filterFriends: "👥 Friends", filterAll: "All",
+    emptyFavorites: "No favorites yet", emptyFavoritesSub: "Start by adding a place",
+    emptyResults: "No results", emptyResultsSub: "Try different filters",
+    profileIdentity: "👤 My identity", profileFirstName: "First name", profileLastName: "Last name",
+    profileLanguage: "🌍 Preferred language", profileLanguageLabel: "Interface and recommendations language",
+    profileLikes: "✨ What I like", profileLikesSelect: "Select", profileLikesPrecise: "Add details",
+    profileBudget: "Usual budget", profileBudgetNone: "Not specified",
+    profileDislikes: "🚫 What I avoid", profileDislikesSelect: "Select", profileDislikesPrecise: "Add details",
+    profileNotes: "📝 Free notes", profileNotesLabel: "Other info", profileSave: "Save my profile", profileSaved: "✓ Profile saved",
+    friendsRequests: "🔔 Friend requests", friendsSearch: "🔍 Add a friend", friendsSearchPlaceholder: "Your friend's email...",
+    friendsSearchBtn: "Search", friendsList: "👥 My friends", friendsNone: "No friends yet.",
+    friendsPending: "⏳ Pending", friendsAlready: "Already friends", friendsSent: "Sent", friendsAdd: "+ Add",
+    friendsAccept: "✓", friendsView: "View ❤️", friendsHeartTitle: "❤️ Favorites from",
+    friendsNoHeart: "has no favorites yet.",
+    recoLocation: "📍 Location & settings", recoRadius: "Search radius",
+    recoType: "Type", recoPrice: "Price", recoFind: "🔍 Find places",
+    recoLocating: "Locating...", recoSearching: "Searching...",
+    recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
+    recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & friends",
+    recoInCarnet: "In your collection", recoNearby: "Popular nearby places",
+    recoAI: "✨ Outsy AI", recoAISub: "10 recommendations ranked by match",
+    recoAddFav: "+ Add to my favorites", recoMapsLink: "Maps →",
+    recoNoHeart: "No favorites in this area. Add places with rating ≥ 4★!",
+    duplicateTitle: "📍 Place already exists", duplicateText: "is already in your favorites. Update it?",
+    duplicateCancel: "Cancel", duplicateUpdate: "Update",
+    editTitle: "✏️ Edit", toastSaved: "✓ Place saved!", toastUpdated: "✓ Favorite updated!",
+    toastAdded: "✓ Added to favorites!", toastFriend: "✓ Request sent!", toastFriendAdded: "✓ Friend added!",
+    loading: "Loading... ✈️", loginConnect: "Sign in", loginCreate: "Create account",
+    loginEmail: "Email", loginPassword: "Password", loginFirstName: "First name", loginLastName: "Last name",
+    loginError: "Incorrect email or password.", loginSignupError: "Error during registration.",
+    loginNameRequired: "First and last name required.", loginWelcome: "Welcome",
+  },
+};
+
+function useT(language) {
+  return TRANSLATIONS[language] || TRANSLATIONS["en"];
+}
+
 const COLORS = {
   bg: "#0f0e0c", card: "#1a1814", border: "#2e2b25",
   accent: "#c9a84c", accentLight: "#e8c97a",
@@ -280,7 +372,7 @@ function KidsToggle({ value, onChange }) {
   return (
     <div className={`kids-toggle ${value?"on":""}`} onClick={()=>onChange(!value)}>
       <span style={{fontSize:16}}>👶</span>
-      <span className="kids-toggle-label">Kids friendly</span>
+      <span className="kids-toggle-label">{t.addKids}</span>
       <div className="toggle-switch"><div className="toggle-knob"/></div>
     </div>
   );
@@ -551,28 +643,28 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false }) {
   };
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {!isEdit?<div className="field"><label>Nom du lieu</label><PlaceSearch onPlaceSelected={handlePlaceSelected}/></div>
-        :<div className="field"><label>Nom du lieu</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
+      {!isEdit?<div className="field"><label>{t.addPlace}</label><PlaceSearch onPlaceSelected={handlePlaceSelected}/></div>
+        :<div className="field"><label>{t.addPlace}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
       {form.name && <>
         <div className="row-2">
           <div className="field"><label>Type</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="row-2">
-          <div className="field"><label>Ville</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
-          <div className="field"><label>Pays</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
+          <div className="field"><label>{t.addCity}</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
+          <div className="field"><label>{t.addCountry}</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
         </div>
-        <div className="field"><label>Note globale</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
+        <div className="field"><label>{t.addRating}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
         <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))}/>
-        <div className="section-divider"><span>Ce que j'ai aimé</span></div>
+        <div className="section-divider"><span>{t.addLiked}</span></div>
         <div className="field"><label>Sélectionner</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
         <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
-        <div className="section-divider"><span>Ce que j'ai moins aimé</span></div>
+        <div className="section-divider"><span>{t.addDisliked}</span></div>
         <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
         <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
         <div style={{display:"flex",gap:8,marginTop:4}}>
           {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>Annuler</button>}
-          <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?"Sauvegarder":"Enregistrer"}</button>
+          <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?t.addUpdate:t.addSave}</button>
         </div>
       </>}
     </div>
@@ -619,6 +711,7 @@ export default function TravelAgent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [profile, setProfile] = useState(null);
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
+  const t = useT(prefs.language || "en");
   const [prefsSaved, setPrefsSaved] = useState(false);
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(true);
@@ -712,12 +805,12 @@ export default function TravelAgent() {
     if (duplicate) { setDuplicateAlert({ existing: duplicate, newForm: form }); return; }
     const entry = { ...form, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
-    if (!error) { setMemories(prev=>[entry,...prev]); showToast("✓ Souvenir enregistré !"); }
+    if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); }
   };
 
   const handleUpdate = async (form) => {
     const { error } = await supabase.from('memories').update(form).eq('id', editMemory.id).eq('user_id', userId);
-    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...form}:m)); setEditMemory(null); showToast("✓ Coup de cœur mis à jour !"); }
+    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...form}:m)); setEditMemory(null); showToast(t.toastUpdated); }
   };
 
   const handleDuplicateUpdate = async () => {
@@ -725,7 +818,7 @@ export default function TravelAgent() {
     const updated = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
     await supabase.from('memories').update(updated).eq('id', existing.id).eq('user_id', userId);
     setMemories(prev=>prev.map(m=>m.id===existing.id?updated:m));
-    setDuplicateAlert(null); showToast("✓ Coup de cœur mis à jour !");
+    setDuplicateAlert(null); showToast(t.toastUpdated);
   };
 
   const deleteMemory = async (id) => {
@@ -748,12 +841,12 @@ export default function TravelAgent() {
 
   const sendFriendRequest = async (targetUserId) => {
     await supabase.from('friendships').insert({ requester_id: userId, addressee_id: targetUserId, status: 'pending' });
-    showToast("✓ Demande envoyée !"); setSearchResults([]); setSearchQuery(""); await loadFriends(userId);
+    showToast(t.toastFriend); setSearchResults([]); setSearchQuery(""); await loadFriends(userId);
   };
 
   const acceptFriend = async (friendshipId) => {
     await supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId);
-    showToast("✓ Ami ajouté !"); await loadFriends(userId);
+    showToast(t.toastFriendAdded); await loadFriends(userId);
   };
 
   const declineFriend = async (friendshipId) => {
@@ -826,8 +919,8 @@ export default function TravelAgent() {
     const allMems = [...memories,...friendMemories];
     const candidates = allMems
       .filter(m=>m.rating>=4)
-      .filter(m=>recoType==="Tous"||m.type===recoType)
-      .filter(m=>recoPrice==="Tous"||m.price===recoPrice)
+      .filter(m=>recoType===t.filterAll||m.type===recoType)
+      .filter(m=>recoPrice===t.filterAll||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
 
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
@@ -935,13 +1028,13 @@ IMPORTANT RULES:
   const addRecoToCarnet = async (reco) => {
     const entry = { name:reco.name, type:reco.type||recoType, price:reco.price||"€€", city:"", country:"", rating:0, likeTags:[], dislikeTags:[], why:"", dislike:"", kidsf:false, id:Date.now(), ts:Date.now(), user_id:userId };
     const { error } = await supabase.from('memories').insert(entry);
-    if (!error) { setMemories(prev=>[entry,...prev]); showToast("✓ Ajouté à vos coups de cœur !"); }
+    if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastAdded); }
   };
 
   const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
-    if (filterType!=="Tous"&&m.type!==filterType) return false;
-    if (filterPrice!=="Tous"&&m.price!==filterPrice) return false;
-    if (filterRating!=="Tous"&&m.rating<parseInt(filterRating)) return false;
+    if (filterType!==t.filterAll&&m.type!==filterType) return false;
+    if (filterPrice!==t.filterAll&&m.price!==filterPrice) return false;
+    if (filterRating!==t.filterAll&&m.rating<parseInt(filterRating)) return false;
     if (filterKids&&!m.kidsf) return false;
     return true;
   });
@@ -959,38 +1052,38 @@ IMPORTANT RULES:
               <div className="header-logo">Outsy <span>AI</span></div>
               <div className="header-user">{displayName}</div>
             </div>
-            <button className="logout-btn" onClick={logout}>Déconnexion</button>
+            <button className="logout-btn" onClick={logout}>{t.logout}</button>
           </div>
           <div className="tabs" style={{marginTop:12}}>
-            <button className={`tab ${tab==="reco"?"active":""}`} onClick={()=>setTab("reco")}>Reco ✨</button>
-            <button className={`tab ${tab==="memories"?"active":""}`} onClick={()=>setTab("memories")}>❤️ Favoris</button>
-            <button className={`tab ${tab==="add"?"active":""}`} onClick={()=>setTab("add")}>+ Ajouter</button>
+            <button className={`tab ${tab==="reco"?"active":""}`} onClick={()=>setTab("reco")}>{t.tabReco}</button>
+            <button className={`tab ${tab==="memories"?"active":""}`} onClick={()=>setTab("memories")}>{t.tabFavorites}</button>
+            <button className={`tab ${tab==="add"?"active":""}`} onClick={()=>setTab("add")}>{t.tabAdd}</button>
             <button className={`tab ${tab==="friends"?"active":""}`} onClick={()=>setTab("friends")}>
-              👥 Amis {pendingIn.length>0&&<span className="notif-badge">{pendingIn.length}</span>}
+              {t.tabFriends} {pendingIn.length>0&&<span className="notif-badge">{pendingIn.length}</span>}
             </button>
-            <button className={`tab ${tab==="prefs"?"active":""}`} onClick={()=>setTab("prefs")}>Profil</button>
+            <button className={`tab ${tab==="prefs"?"active":""}`} onClick={()=>setTab("prefs")}>{t.tabProfile}</button>
           </div>
         </div>
 
         <div className="content">
-          {loading && <div className="loading-overlay">Chargement... ✈️</div>}
+          {loading && <div className="loading-overlay">{t.loading}</div>}
 
           {!loading && tab === "add" && <MemoryForm onSave={handleAdd} />}
 
           {!loading && tab === "memories" && (
             <div>
               <div style={{marginBottom:12}}>
-                <div className="filters-row"><span className="filter-label">Type</span>{["Tous",...TYPES].map(t=><button key={t} className={`filter-btn ${filterType===t?"active":""}`} onClick={()=>setFilterType(t)}>{t==="Tous"?"Tous":`${TYPE_ICONS[t]} ${t}`}</button>)}</div>
-                <div className="filters-row"><span className="filter-label">Prix</span>{["Tous",...PRICES].map(p=><button key={p} className={`filter-btn ${filterPrice===p?"active":""}`} onClick={()=>setFilterPrice(p)}>{p}</button>)}</div>
-                <div className="filters-row"><span className="filter-label">Note</span>{["Tous","1","2","3","4","5"].map(r=><button key={r} className={`filter-btn ${filterRating===r?"active":""}`} onClick={()=>setFilterRating(r)}>{r==="Tous"?"Tous":`${r}★+`}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterType}</span>{[t.filterAll,...TYPES].map(v=><button key={v} className={`filter-btn ${filterType===v?"active":""}`} onClick={()=>setFilterType(v)}>{v===t.filterAll?t.filterAll:`${TYPE_ICONS[v]} ${v}`}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[t.filterAll,...PRICES].map(p=><button key={p} className={`filter-btn ${filterPrice===p?"active":""}`} onClick={()=>setFilterPrice(p)}>{p}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[t.filterAll,"1","2","3","4","5"].map(r=><button key={r} className={`filter-btn ${filterRating===r?"active":""}`} onClick={()=>setFilterRating(r)}>{r===t.filterAll?t.filterAll:`${r}★+`}</button>)}</div>
                 <div className="filters-row">
-                  <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>👶 Kids friendly</button>
-                  {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>👥 Amis</button>}
+                  <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>{t.filterKids}</button>
+                  {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>{t.filterFriends}</button>}
                 </div>
               </div>
               <div className="memory-list">
                 {filteredMemories.length===0?(
-                  <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?"Aucun coup de cœur encore":"Aucun résultat"}</div><div className="empty-sub">{memories.length===0?"Commencez par ajouter un lieu":"Essayez d'autres filtres"}</div></div>
+                  <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
                 ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory}/>)}
               </div>
             </div>
@@ -1001,11 +1094,11 @@ IMPORTANT RULES:
               {viewingFriend && (
                 <div className="friend-panel">
                   <div className="friend-panel-header">
-                    <div className="friend-panel-title">❤️ Coups de cœur de {viewingFriend.name}</div>
+                    <div className="friend-panel-title">{t.friendsHeartTitle} {viewingFriend.name}</div>
                     <button className="friend-panel-close" onClick={()=>setViewingFriend(null)}>✕</button>
                   </div>
                   {viewingFriend.memories.length===0?(
-                    <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} n'a pas encore de coups de cœur.</div>
+                    <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} {t.friendsNoHeart}</div>
                   ):(
                     <div className="memory-list">
                       {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} onEdit={()=>{}} onDelete={()=>{}}/>)}
@@ -1016,21 +1109,21 @@ IMPORTANT RULES:
 
               {pendingIn.length>0&&(
                 <div>
-                  <div className="friends-title" style={{marginBottom:10}}>🔔 Demandes reçues</div>
+                  <div className="friends-title" style={{marginBottom:10}}>{t.friendsRequests}</div>
                   {pendingIn.map(f=>(
                     <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                       <div className="friend-info"><div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div><div className="friend-email">{f.profiles?.email}</div></div>
-                      <div><button className="friend-action-btn accept" onClick={()=>acceptFriend(f.id)}>✓</button><button className="friend-action-btn decline" onClick={()=>declineFriend(f.id)}>✕</button></div>
+                      <div><button className="friend-action-btn accept" onClick={()=>acceptFriend(f.id)}>{t.friendsAccept}</button><button className="friend-action-btn decline" onClick={()=>declineFriend(f.id)}>✕</button></div>
                     </div>
                   ))}
                 </div>
               )}
 
               <div>
-                <div className="friends-title" style={{marginBottom:10}}>🔍 Ajouter un ami</div>
+                <div className="friends-title" style={{marginBottom:10}}>{t.friendsSearch}</div>
                 <div className="friend-search-row">
-                  <input className="friend-search-input" placeholder="Email de votre ami..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()}/>
-                  <button className="friend-search-btn" onClick={searchFriends}>Chercher</button>
+                  <input className="friend-search-input" placeholder={t.friendsSearchPlaceholder} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()}/>
+                  <button className="friend-search-btn" onClick={searchFriends}>{t.friendsSearchBtn}</button>
                 </div>
                 {searchResults.length>0&&(
                   <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:8}}>
@@ -1040,7 +1133,7 @@ IMPORTANT RULES:
                       return (
                         <div key={u.user_id} className="friend-card">
                           <div className="friend-info"><div className="friend-name">{u.first_name} {u.last_name}</div><div className="friend-email">{u.email}</div></div>
-                          {alreadyFriend?<span className="friend-action-btn pending">Déjà ami</span>:pendingSent?<span className="friend-action-btn pending">Envoyée</span>:<button className="friend-action-btn add" onClick={()=>sendFriendRequest(u.user_id)}>+ Ajouter</button>}
+                          {alreadyFriend?<span className="friend-action-btn pending">{t.friendsAlready}</span>:pendingSent?<span className="friend-action-btn pending">{t.friendsSent}</span>:<button className="friend-action-btn add" onClick={()=>sendFriendRequest(u.user_id)}>{t.friendsAdd}</button>}
                         </div>
                       );
                     })}
@@ -1049,21 +1142,21 @@ IMPORTANT RULES:
               </div>
 
               <div>
-                <div className="friends-title" style={{marginBottom:10}}>👥 Mes amis ({friends.length})</div>
-                {friends.length===0?<div className="empty-friends">Aucun ami pour l'instant.</div>:friends.map(f=>(
+                <div className="friends-title" style={{marginBottom:10}}>{t.friendsList} ({friends.length})</div>
+                {friends.length===0?<div className="empty-friends">{t.friendsNone}</div>:friends.map(f=>(
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                     <div className="friend-info">
                       <div className="friend-name">{f.profile?.first_name} {f.profile?.last_name}</div>
                       <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} coups de cœur</div>
                     </div>
-                    <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>Voir ❤️</button>
+                    <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>{t.friendsView}</button>
                   </div>
                 ))}
               </div>
 
               {pendingOut.length>0&&(
                 <div>
-                  <div className="friends-title" style={{marginBottom:10,fontSize:14}}>⏳ En attente</div>
+                  <div className="friends-title" style={{marginBottom:10,fontSize:14}}>{t.friendsPending}</div>
                   {pendingOut.map(f=>(
                     <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                       <div className="friend-info"><div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div></div>
@@ -1078,76 +1171,76 @@ IMPORTANT RULES:
           {!loading && tab === "prefs" && (
             <div className="prefs-section">
               <div className="prefs-card">
-                <div className="prefs-card-title">👤 Mon identité</div>
+                <div className="prefs-card-title">{t.profileIdentity}</div>
                 <div className="row-2">
-                  <div className="field"><label>Prénom</label><input placeholder="Brice" value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
-                  <div className="field"><label>Nom</label><input placeholder="Dupont" value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
+                  <div className="field"><label>{t.profileFirstName}</label><input placeholder="Brice" value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
+                  <div className="field"><label>{t.profileLastName}</label><input placeholder="Dupont" value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
                 </div>
               </div>
               <div className="prefs-card">
-                <div className="prefs-card-title">🌍 Langue préférée</div>
+                <div className="prefs-card-title">{t.profileLanguage}</div>
                 <div className="field">
-                  <label>Langue de l'interface et des recommandations</label>
+                  <label>{t.profileLanguageLabel}</label>
                   <select value={prefs.language||"en"} onChange={e=>setPrefs(p=>({...p,language:e.target.value}))}>
                     {LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.label}</option>)}
                   </select>
                 </div>
               </div>
               <div className="prefs-card">
-                <div className="prefs-card-title">✨ Ce que j'aime</div>
+                <div className="prefs-card-title">{t.profileLikes}</div>
                 <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_OPTIONS} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
                 <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
-                <div className="field"><label>Budget habituel</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">Non renseigné</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+                <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
               </div>
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
-                <div className="prefs-card-title bad">🚫 Ce que j'évite</div>
+                <div className="prefs-card-title bad">{t.profileDislikes}</div>
                 <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={PREFS_HATES_OPTIONS} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
                 <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
               </div>
               <div className="prefs-card">
-                <div className="prefs-card-title">📝 Notes libres</div>
-                <div className="field"><label>Autres infos</label><textarea placeholder="Ex: Je voyage souvent en couple..." value={prefs.notes} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:70}}/></div>
+                <div className="prefs-card-title">{t.profileNotes}</div>
+                <div className="field"><label>{t.profileNotesLabel}</label><textarea placeholder="..." value={prefs.notes} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:70}}/></div>
               </div>
-              <button className="prefs-save-btn" onClick={savePrefs}>Sauvegarder mon profil</button>
-              {prefsSaved&&<div className="prefs-saved">✓ Profil enregistré</div>}
+              <button className="prefs-save-btn" onClick={savePrefs}>{t.profileSave}</button>
+              {prefsSaved&&<div className="prefs-saved">{t.profileSaved}</div>}
             </div>
           )}
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
               <div className="reco-location-card">
-                <div className="reco-location-title">📍 Localisation & paramètres</div>
+                <div className="reco-location-title">{t.recoLocation}</div>
                 <div className="location-row">
-                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);getGPS();}}>📍 Ma position</button>
-                  <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);}}>✏️ Saisir</button>
+                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);getGPS();}}>{t.recoGPS}</button>
+                  <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);}}>{t.recoManual}</button>
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
-                {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>Récupération de votre position...</div>}
+                {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
-                <div className="field"><label>Rayon de recherche</label><DistanceSlider value={distance} onChange={setDistance}/></div>
+                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
                 </div>
-                <div className="filters-row"><span className="filter-label">Prix</span>{["Tous",...PRICES].map(p=><button key={p} className={`filter-btn ${recoPrice===p?"active":""}`} onClick={()=>setRecoPrice(p)}>{p}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[t.filterAll,...PRICES].map(p=><button key={p} className={`filter-btn ${recoPrice===p?"active":""}`} onClick={()=>setRecoPrice(p)}>{p}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
                 <button className="reco-btn" onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
-                  {geocoding?"Localisation...":heartLoading||aiLoading?"Recherche en cours...":"🔍 Trouver des lieux"}
+                  {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
                 </button>
               </div>
 
-              {(heartMemories.length>0||nearbyPlaces.length>0)&&(
+              {(heartMemories.length>0||nearbyPlaces.length>0)?(
                 <div className="reco-block">
-                  <div className="reco-block-title">❤️ Coups de cœur<span>Vos favoris & amis</span></div>
+                  <div className="reco-block-title">{t.recoHearts}<span>{t.recoHeartsNear}</span></div>
                   {heartMemories.length>0&&(
                     <div>
-                      <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Dans votre carnet</div>
+                      <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
                       <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory}/>)}</div>
                     </div>
                   )}
                   {nearbyPlaces.length>0&&(
                     <div style={{marginTop:heartMemories.length>0?16:0}}>
-                      <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Lieux populaires à proximité</div>
+                      <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoNearby}</div>
                       <div style={{display:"flex",flexDirection:"column",gap:10}}>
                         {nearbyPlaces.map((p,i)=>(
                           <div key={i} className="nearby-card">
@@ -1158,8 +1251,8 @@ IMPORTANT RULES:
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
-                              <a href={`https://maps.google.com/?q=${encodeURIComponent(p.address||p.name)}`} target="_blank" rel="noopener noreferrer" className="maps-link">Voir sur Maps →</a>
-                              <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>+ Ajouter</button>
+                              <a href={`https://maps.google.com/?q=${encodeURIComponent(p.address||p.name)}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
+                              <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
                             </div>
                           </div>
                         ))}
@@ -1200,13 +1293,13 @@ IMPORTANT RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>Maps →</a>
+                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
-                              <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet(reco)}>+ Ajouter à mes coups de cœur</button>
+                              <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet(reco)}>{t.recoAddFav}</button>
                             </div>
                           </div>
                         ))}
@@ -1223,7 +1316,7 @@ IMPORTANT RULES:
       {editMemory&&(
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-title">✏️ Modifier {editMemory.name}</div>
+            <div className="modal-title">{t.editTitle} {editMemory.name}</div>
             <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true}/>
           </div>
         </div>
@@ -1232,11 +1325,11 @@ IMPORTANT RULES:
       {duplicateAlert&&(
         <div className="alert-overlay">
           <div className="alert-box">
-            <div className="alert-title">📍 Lieu déjà existant</div>
-            <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> est déjà dans vos coups de cœur. Mettre à jour ?</div>
+            <div className="alert-title">{t.duplicateTitle}</div>
+            <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> {t.duplicateText}</div>
             <div className="alert-actions">
-              <button className="modal-btn secondary" onClick={()=>setDuplicateAlert(null)}>Annuler</button>
-              <button className="modal-btn primary" onClick={handleDuplicateUpdate}>Mettre à jour</button>
+              <button className="modal-btn secondary" onClick={()=>setDuplicateAlert(null)}>{t.duplicateCancel}</button>
+              <button className="modal-btn primary" onClick={handleDuplicateUpdate}>{t.duplicateUpdate}</button>
             </div>
           </div>
         </div>
