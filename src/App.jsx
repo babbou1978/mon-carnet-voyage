@@ -8,6 +8,7 @@ const TYPE_ICONS = { "Restaurant": "🍽️", "Hôtel": "🏨", "Bar / Café": "
 const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Bar / Café", bar: "Bar / Café", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", museum: "Activité", park: "Activité", amusement_park: "Activité", night_club: "Bar / Café", bakery: "Restaurant", food: "Restaurant" };
 const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
+const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
 const DISTANCE_LABELS = ["100m", "500m", "1km", "2km", "5km", "10km"];
 
 const LIKES_BY_TYPE = {
@@ -927,15 +928,15 @@ export default function TravelAgent() {
   const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
 
   // Filtres coups de coeur
-  const [filterType, setFilterType] = useState("Tous");
-  const [filterPrice, setFilterPrice] = useState("Tous");
-  const [filterRating, setFilterRating] = useState("Tous");
+  const [filterType, setFilterType] = useState(ALL);
+  const [filterPrice, setFilterPrice] = useState(ALL);
+  const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
   const [showFriendMems, setShowFriendMems] = useState(true);
 
   // Reco
   const [recoType, setRecoType] = useState("Restaurant");
-  const [recoPrice, setRecoPrice] = useState("Tous");
+  const [recoPrice, setRecoPrice] = useState(ALL);
   const [recoKids, setRecoKids] = useState(false);
   const [distance, setDistance] = useState(1000);
   const [locMode, setLocMode] = useState("free");
@@ -1126,10 +1127,11 @@ export default function TravelAgent() {
     const allMems = [...memories,...friendMemories];
     const candidates = allMems
       .filter(m=>m.rating>=4)
-      .filter(m=>recoType===t.filterAll||m.type===recoType)
-      .filter(m=>recoPrice===t.filterAll||m.price===recoPrice)
+      .filter(m=>recoType===ALL||m.type===recoType)
+      .filter(m=>recoPrice===ALL||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
 
+    // Show all favorites sorted by rating — distance filter is best-effort
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
     try {
       const toGeocode = candidates.filter(m=>m.city||m.name);
@@ -1142,32 +1144,32 @@ export default function TravelAgent() {
         const coordsMap = {};
         (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[r.id]={lat:r.lat,lng:r.lng}; });
 
-        // Attacher les coords et distances
-        const withDist = heartMems.map(m=>{
+        heartMems = heartMems.map(m=>{
           const c = coordsMap[m.id];
           if (c) {
             const distKm = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
             return {...m, _lat:c.lat, _lng:c.lng, distanceKm: distKm};
           }
-          return m; // pas de coords → on garde quand même
+          return m;
         });
 
-        // Séparer ceux dans le rayon et ceux sans coords
-        const inRadius = withDist.filter(m=>m.distanceKm!==undefined && m.distanceKm*1000<=distance);
-        const noCoords = withDist.filter(m=>m.distanceKm===undefined);
-
-        // Si on a des résultats dans le rayon → on les affiche
-        // Sinon on affiche tous (cas où geocoding a échoué)
-        heartMems = inRadius.length > 0
-          ? inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating)
-          : withDist.sort((a,b)=>b.rating-a.rating);
+        // Only filter by distance if we got coords for at least some places
+        const withCoords = heartMems.filter(m=>m.distanceKm!==undefined);
+        if (withCoords.length > 0) {
+          const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
+          const noCoords = heartMems.filter(m=>m.distanceKm===undefined);
+          heartMems = [...inRadius, ...noCoords].sort((a,b)=>(a.distanceKm||999)-(b.distanceKm||999)||b.rating-a.rating);
+        } else {
+          heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
+        }
       } else {
         heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
       }
     } catch {
+      // On error always show all favorites
       heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
     }
-    setHeartMemories(heartMems.slice(0,8));
+    setHeartMemories(heartMems.slice(0,10));
 
     // Nearby Google Places
     try {
@@ -1239,9 +1241,9 @@ IMPORTANT RULES:
   };
 
   const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
-    if (filterType!==t.filterAll&&m.type!==filterType) return false;
-    if (filterPrice!==t.filterAll&&m.price!==filterPrice) return false;
-    if (filterRating!==t.filterAll&&m.rating<parseInt(filterRating)) return false;
+    if (filterType!==ALL&&m.type!==filterType) return false;
+    if (filterPrice!==ALL&&m.price!==filterPrice) return false;
+    if (filterRating!==ALL&&m.rating<parseInt(filterRating)) return false;
     if (filterKids&&!m.kidsf) return false;
     return true;
   });
@@ -1280,9 +1282,9 @@ IMPORTANT RULES:
           {!loading && tab === "memories" && (
             <div>
               <div style={{marginBottom:12}}>
-                <div className="filters-row"><span className="filter-label">{t.filterType}</span>{[t.filterAll,...TYPES].map(v=><button key={v} className={`filter-btn ${filterType===v?"active":""}`} onClick={()=>setFilterType(v)}>{v===t.filterAll?t.filterAll:`${TYPE_ICONS[v]} ${v}`}</button>)}</div>
-                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[t.filterAll,...PRICES].map(p=><button key={p} className={`filter-btn ${filterPrice===p?"active":""}`} onClick={()=>setFilterPrice(p)}>{p}</button>)}</div>
-                <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[t.filterAll,"1","2","3","4","5"].map(r=><button key={r} className={`filter-btn ${filterRating===r?"active":""}`} onClick={()=>setFilterRating(r)}>{r===t.filterAll?t.filterAll:`${r}★+`}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterType}</span>{[[ALL,t.filterAll],...TYPES.map(x=>[x,x])].map(([val,label])=><button key={val} className={`filter-btn ${filterType===val?"active":""}`} onClick={()=>setFilterType(val)}>{val===ALL?t.filterAll:`${TYPE_ICONS[val]} ${val}`}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${filterPrice===val?"active":""}`} onClick={()=>setFilterPrice(val)}>{label}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[[ALL,t.filterAll],["1","1"],["2","2"],["3","3"],["4","4"],["5","5"]].map(([val,label])=><button key={val} className={`filter-btn ${filterRating===val?"active":""}`} onClick={()=>setFilterRating(val)}>{val===ALL?t.filterAll:`${val}★+`}</button>)}</div>
                 <div className="filters-row">
                   <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>{t.filterKids}</button>
                   {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>{t.filterFriends}</button>}
@@ -1429,7 +1431,7 @@ IMPORTANT RULES:
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
                 </div>
-                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[t.filterAll,...PRICES].map(p=><button key={p} className={`filter-btn ${recoPrice===p?"active":""}`} onClick={()=>setRecoPrice(p)}>{p}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
                 <button className="reco-btn" onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
                   {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
