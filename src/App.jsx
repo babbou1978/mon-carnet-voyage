@@ -1160,10 +1160,10 @@ export default function TravelAgent() {
         });
         const geoData = await geoRes.json();
         const coordsMap = {};
-        (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[r.id]={lat:r.lat,lng:r.lng}; });
+        (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[String(r.id)]={lat:r.lat,lng:r.lng}; });
 
         heartMems = heartMems.map(m=>{
-          const c = coordsMap[m.id];
+          const c = coordsMap[String(m.id)];
           if (c) {
             const distKm = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
             return {...m, _lat:c.lat, _lng:c.lng, distanceKm: distKm};
@@ -1175,8 +1175,9 @@ export default function TravelAgent() {
         const withCoords = heartMems.filter(m=>m.distanceKm!==undefined);
         if (withCoords.length > 0) {
           const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
-          const noCoords = heartMems.filter(m=>m.distanceKm===undefined);
-          heartMems = [...inRadius, ...noCoords].sort((a,b)=>(a.distanceKm||999)-(b.distanceKm||999)||b.rating-a.rating);
+          console.log("In radius:", inRadius.length, "of", withCoords.length, "distance:", distance);
+          // Don't include places without coords - they could be anywhere
+          heartMems = inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating);
         } else {
           heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
         }
