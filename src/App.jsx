@@ -417,6 +417,112 @@ function GoogleMap({ recommendations }) {
   return <div ref={mapRef} className="global-map-container" />;
 }
 
+
+// Autocomplete spécial pour la localisation Reco — retourne aussi les coordonnées GPS
+function RecoPlaceSearch({ onPlaceSelected }) {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const timerRef = useRef(null);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const search = useCallback(async (val) => {
+    if (val.length < 2) { setSuggestions([]); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val }) });
+      const data = await res.json();
+      setSuggestions(data.suggestions||[]);
+      setShowDropdown(true);
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  const handleInput = (e) => {
+    const val = e.target.value;
+    setQuery(val); setSelected(null);
+    if (!val) { onPlaceSelected(null); return; }
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => search(val), 350);
+  };
+
+  const selectPlace = async (suggestion) => {
+    const placeId = suggestion.placePrediction?.placeId;
+    const mainText = suggestion.placePrediction?.structuredFormat?.mainText?.text || "";
+    const secondaryText = suggestion.placePrediction?.structuredFormat?.secondaryText?.text || "";
+    const fullLabel = `${mainText}${secondaryText ? ", " + secondaryText : ""}`;
+    setQuery(fullLabel); setShowDropdown(false); setSuggestions([]);
+
+    try {
+      // Récupérer les coords via details
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
+      const details = await res.json();
+      const lat = details.location?.latitude;
+      const lng = details.location?.longitude;
+      if (lat && lng) {
+        setSelected({ address: fullLabel, lat, lng });
+        onPlaceSelected({ address: fullLabel, lat, lng });
+        return;
+      }
+    } catch {}
+
+    // Fallback: géocoder via l'API geocode
+    try {
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "geocode", input: fullLabel }) });
+      const data = await res.json();
+      if (data.lat) {
+        setSelected({ address: fullLabel, lat: data.lat, lng: data.lng });
+        onPlaceSelected({ address: fullLabel, lat: data.lat, lng: data.lng });
+        return;
+      }
+    } catch {}
+
+    setSelected({ address: fullLabel, lat: null, lng: null });
+    onPlaceSelected({ address: fullLabel, lat: null, lng: null });
+  };
+
+  const clear = () => { setQuery(""); setSelected(null); setSuggestions([]); onPlaceSelected(null); };
+
+  return (
+    <div className="autocomplete-wrapper" ref={wrapperRef}>
+      <div style={{position:"relative"}}>
+        <input
+          placeholder="Ex: 10 Downing Street London, Tour Eiffel Paris..."
+          value={query}
+          onChange={handleInput}
+          onFocus={()=>suggestions.length>0&&setShowDropdown(true)}
+          style={{background:COLORS.bg,border:`1px solid ${selected?COLORS.accent:COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans', sans-serif",fontSize:14,padding:"11px 14px",outline:"none",width:"100%",transition:"border-color 0.2s"}}
+        />
+        {selected&&<button onClick={clear} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16}}>✕</button>}
+      </div>
+      {selected&&<div style={{fontSize:11,color:COLORS.accent,marginTop:4}}>✓ {selected.lat?`Coordonnées : ${selected.lat.toFixed(4)}, ${selected.lng.toFixed(4)}`:"Adresse enregistrée"}</div>}
+      {showDropdown&&(loading||suggestions.length>0)&&(
+        <div className="autocomplete-dropdown">
+          {loading&&<div className="autocomplete-loading">Recherche...</div>}
+          {!loading&&suggestions.map((s,i)=>{
+            const main=s.placePrediction?.structuredFormat?.mainText?.text||"";
+            const secondary=s.placePrediction?.structuredFormat?.secondaryText?.text||"";
+            return (
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)}>
+                <div className="autocomplete-main">📍 {main}</div>
+                {secondary&&<div className="autocomplete-sub">{secondary}</div>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
 const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"" };
 
@@ -489,7 +595,7 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
 
 export default function TravelAgent() {
   const [session, setSession] = useState(undefined);
-  const [tab, setTab] = useState("add");
+  const [tab, setTab] = useState("reco");
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -671,17 +777,40 @@ export default function TravelAgent() {
     }
     setGeocoding(false);
 
-    // Coups de cœur
+    // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
     const allMems = [...memories,...friendMemories];
-    const heartMems = allMems
+    const candidates = allMems
       .filter(m=>m.rating>=4)
       .filter(m=>recoType==="Tous"||m.type===recoType)
       .filter(m=>recoPrice==="Tous"||m.price===recoPrice)
-      .filter(m=>!recoKids||m.kidsf)
-      .map(m=>({...m,isMine:!m.friendName}))
-      .sort((a,b)=>b.rating-a.rating)
-      .slice(0,8);
+      .filter(m=>!recoKids||m.kidsf);
+
+    // Géocoder les mémoires qui n'ont pas de coords
+    let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
+    try {
+      const toGeocode = candidates.filter(m=>!m._lat&&(m.city||m.name));
+      if (toGeocode.length>0) {
+        const geoRes = await fetch("/api/geocode-memories", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country})) })
+        });
+        const geoData = await geoRes.json();
+        const coordsMap = {};
+        (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[r.id]={lat:r.lat,lng:r.lng}; });
+        heartMems = heartMems.map(m=>{
+          const c = coordsMap[m.id];
+          if (c) {
+            const dist = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
+            return {...m, _lat:c.lat, _lng:c.lng, distanceKm: dist};
+          }
+          return m;
+        }).filter(m=>m.distanceKm===undefined||m.distanceKm*1000<=distance);
+      } else {
+        heartMems = heartMems.filter(m=>!m._lat||(calcDistance(coords.lat,coords.lng,m._lat,m._lng)*1000<=distance));
+      }
+    } catch {}
+    heartMems = heartMems.sort((a,b)=>(a.distanceKm||999)-(b.distanceKm||999)||b.rating-a.rating).slice(0,8);
     setHeartMemories(heartMems);
 
     // Nearby Google Places
@@ -774,15 +903,15 @@ RÈGLES IMPORTANTES :
             <button className="logout-btn" onClick={logout}>Déconnexion</button>
           </div>
           <div className="tabs" style={{marginTop:12}}>
-            <button className={`tab ${tab==="add"?"active":""}`} onClick={()=>setTab("add")}>+ Ajouter</button>
+            <button className={`tab ${tab==="reco"?"active":""}`} onClick={()=>setTab("reco")}>Reco ✨</button>
             <button className={`tab ${tab==="memories"?"active":""}`} onClick={()=>setTab("memories")}>
               Coups de cœur {memories.length>0&&<span className="count-badge">{memories.length}</span>}
             </button>
+            <button className={`tab ${tab==="add"?"active":""}`} onClick={()=>setTab("add")}>+ Ajouter</button>
             <button className={`tab ${tab==="friends"?"active":""}`} onClick={()=>setTab("friends")}>
               Amis {pendingIn.length>0&&<span className="notif-badge">{pendingIn.length}</span>}
             </button>
             <button className={`tab ${tab==="prefs"?"active":""}`} onClick={()=>setTab("prefs")}>Profil</button>
-            <button className={`tab ${tab==="reco"?"active":""}`} onClick={()=>setTab("reco")}>Reco ✨</button>
           </div>
         </div>
 
@@ -928,7 +1057,7 @@ RÈGLES IMPORTANTES :
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>Récupération de votre position...</div>}
-                {locMode==="free"&&<input className="inline-input" placeholder="Ex: 10 rue de Rivoli Paris, Tokyo..." value={freeLocation} onChange={e=>{setFreeLocation(e.target.value);setRecoCoords(null);}}/>}
+                {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>Rayon de recherche</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
