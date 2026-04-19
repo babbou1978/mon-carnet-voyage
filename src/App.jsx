@@ -128,7 +128,6 @@ function StarPicker({ value, onChange }) {
 const DEFAULT_FORM = { name: "", type: "Restaurant", price: "€€", city: "", country: "", rating: 0, why: "", dislike: "" };
 const DEFAULT_PREFS = { loves: "", hates: "", budget: "", notes: "" };
 
-// Stockage local (localStorage) pour la version web déployée
 const store = {
   get: (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } },
   set: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} },
@@ -149,17 +148,14 @@ export default function TravelAgent() {
   const [recoLoading, setRecoLoading] = useState(false);
 
   useEffect(() => {
-    const m = store.get(STORAGE_KEY);
-    if (m) setMemories(m);
-    const p = store.get(PREFS_KEY);
-    if (p) setPrefs(p);
+    const m = store.get(STORAGE_KEY); if (m) setMemories(m);
+    const p = store.get(PREFS_KEY); if (p) setPrefs(p);
   }, []);
 
   const saveMemories = (data) => store.set(STORAGE_KEY, data);
   const savePrefs = () => {
     store.set(PREFS_KEY, prefs);
-    setPrefsSaved(true);
-    setTimeout(() => setPrefsSaved(false), 2000);
+    setPrefsSaved(true); setTimeout(() => setPrefsSaved(false), 2000);
   };
 
   const addMemory = () => {
@@ -218,20 +214,21 @@ L'utilisateur cherche : un(e) **${recoType}** à **${location || "n'importe où"
 Propose 3 recommandations très personnalisées. Pour chaque lieu :
 - **Nom du lieu**
 - Type et fourchette de prix
-- Pourquoi ça correspond à ses goûts (cite ses références si pertinent)
+- Pourquoi ça correspond à ses goûts
 - Ce qu'il faut savoir par rapport à ses aversions
 - Un conseil pratique
 
 N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleureux, francophone.`;
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      // Appel via notre fonction serverless Vercel — la clé reste côté serveur
+      const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+        body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      setRecoResult(data.content?.map(b => b.text||"").join("") || "Erreur de réponse.");
+      setRecoResult(data.result || "Erreur de réponse.");
     } catch { setRecoResult("Une erreur est survenue."); }
     setRecoLoading(false);
   };
