@@ -1143,12 +1143,13 @@ export default function TravelAgent() {
     setHeartLoading(true);
     const allMems = [...memories,...friendMemories];
     const candidates = allMems
-      .filter(m=>m.rating>=4)
+      .filter(m=>m.rating>=3)
       .filter(m=>recoType===ALL||m.type===recoType)
       .filter(m=>recoPrice===ALL||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
 
     // Show all favorites sorted by rating — distance filter is best-effort
+    console.log("Heart candidates:", candidates.length, "memories:", memories.length, "friends:", friendMemories.length);
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
     try {
       const toGeocode = candidates.filter(m=>m.city||m.name);
