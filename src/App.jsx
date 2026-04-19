@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase.js";
 import Auth from "./Auth.jsx";
 
@@ -7,6 +7,21 @@ const PRICES = ["€", "€€", "€€€", "€€€€"];
 const TYPE_ICONS = {
   "Restaurant": "🍽️", "Hôtel": "🏨", "Bar / Café": "☕",
   "Destination": "🗺️", "Activité": "🎯",
+};
+
+// Mapping Google types → nos types
+const GOOGLE_TYPE_MAP = {
+  restaurant: "Restaurant", cafe: "Bar / Café", bar: "Bar / Café",
+  lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination",
+  museum: "Activité", park: "Activité", amusement_park: "Activité",
+  night_club: "Bar / Café", bakery: "Restaurant", food: "Restaurant",
+};
+
+// Mapping Google priceLevel → nos prix
+const PRICE_MAP = {
+  PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€",
+  PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€",
+  PRICE_LEVEL_VERY_EXPENSIVE: "€€€€",
 };
 
 const COLORS = {
@@ -33,12 +48,35 @@ const css = `
   .tab.active { background: ${COLORS.accent}; color: #0f0e0c; }
   .content { flex: 1; padding: 20px 24px; overflow-y: auto; }
   .form-section { display: flex; flex-direction: column; gap: 14px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field { display: flex; flex-direction: column; gap: 6px; position: relative; }
   .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: ${COLORS.muted}; font-weight: 500; }
   .field input, .field textarea, .field select { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%; }
   .field input:focus, .field textarea:focus { border-color: ${COLORS.accent}; }
   .field textarea { resize: none; min-height: 76px; line-height: 1.5; }
   .field select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8070' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  /* Autocomplétion */
+  .autocomplete-wrapper { position: relative; }
+  .autocomplete-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+    background: #222018; border: 1px solid ${COLORS.accent}44;
+    border-radius: 8px; margin-top: 4px; overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .autocomplete-item {
+    padding: 11px 14px; cursor: pointer; transition: background 0.15s;
+    border-bottom: 1px solid ${COLORS.border};
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover { background: ${COLORS.accent}18; }
+  .autocomplete-main { font-size: 14px; color: ${COLORS.text}; }
+  .autocomplete-sub { font-size: 11px; color: ${COLORS.muted}; margin-top: 2px; }
+  .autocomplete-loading { padding: 11px 14px; font-size: 12px; color: ${COLORS.muted}; text-align: center; }
+
+  .place-filled { border-color: ${COLORS.accent} !important; background: ${COLORS.accent}08 !important; }
+  .place-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: ${COLORS.accent}; margin-top: 4px; }
+  .clear-btn { background: none; border: none; color: ${COLORS.muted}; cursor: pointer; font-size: 13px; padding: 0 4px; }
+
   .price-selector { display: flex; gap: 8px; }
   .price-btn { flex: 1; padding: 10px 4px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
@@ -129,11 +167,137 @@ function StarPicker({ value, onChange }) {
   );
 }
 
+// Composant d'autocomplétion de lieu
+function PlaceSearch({ onPlaceSelected }) {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const timerRef = useRef(null);
+  const wrapperRef = useRef(null);
+
+  // Fermer dropdown si clic dehors
+  useEffect(() => {
+    const handler = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const search = useCallback(async (val) => {
+    if (val.length < 2) { setSuggestions([]); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "autocomplete", input: val }),
+      });
+      const data = await res.json();
+      setSuggestions(data.suggestions || []);
+      setShowDropdown(true);
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  const handleInput = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    setSelectedPlace(null);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => search(val), 350);
+  };
+
+  const selectPlace = async (suggestion) => {
+    const placeId = suggestion.placePrediction?.placeId;
+    const mainText = suggestion.placePrediction?.structuredFormat?.mainText?.text || "";
+    const secondaryText = suggestion.placePrediction?.structuredFormat?.secondaryText?.text || "";
+    setQuery(mainText);
+    setShowDropdown(false);
+    setSuggestions([]);
+
+    // Récupérer les détails
+    try {
+      const res = await fetch("/api/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "details", placeId }),
+      });
+      const details = await res.json();
+
+      // Extraire ville et pays
+      const components = details.addressComponents || [];
+      const city = components.find(c => c.types?.includes("locality"))?.longText ||
+                   components.find(c => c.types?.includes("administrative_area_level_1"))?.longText || "";
+      const country = components.find(c => c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
+
+      // Deviner le type
+      const googleTypes = details.types || [];
+      let type = "Restaurant";
+      for (const gt of googleTypes) {
+        if (GOOGLE_TYPE_MAP[gt]) { type = GOOGLE_TYPE_MAP[gt]; break; }
+      }
+
+      // Deviner le prix
+      const price = PRICE_MAP[details.priceLevel] || "€€";
+
+      const place = { name: mainText, city, country, type, price };
+      setSelectedPlace(place);
+      onPlaceSelected(place);
+    } catch {
+      // Si erreur, utiliser juste le nom
+      const parts = secondaryText.split(",");
+      onPlaceSelected({ name: mainText, city: parts[0]?.trim() || "", country: parts[parts.length-1]?.trim() || "", type: "Restaurant", price: "€€" });
+    }
+  };
+
+  const clear = () => {
+    setQuery(""); setSelectedPlace(null); setSuggestions([]);
+    onPlaceSelected(null);
+  };
+
+  return (
+    <div className="autocomplete-wrapper" ref={wrapperRef}>
+      <div style={{ position: "relative" }}>
+        <input
+          className={selectedPlace ? "place-filled" : ""}
+          placeholder="Ex: Le Comptoir du Relais, Rome..."
+          value={query}
+          onChange={handleInput}
+          onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+          style={{ background: COLORS.card, border: `1px solid ${selectedPlace ? COLORS.accent : COLORS.border}`, borderRadius: 8, color: COLORS.text, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: "11px 14px", outline: "none", width: "100%", transition: "border-color 0.2s" }}
+        />
+        {selectedPlace && (
+          <button onClick={clear} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: COLORS.muted, cursor: "pointer", fontSize: 16 }}>✕</button>
+        )}
+      </div>
+      {selectedPlace && (
+        <div className="place-badge">✓ {selectedPlace.city}{selectedPlace.country ? `, ${selectedPlace.country}` : ""} • {selectedPlace.type} • {selectedPlace.price}</div>
+      )}
+      {showDropdown && (loading || suggestions.length > 0) && (
+        <div className="autocomplete-dropdown">
+          {loading && <div className="autocomplete-loading">Recherche...</div>}
+          {!loading && suggestions.map((s, i) => {
+            const main = s.placePrediction?.structuredFormat?.mainText?.text || "";
+            const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text || "";
+            return (
+              <div key={i} className="autocomplete-item" onMouseDown={() => selectPlace(s)}>
+                <div className="autocomplete-main">📍 {main}</div>
+                {secondary && <div className="autocomplete-sub">{secondary}</div>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const DEFAULT_FORM = { name: "", type: "Restaurant", price: "€€", city: "", country: "", rating: 0, why: "", dislike: "" };
 const DEFAULT_PREFS = { loves: "", hates: "", budget: "", notes: "" };
 
 export default function TravelAgent() {
-  const [session, setSession] = useState(undefined); // undefined = chargement
+  const [session, setSession] = useState(undefined);
   const [tab, setTab] = useState("add");
   const [memories, setMemories] = useState([]);
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
@@ -148,16 +312,12 @@ export default function TravelAgent() {
   const [recoResult, setRecoResult] = useState("");
   const [recoLoading, setRecoLoading] = useState(false);
 
-  // Gérer la session auth
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
-  // Charger les données quand connecté
   useEffect(() => {
     if (!session) return;
     const load = async () => {
@@ -172,10 +332,15 @@ export default function TravelAgent() {
     load();
   }, [session]);
 
-  if (session === undefined) return null; // chargement initial
+  if (session === undefined) return null;
   if (!session) return <Auth />;
 
   const userId = session.user.id;
+
+  const handlePlaceSelected = (place) => {
+    if (!place) { setForm(DEFAULT_FORM); return; }
+    setForm(f => ({ ...f, name: place.name, city: place.city, country: place.country, type: place.type, price: place.price }));
+  };
 
   const addMemory = async () => {
     if (!form.name.trim()) return;
@@ -291,49 +456,52 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
             <div className="form-section">
               <div className="field">
                 <label>Nom du lieu</label>
-                <input placeholder="Ex: Le Comptoir du Relais" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
+                <PlaceSearch onPlaceSelected={handlePlaceSelected} />
               </div>
-              <div className="row-2">
-                <div className="field">
-                  <label>Type</label>
-                  <select value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value}))}>
-                    {TYPES.map(t => <option key={t}>{t}</option>)}
-                  </select>
-                </div>
-                <div className="field">
-                  <label>Prix</label>
-                  <div className="price-selector">
-                    {PRICES.map(p => (
-                      <button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={() => setForm(f => ({...f, price: p}))}>{p}</button>
-                    ))}
+
+              {form.name && <>
+                <div className="row-2">
+                  <div className="field">
+                    <label>Type</label>
+                    <select value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value}))}>
+                      {TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Prix</label>
+                    <div className="price-selector">
+                      {PRICES.map(p => (
+                        <button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={() => setForm(f => ({...f, price: p}))}>{p}</button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="row-2">
-                <div className="field">
-                  <label>Ville</label>
-                  <input placeholder="Paris" value={form.city} onChange={e => setForm(f => ({...f, city: e.target.value}))} />
+                <div className="row-2">
+                  <div className="field">
+                    <label>Ville</label>
+                    <input placeholder="Paris" value={form.city} onChange={e => setForm(f => ({...f, city: e.target.value}))} />
+                  </div>
+                  <div className="field">
+                    <label>Pays</label>
+                    <input placeholder="France" value={form.country} onChange={e => setForm(f => ({...f, country: e.target.value}))} />
+                  </div>
                 </div>
                 <div className="field">
-                  <label>Pays</label>
-                  <input placeholder="France" value={form.country} onChange={e => setForm(f => ({...f, country: e.target.value}))} />
+                  <label>Note globale</label>
+                  <StarPicker value={form.rating} onChange={v => setForm(f => ({...f, rating: v}))} />
                 </div>
-              </div>
-              <div className="field">
-                <label>Note globale</label>
-                <StarPicker value={form.rating} onChange={v => setForm(f => ({...f, rating: v}))} />
-              </div>
-              <div className="section-divider"><span>Ce que j'ai aimé</span></div>
-              <div className="field">
-                <label>Pourquoi j'ai aimé</label>
-                <textarea placeholder="L'ambiance, la cuisine, le service, la déco..." value={form.why} onChange={e => setForm(f => ({...f, why: e.target.value}))} />
-              </div>
-              <div className="section-divider"><span>Ce que j'ai moins aimé</span></div>
-              <div className="field dislike-field">
-                <label>Ce que j'ai moins aimé</label>
-                <textarea placeholder="Le bruit, le service lent, les portions, le quartier..." value={form.dislike} onChange={e => setForm(f => ({...f, dislike: e.target.value}))} />
-              </div>
-              <button className="save-btn" onClick={addMemory} disabled={!form.name.trim()}>Enregistrer ce souvenir</button>
+                <div className="section-divider"><span>Ce que j'ai aimé</span></div>
+                <div className="field">
+                  <label>Pourquoi j'ai aimé</label>
+                  <textarea placeholder="L'ambiance, la cuisine, le service, la déco..." value={form.why} onChange={e => setForm(f => ({...f, why: e.target.value}))} />
+                </div>
+                <div className="section-divider"><span>Ce que j'ai moins aimé</span></div>
+                <div className="field dislike-field">
+                  <label>Ce que j'ai moins aimé</label>
+                  <textarea placeholder="Le bruit, le service lent, les portions, le quartier..." value={form.dislike} onChange={e => setForm(f => ({...f, dislike: e.target.value}))} />
+                </div>
+                <button className="save-btn" onClick={addMemory}>Enregistrer ce souvenir</button>
+              </>}
             </div>
           )}
 
