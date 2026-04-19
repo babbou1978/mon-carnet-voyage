@@ -8,7 +8,6 @@ const TYPE_ICONS = { "Restaurant": "🍽️", "Hôtel": "🏨", "Bar / Café": "
 const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Bar / Café", bar: "Bar / Café", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", museum: "Activité", park: "Activité", amusement_park: "Activité", night_club: "Bar / Café", bakery: "Restaurant", food: "Restaurant" };
 const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
 
-// Catégories adaptées par type
 const LIKES_BY_TYPE = {
   "Restaurant": ["Ambiance chaleureuse", "Cuisine locale", "Terrasse agréable", "Service attentionné", "Cadre original", "Cave à vins", "Produits frais", "Vue exceptionnelle", "Rapport qualité/prix", "Kids friendly"],
   "Bar / Café": ["Ambiance chaleureuse", "Terrasse agréable", "Bonne sélection", "Service attentionné", "Cadre original", "Musique agréable", "Vue exceptionnelle", "Rapport qualité/prix", "Kids friendly"],
@@ -123,7 +122,6 @@ const css = `
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .modal { background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
   .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: ${COLORS.accent}; }
-  .modal-actions { display: flex; gap: 8px; margin-top: 4px; }
   .modal-btn { flex: 1; padding: 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .modal-btn.primary { background: ${COLORS.accent}; color: #0f0e0c; border: none; }
   .modal-btn.primary:hover { background: ${COLORS.accentLight}; }
@@ -141,8 +139,6 @@ const css = `
   .prefs-save-btn { background: none; border: 1px solid ${COLORS.accent}; color: ${COLORS.accent}; border-radius: 8px; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .prefs-save-btn:hover { background: ${COLORS.accent}22; }
   .prefs-saved { font-size: 11px; color: ${COLORS.accent}; text-align: center; }
-
-  /* Amis */
   .friends-section { display: flex; flex-direction: column; gap: 16px; }
   .friend-search-row { display: flex; gap: 8px; }
   .friend-search-input { flex: 1; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 14px; outline: none; transition: border-color 0.2s; }
@@ -160,7 +156,11 @@ const css = `
   .friends-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: ${COLORS.accent}; }
   .empty-friends { text-align: center; padding: 30px; color: ${COLORS.muted}; font-size: 13px; }
 
-  .reco-section { display: flex; flex-direction: column; gap: 16px; }
+  /* RECO */
+  .reco-section { display: flex; flex-direction: column; gap: 20px; }
+  .reco-block { display: flex; flex-direction: column; gap: 14px; }
+  .reco-block-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: ${COLORS.accent}; padding-bottom: 8px; border-bottom: 1px solid ${COLORS.border}; }
+  .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
   .loc-btn.active { border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
@@ -170,8 +170,23 @@ const css = `
   .reco-btn { background: ${COLORS.card}; border: 1px solid ${COLORS.accent}; color: ${COLORS.accent}; border-radius: 10px; padding: 13px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .reco-btn:hover { background: ${COLORS.accent}22; }
   .reco-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .reco-result { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 12px; padding: 18px; font-size: 14px; line-height: 1.75; color: #d4cab8; white-space: pre-wrap; }
-  .reco-result strong { color: ${COLORS.accent}; font-weight: 500; }
+
+  /* AI Reco Cards */
+  .ai-reco-list { display: flex; flex-direction: column; gap: 16px; }
+  .ai-reco-card { background: ${COLORS.card}; border: 1px solid ${COLORS.accent}33; border-radius: 12px; overflow: hidden; }
+  .ai-reco-header { padding: 16px 16px 10px; }
+  .ai-reco-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: ${COLORS.text}; margin-bottom: 6px; }
+  .ai-reco-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .ai-reco-address { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+  .ai-reco-why { font-size: 13px; color: #b8ad98; line-height: 1.5; font-style: italic; margin-bottom: 6px; }
+  .ai-reco-tip { font-size: 12px; color: ${COLORS.accent}; line-height: 1.4; }
+  .ai-reco-warning { font-size: 12px; color: #a06060; line-height: 1.4; margin-top: 4px; }
+  .maps-btn { display: flex; align-items: center; gap: 6px; font-size: 11px; color: ${COLORS.accent}; text-decoration: none; margin-top: 6px; }
+  .map-container { height: 180px; width: 100%; border-top: 1px solid ${COLORS.border}; }
+
+  /* Global map */
+  .global-map-container { height: 260px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid ${COLORS.border}; }
+
   .thinking { display: flex; gap: 5px; justify-content: center; padding: 20px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: ${COLORS.accent}; animation: bounce 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -189,11 +204,12 @@ const css = `
   .inline-input { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; width: 100%; margin-top: 8px; transition: border-color 0.2s; }
   .inline-input:focus { border-color: ${COLORS.accent}; }
   .loading-overlay { text-align: center; padding: 40px 20px; color: ${COLORS.muted}; font-size: 13px; }
+  .add-to-carnet-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid ${COLORS.accent}44; color: ${COLORS.accent}; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 8px; transition: all 0.2s; }
+  .add-to-carnet-btn:hover { background: ${COLORS.accent}18; border-color: ${COLORS.accent}; }
 `;
 
 function formatDate(ts) { return new Date(ts).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }); }
 function starsLabel(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
-function parseRecoText(t) { return t.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); }
 
 function StarPicker({ value, onChange }) {
   const [hover, setHover] = useState(0);
@@ -321,6 +337,79 @@ function PlaceSearch({ onPlaceSelected, initialValue = "" }) {
   );
 }
 
+// Google Map component
+function GoogleMap({ recommendations }) {
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const apiKey = "AIzaSyC_placeholder"; // sera remplacé par variable d'env
+
+  useEffect(() => {
+    if (!recommendations?.length || !mapRef.current) return;
+
+    const loadMap = () => {
+      if (!window.google) return;
+      const bounds = new window.google.maps.LatLngBounds();
+      const map = new window.google.maps.Map(mapRef.current, {
+        zoom: 13,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        styles: [
+          { elementType: "geometry", stylers: [{ color: "#1a1814" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#f0ead8" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#0f0e0c" }] },
+          { featureType: "road", elementType: "geometry", stylers: [{ color: "#2e2b25" }] },
+          { featureType: "water", elementType: "geometry", stylers: [{ color: "#0f0e0c" }] },
+          { featureType: "poi", stylers: [{ visibility: "off" }] },
+        ],
+      });
+      mapInstance.current = map;
+
+      const geocoder = new window.google.maps.Geocoder();
+      let loaded = 0;
+
+      recommendations.forEach((reco, i) => {
+        geocoder.geocode({ address: reco.address }, (results, status) => {
+          if (status === "OK" && results[0]) {
+            const pos = results[0].geometry.location;
+            bounds.extend(pos);
+            new window.google.maps.Marker({
+              position: pos,
+              map,
+              title: reco.name,
+              label: { text: String(i + 1), color: "#0f0e0c", fontWeight: "bold", fontSize: "12px" },
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: "#c9a84c",
+                fillOpacity: 1,
+                strokeColor: "#0f0e0c",
+                strokeWeight: 2,
+                scale: 16,
+              },
+            });
+            loaded++;
+            if (loaded === recommendations.length) {
+              map.fitBounds(bounds);
+            }
+          }
+        });
+      });
+    };
+
+    if (window.google) {
+      loadMap();
+    } else {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ""}&callback=initGoogleMap`;
+      script.async = true;
+      window.initGoogleMap = loadMap;
+      document.head.appendChild(script);
+    }
+  }, [recommendations]);
+
+  return <div ref={mapRef} className="global-map-container" />;
+}
+
 const DEFAULT_FORM = { name: "", type: "Restaurant", price: "€€", city: "", country: "", rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false };
 const DEFAULT_PREFS = { loves: "", hates: "", budget: "", notes: "", lovesTags: [], hatesTags: [], firstName: "", lastName: "" };
 
@@ -329,11 +418,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit = false }) {
   const likesOptions = LIKES_BY_TYPE[form.type] || LIKES_BY_TYPE["Restaurant"];
   const dislikesOptions = DISLIKES_BY_TYPE[form.type] || DISLIKES_BY_TYPE["Restaurant"];
 
-  // Reset tags when type changes
-  const handleTypeChange = (newType) => {
-    setForm(f => ({ ...f, type: newType, likeTags: [], dislikeTags: [] }));
-  };
-
+  const handleTypeChange = (newType) => setForm(f => ({ ...f, type: newType, likeTags: [], dislikeTags: [] }));
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f => ({ ...f, name: "", city: "", country: "", type: "Restaurant", price: "€€" })); return; }
     setForm(f => ({ ...f, name: place.name, city: place.city, country: place.country, type: place.type, price: place.price, likeTags: [], dislikeTags: [] }));
@@ -368,27 +453,12 @@ function MemoryForm({ initial, onSave, onCancel, isEdit = false }) {
         </div>
         <div className="field"><label>Note globale</label><StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} /></div>
         <KidsToggle value={form.kidsf} onChange={v => setForm(f => ({ ...f, kidsf: v }))} />
-
         <div className="section-divider"><span>Ce que j'ai aimé</span></div>
-        <div className="field">
-          <label>Sélectionner</label>
-          <TagPicker options={likesOptions} selected={form.likeTags} onChange={v => setForm(f => ({ ...f, likeTags: v }))} mode="like" />
-        </div>
-        <div className="field">
-          <label>Préciser</label>
-          <textarea placeholder="Autre chose..." value={form.why} onChange={e => setForm(f => ({ ...f, why: e.target.value }))} />
-        </div>
-
+        <div className="field"><label>Sélectionner</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v => setForm(f => ({ ...f, likeTags: v }))} mode="like" /></div>
+        <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={form.why} onChange={e => setForm(f => ({ ...f, why: e.target.value }))} /></div>
         <div className="section-divider"><span>Ce que j'ai moins aimé</span></div>
-        <div className="field">
-          <label style={{ color: "#a06060" }}>Sélectionner</label>
-          <TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v => setForm(f => ({ ...f, dislikeTags: v }))} mode="dislike" />
-        </div>
-        <div className="field">
-          <label style={{ color: "#a06060" }}>Préciser</label>
-          <textarea placeholder="Autre chose..." value={form.dislike} onChange={e => setForm(f => ({ ...f, dislike: e.target.value }))} style={{ background: COLORS.dislikeBg, borderColor: COLORS.dislike+"44", color: "#d4a0a0" }} />
-        </div>
-
+        <div className="field"><label style={{ color: "#a06060" }}>Sélectionner</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v => setForm(f => ({ ...f, dislikeTags: v }))} mode="dislike" /></div>
+        <div className="field"><label style={{ color: "#a06060" }}>Préciser</label><textarea placeholder="Autre chose..." value={form.dislike} onChange={e => setForm(f => ({ ...f, dislike: e.target.value }))} style={{ background: COLORS.dislikeBg, borderColor: COLORS.dislike+"44", color: "#d4a0a0" }} /></div>
         <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
           {onCancel && <button className="modal-btn secondary" onClick={onCancel}>Annuler</button>}
           <button className="save-btn" style={{ flex: 1, margin: 0 }} onClick={() => onSave(form)} disabled={!form.name.trim()}>
@@ -400,14 +470,42 @@ function MemoryForm({ initial, onSave, onCancel, isEdit = false }) {
   );
 }
 
+function MemoryCard({ m, onEdit, onDelete, isMine }) {
+  return (
+    <div className={`memory-card ${!isMine ? "friend-card" : ""}`}>
+      <div className="memory-top">
+        <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
+        <div className="memory-meta">
+          {m.rating > 0 && <span className="badge stars">{starsLabel(m.rating)}</span>}
+          {m.kidsf && <span className="badge kids">👶</span>}
+          <span className="badge price">{m.price}</span>
+          {!isMine && m.friendName && <span className="badge friend">{m.friendName}</span>}
+        </div>
+      </div>
+      {(m.city||m.country) && <div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
+      {(m.likeTags||[]).length > 0 && <div className="memory-tags">{m.likeTags.map(t => <span key={t} className="memory-tag">👍 {t}</span>)}</div>}
+      {m.why && <div className="memory-why">« {m.why} »</div>}
+      {(m.dislikeTags||[]).length > 0 && <div className="memory-tags">{m.dislikeTags.map(t => <span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
+      {m.dislike && <div className="memory-dislike">« {m.dislike} »</div>}
+      <div className="memory-footer">
+        <span className="memory-date">{formatDate(m.ts)}</span>
+        {isMine && <div className="memory-actions">
+          <button className="edit-btn" onClick={() => onEdit(m)}>✏️ Éditer</button>
+          <button className="del-btn" onClick={() => onDelete(m.id)}>✕</button>
+        </div>}
+      </div>
+    </div>
+  );
+}
+
 export default function TravelAgent() {
   const [session, setSession] = useState(undefined);
   const [tab, setTab] = useState("add");
   const [memories, setMemories] = useState([]);
-  const [friendMemories, setFriendMemories] = useState([]); // mémoires des amis
-  const [friends, setFriends] = useState([]); // amis acceptés
-  const [pendingIn, setPendingIn] = useState([]); // demandes reçues
-  const [pendingOut, setPendingOut] = useState([]); // demandes envoyées
+  const [friendMemories, setFriendMemories] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [pendingIn, setPendingIn] = useState([]);
+  const [pendingOut, setPendingOut] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [profile, setProfile] = useState(null);
@@ -417,17 +515,24 @@ export default function TravelAgent() {
   const [loading, setLoading] = useState(true);
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
+
+  // Filtres mémoires
   const [filterType, setFilterType] = useState("Tous");
   const [filterPrice, setFilterPrice] = useState("Tous");
   const [filterRating, setFilterRating] = useState("Tous");
   const [filterKids, setFilterKids] = useState(false);
   const [showFriendMems, setShowFriendMems] = useState(true);
+
+  // Reco
   const [recoType, setRecoType] = useState("Restaurant");
+  const [recoPrice, setRecoPrice] = useState("Tous");
+  const [recoKids, setRecoKids] = useState(false);
   const [locMode, setLocMode] = useState("free");
   const [freeLocation, setFreeLocation] = useState("");
   const [gpsLocation, setGpsLocation] = useState("");
-  const [recoResult, setRecoResult] = useState("");
-  const [recoLoading, setRecoLoading] = useState(false);
+  const [aiRecos, setAiRecos] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [addingFromReco, setAddingFromReco] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -440,29 +545,19 @@ export default function TravelAgent() {
     const load = async () => {
       setLoading(true);
       const userId = session.user.id;
-
-      // Profil
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
       if (prof) setProfile(prof);
-
-      // Mémoires
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
-
-      // Préférences
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).single();
       if (pref) setPrefs({ ...DEFAULT_PREFS, ...pref });
-
-      // Amitiés
       await loadFriends(userId);
-
       setLoading(false);
     };
     load();
   }, [session]);
 
   const loadFriends = async (userId) => {
-    // Amis acceptés
     const { data: acceptedA } = await supabase.from('friendships').select('*, profiles!friendships_addressee_id_fkey(*)').eq('requester_id', userId).eq('status', 'accepted');
     const { data: acceptedB } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'accepted');
     const friendList = [
@@ -470,19 +565,13 @@ export default function TravelAgent() {
       ...(acceptedB || []).map(f => ({ id: f.id, profile: f.profiles, friendUserId: f.requester_id })),
     ];
     setFriends(friendList);
-
-    // Mémoires des amis
     if (friendList.length > 0) {
       const friendIds = friendList.map(f => f.friendUserId);
       const { data: fMems } = await supabase.from('memories').select('*, profiles(first_name, last_name)').in('user_id', friendIds).order('ts', { ascending: false });
-      if (fMems) setFriendMemories(fMems);
+      if (fMems) setFriendMemories(fMems.map(m => ({ ...m, friendName: `${m.profiles?.first_name} ${m.profiles?.last_name}` })));
     }
-
-    // Demandes reçues
     const { data: inReqs } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'pending');
     setPendingIn(inReqs || []);
-
-    // Demandes envoyées
     const { data: outReqs } = await supabase.from('friendships').select('*, profiles!friendships_addressee_id_fkey(*)').eq('requester_id', userId).eq('status', 'pending');
     setPendingOut(outReqs || []);
   };
@@ -520,7 +609,6 @@ export default function TravelAgent() {
   };
 
   const savePrefs = async () => {
-    // Sauvegarder aussi le profil nom/prénom
     await supabase.from('preferences').upsert({ ...prefs, user_id: userId });
     await supabase.from('profiles').upsert({ user_id: userId, first_name: prefs.firstName, last_name: prefs.lastName, email: session.user.email });
     setPrefsSaved(true); setTimeout(() => setPrefsSaved(false), 2000);
@@ -535,8 +623,7 @@ export default function TravelAgent() {
 
   const sendFriendRequest = async (targetUserId) => {
     await supabase.from('friendships').insert({ requester_id: userId, addressee_id: targetUserId, status: 'pending' });
-    showToast("✓ Demande envoyée !"); setSearchResults([]); setSearchQuery("");
-    await loadFriends(userId);
+    showToast("✓ Demande envoyée !"); setSearchResults([]); setSearchQuery(""); await loadFriends(userId);
   };
 
   const acceptFriend = async (friendshipId) => {
@@ -565,7 +652,7 @@ export default function TravelAgent() {
   // Filtres mémoires
   const allMemories = [
     ...memories.map(m => ({ ...m, isMine: true })),
-    ...(showFriendMems ? friendMemories.map(m => ({ ...m, isMine: false, friendName: `${m.profiles?.first_name} ${m.profiles?.last_name}` })) : [])
+    ...(showFriendMems ? friendMemories.map(m => ({ ...m, isMine: false })) : [])
   ];
   const filteredMemories = allMemories.filter(m => {
     if (filterType !== "Tous" && m.type !== filterType) return false;
@@ -575,50 +662,69 @@ export default function TravelAgent() {
     return true;
   });
 
-  const getRecos = async () => {
-    setRecoLoading(true); setRecoResult("");
+  // Coups de cœur pour la section Reco (mémoires bien notées)
+  const heartMemories = [...memories, ...friendMemories].filter(m => {
+    if (m.rating < 4) return false;
+    if (recoType !== "Tous" && m.type !== recoType) return false;
+    if (recoPrice !== "Tous" && m.price !== recoPrice) return false;
+    if (recoKids && !m.kidsf) return false;
+    return true;
+  }).sort((a, b) => b.rating - a.rating).slice(0, 10);
+
+  const getAiRecos = async () => {
+    setAiLoading(true); setAiRecos([]);
     const location = locMode === "gps" ? gpsLocation : freeLocation;
+    const liked = memories.filter(m => m.rating >= 3)
+      .map(m => `- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) à ${m.city}${m.country ? ", "+m.country : ""} — aimé: ${[...(m.likeTags||[]), m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]), m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf ? " — kids friendly" : ""}`)
+      .join("\n");
+    const disliked = memories.filter(m => m.rating > 0 && m.rating < 3)
+      .map(m => `- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]), m.dislike].filter(Boolean).join(", ")||"expérience mitigée"}`)
+      .join("\n");
+    const friendLiked = friendMemories.filter(m => m.rating >= 3)
+      .map(m => `- ${m.name} (${m.type}, ${m.price}) à ${m.city} [ami: ${m.friendName}]`)
+      .join("\n");
 
-    const formatMem = (m, label = "") => `- ${m.name} (${m.type}, ${m.price}${m.rating ? `, ${m.rating}/5` : ""}) à ${m.city}${m.country ? ", "+m.country : ""}${label} — aimé: ${[...(m.likeTags||[]), m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]), m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf ? " — kids friendly" : ""}`;
-
-    const myLiked = memories.filter(m => m.rating >= 3).map(m => formatMem(m)).join("\n");
-    const myDisliked = memories.filter(m => m.rating > 0 && m.rating < 3).map(m => formatMem(m)).join("\n");
-    const friendLiked = friendMemories.filter(m => m.rating >= 3).map(m => formatMem(m, ` [ami: ${m.profiles?.first_name}]`)).join("\n");
-
-    const prompt = `Tu es un agent de voyage personnel francophone.
-
-=== MON PROFIL ===
-Prénom : ${prefs.firstName || "—"}
+    const prompt = `Profil utilisateur :
 Aime : ${[...(prefs.lovesTags||[]), prefs.loves].filter(Boolean).join(", ") || "non renseigné"}
 Évite : ${[...(prefs.hatesTags||[]), prefs.hates].filter(Boolean).join(", ") || "non renseigné"}
-Budget : ${prefs.budget || "non renseigné"}
-Notes : ${prefs.notes || "—"}
+Budget : ${recoPrice !== "Tous" ? recoPrice : prefs.budget || "non renseigné"}
+Kids friendly requis : ${recoKids ? "oui" : "non"}
 
-=== MES LIEUX APPRÉCIÉS ===
-${myLiked || "Aucun."}
+Mes lieux appréciés :
+${liked || "Aucun."}
 
-=== MES LIEUX DÉCEVANTS ===
-${myDisliked || "Aucun."}
+Mes lieux décevants :
+${disliked || "Aucun."}
 
-=== LIEUX APPRÉCIÉS PAR MES AMIS ===
+Lieux appréciés par mes amis :
 ${friendLiked || "Aucun."}
 
-=== DEMANDE ===
-Je cherche : un(e) **${recoType}** à **${location || "n'importe où"}**.
-Propose 3 recommandations personnalisées. Pour chaque lieu :
-- **Nom**
-- Type et prix estimé
-- Pourquoi ça me correspondrait (basé sur mes goûts ET ceux de mes amis si pertinent)
-- Ce qu'il faut savoir par rapport à mes aversions
-- Un conseil pratique
-N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleureux, francophone.`;
+Demande : 3 ${recoType} à ${location || "n'importe où"}.
+Pour chaque lieu, fournis : name, type, price (€/€€/€€€/€€€€), address (adresse complète avec ville et pays), why, tip, warning (ou null).`;
 
     try {
-      const res = await fetch("/api/recommend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }) });
+      const res = await fetch("/api/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, structured: true }),
+      });
       const data = await res.json();
-      setRecoResult(data.result || "Erreur de réponse.");
-    } catch { setRecoResult("Une erreur est survenue."); }
-    setRecoLoading(false);
+      if (data.recommendations) setAiRecos(data.recommendations);
+      else setAiRecos([]);
+    } catch { setAiRecos([]); }
+    setAiLoading(false);
+  };
+
+  const addRecoToCarnet = async (reco) => {
+    const entry = {
+      name: reco.name, type: reco.type, price: reco.price,
+      city: reco.address?.split(",").slice(-2, -1)[0]?.trim() || "",
+      country: reco.address?.split(",").pop()?.trim() || "",
+      rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false,
+      id: Date.now(), ts: Date.now(), user_id: userId
+    };
+    const { error } = await supabase.from('memories').insert(entry);
+    if (!error) { setMemories(prev => [entry, ...prev]); showToast("✓ Ajouté à vos mémoires !"); }
   };
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
@@ -658,7 +764,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
               <div style={{ marginBottom: 12 }}>
                 <div className="filters-row">
                   <span className="filter-label">Type</span>
-                  {["Tous", ...TYPES].map(t => <button key={t} className={`filter-btn ${filterType===t?"active":""}`} onClick={() => setFilterType(t)}>{t === "Tous" ? "Tous" : `${TYPE_ICONS[t]} ${t}`}</button>)}
+                  {["Tous", ...TYPES].map(t => <button key={t} className={`filter-btn ${filterType===t?"active":""}`} onClick={() => setFilterType(t)}>{t==="Tous"?"Tous":`${TYPE_ICONS[t]} ${t}`}</button>)}
                 </div>
                 <div className="filters-row">
                   <span className="filter-label">Prix</span>
@@ -673,34 +779,11 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                   {friends.length > 0 && <button className={`filter-btn ${showFriendMems?"active":""}`} onClick={() => setShowFriendMems(!showFriendMems)}>👥 Amis</button>}
                 </div>
               </div>
-
               <div className="memory-list">
                 {filteredMemories.length === 0 ? (
                   <div className="empty"><div className="empty-icon">🧭</div><div className="empty-text">{memories.length === 0 ? "Votre carnet est vide" : "Aucun résultat"}</div><div className="empty-sub">{memories.length === 0 ? "Commencez par ajouter un lieu" : "Essayez d'autres filtres"}</div></div>
                 ) : filteredMemories.map(m => (
-                  <div key={`${m.id}-${m.isMine}`} className={`memory-card ${!m.isMine ? "friend-card" : ""}`}>
-                    <div className="memory-top">
-                      <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
-                      <div className="memory-meta">
-                        {m.rating > 0 && <span className="badge stars">{starsLabel(m.rating)}</span>}
-                        {m.kidsf && <span className="badge kids">👶</span>}
-                        <span className="badge price">{m.price}</span>
-                        {!m.isMine && <span className="badge friend">{m.friendName}</span>}
-                      </div>
-                    </div>
-                    {(m.city||m.country) && <div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
-                    {(m.likeTags||[]).length > 0 && <div className="memory-tags">{m.likeTags.map(t => <span key={t} className="memory-tag">👍 {t}</span>)}</div>}
-                    {m.why && <div className="memory-why">« {m.why} »</div>}
-                    {(m.dislikeTags||[]).length > 0 && <div className="memory-tags">{m.dislikeTags.map(t => <span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
-                    {m.dislike && <div className="memory-dislike">« {m.dislike} »</div>}
-                    <div className="memory-footer">
-                      <span className="memory-date">{formatDate(m.ts)}</span>
-                      {m.isMine && <div className="memory-actions">
-                        <button className="edit-btn" onClick={() => setEditMemory(m)}>✏️ Éditer</button>
-                        <button className="del-btn" onClick={() => deleteMemory(m.id)}>✕</button>
-                      </div>}
-                    </div>
-                  </div>
+                  <MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} />
                 ))}
               </div>
             </div>
@@ -708,7 +791,6 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
 
           {!loading && tab === "friends" && (
             <div className="friends-section">
-              {/* Demandes reçues */}
               {pendingIn.length > 0 && (
                 <div>
                   <div className="friends-title" style={{ marginBottom: 10 }}>🔔 Demandes reçues</div>
@@ -726,8 +808,6 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                   ))}
                 </div>
               )}
-
-              {/* Recherche */}
               <div>
                 <div className="friends-title" style={{ marginBottom: 10 }}>🔍 Ajouter un ami</div>
                 <div className="friend-search-row">
@@ -746,21 +826,18 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                             <div className="friend-email">{u.email}</div>
                           </div>
                           {alreadyFriend ? <span className="friend-action-btn pending">Déjà ami</span>
-                            : pendingSent ? <span className="friend-action-btn pending">Demande envoyée</span>
+                            : pendingSent ? <span className="friend-action-btn pending">Envoyée</span>
                             : <button className="friend-action-btn add" onClick={() => sendFriendRequest(u.user_id)}>+ Ajouter</button>}
                         </div>
                       );
                     })}
                   </div>
                 )}
-                {searchResults.length === 0 && searchQuery && <div style={{ fontSize: 12, color: COLORS.muted, marginTop: 8 }}>Aucun résultat</div>}
               </div>
-
-              {/* Liste d'amis */}
               <div>
                 <div className="friends-title" style={{ marginBottom: 10 }}>👥 Mes amis ({friends.length})</div>
                 {friends.length === 0 ? (
-                  <div className="empty-friends">Vous n'avez pas encore d'amis.<br />Cherchez par email pour en ajouter !</div>
+                  <div className="empty-friends">Aucun ami pour l'instant.</div>
                 ) : friends.map(f => (
                   <div key={f.id} className="friend-card" style={{ marginBottom: 8 }}>
                     <div className="friend-info">
@@ -771,8 +848,6 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                   </div>
                 ))}
               </div>
-
-              {/* Demandes envoyées */}
               {pendingOut.length > 0 && (
                 <div>
                   <div className="friends-title" style={{ marginBottom: 10, fontSize: 14 }}>⏳ Demandes envoyées</div>
@@ -780,7 +855,6 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
                     <div key={f.id} className="friend-card" style={{ marginBottom: 8 }}>
                       <div className="friend-info">
                         <div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div>
-                        <div className="friend-email">{f.profiles?.email}</div>
                       </div>
                       <span className="friend-action-btn pending">En attente</span>
                     </div>
@@ -817,7 +891,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">📝 Notes libres</div>
-                <div className="field"><label>Autres infos pour l'agent</label><textarea placeholder="Ex: Je voyage souvent en couple, allergie aux fruits de mer..." value={prefs.notes} onChange={e => setPrefs(p => ({ ...p, notes: e.target.value }))} style={{ minHeight: 70 }} /></div>
+                <div className="field"><label>Autres infos pour l'agent</label><textarea placeholder="Ex: Je voyage souvent en couple..." value={prefs.notes} onChange={e => setPrefs(p => ({ ...p, notes: e.target.value }))} style={{ minHeight: 70 }} /></div>
               </div>
               <button className="prefs-save-btn" onClick={savePrefs}>Sauvegarder mon profil</button>
               {prefsSaved && <div className="prefs-saved">✓ Profil enregistré</div>}
@@ -826,25 +900,98 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
-              <div className="field">
-                <label>Je cherche un(e)</label>
-                <div className="reco-type-row">{TYPES.map(t => <button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={() => setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
-              </div>
-              <div className="field">
-                <label>Localisation</label>
-                <div className="location-row">
-                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={() => { setLocMode("gps"); getGPS(); }}>📍 Ma position</button>
-                  <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={() => setLocMode("free")}>✏️ Saisir</button>
+
+              {/* Filtres communs */}
+              <div>
+                <div className="filters-row">
+                  <span className="filter-label">Type</span>
+                  {TYPES.map(t => <button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={() => setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}
                 </div>
-                {locMode==="gps" && gpsLocation && <input className="inline-input" value={gpsLocation} onChange={e => setGpsLocation(e.target.value)} />}
-                {locMode==="gps" && !gpsLocation && <div style={{fontSize:12,color:COLORS.muted,marginTop:6}}>Récupération...</div>}
-                {locMode==="free" && <input className="inline-input" placeholder="Ex: Rome, Tokyo, Bordeaux..." value={freeLocation} onChange={e => setFreeLocation(e.target.value)} />}
+                <div className="filters-row">
+                  <span className="filter-label">Prix</span>
+                  {["Tous", ...PRICES].map(p => <button key={p} className={`filter-btn ${recoPrice===p?"active":""}`} onClick={() => setRecoPrice(p)}>{p}</button>)}
+                </div>
+                <div className="filters-row">
+                  <button className={`filter-btn ${recoKids?"active":""}`} onClick={() => setRecoKids(!recoKids)}>👶 Kids friendly</button>
+                </div>
               </div>
-              <button className="reco-btn" onClick={getRecos} disabled={recoLoading||(!freeLocation&&!gpsLocation)}>
-                {recoLoading ? "Analyse en cours..." : "✨ Obtenir mes recommandations"}
-              </button>
-              {recoLoading && <div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
-              {recoResult && !recoLoading && <div className="reco-result" dangerouslySetInnerHTML={{__html: parseRecoText(recoResult)}} />}
+
+              {/* Section 1 : Coups de cœur */}
+              <div className="reco-block">
+                <div className="reco-block-title">
+                  ❤️ Coups de cœur
+                  <span>{friends.length > 0 ? "Vous & vos amis • note ≥ 4★" : "Vos favoris • note ≥ 4★"}</span>
+                </div>
+                {heartMemories.length === 0 ? (
+                  <div style={{ fontSize: 13, color: COLORS.muted, padding: "12px", background: COLORS.card, borderRadius: 8, border: `1px solid ${COLORS.border}` }}>
+                    Aucun coup de cœur pour ce type. Ajoutez des lieux avec une note ≥ 4★ !
+                  </div>
+                ) : (
+                  <div className="memory-list">
+                    {heartMemories.map(m => (
+                      <MemoryCard key={`heart-${m.id}`} m={m} isMine={!m.friendName} onEdit={setEditMemory} onDelete={deleteMemory} />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Section 2 : Recommandations AI */}
+              <div className="reco-block">
+                <div className="reco-block-title">✨ Recommandations AI<span>Basées sur votre profil</span></div>
+                <div className="field">
+                  <label>Localisation</label>
+                  <div className="location-row">
+                    <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={() => { setLocMode("gps"); getGPS(); }}>📍 Ma position</button>
+                    <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={() => setLocMode("free")}>✏️ Saisir</button>
+                  </div>
+                  {locMode==="gps" && gpsLocation && <input className="inline-input" value={gpsLocation} onChange={e => setGpsLocation(e.target.value)} />}
+                  {locMode==="gps" && !gpsLocation && <div style={{fontSize:12,color:COLORS.muted,marginTop:6}}>Récupération...</div>}
+                  {locMode==="free" && <input className="inline-input" placeholder="Ex: Rome, Tokyo, Bordeaux..." value={freeLocation} onChange={e => setFreeLocation(e.target.value)} />}
+                </div>
+                <button className="reco-btn" onClick={getAiRecos} disabled={aiLoading||(!freeLocation&&!gpsLocation)}>
+                  {aiLoading ? "Analyse en cours..." : "✨ Obtenir mes recommandations AI"}
+                </button>
+                {aiLoading && <div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
+
+                {aiRecos.length > 0 && !aiLoading && (
+                  <>
+                    {/* Carte globale avec les 3 épingles */}
+                    <GoogleMap recommendations={aiRecos} />
+
+                    {/* Cards individuelles */}
+                    <div className="ai-reco-list">
+                      {aiRecos.map((reco, i) => (
+                        <div key={i} className="ai-reco-card">
+                          <div className="ai-reco-header">
+                            <div className="ai-reco-name">
+                              <span style={{ color: COLORS.accent, fontSize: 14, fontFamily: "DM Sans", fontStyle: "normal", marginRight: 8 }}>{i+1}</span>
+                              {reco.name}
+                            </div>
+                            <div className="ai-reco-meta">
+                              <span className="badge">{TYPE_ICONS[reco.type] || "📍"} {reco.type}</span>
+                              <span className="badge price">{reco.price}</span>
+                            </div>
+                            {reco.address && (
+                              <div className="ai-reco-address">
+                                📍 {reco.address}
+                                <a href={`https://maps.google.com/?q=${encodeURIComponent(reco.address)}`} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.accent, fontSize: 11, marginLeft: 6 }}>
+                                  Voir sur Maps →
+                                </a>
+                              </div>
+                            )}
+                            {reco.why && <div className="ai-reco-why">« {reco.why} »</div>}
+                            {reco.tip && <div className="ai-reco-tip">💡 {reco.tip}</div>}
+                            {reco.warning && <div className="ai-reco-warning">⚠️ {reco.warning}</div>}
+                            <button className="add-to-carnet-btn" onClick={() => addRecoToCarnet(reco)}>
+                              + Ajouter à mon carnet
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -863,7 +1010,7 @@ N'inclus jamais d'endroits similaires à ceux mal notés. Sois précis, chaleure
         <div className="alert-overlay">
           <div className="alert-box">
             <div className="alert-title">📍 Lieu déjà existant</div>
-            <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> est déjà dans votre carnet. Voulez-vous mettre à jour ce souvenir ou annuler ?</div>
+            <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> est déjà dans votre carnet. Mettre à jour ?</div>
             <div className="alert-actions">
               <button className="modal-btn secondary" onClick={() => setDuplicateAlert(null)}>Annuler</button>
               <button className="modal-btn primary" onClick={handleDuplicateUpdate}>Mettre à jour</button>
