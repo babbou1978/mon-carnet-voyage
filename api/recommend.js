@@ -5,22 +5,24 @@ export default async function handler(req, res) {
 
   try {
     const systemPrompt = structured
-      ? `Tu es un agent de voyage personnel francophone. Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, sans texte avant ou après.
+      ? `Tu es Outsy AI, un agent de voyage personnel francophone expert. Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, sans texte avant ou après.
 Format attendu :
 {
   "recommendations": [
     {
       "name": "Nom du lieu",
-      "type": "type",
+      "type": "type de lieu",
       "price": "€€",
-      "address": "adresse complète",
-      "why": "pourquoi ça correspond aux goûts",
+      "address": "adresse complète avec numéro, rue, ville, pays",
+      "matchScore": 95,
+      "matchReasons": ["Correspond à votre goût pour la cuisine locale", "Ambiance chaleureuse comme vous aimez"],
+      "why": "description personnalisée en 1-2 phrases",
       "tip": "conseil pratique",
-      "warning": "point d'attention par rapport aux aversions (ou null)"
+      "warning": "point d'attention ou null"
     }
   ]
 }`
-      : `Tu es un agent de voyage personnel francophone, expert en découvertes locales.`;
+      : `Tu es Outsy AI, un agent de voyage personnel francophone expert en découvertes locales.`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -31,7 +33,7 @@ Format attendu :
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
-        max_tokens: 1500,
+        max_tokens: 3000,
         system: systemPrompt,
         messages: [{ role: 'user', content: prompt }],
       }),

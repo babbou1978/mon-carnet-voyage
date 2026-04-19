@@ -1,7 +1,7 @@
 {
-  "name": "Mon Carnet de Voyage",
-  "short_name": "Carnet Voyage",
-  "description": "Mon agence de voyage personnelle",
+  "name": "Outsy AI",
+  "short_name": "Outsy",
+  "description": "Votre agent de voyage personnel",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0e0c",

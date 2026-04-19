@@ -39,14 +39,15 @@ const css = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
   .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-  .header { padding: 24px 24px 14px; border-bottom: 1px solid ${COLORS.border}; position: sticky; top: 0; background: ${COLORS.bg}; z-index: 10; }
-  .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .header-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; letter-spacing: 0.05em; line-height: 1.1; }
-  .header-title span { color: ${COLORS.accent}; font-style: italic; }
-  .header-sub { font-size: 11px; color: ${COLORS.muted}; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
-  .logout-btn { background: none; border: 1px solid ${COLORS.border}; color: ${COLORS.muted}; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+  .header { padding: 20px 24px 14px; border-bottom: 1px solid ${COLORS.border}; position: sticky; top: 0; background: ${COLORS.bg}; z-index: 10; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; }
+  .header-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 0.05em; }
+  .header-logo span { color: ${COLORS.accent}; font-style: italic; }
+  .header-user { font-size: 11px; color: ${COLORS.muted}; letter-spacing: 0.08em; text-transform: uppercase; }
+  .logout-btn { background: none; border: 1px solid ${COLORS.border}; color: ${COLORS.muted}; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
   .logout-btn:hover { border-color: #e06060; color: #e06060; }
-  .tabs { display: flex; margin-top: 12px; background: ${COLORS.card}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
+  .header-middle { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 10px; }
+  .tabs { display: flex; background: ${COLORS.card}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
   .tab { flex: 1; padding: 6px 2px; font-size: 9px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; background: none; border: none; color: ${COLORS.muted}; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-weight: 500; }
   .tab.active { background: ${COLORS.accent}; color: #0f0e0c; }
   .content { flex: 1; padding: 20px 24px; overflow-y: auto; }
@@ -108,7 +109,6 @@ const css = `
   .badge.stars { color: #e8c97a; background: #2a2310; font-size: 11px; }
   .badge.kids { color: #7abf8a; background: #1a2e1e; }
   .badge.friend { color: ${COLORS.accent}; background: ${COLORS.accent}12; font-style: italic; }
-  .badge.dist { color: #7a9abf; background: #1a2030; }
   .memory-location { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 6px; }
   .memory-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
   .memory-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: ${COLORS.accent}12; color: ${COLORS.accent}; }
@@ -155,8 +155,15 @@ const css = `
   .friend-action-btn.accept { background: #2a4a2e; color: #7abf8a; }
   .friend-action-btn.decline { background: ${COLORS.dislikeBg}; color: #a06060; margin-left: 4px; }
   .friend-action-btn.pending { background: ${COLORS.tag}; color: ${COLORS.muted}; cursor: default; }
+  .friend-action-btn.view { background: none; border: 1px solid ${COLORS.accent}44; color: ${COLORS.accent}; }
   .friends-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: ${COLORS.accent}; }
   .empty-friends { text-align: center; padding: 30px; color: ${COLORS.muted}; font-size: 13px; }
+
+  /* Friend memories panel */
+  .friend-panel { background: ${COLORS.card}; border: 1px solid ${COLORS.accent}33; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .friend-panel-header { display: flex; justify-content: space-between; align-items: center; }
+  .friend-panel-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: ${COLORS.accent}; font-style: italic; }
+  .friend-panel-close { background: none; border: none; color: ${COLORS.muted}; cursor: pointer; font-size: 16px; }
 
   /* RECO */
   .reco-section { display: flex; flex-direction: column; gap: 20px; }
@@ -168,14 +175,13 @@ const css = `
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
   .loc-btn.active { border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
-  .reco-type-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .reco-type-btn { padding: 7px 11px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 20px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
   .reco-type-btn.active { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .reco-btn { background: ${COLORS.card}; border: 1px solid ${COLORS.accent}; color: ${COLORS.accent}; border-radius: 10px; padding: 13px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .reco-btn:hover { background: ${COLORS.accent}22; }
   .reco-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Slider distance */
+  /* Slider */
   .distance-slider-wrap { display: flex; flex-direction: column; gap: 8px; }
   .distance-slider-labels { display: flex; justify-content: space-between; }
   .distance-slider-label { font-size: 10px; color: ${COLORS.muted}; }
@@ -184,16 +190,24 @@ const css = `
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: ${COLORS.accent}; cursor: pointer; border: 2px solid ${COLORS.bg}; }
   input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: ${COLORS.accent}; cursor: pointer; border: 2px solid ${COLORS.bg}; }
 
-  /* AI Reco Cards */
+  /* AI Reco */
   .ai-reco-list { display: flex; flex-direction: column; gap: 16px; }
   .ai-reco-card { background: ${COLORS.card}; border: 1px solid ${COLORS.accent}33; border-radius: 12px; overflow: hidden; }
-  .ai-reco-header { padding: 16px 16px 10px; }
-  .ai-reco-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: ${COLORS.text}; margin-bottom: 6px; }
-  .ai-reco-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .ai-reco-address { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 8px; }
-  .ai-reco-why { font-size: 13px; color: #b8ad98; line-height: 1.5; font-style: italic; margin-bottom: 6px; }
+  .ai-reco-header { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .ai-reco-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .ai-reco-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: ${COLORS.text}; }
+  .ai-reco-rank { font-size: 22px; font-family: 'Cormorant Garamond', serif; color: ${COLORS.accent}; font-style: italic; }
+  .ai-reco-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+  .match-score { display: flex; align-items: center; gap: 6px; }
+  .match-bar-wrap { flex: 1; height: 4px; background: ${COLORS.border}; border-radius: 4px; overflow: hidden; }
+  .match-bar { height: 100%; border-radius: 4px; background: ${COLORS.accent}; transition: width 0.5s ease; }
+  .match-score-label { font-size: 11px; color: ${COLORS.accent}; font-weight: 600; white-space: nowrap; }
+  .match-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+  .match-reason { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: ${COLORS.accent}18; color: ${COLORS.accent}; border: 1px solid ${COLORS.accent}33; }
+  .ai-reco-address { font-size: 12px; color: ${COLORS.muted}; }
+  .ai-reco-why { font-size: 13px; color: #b8ad98; line-height: 1.5; font-style: italic; }
   .ai-reco-tip { font-size: 12px; color: ${COLORS.accent}; line-height: 1.4; }
-  .ai-reco-warning { font-size: 12px; color: #a06060; line-height: 1.4; margin-top: 4px; }
+  .ai-reco-warning { font-size: 12px; color: #a06060; line-height: 1.4; }
   .global-map-container { height: 240px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid ${COLORS.border}; }
   .thinking { display: flex; gap: 5px; justify-content: center; padding: 20px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: ${COLORS.accent}; animation: bounce 1.2s infinite; }
@@ -209,10 +223,10 @@ const css = `
   .empty-icon { font-size: 40px; margin-bottom: 12px; }
   .empty-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; }
   .empty-sub { font-size: 12px; margin-top: 6px; }
-  .inline-input { background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; width: 100%; margin-top: 8px; transition: border-color 0.2s; }
+  .inline-input { background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; width: 100%; margin-top: 0; transition: border-color 0.2s; }
   .inline-input:focus { border-color: ${COLORS.accent}; }
   .loading-overlay { text-align: center; padding: 40px 20px; color: ${COLORS.muted}; font-size: 13px; }
-  .add-to-carnet-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid ${COLORS.accent}44; color: ${COLORS.accent}; border-radius: 6px; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 10px; transition: all 0.2s; }
+  .add-to-carnet-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid ${COLORS.accent}44; color: ${COLORS.accent}; border-radius: 6px; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
   .add-to-carnet-btn:hover { background: ${COLORS.accent}18; border-color: ${COLORS.accent}; }
   .nearby-card { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
   .nearby-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; }
@@ -229,21 +243,20 @@ function StarPicker({ value, onChange }) {
   return (
     <div className="star-row">
       {[1,2,3,4,5].map(n => (
-        <span key={n} className={`star ${(hover || value) >= n ? "active" : ""}`}
-          onClick={() => onChange(n === value ? 0 : n)}
-          onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)}>★</span>
+        <span key={n} className={`star ${(hover||value)>=n?"active":""}`}
+          onClick={()=>onChange(n===value?0:n)} onMouseEnter={()=>setHover(n)} onMouseLeave={()=>setHover(0)}>★</span>
       ))}
-      {value > 0 && <span style={{ fontSize: 12, color: COLORS.muted }}>{value}/5</span>}
+      {value > 0 && <span style={{fontSize:12,color:COLORS.muted}}>{value}/5</span>}
     </div>
   );
 }
 
-function TagPicker({ options, selected, onChange, mode = "like" }) {
-  const toggle = (opt) => { const arr = selected || []; onChange(arr.includes(opt) ? arr.filter(x => x !== opt) : [...arr, opt]); };
+function TagPicker({ options, selected, onChange, mode="like" }) {
+  const toggle = (opt) => { const arr=selected||[]; onChange(arr.includes(opt)?arr.filter(x=>x!==opt):[...arr,opt]); };
   return (
     <div className="tags-row">
-      {options.map(opt => (
-        <button key={opt} className={`tag-pill ${(selected||[]).includes(opt) ? (mode==="like"?"selected-like":"selected-dislike") : ""}`} onClick={() => toggle(opt)}>{opt}</button>
+      {options.map(opt=>(
+        <button key={opt} className={`tag-pill ${(selected||[]).includes(opt)?(mode==="like"?"selected-like":"selected-dislike"):""}`} onClick={()=>toggle(opt)}>{opt}</button>
       ))}
     </div>
   );
@@ -251,10 +264,10 @@ function TagPicker({ options, selected, onChange, mode = "like" }) {
 
 function KidsToggle({ value, onChange }) {
   return (
-    <div className={`kids-toggle ${value?"on":""}`} onClick={() => onChange(!value)}>
+    <div className={`kids-toggle ${value?"on":""}`} onClick={()=>onChange(!value)}>
       <span style={{fontSize:16}}>👶</span>
       <span className="kids-toggle-label">Kids friendly</span>
-      <div className="toggle-switch"><div className="toggle-knob" /></div>
+      <div className="toggle-switch"><div className="toggle-knob"/></div>
     </div>
   );
 }
@@ -264,17 +277,14 @@ function DistanceSlider({ value, onChange }) {
   return (
     <div className="distance-slider-wrap">
       <div className="distance-slider-value">Rayon : {DISTANCE_LABELS[idx]}</div>
-      <input type="range" min={0} max={DISTANCE_STEPS.length - 1} value={idx}
-        onChange={e => onChange(DISTANCE_STEPS[parseInt(e.target.value)])} />
-      <div className="distance-slider-labels">
-        {DISTANCE_LABELS.map(l => <span key={l} className="distance-slider-label">{l}</span>)}
-      </div>
+      <input type="range" min={0} max={DISTANCE_STEPS.length-1} value={idx} onChange={e=>onChange(DISTANCE_STEPS[parseInt(e.target.value)])} />
+      <div className="distance-slider-labels">{DISTANCE_LABELS.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
     </div>
   );
 }
 
-function PlaceSearch({ onPlaceSelected, initialValue = "" }) {
-  const [query, setQuery] = useState(initialValue);
+function PlaceSearch({ onPlaceSelected }) {
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -294,7 +304,7 @@ function PlaceSearch({ onPlaceSelected, initialValue = "" }) {
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val }) });
       const data = await res.json();
-      setSuggestions(data.suggestions || []);
+      setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
     } catch {}
     setLoading(false);
@@ -315,13 +325,13 @@ function PlaceSearch({ onPlaceSelected, initialValue = "" }) {
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
-      const components = details.addressComponents || [];
-      const city = components.find(c => c.types?.includes("locality"))?.longText || components.find(c => c.types?.includes("administrative_area_level_1"))?.longText || "";
-      const country = components.find(c => c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
-      const googleTypes = details.types || [];
+      const components = details.addressComponents||[];
+      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_1"))?.longText || "";
+      const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
+      const googleTypes = details.types||[];
       let type = "Restaurant";
-      for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type = GOOGLE_TYPE_MAP[gt]; break; } }
-      const price = PRICE_MAP[details.priceLevel] || "€€";
+      for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type=GOOGLE_TYPE_MAP[gt]; break; } }
+      const price = PRICE_MAP[details.priceLevel]||"€€";
       const place = { name: mainText, city, country, type, price };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
@@ -335,20 +345,19 @@ function PlaceSearch({ onPlaceSelected, initialValue = "" }) {
   return (
     <div className="autocomplete-wrapper" ref={wrapperRef}>
       <div style={{position:"relative"}}>
-        <input placeholder="Ex: Le Comptoir du Relais, Rome..." value={query} onChange={handleInput}
-          onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
-          style={{ background: COLORS.card, border: `1px solid ${selectedPlace?COLORS.accent:COLORS.border}`, borderRadius: 8, color: COLORS.text, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: "11px 14px", outline: "none", width: "100%", transition: "border-color 0.2s" }} />
+        <input placeholder="Ex: Le Comptoir du Relais..." value={query} onChange={handleInput} onFocus={()=>suggestions.length>0&&setShowDropdown(true)}
+          style={{background:COLORS.card,border:`1px solid ${selectedPlace?COLORS.accent:COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans', sans-serif",fontSize:14,padding:"11px 14px",outline:"none",width:"100%",transition:"border-color 0.2s"}} />
         {selectedPlace && <button onClick={clear} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16}}>✕</button>}
       </div>
       {selectedPlace && <div className="place-badge">✓ {selectedPlace.city}{selectedPlace.country?`, ${selectedPlace.country}`:""} • {selectedPlace.type} • {selectedPlace.price}</div>}
-      {showDropdown && (loading || suggestions.length > 0) && (
+      {showDropdown && (loading||suggestions.length>0) && (
         <div className="autocomplete-dropdown">
           {loading && <div className="autocomplete-loading">Recherche...</div>}
           {!loading && suggestions.map((s,i) => {
-            const main = s.placePrediction?.structuredFormat?.mainText?.text || "";
-            const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text || "";
+            const main = s.placePrediction?.structuredFormat?.mainText?.text||"";
+            const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text||"";
             return (
-              <div key={i} className="autocomplete-item" onMouseDown={() => selectPlace(s)}>
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)}>
                 <div className="autocomplete-main">📍 {main}</div>
                 {secondary && <div className="autocomplete-sub">{secondary}</div>}
               </div>
@@ -360,10 +369,8 @@ function PlaceSearch({ onPlaceSelected, initialValue = "" }) {
   );
 }
 
-// Google Map with markers
 function GoogleMap({ recommendations }) {
   const mapRef = useRef(null);
-
   useEffect(() => {
     if (!recommendations?.length || !mapRef.current) return;
     const loadMap = () => {
@@ -372,19 +379,19 @@ function GoogleMap({ recommendations }) {
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
         styles: [
-          { elementType: "geometry", stylers: [{ color: "#1a1814" }] },
-          { elementType: "labels.text.fill", stylers: [{ color: "#f0ead8" }] },
-          { elementType: "labels.text.stroke", stylers: [{ color: "#0f0e0c" }] },
-          { featureType: "road", elementType: "geometry", stylers: [{ color: "#2e2b25" }] },
-          { featureType: "water", elementType: "geometry", stylers: [{ color: "#0f0e0c" }] },
-          { featureType: "poi", stylers: [{ visibility: "off" }] },
+          {elementType:"geometry",stylers:[{color:"#1a1814"}]},
+          {elementType:"labels.text.fill",stylers:[{color:"#f0ead8"}]},
+          {elementType:"labels.text.stroke",stylers:[{color:"#0f0e0c"}]},
+          {featureType:"road",elementType:"geometry",stylers:[{color:"#2e2b25"}]},
+          {featureType:"water",elementType:"geometry",stylers:[{color:"#0f0e0c"}]},
+          {featureType:"poi",stylers:[{visibility:"off"}]},
         ],
       });
       const geocoder = new window.google.maps.Geocoder();
       let loaded = 0;
       recommendations.forEach((reco, i) => {
         geocoder.geocode({ address: reco.address }, (results, status) => {
-          if (status === "OK" && results[0]) {
+          if (status==="OK"&&results[0]) {
             const pos = results[0].geometry.location;
             bounds.extend(pos);
             new window.google.maps.Marker({
@@ -393,7 +400,7 @@ function GoogleMap({ recommendations }) {
               icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#c9a84c", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 16 },
             });
             loaded++;
-            if (loaded === recommendations.length) map.fitBounds(bounds);
+            if (loaded===recommendations.length) map.fitBounds(bounds);
           }
         });
       });
@@ -401,57 +408,51 @@ function GoogleMap({ recommendations }) {
     if (window.google) { loadMap(); }
     else {
       const script = document.createElement("script");
-      const key = document.querySelector('meta[name="google-maps-key"]')?.content || "";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initGoogleMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY||""}&callback=initGoogleMap`;
       script.async = true;
       window.initGoogleMap = loadMap;
       document.head.appendChild(script);
     }
   }, [recommendations]);
-
   return <div ref={mapRef} className="global-map-container" />;
 }
 
-const DEFAULT_FORM = { name: "", type: "Restaurant", price: "€€", city: "", country: "", rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false };
-const DEFAULT_PREFS = { loves: "", hates: "", budget: "", notes: "", lovesTags: [], hatesTags: [], firstName: "", lastName: "" };
+const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"" };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit = false }) {
-  const [form, setForm] = useState(initial || DEFAULT_FORM);
-  const likesOptions = LIKES_BY_TYPE[form.type] || LIKES_BY_TYPE["Restaurant"];
-  const dislikesOptions = DISLIKES_BY_TYPE[form.type] || DISLIKES_BY_TYPE["Restaurant"];
-  const handleTypeChange = (t) => setForm(f => ({ ...f, type: t, likeTags: [], dislikeTags: [] }));
+function MemoryForm({ initial, onSave, onCancel, isEdit=false }) {
+  const [form, setForm] = useState(initial||DEFAULT_FORM);
+  const likesOptions = LIKES_BY_TYPE[form.type]||LIKES_BY_TYPE["Restaurant"];
+  const dislikesOptions = DISLIKES_BY_TYPE[form.type]||DISLIKES_BY_TYPE["Restaurant"];
+  const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
   const handlePlaceSelected = (place) => {
-    if (!place) { setForm(f => ({ ...f, name: "", city: "", country: "", type: "Restaurant", price: "€€" })); return; }
-    setForm(f => ({ ...f, name: place.name, city: place.city, country: place.country, type: place.type, price: place.price, likeTags: [], dislikeTags: [] }));
+    if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,type:place.type,price:place.price,likeTags:[],dislikeTags:[]}));
   };
-
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {!isEdit ? (
-        <div className="field"><label>Nom du lieu</label><PlaceSearch onPlaceSelected={handlePlaceSelected} /></div>
-      ) : (
-        <div className="field"><label>Nom du lieu</label><input value={form.name} onChange={e => setForm(f=>({...f,name:e.target.value}))} /></div>
-      )}
+      {!isEdit?<div className="field"><label>Nom du lieu</label><PlaceSearch onPlaceSelected={handlePlaceSelected}/></div>
+        :<div className="field"><label>Nom du lieu</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
       {form.name && <>
         <div className="row-2">
           <div className="field"><label>Type</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="row-2">
-          <div className="field"><label>Ville</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))} /></div>
-          <div className="field"><label>Pays</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))} /></div>
+          <div className="field"><label>Ville</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
+          <div className="field"><label>Pays</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
         </div>
-        <div className="field"><label>Note globale</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))} /></div>
-        <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))} />
+        <div className="field"><label>Note globale</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
+        <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))}/>
         <div className="section-divider"><span>Ce que j'ai aimé</span></div>
-        <div className="field"><label>Sélectionner</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like" /></div>
-        <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))} /></div>
+        <div className="field"><label>Sélectionner</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
+        <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
         <div className="section-divider"><span>Ce que j'ai moins aimé</span></div>
-        <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike" /></div>
-        <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}} /></div>
+        <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
+        <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
         <div style={{display:"flex",gap:8,marginTop:4}}>
-          {onCancel && <button className="modal-btn secondary" onClick={onCancel}>Annuler</button>}
-          <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?"Sauvegarder":"Enregistrer ce souvenir"}</button>
+          {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>Annuler</button>}
+          <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?"Sauvegarder":"Enregistrer"}</button>
         </div>
       </>}
     </div>
@@ -464,36 +465,26 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
       <div className="memory-top">
         <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
         <div className="memory-meta">
-          {m.rating > 0 && <span className="badge stars">{starsLabel(m.rating)}</span>}
-          {m.kidsf && <span className="badge kids">👶</span>}
+          {m.rating>0&&<span className="badge stars">{starsLabel(m.rating)}</span>}
+          {m.kidsf&&<span className="badge kids">👶</span>}
           <span className="badge price">{m.price}</span>
-          {!isMine && m.friendName && <span className="badge friend">{m.friendName}</span>}
-          {m.distanceKm !== undefined && <span className="badge dist">{m.distanceKm < 1 ? `${Math.round(m.distanceKm*1000)}m` : `${m.distanceKm.toFixed(1)}km`}</span>}
+          {!isMine&&m.friendName&&<span className="badge friend">{m.friendName}</span>}
         </div>
       </div>
-      {(m.city||m.country) && <div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
-      {(m.likeTags||[]).length > 0 && <div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
-      {m.why && <div className="memory-why">« {m.why} »</div>}
-      {(m.dislikeTags||[]).length > 0 && <div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
-      {m.dislike && <div className="memory-dislike">« {m.dislike} »</div>}
+      {(m.city||m.country)&&<div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
+      {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
+      {m.why&&<div className="memory-why">« {m.why} »</div>}
+      {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
+      {m.dislike&&<div className="memory-dislike">« {m.dislike} »</div>}
       <div className="memory-footer">
         <span className="memory-date">{formatDate(m.ts)}</span>
-        {isMine && <div className="memory-actions">
+        {isMine&&<div className="memory-actions">
           <button className="edit-btn" onClick={()=>onEdit(m)}>✏️ Éditer</button>
           <button className="del-btn" onClick={()=>onDelete(m.id)}>✕</button>
         </div>}
       </div>
     </div>
   );
-}
-
-// Calcul distance entre deux points GPS (Haversine)
-function calcDistance(lat1, lng1, lat2, lng2) {
-  const R = 6371;
-  const dLat = (lat2-lat1) * Math.PI/180;
-  const dLng = (lng2-lng1) * Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
 export default function TravelAgent() {
@@ -513,13 +504,16 @@ export default function TravelAgent() {
   const [loading, setLoading] = useState(true);
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
+  const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
+
+  // Filtres coups de coeur
   const [filterType, setFilterType] = useState("Tous");
   const [filterPrice, setFilterPrice] = useState("Tous");
   const [filterRating, setFilterRating] = useState("Tous");
   const [filterKids, setFilterKids] = useState(false);
   const [showFriendMems, setShowFriendMems] = useState(true);
 
-  // Reco state
+  // Reco
   const [recoType, setRecoType] = useState("Restaurant");
   const [recoPrice, setRecoPrice] = useState("Tous");
   const [recoKids, setRecoKids] = useState(false);
@@ -527,7 +521,7 @@ export default function TravelAgent() {
   const [locMode, setLocMode] = useState("free");
   const [freeLocation, setFreeLocation] = useState("");
   const [gpsLocation, setGpsLocation] = useState("");
-  const [recoCoords, setRecoCoords] = useState(null); // { lat, lng }
+  const [recoCoords, setRecoCoords] = useState(null);
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -562,14 +556,14 @@ export default function TravelAgent() {
     const { data: acceptedA } = await supabase.from('friendships').select('*, profiles!friendships_addressee_id_fkey(*)').eq('requester_id', userId).eq('status', 'accepted');
     const { data: acceptedB } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'accepted');
     const friendList = [
-      ...(acceptedA||[]).map(f => ({ id: f.id, profile: f.profiles, friendUserId: f.addressee_id })),
-      ...(acceptedB||[]).map(f => ({ id: f.id, profile: f.profiles, friendUserId: f.requester_id })),
+      ...(acceptedA||[]).map(f=>({id:f.id,profile:f.profiles,friendUserId:f.addressee_id})),
+      ...(acceptedB||[]).map(f=>({id:f.id,profile:f.profiles,friendUserId:f.requester_id})),
     ];
     setFriends(friendList);
-    if (friendList.length > 0) {
-      const friendIds = friendList.map(f => f.friendUserId);
+    if (friendList.length>0) {
+      const friendIds = friendList.map(f=>f.friendUserId);
       const { data: fMems } = await supabase.from('memories').select('*, profiles(first_name, last_name)').in('user_id', friendIds).order('ts', { ascending: false });
-      if (fMems) setFriendMemories(fMems.map(m => ({ ...m, friendName: `${m.profiles?.first_name} ${m.profiles?.last_name}` })));
+      if (fMems) setFriendMemories(fMems.map(m=>({...m,friendName:`${m.profiles?.first_name} ${m.profiles?.last_name}`})));
     }
     const { data: inReqs } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'pending');
     setPendingIn(inReqs||[]);
@@ -584,35 +578,35 @@ export default function TravelAgent() {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
 
   const handleAdd = async (form) => {
-    const duplicate = memories.find(m => m.name.toLowerCase() === form.name.toLowerCase());
+    const duplicate = memories.find(m => m.name.toLowerCase()===form.name.toLowerCase());
     if (duplicate) { setDuplicateAlert({ existing: duplicate, newForm: form }); return; }
     const entry = { ...form, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
-    if (!error) { setMemories(prev => [entry, ...prev]); showToast("✓ Souvenir enregistré !"); }
+    if (!error) { setMemories(prev=>[entry,...prev]); showToast("✓ Souvenir enregistré !"); }
   };
 
   const handleUpdate = async (form) => {
     const { error } = await supabase.from('memories').update(form).eq('id', editMemory.id).eq('user_id', userId);
-    if (!error) { setMemories(prev => prev.map(m => m.id === editMemory.id ? { ...m, ...form } : m)); setEditMemory(null); showToast("✓ Souvenir mis à jour !"); }
+    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...form}:m)); setEditMemory(null); showToast("✓ Coup de cœur mis à jour !"); }
   };
 
   const handleDuplicateUpdate = async () => {
     const { newForm, existing } = duplicateAlert;
     const updated = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
     await supabase.from('memories').update(updated).eq('id', existing.id).eq('user_id', userId);
-    setMemories(prev => prev.map(m => m.id === existing.id ? updated : m));
-    setDuplicateAlert(null); showToast("✓ Souvenir mis à jour !");
+    setMemories(prev=>prev.map(m=>m.id===existing.id?updated:m));
+    setDuplicateAlert(null); showToast("✓ Coup de cœur mis à jour !");
   };
 
   const deleteMemory = async (id) => {
     await supabase.from('memories').delete().eq('id', id).eq('user_id', userId);
-    setMemories(prev => prev.filter(m => m.id !== id));
+    setMemories(prev=>prev.filter(m=>m.id!==id));
   };
 
   const savePrefs = async () => {
     await supabase.from('preferences').upsert({ ...prefs, user_id: userId });
     await supabase.from('profiles').upsert({ user_id: userId, first_name: prefs.firstName, last_name: prefs.lastName, email: session.user.email });
-    setPrefsSaved(true); setTimeout(() => setPrefsSaved(false), 2000);
+    setPrefsSaved(true); setTimeout(()=>setPrefsSaved(false), 2000);
   };
 
   const searchFriends = async () => {
@@ -637,6 +631,11 @@ export default function TravelAgent() {
     await loadFriends(userId);
   };
 
+  const viewFriendMemories = (friend) => {
+    const fMems = friendMemories.filter(m => m.user_id === friend.friendUserId);
+    setViewingFriend({ name: `${friend.profile?.first_name} ${friend.profile?.last_name}`, memories: fMems });
+  };
+
   const logout = () => supabase.auth.signOut();
 
   const getGPS = () => {
@@ -645,102 +644,100 @@ export default function TravelAgent() {
       const { latitude: lat, longitude: lng } = pos.coords;
       setRecoCoords({ lat, lng });
       fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-        .then(r => r.json())
-        .then(d => { const city = d.address?.city || d.address?.town || d.address?.village || ""; setGpsLocation(`${city}, ${d.address?.country||""}`); })
-        .catch(() => setGpsLocation(`${lat.toFixed(3)}, ${lng.toFixed(3)}`));
+        .then(r=>r.json())
+        .then(d=>{const city=d.address?.city||d.address?.town||d.address?.village||""; setGpsLocation(`${city}, ${d.address?.country||""}`);})
+        .catch(()=>setGpsLocation(`${lat.toFixed(3)}, ${lng.toFixed(3)}`));
     });
   };
 
-  // Géocoder la localisation saisie
   const geocodeLocation = async (address) => {
-    setGeocoding(true);
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "geocode", input: address }) });
       const data = await res.json();
-      if (data.lat) { setRecoCoords({ lat: data.lat, lng: data.lng }); return { lat: data.lat, lng: data.lng }; }
+      if (data.lat) return { lat: data.lat, lng: data.lng };
     } catch {}
-    setGeocoding(false);
     return null;
   };
 
   const loadRecos = async () => {
-    const locationLabel = locMode === "gps" ? gpsLocation : freeLocation;
+    const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
-
-    // Géocoder si nécessaire
+    setGeocoding(true);
     let coords = recoCoords;
-    if (!coords || locMode === "free") {
+    if (!coords || locMode==="free") {
       coords = await geocodeLocation(locationLabel);
-      if (!coords) return;
+      if (!coords) { setGeocoding(false); return; }
       setRecoCoords(coords);
     }
     setGeocoding(false);
 
-    // --- Coups de cœur : filtrer les mémoires existantes par distance ---
+    // Coups de cœur
     setHeartLoading(true);
-    const allMems = [...memories, ...friendMemories];
-    const withDist = allMems
-      .filter(m => m.rating >= 4)
-      .filter(m => recoType === "Tous" || m.type === recoType)
-      .filter(m => recoPrice === "Tous" || m.price === recoPrice)
-      .filter(m => !recoKids || m.kidsf)
-      .map(m => {
-        // Pour l'instant on ne filtre par distance que si on a les coords du lieu
-        // On affiche tous les coups de cœur triés par note
-        return { ...m, isMine: !m.friendName };
-      })
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 8);
-    setHeartMemories(withDist);
+    const allMems = [...memories,...friendMemories];
+    const heartMems = allMems
+      .filter(m=>m.rating>=4)
+      .filter(m=>recoType==="Tous"||m.type===recoType)
+      .filter(m=>recoPrice==="Tous"||m.price===recoPrice)
+      .filter(m=>!recoKids||m.kidsf)
+      .map(m=>({...m,isMine:!m.friendName}))
+      .sort((a,b)=>b.rating-a.rating)
+      .slice(0,8);
+    setHeartMemories(heartMems);
 
-    // --- Lieux populaires à proximité (Google Places Nearby) ---
+    // Nearby Google Places
     try {
       const res = await fetch("/api/places", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "nearby", lat: coords.lat, lng: coords.lng, radius: distance, type: recoType }),
       });
       const data = await res.json();
-      const places = (data.places || []).map(p => ({
-        name: p.displayName?.text || "",
-        address: p.formattedAddress || "",
-        rating: p.rating,
-        price: PRICE_MAP[p.priceLevel] || "",
-        lat: p.location?.latitude,
-        lng: p.location?.longitude,
-      })).filter(p => p.name);
+      const places = (data.places||[]).map(p=>({
+        name: p.displayName?.text||"", address: p.formattedAddress||"",
+        rating: p.rating, price: PRICE_MAP[p.priceLevel]||"",
+        lat: p.location?.latitude, lng: p.location?.longitude,
+      })).filter(p=>p.name);
       setNearbyPlaces(places);
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
-    // --- Recommandations AI ---
+    // AI Recos
     setAiLoading(true); setAiRecos([]);
-    const liked = memories.filter(m => m.rating >= 3)
-      .map(m => `- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) à ${m.city}${m.country?", "+m.country:""} — aimé: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
+    const liked = memories.filter(m=>m.rating>=3)
+      .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — aimé: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
       .join("\n");
-    const disliked = memories.filter(m => m.rating > 0 && m.rating < 3)
-      .map(m => `- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"expérience mitigée"}`)
+    const disliked = memories.filter(m=>m.rating>0&&m.rating<3)
+      .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"expérience mitigée"}`)
       .join("\n");
-    const friendLiked = friendMemories.filter(m => m.rating >= 3)
-      .map(m => `- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
+    const friendLiked = friendMemories.filter(m=>m.rating>=3)
+      .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
 
-    const prompt = `Profil :
+    const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
+    const prompt = `Profil utilisateur :
 Aime : ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"non renseigné"}
 Évite : ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"non renseigné"}
 Budget : ${recoPrice!=="Tous"?recoPrice:prefs.budget||"non renseigné"}
-Kids friendly : ${recoKids?"oui":"non"}
+Kids friendly requis : ${recoKids?"oui":"non"}
 
-Mes lieux appréciés : ${liked||"Aucun."}
-Mes lieux décevants : ${disliked||"Aucun."}
-Lieux de mes amis : ${friendLiked||"Aucun."}
+Mes coups de cœur : ${liked||"Aucun."}
+Mes déceptions : ${disliked||"Aucun."}
+Coups de cœur de mes amis : ${friendLiked||"Aucun."}
 
-Demande : 3 ${recoType} dans un rayon de ${DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)]} autour de "${locationLabel}".
-IMPORTANT : Les lieux doivent être situés à moins de ${DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)]} du point "${locationLabel}". Indique l'adresse complète avec rue, numéro, ville.
-Pour chaque lieu : name, type, price, address (adresse complète avec numéro de rue), why, tip, warning (ou null).`;
+Demande : Trouve les 10 meilleurs ${recoType} dans un rayon STRICT de ${distLabel} autour de "${locationLabel}".
+
+RÈGLES IMPORTANTES :
+- Tous les lieux DOIVENT être à moins de ${distLabel} de "${locationLabel}"
+- Trie-les du plus au moins pertinent selon le profil
+- Pour chaque lieu, calcule un matchScore (0-100) basé sur la correspondance avec les goûts
+- Liste 2-3 matchReasons concrètes qui expliquent pourquoi ce lieu correspond
+- L'adresse doit être complète : numéro, rue, ville, pays
+- Ne propose JAMAIS de lieux similaires aux déceptions`;
 
     try {
-      const res = await fetch("/api/recommend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, structured: true }) });
+      const res = await fetch("/api/recommend", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, structured: true }),
+      });
       const data = await res.json();
       if (data.recommendations) setAiRecos(data.recommendations);
     } catch {}
@@ -748,26 +745,21 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
   };
 
   const addRecoToCarnet = async (reco) => {
-    const entry = {
-      name: reco.name, type: reco.type || recoType, price: reco.price || "€€",
-      city: "", country: "", rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false,
-      id: Date.now(), ts: Date.now(), user_id: userId
-    };
+    const entry = { name:reco.name, type:reco.type||recoType, price:reco.price||"€€", city:"", country:"", rating:0, likeTags:[], dislikeTags:[], why:"", dislike:"", kidsf:false, id:Date.now(), ts:Date.now(), user_id:userId };
     const { error } = await supabase.from('memories').insert(entry);
-    if (!error) { setMemories(prev => [entry, ...prev]); showToast("✓ Ajouté à vos mémoires !"); }
+    if (!error) { setMemories(prev=>[entry,...prev]); showToast("✓ Ajouté à vos coups de cœur !"); }
   };
 
-  const filteredMemories = [...memories.map(m => ({ ...m, isMine: true })), ...(showFriendMems ? friendMemories.map(m => ({ ...m, isMine: false })) : [])]
-    .filter(m => {
-      if (filterType !== "Tous" && m.type !== filterType) return false;
-      if (filterPrice !== "Tous" && m.price !== filterPrice) return false;
-      if (filterRating !== "Tous" && m.rating < parseInt(filterRating)) return false;
-      if (filterKids && !m.kidsf) return false;
-      return true;
-    });
+  const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
+    if (filterType!=="Tous"&&m.type!==filterType) return false;
+    if (filterPrice!=="Tous"&&m.price!==filterPrice) return false;
+    if (filterRating!=="Tous"&&m.rating<parseInt(filterRating)) return false;
+    if (filterKids&&!m.kidsf) return false;
+    return true;
+  });
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
-  const locationLabel = locMode === "gps" ? gpsLocation : freeLocation;
+  const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
 
   return (
     <>
@@ -776,21 +768,21 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
         <div className="header">
           <div className="header-top">
             <div>
-              <div className="header-title">Mon <span>Carnet</span></div>
-              <div className="header-sub">{displayName}</div>
+              <div className="header-logo">Outsy <span>AI</span></div>
+              <div className="header-user">{displayName}</div>
             </div>
             <button className="logout-btn" onClick={logout}>Déconnexion</button>
           </div>
-          <div className="tabs">
-            <button className={`tab ${tab==="add"?"active":""}`} onClick={() => setTab("add")}>+ Ajouter</button>
-            <button className={`tab ${tab==="memories"?"active":""}`} onClick={() => setTab("memories")}>
-              Mémoires {memories.length > 0 && <span className="count-badge">{memories.length}</span>}
+          <div className="tabs" style={{marginTop:12}}>
+            <button className={`tab ${tab==="add"?"active":""}`} onClick={()=>setTab("add")}>+ Ajouter</button>
+            <button className={`tab ${tab==="memories"?"active":""}`} onClick={()=>setTab("memories")}>
+              Coups de cœur {memories.length>0&&<span className="count-badge">{memories.length}</span>}
             </button>
-            <button className={`tab ${tab==="friends"?"active":""}`} onClick={() => setTab("friends")}>
-              Amis {pendingIn.length > 0 && <span className="notif-badge">{pendingIn.length}</span>}
+            <button className={`tab ${tab==="friends"?"active":""}`} onClick={()=>setTab("friends")}>
+              Amis {pendingIn.length>0&&<span className="notif-badge">{pendingIn.length}</span>}
             </button>
-            <button className={`tab ${tab==="prefs"?"active":""}`} onClick={() => setTab("prefs")}>Profil</button>
-            <button className={`tab ${tab==="reco"?"active":""}`} onClick={() => setTab("reco")}>Reco ✨</button>
+            <button className={`tab ${tab==="prefs"?"active":""}`} onClick={()=>setTab("prefs")}>Profil</button>
+            <button className={`tab ${tab==="reco"?"active":""}`} onClick={()=>setTab("reco")}>Reco ✨</button>
           </div>
         </div>
 
@@ -807,41 +799,58 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
                 <div className="filters-row"><span className="filter-label">Note</span>{["Tous","1","2","3","4","5"].map(r=><button key={r} className={`filter-btn ${filterRating===r?"active":""}`} onClick={()=>setFilterRating(r)}>{r==="Tous"?"Tous":`${r}★+`}</button>)}</div>
                 <div className="filters-row">
                   <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>👶 Kids friendly</button>
-                  {friends.length > 0 && <button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>👥 Amis</button>}
+                  {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>👥 Amis</button>}
                 </div>
               </div>
               <div className="memory-list">
-                {filteredMemories.length === 0 ? (
-                  <div className="empty"><div className="empty-icon">🧭</div><div className="empty-text">{memories.length===0?"Votre carnet est vide":"Aucun résultat"}</div><div className="empty-sub">{memories.length===0?"Commencez par ajouter un lieu":"Essayez d'autres filtres"}</div></div>
-                ) : filteredMemories.map(m => <MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} />)}
+                {filteredMemories.length===0?(
+                  <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?"Aucun coup de cœur encore":"Aucun résultat"}</div><div className="empty-sub">{memories.length===0?"Commencez par ajouter un lieu":"Essayez d'autres filtres"}</div></div>
+                ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory}/>)}
               </div>
             </div>
           )}
 
           {!loading && tab === "friends" && (
             <div className="friends-section">
-              {pendingIn.length > 0 && (
+              {viewingFriend && (
+                <div className="friend-panel">
+                  <div className="friend-panel-header">
+                    <div className="friend-panel-title">❤️ Coups de cœur de {viewingFriend.name}</div>
+                    <button className="friend-panel-close" onClick={()=>setViewingFriend(null)}>✕</button>
+                  </div>
+                  {viewingFriend.memories.length===0?(
+                    <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} n'a pas encore de coups de cœur.</div>
+                  ):(
+                    <div className="memory-list">
+                      {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} onEdit={()=>{}} onDelete={()=>{}}/>)}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {pendingIn.length>0&&(
                 <div>
                   <div className="friends-title" style={{marginBottom:10}}>🔔 Demandes reçues</div>
-                  {pendingIn.map(f => (
+                  {pendingIn.map(f=>(
                     <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                       <div className="friend-info"><div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div><div className="friend-email">{f.profiles?.email}</div></div>
-                      <div><button className="friend-action-btn accept" onClick={()=>acceptFriend(f.id)}>✓ Accepter</button><button className="friend-action-btn decline" onClick={()=>declineFriend(f.id)}>✕</button></div>
+                      <div><button className="friend-action-btn accept" onClick={()=>acceptFriend(f.id)}>✓</button><button className="friend-action-btn decline" onClick={()=>declineFriend(f.id)}>✕</button></div>
                     </div>
                   ))}
                 </div>
               )}
+
               <div>
                 <div className="friends-title" style={{marginBottom:10}}>🔍 Ajouter un ami</div>
                 <div className="friend-search-row">
-                  <input className="friend-search-input" placeholder="Email de votre ami..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()} />
+                  <input className="friend-search-input" placeholder="Email de votre ami..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()}/>
                   <button className="friend-search-btn" onClick={searchFriends}>Chercher</button>
                 </div>
-                {searchResults.length > 0 && (
+                {searchResults.length>0&&(
                   <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:8}}>
-                    {searchResults.map(u => {
-                      const alreadyFriend = friends.some(f=>f.friendUserId===u.user_id);
-                      const pendingSent = pendingOut.some(f=>f.addressee_id===u.user_id);
+                    {searchResults.map(u=>{
+                      const alreadyFriend=friends.some(f=>f.friendUserId===u.user_id);
+                      const pendingSent=pendingOut.some(f=>f.addressee_id===u.user_id);
                       return (
                         <div key={u.user_id} className="friend-card">
                           <div className="friend-info"><div className="friend-name">{u.first_name} {u.last_name}</div><div className="friend-email">{u.email}</div></div>
@@ -852,16 +861,21 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
                   </div>
                 )}
               </div>
+
               <div>
                 <div className="friends-title" style={{marginBottom:10}}>👥 Mes amis ({friends.length})</div>
                 {friends.length===0?<div className="empty-friends">Aucun ami pour l'instant.</div>:friends.map(f=>(
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                    <div className="friend-info"><div className="friend-name">{f.profile?.first_name} {f.profile?.last_name}</div><div className="friend-email">{f.profile?.email}</div></div>
-                    <span style={{fontSize:11,color:COLORS.muted}}>{friendMemories.filter(m=>m.user_id===f.friendUserId).length} lieux</span>
+                    <div className="friend-info">
+                      <div className="friend-name">{f.profile?.first_name} {f.profile?.last_name}</div>
+                      <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} coups de cœur</div>
+                    </div>
+                    <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>Voir ❤️</button>
                   </div>
                 ))}
               </div>
-              {pendingOut.length > 0 && (
+
+              {pendingOut.length>0&&(
                 <div>
                   <div className="friends-title" style={{marginBottom:10,fontSize:14}}>⏳ En attente</div>
                   {pendingOut.map(f=>(
@@ -880,90 +894,74 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
               <div className="prefs-card">
                 <div className="prefs-card-title">👤 Mon identité</div>
                 <div className="row-2">
-                  <div className="field"><label>Prénom</label><input placeholder="Brice" value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))} /></div>
-                  <div className="field"><label>Nom</label><input placeholder="Dupont" value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))} /></div>
+                  <div className="field"><label>Prénom</label><input placeholder="Brice" value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
+                  <div className="field"><label>Nom</label><input placeholder="Dupont" value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
                 </div>
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">✨ Ce que j'aime</div>
-                <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_OPTIONS} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like" /></div>
-                <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}} /></div>
+                <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_OPTIONS} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
+                <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
                 <div className="field"><label>Budget habituel</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">Non renseigné</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
               </div>
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">🚫 Ce que j'évite</div>
-                <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={PREFS_HATES_OPTIONS} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike" /></div>
-                <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}} /></div>
+                <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={PREFS_HATES_OPTIONS} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
+                <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">📝 Notes libres</div>
-                <div className="field"><label>Autres infos</label><textarea placeholder="Ex: Je voyage souvent en couple..." value={prefs.notes} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:70}} /></div>
+                <div className="field"><label>Autres infos</label><textarea placeholder="Ex: Je voyage souvent en couple..." value={prefs.notes} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:70}}/></div>
               </div>
               <button className="prefs-save-btn" onClick={savePrefs}>Sauvegarder mon profil</button>
-              {prefsSaved && <div className="prefs-saved">✓ Profil enregistré</div>}
+              {prefsSaved&&<div className="prefs-saved">✓ Profil enregistré</div>}
             </div>
           )}
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
-
-              {/* Carte de localisation unique */}
               <div className="reco-location-card">
                 <div className="reco-location-title">📍 Localisation & paramètres</div>
                 <div className="location-row">
                   <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);getGPS();}}>📍 Ma position</button>
                   <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);}}>✏️ Saisir</button>
                 </div>
-                {locMode==="gps" && gpsLocation && <input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)} style={{marginTop:0}} />}
-                {locMode==="gps" && !gpsLocation && <div style={{fontSize:12,color:COLORS.muted}}>Récupération de votre position...</div>}
-                {locMode==="free" && <input className="inline-input" placeholder="Ex: 10 rue de Rivoli Paris, Tokyo, Rome..." value={freeLocation} onChange={e=>{setFreeLocation(e.target.value);setRecoCoords(null);}} style={{marginTop:0}} />}
-
-                <div className="field">
-                  <label>Rayon de recherche</label>
-                  <DistanceSlider value={distance} onChange={setDistance} />
-                </div>
-
+                {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
+                {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>Récupération de votre position...</div>}
+                {locMode==="free"&&<input className="inline-input" placeholder="Ex: 10 rue de Rivoli Paris, Tokyo..." value={freeLocation} onChange={e=>{setFreeLocation(e.target.value);setRecoCoords(null);}}/>}
+                <div className="field"><label>Rayon de recherche</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
-                  <div className="reco-type-row">{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
                 </div>
-                <div className="filters-row">
-                  <span className="filter-label">Prix</span>
-                  {["Tous",...PRICES].map(p=><button key={p} className={`filter-btn ${recoPrice===p?"active":""}`} onClick={()=>setRecoPrice(p)}>{p}</button>)}
-                </div>
+                <div className="filters-row"><span className="filter-label">Prix</span>{["Tous",...PRICES].map(p=><button key={p} className={`filter-btn ${recoPrice===p?"active":""}`} onClick={()=>setRecoPrice(p)}>{p}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
-
                 <button className="reco-btn" onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
                   {geocoding?"Localisation...":heartLoading||aiLoading?"Recherche en cours...":"🔍 Trouver des lieux"}
                 </button>
               </div>
 
-              {/* Section 1 : Coups de cœur */}
-              {(heartMemories.length > 0 || nearbyPlaces.length > 0) && (
+              {(heartMemories.length>0||nearbyPlaces.length>0)&&(
                 <div className="reco-block">
-                  <div className="reco-block-title">❤️ Coups de cœur<span>Vos favoris & amis • {DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)]}</span></div>
-
-                  {heartMemories.length > 0 && (
+                  <div className="reco-block-title">❤️ Coups de cœur<span>Vos favoris & amis</span></div>
+                  {heartMemories.length>0&&(
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Dans votre carnet</div>
-                      <div className="memory-list">
-                        {heartMemories.map(m => <MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} />)}
-                      </div>
+                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory}/>)}</div>
                     </div>
                   )}
-
-                  {nearbyPlaces.length > 0 && (
-                    <div style={{marginTop: heartMemories.length > 0 ? 16 : 0}}>
+                  {nearbyPlaces.length>0&&(
+                    <div style={{marginTop:heartMemories.length>0?16:0}}>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Lieux populaires à proximité</div>
                       <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                        {nearbyPlaces.map((p, i) => (
+                        {nearbyPlaces.map((p,i)=>(
                           <div key={i} className="nearby-card">
                             <div className="nearby-name">{TYPE_ICONS[recoType]} {p.name}</div>
                             <div className="nearby-meta">
-                              {p.rating && <span className="badge stars">★ {p.rating.toFixed(1)}</span>}
-                              {p.price && <span className="badge price">{p.price}</span>}
+                              {p.rating&&<span className="badge stars">★ {p.rating.toFixed(1)}</span>}
+                              {p.price&&<span className="badge price">{p.price}</span>}
                             </div>
-                            {p.address && <div className="nearby-address">📍 {p.address}</div>}
+                            {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
                               <a href={`https://maps.google.com/?q=${encodeURIComponent(p.address||p.name)}`} target="_blank" rel="noopener noreferrer" className="maps-link">Voir sur Maps →</a>
                               <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>+ Ajouter</button>
@@ -976,33 +974,44 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
                 </div>
               )}
 
-              {/* Section 2 : Recommandations AI */}
-              {(aiLoading || aiRecos.length > 0) && (
+              {(aiLoading||aiRecos.length>0)&&(
                 <div className="reco-block">
-                  <div className="reco-block-title">✨ Recommandations AI<span>Basées sur votre profil • {DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)]}</span></div>
-                  {aiLoading && <div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
-                  {aiRecos.length > 0 && !aiLoading && (
+                  <div className="reco-block-title">✨ Outsy AI<span>10 recommandations triées par affinité</span></div>
+                  {aiLoading&&<div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
+                  {aiRecos.length>0&&!aiLoading&&(
                     <>
-                      <GoogleMap recommendations={aiRecos} />
+                      <GoogleMap recommendations={aiRecos.slice(0,10)}/>
                       <div className="ai-reco-list">
-                        {aiRecos.map((reco, i) => (
+                        {aiRecos.slice(0,10).map((reco,i)=>(
                           <div key={i} className="ai-reco-card">
                             <div className="ai-reco-header">
-                              <div className="ai-reco-name"><span style={{color:COLORS.accent,fontSize:14,fontFamily:"DM Sans",fontStyle:"normal",marginRight:8}}>{i+1}</span>{reco.name}</div>
+                              <div className="ai-reco-top">
+                                <div className="ai-reco-name">{reco.name}</div>
+                                <div className="ai-reco-rank">#{i+1}</div>
+                              </div>
                               <div className="ai-reco-meta">
                                 <span className="badge">{TYPE_ICONS[reco.type]||"📍"} {reco.type}</span>
                                 <span className="badge price">{reco.price}</span>
                               </div>
-                              {reco.address && (
-                                <div className="ai-reco-address">
-                                  📍 {reco.address}
-                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>Voir sur Maps →</a>
+                              {reco.matchScore&&(
+                                <div className="match-score">
+                                  <div className="match-bar-wrap"><div className="match-bar" style={{width:`${reco.matchScore}%`}}/></div>
+                                  <div className="match-score-label">{reco.matchScore}% match</div>
                                 </div>
                               )}
-                              {reco.why && <div className="ai-reco-why">« {reco.why} »</div>}
-                              {reco.tip && <div className="ai-reco-tip">💡 {reco.tip}</div>}
-                              {reco.warning && <div className="ai-reco-warning">⚠️ {reco.warning}</div>}
-                              <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet(reco)}>+ Ajouter à mon carnet</button>
+                              {reco.matchReasons?.length>0&&(
+                                <div className="match-reasons">{reco.matchReasons.map((r,j)=><span key={j} className="match-reason">✓ {r}</span>)}</div>
+                              )}
+                              {reco.address&&(
+                                <div className="ai-reco-address">
+                                  📍 {reco.address}
+                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>Maps →</a>
+                                </div>
+                              )}
+                              {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
+                              {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
+                              {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
+                              <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet(reco)}>+ Ajouter à mes coups de cœur</button>
                             </div>
                           </div>
                         ))}
@@ -1011,26 +1020,25 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
                   )}
                 </div>
               )}
-
             </div>
           )}
         </div>
       </div>
 
-      {editMemory && (
+      {editMemory&&(
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">✏️ Modifier {editMemory.name}</div>
-            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} />
+            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true}/>
           </div>
         </div>
       )}
 
-      {duplicateAlert && (
+      {duplicateAlert&&(
         <div className="alert-overlay">
           <div className="alert-box">
             <div className="alert-title">📍 Lieu déjà existant</div>
-            <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> est déjà dans votre carnet. Mettre à jour ?</div>
+            <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> est déjà dans vos coups de cœur. Mettre à jour ?</div>
             <div className="alert-actions">
               <button className="modal-btn secondary" onClick={()=>setDuplicateAlert(null)}>Annuler</button>
               <button className="modal-btn primary" onClick={handleDuplicateUpdate}>Mettre à jour</button>
@@ -1039,7 +1047,7 @@ Pour chaque lieu : name, type, price, address (adresse complète avec numéro de
         </div>
       )}
 
-      {toast && <div className="success-toast">{toast}</div>}
+      {toast&&<div className="success-toast">{toast}</div>}
     </>
   );
 }

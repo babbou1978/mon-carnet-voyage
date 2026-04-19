@@ -11,9 +11,9 @@ const css = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
   .auth-wrapper { max-width: 400px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 40px 24px; }
-  .auth-logo { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; letter-spacing: 0.05em; text-align: center; margin-bottom: 8px; }
+  .auth-logo { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; letter-spacing: 0.05em; text-align: center; margin-bottom: 4px; }
   .auth-logo span { color: ${COLORS.accent}; font-style: italic; }
-  .auth-sub { font-size: 11px; color: ${COLORS.muted}; letter-spacing: 0.15em; text-transform: uppercase; text-align: center; margin-bottom: 40px; }
+  .auth-tagline { font-size: 12px; color: ${COLORS.muted}; letter-spacing: 0.2em; text-transform: uppercase; text-align: center; margin-bottom: 40px; }
   .auth-card { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
   .auth-tabs { display: flex; background: ${COLORS.bg}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
   .auth-tab { flex: 1; padding: 8px; font-size: 12px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; background: none; border: none; color: ${COLORS.muted}; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-weight: 500; }
@@ -50,15 +50,11 @@ export default function Auth() {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) { setError("Erreur lors de l'inscription."); }
       else {
-        // Créer le profil
         if (data.user) {
           await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
-          // Notifier par email
-          try {
-            await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email }) });
-          } catch {}
+          try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email }) }); } catch {}
         }
-        setSuccess(`Bienvenue ${firstName} ! Votre compte est créé.`);
+        setSuccess(`Bienvenue ${firstName} sur Outsy AI !`);
       }
     }
     setLoading(false);
@@ -68,8 +64,8 @@ export default function Auth() {
     <>
       <style>{css}</style>
       <div className="auth-wrapper">
-        <div className="auth-logo">Mon <span>Carnet</span></div>
-        <div className="auth-sub">Agence de voyage personnelle</div>
+        <div className="auth-logo">Outsy <span>AI</span></div>
+        <div className="auth-tagline">Votre agent de voyage personnel</div>
         <div className="auth-card">
           <div className="auth-tabs">
             <button className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>Connexion</button>
