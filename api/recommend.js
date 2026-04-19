@@ -1,28 +1,43 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { prompt, structured } = req.body;
+  const { prompt, structured, language } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt manquant' });
+
+  const langInstructions = {
+    fr: "Réponds en français.",
+    en: "Respond in English.",
+    es: "Responde en español.",
+    de: "Antworte auf Deutsch.",
+    it: "Rispondi in italiano.",
+    pt: "Responda em português.",
+    nl: "Antwoord in het Nederlands.",
+    ja: "日本語で回答してください。",
+    zh: "请用中文回答。",
+    ar: "أجب باللغة العربية.",
+  };
+  const langInstruction = langInstructions[language] || langInstructions["en"];
 
   try {
     const systemPrompt = structured
-      ? `Tu es Outsy AI, un agent de voyage personnel francophone expert. Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, sans texte avant ou après.
-Format attendu :
+      ? `You are Outsy AI, a personal travel agent. ${langInstruction}
+Respond ONLY with valid JSON, no markdown, no backticks, no text before or after.
+Required format:
 {
   "recommendations": [
     {
-      "name": "Nom du lieu",
-      "type": "type de lieu",
+      "name": "Place name",
+      "type": "place type",
       "price": "€€",
-      "address": "adresse complète avec numéro, rue, ville, pays",
+      "address": "full address with street number, street, city, country",
       "matchScore": 95,
-      "matchReasons": ["Correspond à votre goût pour la cuisine locale", "Ambiance chaleureuse comme vous aimez"],
-      "why": "description personnalisée en 1-2 phrases",
-      "tip": "conseil pratique",
-      "warning": "point d'attention ou null"
+      "matchReasons": ["reason 1", "reason 2"],
+      "why": "personalized description 1-2 sentences",
+      "tip": "practical tip",
+      "warning": "warning about dislikes or null"
     }
   ]
 }`
-      : `Tu es Outsy AI, un agent de voyage personnel francophone expert en découvertes locales.`;
+      : `You are Outsy AI, a personal travel agent expert. ${langInstruction}`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -33,7 +48,7 @@ Format attendu :
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
-        max_tokens: 3000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: prompt }],
       }),
@@ -55,6 +70,6 @@ Format attendu :
     res.status(200).json({ result: text });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error: 'Server error' });
   }
 }

@@ -822,7 +822,6 @@ export default function TravelAgent() {
 
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
     try {
-      // Géocoder TOUS les candidats pour avoir leurs vraies coordonnées
       const toGeocode = candidates.filter(m=>m.city||m.name);
       if (toGeocode.length > 0) {
         const geoRes = await fetch("/api/geocode-memories", {
@@ -833,20 +832,32 @@ export default function TravelAgent() {
         const coordsMap = {};
         (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[r.id]={lat:r.lat,lng:r.lng}; });
 
-        heartMems = heartMems.map(m=>{
+        // Attacher les coords et distances
+        const withDist = heartMems.map(m=>{
           const c = coordsMap[m.id];
           if (c) {
             const distKm = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
             return {...m, _lat:c.lat, _lng:c.lng, distanceKm: distKm};
           }
-          return {...m, distanceKm: 9999}; // pas de coords = exclu
-        }).filter(m => m.distanceKm * 1000 <= distance);
+          return m; // pas de coords → on garde quand même
+        });
+
+        // Séparer ceux dans le rayon et ceux sans coords
+        const inRadius = withDist.filter(m=>m.distanceKm!==undefined && m.distanceKm*1000<=distance);
+        const noCoords = withDist.filter(m=>m.distanceKm===undefined);
+
+        // Si on a des résultats dans le rayon → on les affiche
+        // Sinon on affiche tous (cas où geocoding a échoué)
+        heartMems = inRadius.length > 0
+          ? inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating)
+          : withDist.sort((a,b)=>b.rating-a.rating);
       } else {
-        heartMems = [];
+        heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
       }
-    } catch { heartMems = []; }
-    heartMems = heartMems.sort((a,b)=>(a.distanceKm||999)-(b.distanceKm||999)||b.rating-a.rating).slice(0,8);
-    setHeartMemories(heartMems);
+    } catch {
+      heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
+    }
+    setHeartMemories(heartMems.slice(0,8));
 
     // Nearby Google Places
     try {
@@ -878,31 +889,32 @@ export default function TravelAgent() {
 
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
-    const prompt = `Profil utilisateur :
-Langue de réponse OBLIGATOIRE : ${langLabel} — réponds UNIQUEMENT dans cette langue, y compris les noms de champs JSON.
-Aime : ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"non renseigné"}
-Évite : ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"non renseigné"}
-Budget : ${recoPrice!=="Tous"?recoPrice:prefs.budget||"non renseigné"}
-Kids friendly requis : ${recoKids?"oui":"non"}
+    const prompt = `User profile:
+Likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"not specified"}
+Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"not specified"}
+Budget: ${recoPrice!=="Tous"?recoPrice:prefs.budget||"not specified"}
+Kids friendly required: ${recoKids?"yes":"no"}
+Preferred language for responses: ${langLabel}
 
-Mes coups de cœur : ${liked||"Aucun."}
-Mes déceptions : ${disliked||"Aucun."}
-Coups de cœur de mes amis : ${friendLiked||"Aucun."}
+My favorites: ${liked||"None."}
+My disappointments: ${disliked||"None."}
+Friends favorites: ${friendLiked||"None."}
 
-Demande : Trouve les 10 meilleurs ${recoType} dans un rayon STRICT de ${distLabel} autour de "${locationLabel}".
+Request: Find the 10 best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
 
-RÈGLES IMPORTANTES :
-- Tous les lieux DOIVENT être à moins de ${distLabel} de "${locationLabel}"
-- Trie-les du plus au moins pertinent selon le profil
-- Pour chaque lieu, calcule un matchScore (0-100) basé sur la correspondance avec les goûts
-- Liste 2-3 matchReasons concrètes qui expliquent pourquoi ce lieu correspond
-- L'adresse doit être complète : numéro, rue, ville, pays
-- Ne propose JAMAIS de lieux similaires aux déceptions`;
+IMPORTANT RULES:
+- ALL places MUST be within ${distLabel} of "${locationLabel}"
+- Sort by best match to the user profile (highest matchScore first)
+- matchScore 0-100 based on profile match
+- 2-3 concrete matchReasons explaining why this place fits
+- Full address required: street number, street name, city, country
+- NEVER suggest places similar to disappointments
+- Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
 
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, structured: true }),
+        body: JSON.stringify({ prompt, structured: true, language: prefs.language || "en" }),
       });
       const data = await res.json();
       if (data.recommendations) setAiRecos(data.recommendations);
@@ -941,12 +953,10 @@ RÈGLES IMPORTANTES :
           </div>
           <div className="tabs" style={{marginTop:12}}>
             <button className={`tab ${tab==="reco"?"active":""}`} onClick={()=>setTab("reco")}>Reco ✨</button>
-            <button className={`tab ${tab==="memories"?"active":""}`} onClick={()=>setTab("memories")}>
-              Coups de cœur {memories.length>0&&<span className="count-badge">{memories.length}</span>}
-            </button>
+            <button className={`tab ${tab==="memories"?"active":""}`} onClick={()=>setTab("memories")}>❤️ Favoris</button>
             <button className={`tab ${tab==="add"?"active":""}`} onClick={()=>setTab("add")}>+ Ajouter</button>
             <button className={`tab ${tab==="friends"?"active":""}`} onClick={()=>setTab("friends")}>
-              Amis {pendingIn.length>0&&<span className="notif-badge">{pendingIn.length}</span>}
+              👥 Amis {pendingIn.length>0&&<span className="notif-badge">{pendingIn.length}</span>}
             </button>
             <button className={`tab ${tab==="prefs"?"active":""}`} onClick={()=>setTab("prefs")}>Profil</button>
           </div>
