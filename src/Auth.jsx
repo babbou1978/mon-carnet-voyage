@@ -7,7 +7,7 @@ const COLORS = {
 };
 
 const AUTH_T = {
-  fr: { logo: "Outsy AI", tagline: "Sauvegardez & partagez vos lieux coups de cœur. Découvrez encore plus.", login: "Connexion", signup: "Inscription",
+  fr: { logo: "Outsy AI", tagline: "Save & Share places you love. Discover more.", login: "Connexion", signup: "Inscription",
     firstName: "Prénom", lastName: "Nom", email: "Email", password: "Mot de passe",
     connect: "Se connecter", create: "Créer mon compte",
     forgot: "Mot de passe oublié ?", resetTitle: "Réinitialiser", resetBtn: "Envoyer le lien",
@@ -79,7 +79,7 @@ export default function Auth() {
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError(at.errorSignup); }
+      if (error) { setError(error.message || at.errorSignup); }
       else {
         if (data.user) {
           await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
