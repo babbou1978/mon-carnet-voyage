@@ -96,7 +96,7 @@ export default function Auth() {
       <style>{css}</style>
       <div className="auth-wrapper">
         <div className="auth-logo">Outsy <span>AI</span></div>
-        <div className="auth-tagline">{at.tagline}</div>
+        <div className="auth-tagline" style={{letterSpacing:"0.15em",lineHeight:1.8}}>Save & Share places you love.<br/>Discover more.</div>
         <div className="auth-card">
           {mode === "reset" ? (
             <>
