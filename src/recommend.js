@@ -31,7 +31,7 @@ Required format:
       "address": "full address with street number, street, city, country",
       "matchScore": 95,
       "matchReasons": ["Matches your love of X", "Similar to your favorite Y"],
-      "why": "MUST reference the user profile: mention a specific favorite place they liked, or a specific preference from their profile. Example: 'Like Le Comptoir which you loved, this place has the same warm atmosphere you appreciate.'",
+      "why": "Personalized description 1-2 sentences. When natural and relevant, mention a similarity to one of their favorite places or preferences. Do not force it if not genuinely relevant.",
       "tip": "practical insider tip",
       "warning": "specific warning based on their dislikes or null"
     }
