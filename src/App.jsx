@@ -998,6 +998,7 @@ export default function TravelAgent() {
   const [locMode, setLocMode] = useState(() => localStorage.getItem("outsy_locMode") || "free");
   const [freeLocation, setFreeLocation] = useState(() => localStorage.getItem("outsy_freeLocation") || "");
   const [gpsLocation, setGpsLocation] = useState(() => localStorage.getItem("outsy_gpsLocation") || "");
+  const [gpsReady, setGpsReady] = useState(true); // false while GPS is loading
   const [recoCoords, setRecoCoords] = useState(() => {
     try { const s = localStorage.getItem("outsy_recoCoords"); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -1181,6 +1182,7 @@ export default function TravelAgent() {
       }
     }, (err) => {
       setGpsLocation("Erreur de localisation");
+      setGpsReady(true);
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
 
@@ -1542,7 +1544,7 @@ IMPORTANT RULES:
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
                 <div style={{display:"flex",gap:8}}>
-                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsLocation)}>
+                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
                     {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
                   </button>
                   {(heartLoading||aiLoading||geocoding)&&(
