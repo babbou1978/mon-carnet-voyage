@@ -801,6 +801,8 @@ function RecoPlaceSearch({ onPlaceSelected }) {
     const val = e.target.value;
     setQuery(val); setSelected(null);
     if (!val) { onPlaceSelected(null); return; }
+    // Reset coords when typing manually - will be geocoded on "Find"
+    onPlaceSelected({ address: val, lat: null, lng: null });
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => search(val), 350);
   };
@@ -1189,7 +1191,8 @@ export default function TravelAgent() {
     setGeocoding(true);
     // Use ref for immediate access (state update is async in React)
     let coords = recoCoordsRef.current;
-    if (!coords) {
+    // For free mode, always re-geocode if no valid coords (user may have typed without selecting)
+    if (!coords || !coords.lat) {
       coords = await geocodeLocation(locationLabel);
       if (!coords) { setGeocoding(false); return; }
       setRecoCoords(coords);
