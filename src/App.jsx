@@ -587,12 +587,12 @@ function KidsToggle({ value, onChange, t }) {
   );
 }
 
-function DistanceSlider({ value, onChange, unit="km" }) {
+function DistanceSlider({ value, onChange, unit="km", radiusLabel="Radius" }) {
   const idx = DISTANCE_STEPS.indexOf(value);
   const labels = unit === "mi" ? DISTANCE_LABELS_MI : DISTANCE_LABELS_KM;
   return (
     <div className="distance-slider-wrap">
-      <div className="distance-slider-value">{t.recoRadius||"Radius"} : {labels[idx]}</div>
+      <div className="distance-slider-value">{radiusLabel} : {labels[idx]}</div>
       <input type="range" min={0} max={DISTANCE_STEPS.length-1} value={idx} onChange={e=>onChange(DISTANCE_STEPS[parseInt(e.target.value)])} />
       <div className="distance-slider-labels">{labels.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
     </div>
@@ -1493,7 +1493,7 @@ IMPORTANT RULES:
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
-                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance} unit={prefs.distUnit||"km"}/></div>
+                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance} unit={prefs.distUnit||"km"} radiusLabel={t.recoRadius}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
