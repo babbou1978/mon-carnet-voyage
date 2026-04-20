@@ -1086,13 +1086,17 @@ export default function TravelAgent() {
   };
 
   const handleUpdate = async (form) => {
-    const { error } = await supabase.from('memories').update(form).eq('id', editMemory.id).eq('user_id', userId);
-    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...form}:m)); setEditMemory(null); showToast(t.toastUpdated); }
+    // Clean form - only send DB fields
+    const { isMine, friendName, distanceKm, _lat, _lng, ...cleanForm } = form;
+    const { error } = await supabase.from('memories').update(cleanForm).eq('id', editMemory.id).eq('user_id', userId);
+    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m)); setEditMemory(null); showToast(t.toastUpdated); }
+    else { console.error('Update error:', error); showToast('❌ ' + error.message); }
   };
 
   const handleDuplicateUpdate = async () => {
     const { newForm, existing } = duplicateAlert;
-    const updated = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
+    const merged = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
+    const { isMine, friendName, distanceKm, _lat, _lng, profiles, ...updated } = merged;
     await supabase.from('memories').update(updated).eq('id', existing.id).eq('user_id', userId);
     setMemories(prev=>prev.map(m=>m.id===existing.id?updated:m));
     setDuplicateAlert(null); showToast(t.toastUpdated);
@@ -1653,7 +1657,8 @@ IMPORTANT RULES:
           <div className="modal">
             <div className="modal-title">+ {recoToAdd.name}</div>
             <MemoryForm initial={recoToAdd} lang={lang} onSave={async(form)=>{
-              const entry={...form,id:Date.now(),ts:Date.now(),user_id:userId};
+              const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,...cleanF}=form;
+const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
               if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
               setRecoToAdd(null);
