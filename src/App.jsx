@@ -1510,7 +1510,7 @@ IMPORTANT RULES:
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
-                              <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
+                              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:"")+(p.address?"":(" "+(p.city||"")+" "+(p.country||""))))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
                               <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
                             </div>
                           </div>
@@ -1552,7 +1552,7 @@ IMPORTANT RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(reco.name+", "+reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
+                                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
