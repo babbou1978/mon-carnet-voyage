@@ -587,13 +587,14 @@ function KidsToggle({ value, onChange, t }) {
   );
 }
 
-function DistanceSlider({ value, onChange }) {
+function DistanceSlider({ value, onChange, unit="km" }) {
   const idx = DISTANCE_STEPS.indexOf(value);
+  const labels = unit === "mi" ? DISTANCE_LABELS_MI : DISTANCE_LABELS_KM;
   return (
     <div className="distance-slider-wrap">
-      <div className="distance-slider-value">Rayon : {DISTANCE_LABELS[idx]}</div>
+      <div className="distance-slider-value">{t.recoRadius||"Radius"} : {labels[idx]}</div>
       <input type="range" min={0} max={DISTANCE_STEPS.length-1} value={idx} onChange={e=>onChange(DISTANCE_STEPS[parseInt(e.target.value)])} />
-      <div className="distance-slider-labels">{DISTANCE_LABELS.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
+      <div className="distance-slider-labels">{labels.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
     </div>
   );
 }
@@ -839,7 +840,7 @@ function RecoPlaceSearch({ onPlaceSelected }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",distUnit:"km" };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1452,6 +1453,17 @@ IMPORTANT RULES:
                 <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_OPTIONS} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
                 <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
                 <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+              <div className="field">
+                <label>{t.distUnit||"Distance unit"}</label>
+                <div style={{display:"flex",gap:8}}>
+                  {[["km","Kilometres (km)"],["mi","Miles (mi)"]].map(([u,label])=>(
+                    <button key={u} onClick={()=>setPrefs(p=>({...p,distUnit:u}))}
+                      style={{flex:1,padding:"10px",background:prefs.distUnit===u?"#c9a84c22":"#1a1814",border:`1px solid ${(prefs.distUnit||"km")===u?"#c9a84c":"#2e2b25"}`,borderRadius:8,color:(prefs.distUnit||"km")===u?"#c9a84c":"#8a8070",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,transition:"all 0.2s"}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               </div>
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">{t.profileDislikes}</div>
@@ -1481,7 +1493,7 @@ IMPORTANT RULES:
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
-                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance}/></div>
+                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance} unit={prefs.distUnit||"km"}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
