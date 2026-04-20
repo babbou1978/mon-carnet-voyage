@@ -989,6 +989,8 @@ export default function TravelAgent() {
   const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
   const [showFriendMems, setShowFriendMems] = useState(true);
+  const [showOnlyFriends, setShowOnlyFriends] = useState(false);
+  const [memSearch, setMemSearch] = useState("");
 
   // Reco
   const [recoType, setRecoType] = useState("Restaurant");
@@ -1352,11 +1354,20 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
+  const filteredMemories = [
+    ...(showOnlyFriends ? [] : memories.map(m=>({...m,isMine:true}))),
+    ...((showFriendMems||showOnlyFriends) ? friendMemories.map(m=>({...m,isMine:false})) : [])
+  ].filter(m=>{
     if (filterType!==ALL&&m.type!==filterType) return false;
     if (filterPrice!==ALL&&m.price!==filterPrice) return false;
     if (filterRating!==ALL&&m.rating<parseInt(filterRating)) return false;
     if (filterKids&&!m.kidsf) return false;
+    if (memSearch.trim()) {
+      const q = memSearch.toLowerCase();
+      if (!m.name?.toLowerCase().includes(q) &&
+          !m.city?.toLowerCase().includes(q) &&
+          !m.country?.toLowerCase().includes(q)) return false;
+    }
     return true;
   });
 
@@ -1399,8 +1410,18 @@ IMPORTANT RULES:
                 <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[[ALL,t.filterAll],["1","1"],["2","2"],["3","3"],["4","4"],["5","5"]].map(([val,label])=><button key={val} className={`filter-btn ${filterRating===val?"active":""}`} onClick={()=>setFilterRating(val)}>{val===ALL?t.filterAll:`${val}★+`}</button>)}</div>
                 <div className="filters-row">
                   <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>{t.filterKids}</button>
-                  {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>{t.filterFriends}</button>}
+                  {friends.length>0&&(<>
+                    <button className={`filter-btn ${!showOnlyFriends&&showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(true);}}>👤+👥</button>
+                    <button className={`filter-btn ${!showOnlyFriends&&!showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(false);}}>👤 {t.filterMine||"Mine"}</button>
+                    <button className={`filter-btn ${showOnlyFriends?"active":""}`} onClick={()=>{setShowOnlyFriends(true);setShowFriendMems(true);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
+                  </>)}
                 </div>
+                <input
+                  value={memSearch}
+                  onChange={e=>setMemSearch(e.target.value)}
+                  placeholder={t.searchPlaces||"Search by name, city..."}
+                  style={{background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none",width:"100%",marginBottom:8,transition:"border-color 0.2s"}}
+                />
               </div>
               <div className="memory-list">
                 {filteredMemories.length===0?(
