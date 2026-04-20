@@ -7,14 +7,14 @@ const COLORS = {
 };
 
 const AUTH_T = {
-  fr: { logo: "Outsy AI", tagline: "Votre agent de voyage personnel", login: "Connexion", signup: "Inscription",
+  fr: { logo: "Outsy AI", tagline: "Sauvegardez & partagez vos lieux coups de cœur. Découvrez encore plus.", login: "Connexion", signup: "Inscription",
     firstName: "Prénom", lastName: "Nom", email: "Email", password: "Mot de passe",
     connect: "Se connecter", create: "Créer mon compte",
     forgot: "Mot de passe oublié ?", resetTitle: "Réinitialiser", resetBtn: "Envoyer le lien",
     resetSent: "✓ Lien envoyé ! Vérifiez votre email.", backToLogin: "← Retour",
     errorLogin: "Email ou mot de passe incorrect.", errorSignup: "Erreur lors de l'inscription.",
     errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
-  en: { logo: "Outsy AI", tagline: "Your personal travel agent", login: "Sign in", signup: "Sign up",
+  en: { logo: "Outsy AI", tagline: "Save & Share places you love. Discover more.", login: "Sign in", signup: "Sign up",
     firstName: "First name", lastName: "Last name", email: "Email", password: "Password",
     connect: "Sign in", create: "Create account",
     forgot: "Forgot password?", resetTitle: "Reset password", resetBtn: "Send reset link",
