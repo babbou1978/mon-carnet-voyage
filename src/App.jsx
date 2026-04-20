@@ -1187,8 +1187,8 @@ export default function TravelAgent() {
       } else {
         heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
       }
-    } catch {
-      // On error always show all favorites
+    } catch(err) {
+      console.error("HEART FILTER ERROR:", err);
       heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
     }
     setHeartMemories(heartMems.slice(0,10));
