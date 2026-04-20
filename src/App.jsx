@@ -677,7 +677,7 @@ function PlaceSearch({ onPlaceSelected }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_1"))?.longText || "";
+      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
       const googleTypes = details.types||[];
       let type = "Restaurant";
