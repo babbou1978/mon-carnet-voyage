@@ -1008,6 +1008,7 @@ export default function TravelAgent() {
   const [heartLoading, setHeartLoading] = useState(false);
   const [aiRecos, setAiRecos] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
+  const abortRef = useRef(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -1136,6 +1137,13 @@ export default function TravelAgent() {
 
   const logout = () => supabase.auth.signOut();
 
+  const cancelSearch = () => {
+    if (abortRef.current) abortRef.current.abort();
+    setHeartLoading(false);
+    setAiLoading(false);
+    setGeocoding(false);
+  };
+
   const sendResetEmail = async (email) => {
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin,
@@ -1188,6 +1196,9 @@ export default function TravelAgent() {
   const loadRecos = async () => {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
+    // Create new abort controller for this search
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
     setGeocoding(true);
     // GPS: use cached coords. Free text: always geocode fresh
     let coords;
@@ -1530,9 +1541,16 @@ IMPORTANT RULES:
                 </div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
-                <button className="reco-btn" onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
-                  {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
-                </button>
+                <div style={{display:"flex",gap:8}}>
+                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
+                    {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
+                  </button>
+                  {(heartLoading||aiLoading||geocoding)&&(
+                    <button onClick={cancelSearch} style={{padding:"13px 16px",background:"#3a1a1a",border:"1px solid #8b3a3a",borderRadius:10,color:"#e06060",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
+                      ✕ {t.cancel||"Cancel"}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {(heartMemories.length>0||nearbyPlaces.length>0)&&(
