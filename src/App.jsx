@@ -1530,7 +1530,7 @@ IMPORTANT RULES:
               <div className="reco-location-card">
                 <div className="reco-location-title">{t.recoLocation}</div>
                 <div className="location-row">
-                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);getGPS();}}>{t.recoGPS}</button>
+                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
                   <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);}}>{t.recoManual}</button>
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
