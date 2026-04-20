@@ -9,15 +9,7 @@ const TYPE_ICONS = { "Restaurant": "🍽️", "Hôtel": "🏨", "Bar / Café": "
 const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Bar / Café", bar: "Bar / Café", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", museum: "Activité", park: "Activité", amusement_park: "Activité", night_club: "Bar / Café", bakery: "Restaurant", food: "Restaurant" };
 const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
-const ALL = "__ALL__";
-
-const TYPES_BY_LANG = {"fr": {"Restaurant": "Restaurant", "Hôtel": "Hôtel", "Bar / Café": "Bar / Café", "Destination": "Destination", "Activité": "Activité"}, "en": {"Restaurant": "Restaurant", "Hôtel": "Hotel", "Bar / Café": "Bar / Café", "Destination": "Destination", "Activité": "Activity"}, "es": {"Restaurant": "Restaurante", "Hôtel": "Hotel", "Bar / Café": "Bar / Café", "Destination": "Destino", "Activité": "Actividad"}, "de": {"Restaurant": "Restaurant", "Hôtel": "Hotel", "Bar / Café": "Bar / Café", "Destination": "Reiseziel", "Activité": "Aktivität"}, "it": {"Restaurant": "Ristorante", "Hôtel": "Hotel", "Bar / Café": "Bar / Caffè", "Destination": "Destinazione", "Activité": "Attività"}, "pt": {"Restaurant": "Restaurante", "Hôtel": "Hotel", "Bar / Café": "Bar / Café", "Destination": "Destino", "Activité": "Atividade"}, "nl": {"Restaurant": "Restaurant", "Hôtel": "Hotel", "Bar / Café": "Bar / Café", "Destination": "Bestemming", "Activité": "Activiteit"}};
-const LIKES_BY_LANG = {"fr": {"Restaurant": ["Ambiance chaleureuse", "Cuisine locale", "Terrasse agréable", "Service attentionné", "Cadre original", "Cave à vins", "Produits frais", "Vue exceptionnelle", "Rapport qualité/prix", "Kids friendly"], "Bar / Café": ["Ambiance chaleureuse", "Terrasse agréable", "Bonne sélection", "Service attentionné", "Cadre original", "Musique agréable", "Vue exceptionnelle", "Rapport qualité/prix", "Kids friendly"], "Hôtel": ["Chambre spacieuse", "Petit-déjeuner inclus", "Piscine", "Spa", "Vue exceptionnelle", "Personnel attentionné", "Rapport qualité/prix", "Kids friendly", "Calme", "Emplacement idéal"], "Destination": ["Paysages exceptionnels", "Culture locale", "Peu touristique", "Gastronomie", "Architecture", "Nature", "Art", "Vie nocturne", "Kids friendly", "Accessibilité"], "Activité": ["Expérience unique", "Bien organisé", "Guide excellent", "Rapport qualité/prix", "Kids friendly", "Vue exceptionnelle", "Originalité", "Accessibilité"]}, "en": {"Restaurant": ["Warm atmosphere", "Local cuisine", "Pleasant terrace", "Attentive service", "Original setting", "Wine cellar", "Fresh produce", "Exceptional view", "Value for money", "Kids friendly"], "Bar / Café": ["Warm atmosphere", "Pleasant terrace", "Good selection", "Attentive service", "Original setting", "Pleasant music", "Exceptional view", "Value for money", "Kids friendly"], "Hôtel": ["Spacious room", "Breakfast included", "Pool", "Spa", "Exceptional view", "Attentive staff", "Value for money", "Kids friendly", "Quiet", "Ideal location"], "Destination": ["Exceptional scenery", "Local culture", "Off the beaten track", "Gastronomy", "Architecture", "Nature", "Art", "Nightlife", "Kids friendly", "Accessibility"], "Activité": ["Unique experience", "Well organized", "Excellent guide", "Value for money", "Kids friendly", "Exceptional view", "Originality", "Accessibility"]}, "es": {"Restaurant": ["Ambiente cálido", "Cocina local", "Terraza agradable", "Servicio atento", "Ambiente original", "Bodega", "Productos frescos", "Vista excepcional", "Buena relación calidad-precio", "Apto para niños"], "Bar / Café": ["Ambiente cálido", "Terraza agradable", "Buena selección", "Servicio atento", "Ambiente original", "Música agradable", "Vista excepcional", "Buena relación calidad-precio", "Apto para niños"], "Hôtel": ["Habitación amplia", "Desayuno incluido", "Piscina", "Spa", "Vista excepcional", "Personal atento", "Buena relación calidad-precio", "Apto para niños", "Tranquilo", "Ubicación ideal"], "Destination": ["Paisajes excepcionales", "Cultura local", "Poco turístico", "Gastronomía", "Arquitectura", "Naturaleza", "Arte", "Vida nocturna", "Apto para niños", "Accesibilidad"], "Activité": ["Experiencia única", "Bien organizado", "Excelente guía", "Buena relación calidad-precio", "Apto para niños", "Vista excepcional", "Originalidad", "Accesibilidad"]}, "de": {"Restaurant": ["Gemütliche Atmosphäre", "Lokale Küche", "Angenehme Terrasse", "Aufmerksamer Service", "Originelles Ambiente", "Weinkeller", "Frische Produkte", "Außergewöhnliche Aussicht", "Preis-Leistung", "Kinderfreundlich"], "Bar / Café": ["Gemütliche Atmosphäre", "Angenehme Terrasse", "Gute Auswahl", "Aufmerksamer Service", "Originelles Ambiente", "Angenehme Musik", "Außergewöhnliche Aussicht", "Preis-Leistung", "Kinderfreundlich"], "Hôtel": ["Geräumiges Zimmer", "Frühstück inklusive", "Pool", "Spa", "Außergewöhnliche Aussicht", "Aufmerksames Personal", "Preis-Leistung", "Kinderfreundlich", "Ruhig", "Ideale Lage"], "Destination": ["Außergewöhnliche Landschaft", "Lokale Kultur", "Abseits des Trubels", "Gastronomie", "Architektur", "Natur", "Kunst", "Nachtleben", "Kinderfreundlich", "Barrierefreiheit"], "Activité": ["Einzigartiges Erlebnis", "Gut organisiert", "Ausgezeichneter Guide", "Preis-Leistung", "Kinderfreundlich", "Außergewöhnliche Aussicht", "Originalität", "Barrierefreiheit"]}, "it": {"Restaurant": ["Atmosfera accogliente", "Cucina locale", "Terrazza piacevole", "Servizio attento", "Ambiente originale", "Cantina", "Prodotti freschi", "Vista eccezionale", "Rapporto qualità/prezzo", "Adatto ai bambini"], "Bar / Café": ["Atmosfera accogliente", "Terrazza piacevole", "Buona selezione", "Servizio attento", "Ambiente originale", "Musica piacevole", "Vista eccezionale", "Rapporto qualità/prezzo", "Adatto ai bambini"], "Hôtel": ["Camera spaziosa", "Colazione inclusa", "Piscina", "Spa", "Vista eccezionale", "Personale attento", "Rapporto qualità/prezzo", "Adatto ai bambini", "Tranquillo", "Posizione ideale"], "Destination": ["Paesaggi eccezionali", "Cultura locale", "Fuori dai sentieri battuti", "Gastronomia", "Architettura", "Natura", "Arte", "Vita notturna", "Adatto ai bambini", "Accessibilità"], "Activité": ["Esperienza unica", "Ben organizzato", "Guida eccellente", "Rapporto qualità/prezzo", "Adatto ai bambini", "Vista eccezionale", "Originalità", "Accessibilità"]}, "pt": {"Restaurant": ["Ambiente acolhedor", "Cozinha local", "Esplanada agradável", "Serviço atento", "Ambiente original", "Adega", "Produtos frescos", "Vista excecional", "Boa relação qualidade/preço", "Adequado para crianças"], "Bar / Café": ["Ambiente acolhedor", "Esplanada agradável", "Boa seleção", "Serviço atento", "Ambiente original", "Música agradável", "Vista excecional", "Boa relação qualidade/preço", "Adequado para crianças"], "Hôtel": ["Quarto espaçoso", "Pequeno-almoço incluído", "Piscina", "Spa", "Vista excecional", "Pessoal atento", "Boa relação qualidade/preço", "Adequado para crianças", "Sossegado", "Localização ideal"], "Destination": ["Paisagens excecionais", "Cultura local", "Fora dos circuitos turísticos", "Gastronomia", "Arquitetura", "Natureza", "Arte", "Vida noturna", "Adequado para crianças", "Acessibilidade"], "Activité": ["Experiência única", "Bem organizado", "Guia excelente", "Boa relação qualidade/preço", "Adequado para crianças", "Vista excecional", "Originalidade", "Acessibilidade"]}, "nl": {"Restaurant": ["Warme sfeer", "Lokale keuken", "Prettig terras", "Attente bediening", "Originele setting", "Wijnkelder", "Verse producten", "Uitzonderlijk uitzicht", "Prijs-kwaliteit", "Kindvriendelijk"], "Bar / Café": ["Warme sfeer", "Prettig terras", "Goede selectie", "Attente bediening", "Originele setting", "Prettige muziek", "Uitzonderlijk uitzicht", "Prijs-kwaliteit", "Kindvriendelijk"], "Hôtel": ["Ruime kamer", "Ontbijt inbegrepen", "Zwembad", "Spa", "Uitzonderlijk uitzicht", "Attent personeel", "Prijs-kwaliteit", "Kindvriendelijk", "Rustig", "Ideale ligging"], "Destination": ["Uitzonderlijk landschap", "Lokale cultuur", "Onontdekt", "Gastronomie", "Architectuur", "Natuur", "Kunst", "Nachtleven", "Kindvriendelijk", "Toegankelijkheid"], "Activité": ["Unieke ervaring", "Goed georganiseerd", "Uitstekende gids", "Prijs-kwaliteit", "Kindvriendelijk", "Uitzonderlijk uitzicht", "Originaliteit", "Toegankelijkheid"]}};
-const DISLIKES_BY_LANG = {"fr": {"Restaurant": ["Trop bruyant", "Service lent", "Portions trop petites", "Trop touristique", "Prix excessif", "Trop bondé", "Service froid", "Mauvaise localisation"], "Bar / Café": ["Trop bruyant", "Service lent", "Trop bondé", "Prix excessif", "Service froid", "Mauvaise ambiance"], "Hôtel": ["Chambre trop petite", "Bruit", "Wi-Fi mauvais", "Ménage insuffisant", "Check-in tardif", "Prix excessif", "Emplacement mauvais"], "Destination": ["Trop touristique", "Foules", "Manque de sécurité", "Peu de transports", "Trop cher", "Peu d'activités"], "Activité": ["Trop touristique", "Mal organisé", "Prix excessif", "Trop long", "Guide décevant", "Trop de monde"]}, "en": {"Restaurant": ["Too noisy", "Slow service", "Too small portions", "Too touristy", "Overpriced", "Too crowded", "Cold service", "Bad location"], "Bar / Café": ["Too noisy", "Slow service", "Too crowded", "Overpriced", "Cold service", "Bad atmosphere"], "Hôtel": ["Room too small", "Noise", "Bad Wi-Fi", "Poor cleaning", "Late check-in", "Overpriced", "Bad location"], "Destination": ["Too touristy", "Crowds", "Safety concerns", "Poor transport", "Too expensive", "Few activities"], "Activité": ["Too touristy", "Poorly organized", "Overpriced", "Too long", "Disappointing guide", "Too crowded"]}, "es": {"Restaurant": ["Demasiado ruidoso", "Servicio lento", "Porciones pequeñas", "Demasiado turístico", "Precio excesivo", "Demasiado lleno", "Servicio frío", "Mala ubicación"], "Bar / Café": ["Demasiado ruidoso", "Servicio lento", "Demasiado lleno", "Precio excesivo", "Servicio frío", "Mal ambiente"], "Hôtel": ["Habitación pequeña", "Ruido", "Mal Wi-Fi", "Limpieza deficiente", "Check-in tardío", "Precio excesivo", "Mala ubicación"], "Destination": ["Demasiado turístico", "Multitudes", "Inseguridad", "Poco transporte", "Demasiado caro", "Pocas actividades"], "Activité": ["Demasiado turístico", "Mal organizado", "Precio excesivo", "Demasiado largo", "Guía decepcionante", "Demasiada gente"]}, "de": {"Restaurant": ["Zu laut", "Langsamer Service", "Zu kleine Portionen", "Zu touristisch", "Überteuert", "Zu voll", "Kalter Service", "Schlechte Lage"], "Bar / Café": ["Zu laut", "Langsamer Service", "Zu voll", "Überteuert", "Kalter Service", "Schlechte Atmosphäre"], "Hôtel": ["Zimmer zu klein", "Lärm", "Schlechtes WLAN", "Mangelhafte Reinigung", "Später Check-in", "Überteuert", "Schlechte Lage"], "Destination": ["Zu touristisch", "Massen", "Sicherheitsprobleme", "Schlechter Transport", "Zu teuer", "Wenig Aktivitäten"], "Activité": ["Zu touristisch", "Schlecht organisiert", "Überteuert", "Zu lang", "Enttäuschender Guide", "Zu viele Menschen"]}, "it": {"Restaurant": ["Troppo rumoroso", "Servizio lento", "Porzioni troppo piccole", "Troppo turistico", "Prezzo eccessivo", "Troppo affollato", "Servizio freddo", "Posizione pessima"], "Bar / Café": ["Troppo rumoroso", "Servizio lento", "Troppo affollato", "Prezzo eccessivo", "Servizio freddo", "Pessima atmosfera"], "Hôtel": ["Camera troppo piccola", "Rumore", "Wi-Fi pessimo", "Pulizia insufficiente", "Check-in tardivo", "Prezzo eccessivo", "Posizione pessima"], "Destination": ["Troppo turistico", "Folle", "Scarsa sicurezza", "Pochi trasporti", "Troppo caro", "Poche attività"], "Activité": ["Troppo turistico", "Mal organizzato", "Prezzo eccessivo", "Troppo lungo", "Guida deludente", "Troppa gente"]}, "pt": {"Restaurant": ["Muito barulhento", "Serviço lento", "Porções pequenas", "Muito turístico", "Preço excessivo", "Muito cheio", "Serviço frio", "Má localização"], "Bar / Café": ["Muito barulhento", "Serviço lento", "Muito cheio", "Preço excessivo", "Serviço frio", "Má atmosfera"], "Hôtel": ["Quarto pequeno", "Barulho", "Wi-Fi fraco", "Limpeza insuficiente", "Check-in tardio", "Preço excessivo", "Má localização"], "Destination": ["Muito turístico", "Multidões", "Falta de segurança", "Poucos transportes", "Muito caro", "Poucas atividades"], "Activité": ["Muito turístico", "Mal organizado", "Preço excessivo", "Muito longo", "Guia dececionante", "Demasiadas pessoas"]}, "nl": {"Restaurant": ["Te luidruchtig", "Trage bediening", "Te kleine porties", "Te toeristisch", "Te duur", "Te druk", "Koude bediening", "Slechte locatie"], "Bar / Café": ["Te luidruchtig", "Trage bediening", "Te druk", "Te duur", "Koude bediening", "Slechte sfeer"], "Hôtel": ["Kamer te klein", "Lawaai", "Slecht Wi-Fi", "Gebrekkige schoonmaak", "Late check-in", "Te duur", "Slechte locatie"], "Destination": ["Te toeristisch", "Drukte", "Veiligheidsproblemen", "Weinig transport", "Te duur", "Weinig activiteiten"], "Activité": ["Te toeristisch", "Slecht georganiseerd", "Te duur", "Te lang", "Teleurstellende gids", "Te druk"]}};
-const PREFS_LOVES_BY_LANG = {"fr": ["Cuisine authentique", "Endroits intimistes", "Découvertes locales", "Vins naturels", "Petits producteurs", "Terrasses", "Architecture", "Nature", "Art et culture", "Gastronomie", "Kids friendly"], "en": ["Authentic cuisine", "Intimate places", "Local discoveries", "Natural wines", "Small producers", "Terraces", "Architecture", "Nature", "Art & culture", "Gastronomy", "Kids friendly"], "es": ["Cocina auténtica", "Lugares íntimos", "Descubrimientos locales", "Vinos naturales", "Pequeños productores", "Terrazas", "Arquitectura", "Naturaleza", "Arte y cultura", "Gastronomía", "Apto para niños"], "de": ["Authentische Küche", "Intime Orte", "Lokale Entdeckungen", "Naturweine", "Kleine Produzenten", "Terrassen", "Architektur", "Natur", "Kunst & Kultur", "Gastronomie", "Kinderfreundlich"], "it": ["Cucina autentica", "Luoghi intimi", "Scoperte locali", "Vini naturali", "Piccoli produttori", "Terrazze", "Architettura", "Natura", "Arte e cultura", "Gastronomia", "Adatto ai bambini"], "pt": ["Cozinha autêntica", "Lugares íntimos", "Descobertas locais", "Vinhos naturais", "Pequenos produtores", "Esplanadas", "Arquitetura", "Natureza", "Arte e cultura", "Gastronomia", "Adequado para crianças"], "nl": ["Authentieke keuken", "Intieme plekken", "Lokale ontdekkingen", "Natuurwijnen", "Kleine producenten", "Terrassen", "Architectuur", "Natuur", "Kunst & cultuur", "Gastronomie", "Kindvriendelijk"]};
-const PREFS_HATES_BY_LANG = {"fr": ["Chaînes de restaurants", "Endroits bruyants", "Cuisine épicée", "Menus touristiques", "Grandes surfaces", "Foules", "Cuisine industrielle"], "en": ["Restaurant chains", "Noisy places", "Spicy food", "Tourist menus", "Shopping malls", "Crowds", "Industrial food"], "es": ["Cadenas de restaurantes", "Lugares ruidosos", "Comida picante", "Menús turísticos", "Grandes superficies", "Multitudes", "Comida industrial"], "de": ["Restaurantketten", "Laute Orte", "Scharfes Essen", "Touristenmenüs", "Einkaufszentren", "Menschenmassen", "Industrieessen"], "it": ["Catene di ristoranti", "Luoghi rumorosi", "Cibo piccante", "Menu turistici", "Centri commerciali", "Folle", "Cibo industriale"], "pt": ["Cadeias de restaurantes", "Lugares barulhentos", "Comida picante", "Menus turísticos", "Centros comerciais", "Multidões", "Comida industrial"], "nl": ["Restaurantketens", "Lawaaierige plekken", "Gekruid eten", "Touristenmenu's", "Winkelcentra", "Drukte", "Industrieel voedsel"]};
-
- // Internal constant for "all" filter - language independent
+const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
 const DISTANCE_LABELS = ["100m", "500m", "1km", "2km", "5km", "10km"];
 
 const LIKES_BY_TYPE = {
@@ -595,14 +587,13 @@ function KidsToggle({ value, onChange, t }) {
   );
 }
 
-function DistanceSlider({ value, onChange, unit="km", radiusLabel="Radius" }) {
+function DistanceSlider({ value, onChange }) {
   const idx = DISTANCE_STEPS.indexOf(value);
-  const labels = getDistLabels(unit);
   return (
     <div className="distance-slider-wrap">
-      <div className="distance-slider-value">{radiusLabel} : {labels[idx]}</div>
+      <div className="distance-slider-value">Rayon : {DISTANCE_LABELS[idx]}</div>
       <input type="range" min={0} max={DISTANCE_STEPS.length-1} value={idx} onChange={e=>onChange(DISTANCE_STEPS[parseInt(e.target.value)])} />
-      <div className="distance-slider-labels">{labels.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
+      <div className="distance-slider-labels">{DISTANCE_LABELS.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
     </div>
   );
 }
@@ -848,13 +839,12 @@ function RecoPlaceSearch({ onPlaceSelected }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",distUnit:"km" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en" };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
-  const lang = t?.lang || "en";
-  const likesOptions = (LIKES_BY_LANG[lang]||LIKES_BY_LANG["en"])[form.type]||(LIKES_BY_LANG["en"])[form.type]||[];
-  const dislikesOptions = (DISLIKES_BY_LANG[lang]||DISLIKES_BY_LANG["en"])[form.type]||(DISLIKES_BY_LANG["en"])[form.type]||[];
+  const likesOptions = LIKES_BY_TYPE[form.type]||LIKES_BY_TYPE["Restaurant"];
+  const dislikesOptions = DISLIKES_BY_TYPE[form.type]||DISLIKES_BY_TYPE["Restaurant"];
   const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
@@ -902,7 +892,7 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
           {!isMine&&m.friendName&&<span className="badge friend">{m.friendName}</span>}
         </div>
       </div>
-      {(m.city||m.country||m.address)&&<div className="memory-location">📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}<a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.address||m.name)+", "+(m.city||"")+" "+(m.country||""))}`} target="_blank" rel="noopener noreferrer" style={{color:"#c9a84c",fontSize:10,marginLeft:6}}>Maps →</a></div>}
+      {(m.city||m.country)&&<div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
@@ -940,8 +930,7 @@ export default function TravelAgent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [profile, setProfile] = useState(null);
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
-  const lang = prefs.language || "en";
-  const t = {...useT(lang), lang};
+  const t = useT(prefs.language || "en");
   const [prefsSaved, setPrefsSaved] = useState(false);
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(true);
@@ -956,8 +945,6 @@ export default function TravelAgent() {
   const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
   const [showFriendMems, setShowFriendMems] = useState(true);
-  const [showOnlyFriends, setShowOnlyFriends] = useState(false);
-  const [memSearch, setMemSearch] = useState("");
 
   // Reco
   const [recoType, setRecoType] = useState("Restaurant");
@@ -1300,17 +1287,11 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = [
-    ...(showOnlyFriends ? [] : memories.map(m=>({...m,isMine:true}))),
-    ...((showFriendMems||showOnlyFriends)?friendMemories.map(m=>({...m,isMine:false})):[])
-  ].filter(m=>{
+  const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
     if (filterType!==ALL&&m.type!==filterType) return false;
     if (filterPrice!==ALL&&m.price!==filterPrice) return false;
     if (filterRating!==ALL&&m.rating<parseInt(filterRating)) return false;
     if (filterKids&&!m.kidsf) return false;
-    if (memSearch.trim()&&!m.name.toLowerCase().includes(memSearch.toLowerCase())&&
-        !m.city?.toLowerCase().includes(memSearch.toLowerCase())&&
-        !m.country?.toLowerCase().includes(memSearch.toLowerCase())) return false;
     return true;
   });
 
@@ -1353,16 +1334,7 @@ IMPORTANT RULES:
                 <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[[ALL,t.filterAll],["1","1"],["2","2"],["3","3"],["4","4"],["5","5"]].map(([val,label])=><button key={val} className={`filter-btn ${filterRating===val?"active":""}`} onClick={()=>setFilterRating(val)}>{val===ALL?t.filterAll:`${val}★+`}</button>)}</div>
                 <div className="filters-row">
                   <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>{t.filterKids}</button>
-                  {friends.length>0&&(<>
-                    <button className={`filter-btn ${!showOnlyFriends&&showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(true);}}>👤+👥</button>
-                    <button className={`filter-btn ${showOnlyFriends?"active":""}`} onClick={()=>{setShowOnlyFriends(true);setShowFriendMems(true);}}>👥 {t.filterFriends}</button>
-                    <button className={`filter-btn ${!showOnlyFriends&&!showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(false);}}>👤 {t.filterMine||"Mine"}</button>
-                  </>)}
-                </div>
-                <div style={{marginBottom:8}}>
-                  <input value={memSearch} onChange={e=>setMemSearch(e.target.value)}
-                    placeholder={t.searchPlaceholder||"Search by name, city..."}
-                    style={{background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,color:"#f0ead8",fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"8px 12px",outline:"none",width:"100%"}}/>
+                  {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>{t.filterFriends}</button>}
                 </div>
               </div>
               <div className="memory-list">
@@ -1472,18 +1444,13 @@ IMPORTANT RULES:
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileLikes}</div>
-                <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG["en"]} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
+                <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_OPTIONS} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
                 <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
                 <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
-              <div className="field"><label>{t.distUnit||"Distance unit"}</label>
-                <div style={{display:"flex",gap:8}}>
-                  {["km","mi"].map(u=><button key={u} onClick={()=>setPrefs(p=>({...p,distUnit:u}))} style={{flex:1,padding:"10px",background:prefs.distUnit===u?"#c9a84c22":"#1a1814",border:`1px solid ${prefs.distUnit===u?"#c9a84c":"#2e2b25"}`,borderRadius:8,color:prefs.distUnit===u?"#c9a84c":"#8a8070",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>{u==="km"?t.distKm||"Kilometres":t.distMi||"Miles"}</button>)}
-                </div>
-              </div>
               </div>
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">{t.profileDislikes}</div>
-                <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG["en"]} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
+                <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={PREFS_HATES_OPTIONS} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
                 <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
               </div>
               <div className="prefs-card">
@@ -1509,10 +1476,10 @@ IMPORTANT RULES:
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
-                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance} unit={prefs.distUnit||"km"} radiusLabel={t.recoRadius||"Radius"}/></div>
+                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>setRecoType(tp)}>{TYPE_ICONS[tp]} {(TYPES_BY_LANG[lang]||TYPES_BY_LANG["en"])[tp]||tp}</button>)}</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
                 </div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
@@ -1543,7 +1510,7 @@ IMPORTANT RULES:
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
-                              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
+                              <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
                               <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
                             </div>
                           </div>
@@ -1585,7 +1552,7 @@ IMPORTANT RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
+                                  <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(reco.name+", "+reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
