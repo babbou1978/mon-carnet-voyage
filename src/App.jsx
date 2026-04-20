@@ -77,7 +77,7 @@ const LANGUAGES = [
 
 const TRANSLATIONS = {
   fr: {
-    appTagline: "Sauvegardez & partagez vos lieux coups de cœur. Découvrez encore plus.",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoris", tabAdd: "+ Ajouter", tabFriends: "👥 Amis", tabProfile: "Profil",
     logout: "Déconnexion",
     addPlace: "Nom du lieu", addType: "Type", addPrice: "Prix", addCity: "Ville", addCountry: "Pays",
@@ -119,7 +119,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Prénom et nom requis.", loginWelcome: "Bienvenue",
   },
   es: {
-    appTagline: "Guarda y comparte los lugares que amas. Descubre más.",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Añadir", tabFriends: "👥 Amigos", tabProfile: "Perfil",
     logout: "Cerrar sesión",
     addPlace: "Nombre del lugar", addType: "Tipo", addPrice: "Precio", addCity: "Ciudad", addCountry: "País",
@@ -161,7 +161,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Nombre y apellido requeridos.", loginWelcome: "Bienvenido/a",
   },
   de: {
-    appTagline: "Speichern & teilen Sie Orte die Sie lieben. Entdecken Sie mehr.",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoriten", tabAdd: "+ Hinzufügen", tabFriends: "👥 Freunde", tabProfile: "Profil",
     logout: "Abmelden",
     addPlace: "Ortsname", addType: "Typ", addPrice: "Preis", addCity: "Stadt", addCountry: "Land",
@@ -203,7 +203,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Vor- und Nachname erforderlich.", loginWelcome: "Willkommen",
   },
   it: {
-    appTagline: "Salva e condividi i luoghi che ami. Scopri di più.",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Preferiti", tabAdd: "+ Aggiungi", tabFriends: "👥 Amici", tabProfile: "Profilo",
     logout: "Disconnetti",
     addPlace: "Nome del posto", addType: "Tipo", addPrice: "Prezzo", addCity: "Città", addCountry: "Paese",
@@ -245,7 +245,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Nome e cognome richiesti.", loginWelcome: "Benvenuto/a",
   },
   pt: {
-    appTagline: "Guarde e partilhe os lugares que ama. Descubra mais.",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Adicionar", tabFriends: "👥 Amigos", tabProfile: "Perfil",
     logout: "Sair",
     addPlace: "Nome do lugar", addType: "Tipo", addPrice: "Preço", addCity: "Cidade", addCountry: "País",
@@ -287,7 +287,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Nome e apelido obrigatórios.", loginWelcome: "Bem-vindo/a",
   },
   nl: {
-    appTagline: "Sla plaatsen op die je liefhebt & deel ze. Ontdek meer.",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favorieten", tabAdd: "+ Toevoegen", tabFriends: "👥 Vrienden", tabProfile: "Profiel",
     logout: "Uitloggen",
     addPlace: "Naam van de plek", addType: "Type", addPrice: "Prijs", addCity: "Stad", addCountry: "Land",
