@@ -10,11 +10,15 @@ const AUTH_T = {
   fr: { logo: "Outsy AI", tagline: "Votre agent de voyage personnel", login: "Connexion", signup: "Inscription",
     firstName: "Prénom", lastName: "Nom", email: "Email", password: "Mot de passe",
     connect: "Se connecter", create: "Créer mon compte",
+    forgot: "Mot de passe oublié ?", resetTitle: "Réinitialiser", resetBtn: "Envoyer le lien",
+    resetSent: "✓ Lien envoyé ! Vérifiez votre email.", backToLogin: "← Retour",
     errorLogin: "Email ou mot de passe incorrect.", errorSignup: "Erreur lors de l'inscription.",
     errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
   en: { logo: "Outsy AI", tagline: "Your personal travel agent", login: "Sign in", signup: "Sign up",
     firstName: "First name", lastName: "Last name", email: "Email", password: "Password",
     connect: "Sign in", create: "Create account",
+    forgot: "Forgot password?", resetTitle: "Reset password", resetBtn: "Send reset link",
+    resetSent: "✓ Link sent! Check your email.", backToLogin: "← Back",
     errorLogin: "Incorrect email or password.", errorSignup: "Error during registration.",
     errorName: "First and last name required.", welcome: "Welcome to Outsy AI!" },
 };
@@ -39,12 +43,14 @@ const css = `
   .auth-btn { background: ${COLORS.accent}; color: #0f0e0c; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
   .auth-btn:hover { background: ${COLORS.accentLight}; }
   .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-link { background: none; border: none; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: underline; text-align: center; padding: 4px; transition: color 0.2s; }
+  .auth-link:hover { color: ${COLORS.accent}; }
   .auth-error { font-size: 12px; color: #e06060; text-align: center; padding: 8px; background: #3a1a1a; border-radius: 8px; }
   .auth-success { font-size: 12px; color: ${COLORS.accent}; text-align: center; padding: 8px; background: ${COLORS.accent}18; border-radius: 8px; }
 `;
 
 export default function Auth() {
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState("login"); // login | signup | reset
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -53,12 +59,20 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Detect browser language for auth screen
   const browserLang = navigator.language?.slice(0, 2) || "en";
   const at = AUTH_T[browserLang] || AUTH_T["en"];
 
   const handle = async () => {
     setLoading(true); setError(""); setSuccess("");
+    if (mode === "reset") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+      if (error) setError(error.message);
+      else setSuccess(at.resetSent);
+      setLoading(false);
+      return;
+    }
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(at.errorLogin);
@@ -84,23 +98,37 @@ export default function Auth() {
         <div className="auth-logo">Outsy <span>AI</span></div>
         <div className="auth-tagline">{at.tagline}</div>
         <div className="auth-card">
-          <div className="auth-tabs">
-            <button className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.login}</button>
-            <button className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
-          </div>
-          {mode === "signup" && (
-            <div className="auth-row">
-              <div className="auth-field"><label>{at.firstName}</label><input placeholder="Brice" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
-              <div className="auth-field"><label>{at.lastName}</label><input placeholder="Dupont" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
-            </div>
+          {mode === "reset" ? (
+            <>
+              <div style={{fontFamily:"'Cormorant Garamond', serif", fontSize:20, color:COLORS.accent, fontStyle:"italic"}}>{at.resetTitle}</div>
+              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
+              {error && <div className="auth-error">{error}</div>}
+              {success && <div className="auth-success">{success}</div>}
+              {!success && <button className="auth-btn" onClick={handle} disabled={loading || !email}>{loading ? "..." : at.resetBtn}</button>}
+              <button className="auth-link" onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.backToLogin}</button>
+            </>
+          ) : (
+            <>
+              <div className="auth-tabs">
+                <button className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.login}</button>
+                <button className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
+              </div>
+              {mode === "signup" && (
+                <div className="auth-row">
+                  <div className="auth-field"><label>{at.firstName}</label><input placeholder="Brice" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
+                  <div className="auth-field"><label>{at.lastName}</label><input placeholder="Dupont" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
+                </div>
+              )}
+              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
+              <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
+              {error && <div className="auth-error">{error}</div>}
+              {success && <div className="auth-success">{success}</div>}
+              <button className="auth-btn" onClick={handle} disabled={loading || !email || !password}>
+                {loading ? "..." : mode === "login" ? at.connect : at.create}
+              </button>
+              {mode === "login" && <button className="auth-link" onClick={() => { setMode("reset"); setError(""); setSuccess(""); }}>{at.forgot}</button>}
+            </>
           )}
-          <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
-          <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="auth-success">{success}</div>}
-          <button className="auth-btn" onClick={handle} disabled={loading || !email || !password}>
-            {loading ? "..." : mode === "login" ? at.connect : at.create}
-          </button>
         </div>
       </div>
     </>
