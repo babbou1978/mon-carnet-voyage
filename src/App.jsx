@@ -892,7 +892,12 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
           {!isMine&&m.friendName&&<span className="badge friend">{m.friendName}</span>}
         </div>
       </div>
-      {(m.city||m.country)&&<div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
+      {(m.city||m.country)&&<div className="memory-location">
+        📍 {[m.city,m.country].filter(Boolean).join(", ")}
+        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+(m.city?", "+m.city:"")+(m.country?", "+m.country:""))}`}
+          target="_blank" rel="noopener noreferrer"
+          style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
+      </div>}
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
