@@ -1180,9 +1180,11 @@ export default function TravelAgent() {
           const country = d.address?.country || "";
           const full = [number, road, city, country].filter(Boolean).join(", ");
           setGpsLocation(full || `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+          setGpsReady(true);
         }
       } catch {
         setGpsLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        setGpsReady(true);
       }
     }, (err) => {
       setGpsLocation("Erreur de localisation");
