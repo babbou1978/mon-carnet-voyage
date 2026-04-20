@@ -1189,10 +1189,11 @@ export default function TravelAgent() {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
     setGeocoding(true);
-    // Use ref for immediate access (state update is async in React)
-    let coords = recoCoordsRef.current;
-    // For free mode, always re-geocode if no valid coords (user may have typed without selecting)
-    if (!coords || !coords.lat) {
+    // GPS: use cached coords. Free text: always geocode fresh
+    let coords;
+    if (locMode === "gps" && recoCoordsRef.current?.lat) {
+      coords = recoCoordsRef.current;
+    } else {
       coords = await geocodeLocation(locationLabel);
       if (!coords) { setGeocoding(false); return; }
       setRecoCoords(coords);
