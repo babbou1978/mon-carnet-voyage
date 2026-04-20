@@ -972,6 +972,7 @@ export default function TravelAgent() {
   const [profile, setProfile] = useState(null);
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
   const t = useT(prefs.language || "en");
+  const lang = prefs.language || "en";
   const [prefsSaved, setPrefsSaved] = useState(false);
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(true);
