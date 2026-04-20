@@ -1542,7 +1542,7 @@ IMPORTANT RULES:
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
                 <div style={{display:"flex",gap:8}}>
-                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
+                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsLocation)}>
                     {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
                   </button>
                   {(heartLoading||aiLoading||geocoding)&&(
