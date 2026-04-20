@@ -1161,9 +1161,12 @@ export default function TravelAgent() {
         const geoData = await geoRes.json();
         const coordsMap = {};
         (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[String(r.id)]={lat:r.lat,lng:r.lng}; });
+        console.log("coordsMap keys:", Object.keys(coordsMap));
+        console.log("heartMems IDs:", heartMems.map(m=>String(m.id)));
 
         heartMems = heartMems.map(m=>{
           const c = coordsMap[String(m.id)];
+          console.log("lookup", String(m.id), "->", c ? c.lat : "NOT FOUND");
           if (c) {
             const distKm = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
             return {...m, _lat:c.lat, _lng:c.lng, distanceKm: distKm};
