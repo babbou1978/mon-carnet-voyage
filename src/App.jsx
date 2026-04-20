@@ -1175,7 +1175,6 @@ export default function TravelAgent() {
 
         heartMems = heartMems.map(m=>{
           const c = coordsMap[String(m.id)];
-          console.log("lookup", String(m.id), "->", c ? c.lat : "NOT FOUND");
           if (c) {
             const distKm = calcDistance(coords.lat, coords.lng, c.lat, c.lng);
             return {...m, _lat:c.lat, _lng:c.lng, distanceKm: distKm};
