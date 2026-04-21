@@ -1448,7 +1448,7 @@ IMPORTANT RULES:
       });
       const data = await res.json();
       if (data.recommendations) setAiRecos(data.recommendations);
-    } catch {}
+    } catch(err) { console.error("AI RECO ERROR:", err); }
     setAiLoading(false);
   };
 
@@ -1734,11 +1734,11 @@ IMPORTANT RULES:
                   {aiRecos.length>0&&!aiLoading&&(
                     <>
                       <div style={{position:"relative"}}>
-                      <UnifiedMap aiRecos={aiRecos} heartMemories={heartMemories.filter(m=>m._lat||m.city)} userCoords={recoCoords}/>
-                      <button onClick={()=>setShowFullMap(true)} style={{position:"absolute",top:8,right:8,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"6px 10px",color:COLORS.accent,cursor:"pointer",fontSize:11,fontFamily:"'DM Sans',sans-serif",zIndex:5}}>
-                        ⛶ Fullscreen
-                      </button>
-                    </div>
+                        <UnifiedMap aiRecos={aiRecos} heartMemories={heartMemories.filter(m=>m._lat||m.city)} userCoords={recoCoords}/>
+                        <button onClick={()=>setShowFullMap(true)} style={{position:"absolute",top:8,right:8,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"6px 10px",color:COLORS.accent,cursor:"pointer",fontSize:11,fontFamily:"'DM Sans',sans-serif",zIndex:5}}>
+                          ⛶ Fullscreen
+                        </button>
+                      </div>
                       <div className="ai-reco-list">
                         {aiRecos.slice(0,10).map((reco,i)=>(
                           <div key={i} className="ai-reco-card">
