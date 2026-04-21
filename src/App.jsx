@@ -1312,7 +1312,7 @@ export default function TravelAgent() {
     setHeartLoading(false);
 
     // AI Recos
-    setAiLoading(true); setAiRecos([]);
+    setAiLoading(true); setAiRecos([]); console.log("AI starting fetch...");
     const liked = memories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — aimé: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
       .join("\n");
