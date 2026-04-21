@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { APP_VERSION, BUILD_DATE } from "./version.js";
 import { supabase } from "./supabase.js";
 import Auth from "./Auth.jsx";
 
@@ -918,6 +919,7 @@ function calcDistance(lat1, lng1, lat2, lng2) {
 
 export default function TravelAgent() {
   const [session, setSession] = useState(undefined);
+  const [showResetModal, setShowResetModal] = useState(false);
   const [tab, setTab] = useState("reco");
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
@@ -934,6 +936,7 @@ export default function TravelAgent() {
   const [loading, setLoading] = useState(true);
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
+  const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
   const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
 
   // Filtres coups de coeur
@@ -1088,6 +1091,12 @@ export default function TravelAgent() {
   };
 
   const logout = () => supabase.auth.signOut();
+
+  const sendResetEmail = async (email) => {
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+  };
 
   const getGPS = () => {
     if (!navigator.geolocation) return;
@@ -1264,10 +1273,18 @@ IMPORTANT RULES:
     setAiLoading(false);
   };
 
-  const addRecoToCarnet = async (reco) => {
-    const entry = { name:reco.name, type:reco.type||recoType, price:reco.price||"€€", city:"", country:"", rating:0, likeTags:[], dislikeTags:[], why:"", dislike:"", kidsf:false, id:Date.now(), ts:Date.now(), user_id:userId };
-    const { error } = await supabase.from('memories').insert(entry);
-    if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastAdded); }
+  const addRecoToCarnet = (reco) => {
+    // Extract city/country from address
+    const addrParts = (reco.address||"").split(",").map(s=>s.trim());
+    const country = addrParts[addrParts.length-1] || "";
+    const city = addrParts[addrParts.length-2] || "";
+    setRecoToAdd({
+      name: reco.name,
+      type: reco.type || recoType,
+      price: reco.price || "€€",
+      city, country,
+      rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false
+    });
   };
 
   const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
@@ -1442,6 +1459,9 @@ IMPORTANT RULES:
               </div>
               <button className="prefs-save-btn" onClick={savePrefs}>{t.profileSave}</button>
               {prefsSaved&&<div className="prefs-saved">{t.profileSaved}</div>}
+              <button className="prefs-save-btn" style={{borderColor:"#e06060",color:"#e06060",marginTop:4}} onClick={()=>setShowResetModal(true)}>
+                🔑 {t.resetPassword||"Reset password"}
+              </button>
             </div>
           )}
 
@@ -1490,7 +1510,7 @@ IMPORTANT RULES:
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
-                              <a href={`https://maps.google.com/?q=${encodeURIComponent(p.address||p.name)}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
+                              <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
                               <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
                             </div>
                           </div>
@@ -1532,7 +1552,7 @@ IMPORTANT RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
+                                  <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(reco.name+", "+reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
@@ -1561,6 +1581,20 @@ IMPORTANT RULES:
         </div>
       )}
 
+      {recoToAdd&&(
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-title">+ {recoToAdd.name}</div>
+            <MemoryForm initial={recoToAdd} onSave={async(form)=>{
+              const entry={...form,id:Date.now(),ts:Date.now(),user_id:userId};
+              const {error}=await supabase.from('memories').insert(entry);
+              if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
+              setRecoToAdd(null);
+            }} onCancel={()=>setRecoToAdd(null)} isEdit={true} t={t}/>
+          </div>
+        </div>
+      )}
+
       {duplicateAlert&&(
         <div className="alert-overlay">
           <div className="alert-box">
@@ -1574,7 +1608,25 @@ IMPORTANT RULES:
         </div>
       )}
 
+      {showResetModal&&(
+        <div className="alert-overlay">
+          <div className="alert-box">
+            <div className="alert-title">🔑 {t.resetPassword||"Reset password"}</div>
+            <div className="alert-text" style={{color:COLORS.muted}}>{t.resetPasswordText||"We'll send a reset link to:"}</div>
+            <div style={{fontSize:14,color:COLORS.text,padding:"8px 0"}}>{session?.user?.email}</div>
+            <div className="alert-actions">
+              <button className="modal-btn secondary" onClick={()=>setShowResetModal(false)}>{t.duplicateCancel}</button>
+              <button className="modal-btn primary" onClick={async()=>{await sendResetEmail(session.user.email);setShowResetModal(false);showToast(t.resetSent||"✓ Reset email sent!");}}>
+                {t.resetSend||"Send link"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {toast&&<div className="success-toast">{toast}</div>}
+      <div style={{textAlign:"center",padding:"16px 0 24px",fontSize:"10px",color:COLORS.muted,letterSpacing:"0.1em"}}>
+        Outsy AI v{APP_VERSION} — {BUILD_DATE}
+      </div>
     </>
   );
 }

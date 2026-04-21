@@ -7,14 +7,14 @@ const COLORS = {
 };
 
 const AUTH_T = {
-  fr: { logo: "Outsy AI", tagline: "Save & Share places you love. Discover more.", login: "Connexion", signup: "Inscription",
+  fr: { logo: "Outsy AI", tagline: "Votre agent de voyage personnel", login: "Connexion", signup: "Inscription",
     firstName: "Prénom", lastName: "Nom", email: "Email", password: "Mot de passe",
     connect: "Se connecter", create: "Créer mon compte",
     forgot: "Mot de passe oublié ?", resetTitle: "Réinitialiser", resetBtn: "Envoyer le lien",
     resetSent: "✓ Lien envoyé ! Vérifiez votre email.", backToLogin: "← Retour",
     errorLogin: "Email ou mot de passe incorrect.", errorSignup: "Erreur lors de l'inscription.",
     errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
-  en: { logo: "Outsy AI", tagline: "Save & Share places you love. Discover more.", login: "Sign in", signup: "Sign up",
+  en: { logo: "Outsy AI", tagline: "Your personal travel agent", login: "Sign in", signup: "Sign up",
     firstName: "First name", lastName: "Last name", email: "Email", password: "Password",
     connect: "Sign in", create: "Create account",
     forgot: "Forgot password?", resetTitle: "Reset password", resetBtn: "Send reset link",
@@ -79,7 +79,7 @@ export default function Auth() {
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError(error.message || at.errorSignup); }
+      if (error) { setError(at.errorSignup); }
       else {
         if (data.user) {
           await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
@@ -96,7 +96,7 @@ export default function Auth() {
       <style>{css}</style>
       <div className="auth-wrapper">
         <div className="auth-logo">Outsy <span>AI</span></div>
-        <div className="auth-tagline" style={{letterSpacing:"0.15em",lineHeight:1.8}}>Save & Share places you love.<br/>Discover more.</div>
+        <div className="auth-tagline">{at.tagline}</div>
         <div className="auth-card">
           {mode === "reset" ? (
             <>
