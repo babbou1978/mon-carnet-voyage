@@ -720,146 +720,55 @@ function PlaceSearch({ onPlaceSelected }) {
   );
 }
 
-const MAP_STYLES = [
-  {elementType:"geometry",stylers:[{color:"#1a1814"}]},
-  {elementType:"labels.text.fill",stylers:[{color:"#f0ead8"}]},
-  {elementType:"labels.text.stroke",stylers:[{color:"#0f0e0c"}]},
-  {featureType:"road",elementType:"geometry",stylers:[{color:"#2e2b25"}]},
-  {featureType:"water",elementType:"geometry",stylers:[{color:"#0f0e0c"}]},
-  {featureType:"poi",stylers:[{visibility:"off"}]},
-];
-
-function UnifiedMap({ aiRecos, heartMemories, userCoords, fullscreen=false, onClose }) {
+function GoogleMap({ recommendations }) {
   const mapRef = useRef(null);
-  const mapInstance = useRef(null);
-  const [activePlace, setActivePlace] = useState(null);
-
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!recommendations?.length || !mapRef.current) return;
     const loadMap = () => {
       if (!window.google) return;
       const bounds = new window.google.maps.LatLngBounds();
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
-        styles: MAP_STYLES,
+        styles: [
+          {elementType:"geometry",stylers:[{color:"#1a1814"}]},
+          {elementType:"labels.text.fill",stylers:[{color:"#f0ead8"}]},
+          {elementType:"labels.text.stroke",stylers:[{color:"#0f0e0c"}]},
+          {featureType:"road",elementType:"geometry",stylers:[{color:"#2e2b25"}]},
+          {featureType:"water",elementType:"geometry",stylers:[{color:"#0f0e0c"}]},
+          {featureType:"poi",stylers:[{visibility:"off"}]},
+        ],
       });
-      mapInstance.current = map;
       const geocoder = new window.google.maps.Geocoder();
-      const allItems = [];
-      // User position
-      if (userCoords?.lat) {
-        new window.google.maps.Marker({
-          position: { lat: userCoords.lat, lng: userCoords.lng },
-          map, title: "My location", zIndex: 100,
-          icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#4a90d9", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 2, scale: 10 },
-        });
-        bounds.extend({ lat: userCoords.lat, lng: userCoords.lng });
-      }
-
-      // Collect items to geocode
-      const toPlace = [];
-      (heartMemories||[]).forEach(m => {
-        if (m._lat) {
-          const pos = { lat: m._lat, lng: m._lng };
-          const marker = new window.google.maps.Marker({
-            position: pos, map, title: m.name,
-            icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#e05555", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 13 },
-          });
-          marker.addListener("click", () => setActivePlace({ ...m, markerType: "heart" }));
-          bounds.extend(pos);
-        } else if (m.name || m.city) {
-          toPlace.push({ type: "heart", data: m, query: `${m.name} ${m.city||""} ${m.country||""}` });
-        }
-      });
-      (aiRecos||[]).forEach((reco, i) => {
-        if (reco.address) toPlace.push({ type: "ai", data: reco, idx: i, query: reco.address });
-      });
-
-      // Geocode remaining and fit bounds after all done
-      let done = 0;
-      const total = toPlace.length;
-      if (total === 0) { if (!bounds.isEmpty()) map.fitBounds(bounds); return; }
-
-      toPlace.forEach(item => {
-        geocoder.geocode({ address: item.query }, (res, status) => {
-          if (status === "OK" && res[0]) {
-            const pos = res[0].geometry.location;
-            const isHeart = item.type === "heart";
-            const marker = new window.google.maps.Marker({
-              position: pos, map, title: item.data.name,
-              label: isHeart ? undefined : { text: String(item.idx+1), color: "#0f0e0c", fontWeight: "bold", fontSize: "11px" },
-              icon: { path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: isHeart ? "#e05555" : "#c9a84c",
-                fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2,
-                scale: isHeart ? 13 : 16 },
-            });
-            marker.addListener("click", () => setActivePlace({ ...item.data, markerType: item.type }));
+      let loaded = 0;
+      recommendations.forEach((reco, i) => {
+        geocoder.geocode({ address: reco.address }, (results, status) => {
+          if (status==="OK"&&results[0]) {
+            const pos = results[0].geometry.location;
             bounds.extend(pos);
+            new window.google.maps.Marker({
+              position: pos, map, title: reco.name,
+              label: { text: String(i+1), color: "#0f0e0c", fontWeight: "bold", fontSize: "12px" },
+              icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#c9a84c", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 16 },
+            });
+            loaded++;
+            if (loaded===recommendations.length) map.fitBounds(bounds);
           }
-          done++;
-          if (done === total) { if (!bounds.isEmpty()) map.fitBounds(bounds); }
         });
       });
     };
-
     if (window.google) { loadMap(); }
     else {
-      const existing = document.querySelector("script[data-gmaps]");
-      if (!existing) {
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY||""}&callback=initGoogleMap`;
-        script.async = true;
-        script.dataset.gmaps = "1";
-        window.initGoogleMap = loadMap;
-        document.head.appendChild(script);
-      } else {
-        window.initGoogleMap = loadMap;
-      }
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY||""}&callback=initGoogleMap`;
+      script.async = true;
+      window.initGoogleMap = loadMap;
+      document.head.appendChild(script);
     }
-  }, [aiRecos, heartMemories, userCoords]);
-
-  return (
-    <div style={{position:"relative",width:"100%",height:fullscreen?"100%":"260px",borderRadius:fullscreen?0:12,overflow:"hidden",border:fullscreen?"none":`1px solid ${COLORS.border}`}}>
-      <div ref={mapRef} style={{width:"100%",height:"100%"}}/>
-
-      {/* Active place popup */}
-      {activePlace && (
-        <div style={{position:"absolute",bottom:12,left:12,right:12,background:COLORS.card,border:`1px solid ${activePlace.markerType==="heart"?"#e05555":"#c9a84c"}`,borderRadius:10,padding:"12px 14px",zIndex:10,boxShadow:"0 4px 20px rgba(0,0,0,0.5)"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-            <div style={{fontFamily:"'Cormorant Garamond', serif",fontSize:17,color:COLORS.text,flex:1,marginRight:8}}>{activePlace.name}</div>
-            <button onClick={()=>setActivePlace(null)} style={{background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16,padding:0}}>✕</button>
-          </div>
-          <div style={{fontSize:11,color:COLORS.muted,marginTop:3}}>
-            {activePlace.address||[activePlace.city,activePlace.country].filter(Boolean).join(", ")}
-          </div>
-          {(activePlace.why||activePlace.why) && <div style={{fontSize:12,color:"#b8ad98",fontStyle:"italic",marginTop:4}}>« {activePlace.why} »</div>}
-          <div style={{display:"flex",gap:8,marginTop:8}}>
-            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activePlace.name+(activePlace.address?", "+activePlace.address:""))}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{fontSize:11,color:"#c9a84c",textDecoration:"none",border:"1px solid #c9a84c44",padding:"4px 10px",borderRadius:6}}>
-              Maps →
-            </a>
-            {activePlace.markerType==="heart" && activePlace.rating>0 && (
-              <span style={{fontSize:11,color:"#e8c97a",padding:"4px 8px"}}>{"★".repeat(activePlace.rating)}</span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Fullscreen close button */}
-      {fullscreen && onClose && (
-        <button onClick={onClose} style={{position:"absolute",top:12,right:12,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"8px 12px",color:COLORS.text,cursor:"pointer",fontSize:13,fontFamily:"'DM Sans',sans-serif",zIndex:20}}>
-          ✕ Close
-        </button>
-      )}
-    </div>
-  );
+  }, [recommendations]);
+  return <div ref={mapRef} className="global-map-container" />;
 }
 
-// Keep GoogleMap as alias for backward compat
-function GoogleMap({ recommendations }) {
-  return <UnifiedMap aiRecos={recommendations} />;
-}
+
 
 
 // Autocomplete spécial pour la localisation Reco — retourne aussi les coordonnées GPS
@@ -1105,7 +1014,6 @@ export default function TravelAgent() {
   const [aiRecos, setAiRecos] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
   const abortRef = useRef(null);
-  const [showFullMap, setShowFullMap] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -1405,10 +1313,8 @@ export default function TravelAgent() {
     setHeartLoading(false);
 
     // AI Recos
-    console.log("Starting AI reco...");
     try {
     setAiLoading(true); setAiRecos([]);
-    console.log("AI step 1: building liked...");
     const liked = memories.filter(m=>m.rating>=3).sort((a,b)=>b.rating-a.rating).slice(0,10)
       .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
       .join("\n");
@@ -1418,9 +1324,6 @@ export default function TravelAgent() {
     const friendLiked = friendMemories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
-
-    console.log("AI step 2: building prompt...");
-    const favNames = memories.map(m=>m.name.toLowerCase());
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `User profile:
@@ -1444,19 +1347,14 @@ IMPORTANT RULES:
 - Full address required: street number, street name, city, country
 - NEVER suggest places similar to disappointments
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
-
-    console.log("AI step 3: fetching...");
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, structured: true, language: prefs.language || "en" }),
       });
       const data = await res.json();
-      console.log("AI response:", data.recommendations?.length, "recos", data.error||"");
-      if (data.raw) console.log("Raw:", data.raw.slice(0,300));
       if (data.recommendations) setAiRecos(data.recommendations);
-    } catch(err) { console.error("AI RECO ERROR:", err); }
-    } catch(outerErr) { console.error("AI OUTER ERROR:", outerErr); }
+    } catch(err) { console.error("AI error:", err); }
     setAiLoading(false);
   };
 
@@ -1741,12 +1639,7 @@ IMPORTANT RULES:
                   {aiLoading&&<div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
                   {aiRecos.length>0&&!aiLoading&&(
                     <>
-                      <div style={{position:"relative"}}>
-                        <UnifiedMap aiRecos={aiRecos} heartMemories={heartMemories.filter(m=>m._lat||m.city)} userCoords={recoCoords}/>
-                        <button onClick={()=>setShowFullMap(true)} style={{position:"absolute",top:8,right:8,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"6px 10px",color:COLORS.accent,cursor:"pointer",fontSize:11,fontFamily:"'DM Sans',sans-serif",zIndex:5}}>
-                          ⛶ Fullscreen
-                        </button>
-                      </div>
+                      <GoogleMap recommendations={aiRecos.slice(0,10)}/>
                       <div className="ai-reco-list">
                         {aiRecos.slice(0,10).map((reco,i)=>(
                           <div key={i} className="ai-reco-card">
@@ -1841,11 +1734,6 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               </button>
             </div>
           </div>
-        </div>
-      )}
-      {showFullMap&&(
-        <div style={{position:"fixed",inset:0,zIndex:500,background:COLORS.bg,display:"flex",flexDirection:"column"}}>
-          <UnifiedMap aiRecos={aiRecos} heartMemories={heartMemories.filter(m=>m._lat||m.city)} userCoords={recoCoords} fullscreen={true} onClose={()=>setShowFullMap(false)}/>
         </div>
       )}
       {toast&&<div className="success-toast">{toast}</div>}
