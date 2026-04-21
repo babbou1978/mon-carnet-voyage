@@ -54,7 +54,7 @@ Required format:
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json(); console.log("Anthropic status:", response.status, "error:", data.error?.message || data.error?.type || "none");
     const text = data.content?.map(b => b.text || '').join('') || '';
 
     if (structured) {
