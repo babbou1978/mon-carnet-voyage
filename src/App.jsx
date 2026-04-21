@@ -770,8 +770,8 @@ function GoogleMap({ recommendations }) {
 
 
 // Autocomplete spécial pour la localisation Reco — retourne aussi les coordonnées GPS
-function RecoPlaceSearch({ onPlaceSelected }) {
-  const [query, setQuery] = useState("");
+function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
+  const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -1029,15 +1029,32 @@ export default function TravelAgent() {
 
   useEffect(() => {
     if (!session) return;
+    const userId = session.user.id;
+    const cacheKey = `outsy_cache_${userId}`;
+
+    // Show cached data instantly
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { profile: p, memories: m, prefs: pr } = JSON.parse(cached);
+        if (p) setProfile(p);
+        if (m) setMemories(m);
+        if (pr) setPrefs({ ...DEFAULT_PREFS, ...pr });
+        setLoading(false); // Show UI immediately with cached data
+      }
+    } catch {}
+
+    // Then refresh from Supabase in background
     const load = async () => {
-      setLoading(true);
-      const userId = session.user.id;
+      if (!localStorage.getItem(cacheKey)) setLoading(true);
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
       if (prof) setProfile(prof);
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).single();
       if (pref) setPrefs({ ...DEFAULT_PREFS, ...pref });
+      // Save to cache
+      try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
       await loadFriends(userId);
       setLoading(false);
     };
@@ -1106,7 +1123,7 @@ export default function TravelAgent() {
 
   const deleteMemory = async (id) => {
     await supabase.from('memories').delete().eq('id', id).eq('user_id', userId);
-    setMemories(prev=>prev.filter(m=>m.id!==id));
+    setMemories(prev=>{ const next=prev.filter(m=>m.id!==id); try{localStorage.removeItem(`outsy_cache_${userId}`);}catch{} return next; });
   };
 
   const savePrefs = async () => {
@@ -1562,7 +1579,7 @@ IMPORTANT RULES:
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
-                {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
+                {locMode==="free"&&<RecoPlaceSearch key={freeLocation||"empty"} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
