@@ -1452,6 +1452,7 @@ IMPORTANT RULES:
         body: JSON.stringify({ prompt, structured: true, language: prefs.language || "en" }),
       });
       const data = await res.json();
+      console.log("AI response:", data.recommendations?.length, "recos", data.error||"", data.raw?.slice(0,100)||"");
       if (data.recommendations) setAiRecos(data.recommendations);
     } catch(err) { console.error("AI RECO ERROR:", err); }
     } catch(outerErr) { console.error("AI OUTER ERROR:", outerErr); }
