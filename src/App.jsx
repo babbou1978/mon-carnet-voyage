@@ -1055,7 +1055,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, isMine }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine }) {
   return (
     <div className={`memory-card ${!isMine?"friend-card":""}`}>
       <div className="memory-top">
@@ -1081,7 +1081,7 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
         <span className="memory-date">{formatDate(m.ts)}</span>
         {isMine&&<div className="memory-actions">
           <button className="edit-btn" onClick={()=>onEdit(m)}>✏️ Éditer</button>
-          <button className="del-btn" onClick={()=>{ if(window.confirm(`Delete "${m.name}"?`)) onDelete(m.id); }}>✕</button>
+          <button className="del-btn" onClick={()=>onDeleteRequest(m.id, m.name)}>✕</button>
         </div>}
       </div>
     </div>
@@ -1117,6 +1117,7 @@ export default function TravelAgent() {
   const [loading, setLoading] = useState(true);
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // {id, name}
   const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
   const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
 
@@ -1580,7 +1581,7 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory}/>)}
+                ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}
               </div>
             </div>
           )}
@@ -1742,7 +1743,7 @@ IMPORTANT RULES:
                   {heartMemories.length>0&&(
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
-                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory}/>)}</div>
+                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}</div>
                     </div>
                   )}
                   {nearbyPlaces.length>0&&(
@@ -1845,6 +1846,20 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
         </div>
       )}
 
+      {deleteConfirm&&(
+        <div className="alert-overlay">
+          <div className="alert-box">
+            <div className="alert-title">🗑️ {t.deleteTitle||"Delete"}</div>
+            <div className="alert-text">"{deleteConfirm.name}" {t.deleteText||"will be removed from your favorites."}</div>
+            <div className="alert-actions">
+              <button className="modal-btn secondary" onClick={()=>setDeleteConfirm(null)}>{t.duplicateCancel}</button>
+              <button className="modal-btn primary" style={{background:"#e06060",border:"none"}} onClick={()=>{deleteMemory(deleteConfirm.id);setDeleteConfirm(null);}}>
+                {t.deleteConfirm||"Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {duplicateAlert&&(
         <div className="alert-overlay">
           <div className="alert-box">
