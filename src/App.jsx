@@ -12,22 +12,56 @@ const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
 const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
 const DISTANCE_LABELS = ["100m", "500m", "1km", "2km", "5km", "10km"];
 
-const LIKES_BY_TYPE = {
-  "Restaurant": ["Ambiance chaleureuse", "Cuisine locale", "Terrasse agréable", "Service attentionné", "Cadre original", "Cave à vins", "Produits frais", "Vue exceptionnelle", "Rapport qualité/prix", "Kids friendly"],
-  "Bar / Café": ["Ambiance chaleureuse", "Terrasse agréable", "Bonne sélection", "Service attentionné", "Cadre original", "Musique agréable", "Vue exceptionnelle", "Rapport qualité/prix", "Kids friendly"],
-  "Hôtel": ["Chambre spacieuse", "Petit-déjeuner inclus", "Piscine", "Spa", "Vue exceptionnelle", "Personnel attentionné", "Rapport qualité/prix", "Kids friendly", "Calme", "Emplacement idéal"],
-  "Destination": ["Paysages exceptionnels", "Culture locale", "Peu touristique", "Gastronomie", "Architecture", "Nature", "Art", "Vie nocturne", "Kids friendly", "Accessibilité"],
-  "Activité": ["Expérience unique", "Bien organisé", "Guide excellent", "Rapport qualité/prix", "Kids friendly", "Vue exceptionnelle", "Originalité", "Accessibilité"],
+const LIKES_BY_TYPE_LANG = {
+  fr: { "Restaurant":["Ambiance chaleureuse","Cuisine locale","Terrasse agréable","Service attentionné","Cadre original","Cave à vins","Produits frais","Vue exceptionnelle","Rapport qualité/prix","Kids friendly"],"Bar / Café":["Ambiance chaleureuse","Terrasse agréable","Bonne sélection","Service attentionné","Cadre original","Musique agréable","Vue exceptionnelle","Rapport qualité/prix","Kids friendly"],"Hôtel":["Chambre spacieuse","Petit-déjeuner inclus","Piscine","Spa","Vue exceptionnelle","Personnel attentionné","Rapport qualité/prix","Kids friendly","Calme","Emplacement idéal"],"Destination":["Paysages exceptionnels","Culture locale","Peu touristique","Gastronomie","Architecture","Nature","Art","Vie nocturne","Kids friendly","Accessibilité"],"Activité":["Expérience unique","Bien organisé","Guide excellent","Rapport qualité/prix","Kids friendly","Vue exceptionnelle","Originalité","Accessibilité"] },
+  en: { "Restaurant":["Warm atmosphere","Local cuisine","Pleasant terrace","Attentive service","Original setting","Wine cellar","Fresh produce","Exceptional view","Value for money","Kids friendly"],"Bar / Café":["Warm atmosphere","Pleasant terrace","Good selection","Attentive service","Original setting","Pleasant music","Exceptional view","Value for money","Kids friendly"],"Hôtel":["Spacious room","Breakfast included","Pool","Spa","Exceptional view","Attentive staff","Value for money","Kids friendly","Quiet","Ideal location"],"Destination":["Exceptional scenery","Local culture","Off the beaten track","Gastronomy","Architecture","Nature","Art","Nightlife","Kids friendly","Accessibility"],"Activité":["Unique experience","Well organized","Excellent guide","Value for money","Kids friendly","Exceptional view","Originality","Accessibility"] },
+  es: { "Restaurant":["Ambiente cálido","Cocina local","Terraza agradable","Servicio atento","Ambiente original","Bodega","Productos frescos","Vista excepcional","Buena relación calidad-precio","Apto para niños"],"Bar / Café":["Ambiente cálido","Terraza agradable","Buena selección","Servicio atento","Ambiente original","Música agradable","Vista excepcional","Buena relación calidad-precio","Apto para niños"],"Hôtel":["Habitación amplia","Desayuno incluido","Piscina","Spa","Vista excepcional","Personal atento","Buena relación calidad-precio","Apto para niños","Tranquilo","Ubicación ideal"],"Destination":["Paisajes excepcionales","Cultura local","Poco turístico","Gastronomía","Arquitectura","Naturaleza","Arte","Vida nocturna","Apto para niños","Accesibilidad"],"Activité":["Experiencia única","Bien organizado","Excelente guía","Buena relación calidad-precio","Apto para niños","Vista excepcional","Originalidad","Accesibilidad"] },
+  de: { "Restaurant":["Gemütliche Atmosphäre","Lokale Küche","Angenehme Terrasse","Aufmerksamer Service","Originelles Ambiente","Weinkeller","Frische Produkte","Außergewöhnliche Aussicht","Preis-Leistung","Kinderfreundlich"],"Bar / Café":["Gemütliche Atmosphäre","Angenehme Terrasse","Gute Auswahl","Aufmerksamer Service","Originelles Ambiente","Angenehme Musik","Außergewöhnliche Aussicht","Preis-Leistung","Kinderfreundlich"],"Hôtel":["Geräumiges Zimmer","Frühstück inklusive","Pool","Spa","Außergewöhnliche Aussicht","Aufmerksames Personal","Preis-Leistung","Kinderfreundlich","Ruhig","Ideale Lage"],"Destination":["Außergewöhnliche Landschaft","Lokale Kultur","Abseits des Trubels","Gastronomie","Architektur","Natur","Kunst","Nachtleben","Kinderfreundlich","Barrierefreiheit"],"Activité":["Einzigartiges Erlebnis","Gut organisiert","Ausgezeichneter Guide","Preis-Leistung","Kinderfreundlich","Außergewöhnliche Aussicht","Originalität","Barrierefreiheit"] },
+  it: { "Restaurant":["Atmosfera accogliente","Cucina locale","Terrazza piacevole","Servizio attento","Ambiente originale","Cantina","Prodotti freschi","Vista eccezionale","Rapporto qualità/prezzo","Adatto ai bambini"],"Bar / Café":["Atmosfera accogliente","Terrazza piacevole","Buona selezione","Servizio attento","Ambiente originale","Musica piacevole","Vista eccezionale","Rapporto qualità/prezzo","Adatto ai bambini"],"Hôtel":["Camera spaziosa","Colazione inclusa","Piscina","Spa","Vista eccezionale","Personale attento","Rapporto qualità/prezzo","Adatto ai bambini","Tranquillo","Posizione ideale"],"Destination":["Paesaggi eccezionali","Cultura locale","Fuori dai sentieri battuti","Gastronomia","Architettura","Natura","Arte","Vita notturna","Adatto ai bambini","Accessibilità"],"Activité":["Esperienza unica","Ben organizzato","Guida eccellente","Rapporto qualità/prezzo","Adatto ai bambini","Vista eccezionale","Originalità","Accessibilità"] },
+  pt: { "Restaurant":["Ambiente acolhedor","Cozinha local","Esplanada agradável","Serviço atento","Ambiente original","Adega","Produtos frescos","Vista excecional","Boa relação qualidade/preço","Adequado para crianças"],"Bar / Café":["Ambiente acolhedor","Esplanada agradável","Boa seleção","Serviço atento","Ambiente original","Música agradável","Vista excecional","Boa relação qualidade/preço","Adequado para crianças"],"Hôtel":["Quarto espaçoso","Pequeno-almoço incluído","Piscina","Spa","Vista excecional","Pessoal atento","Boa relação qualidade/preço","Adequado para crianças","Sossegado","Localização ideal"],"Destination":["Paisagens excecionais","Cultura local","Fora dos circuitos turísticos","Gastronomia","Arquitetura","Natureza","Arte","Vida noturna","Adequado para crianças","Acessibilidade"],"Activité":["Experiência única","Bem organizado","Guia excelente","Boa relação qualidade/preço","Adequado para crianças","Vista excecional","Originalidade","Acessibilidade"] },
+  nl: { "Restaurant":["Warme sfeer","Lokale keuken","Prettig terras","Attente bediening","Originele setting","Wijnkelder","Verse producten","Uitzonderlijk uitzicht","Prijs-kwaliteit","Kindvriendelijk"],"Bar / Café":["Warme sfeer","Prettig terras","Goede selectie","Attente bediening","Originele setting","Prettige muziek","Uitzonderlijk uitzicht","Prijs-kwaliteit","Kindvriendelijk"],"Hôtel":["Ruime kamer","Ontbijt inbegrepen","Zwembad","Spa","Uitzonderlijk uitzicht","Attent personeel","Prijs-kwaliteit","Kindvriendelijk","Rustig","Ideale ligging"],"Destination":["Uitzonderlijk landschap","Lokale cultuur","Onontdekt","Gastronomie","Architectuur","Natuur","Kunst","Nachtleven","Kindvriendelijk","Toegankelijkheid"],"Activité":["Unieke ervaring","Goed georganiseerd","Uitstekende gids","Prijs-kwaliteit","Kindvriendelijk","Uitzonderlijk uitzicht","Originaliteit","Toegankelijkheid"] },
 };
-const DISLIKES_BY_TYPE = {
-  "Restaurant": ["Trop bruyant", "Service lent", "Portions trop petites", "Trop touristique", "Prix excessif", "Trop bondé", "Service froid", "Mauvaise localisation"],
-  "Bar / Café": ["Trop bruyant", "Service lent", "Trop bondé", "Prix excessif", "Service froid", "Mauvaise ambiance"],
-  "Hôtel": ["Chambre trop petite", "Bruit", "Wi-Fi mauvais", "Ménage insuffisant", "Check-in tardif", "Prix excessif", "Emplacement mauvais"],
-  "Destination": ["Trop touristique", "Foules", "Manque de sécurité", "Peu de transports", "Trop cher", "Peu d'activités"],
-  "Activité": ["Trop touristique", "Mal organisé", "Prix excessif", "Trop long", "Guide décevant", "Trop de monde"],
+const DISLIKES_BY_TYPE_LANG = {
+  fr: { "Restaurant":["Trop bruyant","Service lent","Portions trop petites","Trop touristique","Prix excessif","Trop bondé","Service froid","Mauvaise localisation"],"Bar / Café":["Trop bruyant","Service lent","Trop bondé","Prix excessif","Service froid","Mauvaise ambiance"],"Hôtel":["Chambre trop petite","Bruit","Wi-Fi mauvais","Ménage insuffisant","Check-in tardif","Prix excessif","Emplacement mauvais"],"Destination":["Trop touristique","Foules","Manque de sécurité","Peu de transports","Trop cher","Peu d'activités"],"Activité":["Trop touristique","Mal organisé","Prix excessif","Trop long","Guide décevant","Trop de monde"] },
+  en: { "Restaurant":["Too noisy","Slow service","Small portions","Too touristy","Overpriced","Too crowded","Cold service","Bad location"],"Bar / Café":["Too noisy","Slow service","Too crowded","Overpriced","Cold service","Bad atmosphere"],"Hôtel":["Room too small","Noise","Bad Wi-Fi","Poor cleaning","Late check-in","Overpriced","Bad location"],"Destination":["Too touristy","Crowds","Safety concerns","Poor transport","Too expensive","Few activities"],"Activité":["Too touristy","Poorly organized","Overpriced","Too long","Disappointing guide","Too crowded"] },
+  es: { "Restaurant":["Demasiado ruidoso","Servicio lento","Porciones pequeñas","Demasiado turístico","Precio excesivo","Demasiado lleno","Servicio frío","Mala ubicación"],"Bar / Café":["Demasiado ruidoso","Servicio lento","Demasiado lleno","Precio excesivo","Servicio frío","Mal ambiente"],"Hôtel":["Habitación pequeña","Ruido","Mal Wi-Fi","Limpieza deficiente","Check-in tardío","Precio excesivo","Mala ubicación"],"Destination":["Demasiado turístico","Multitudes","Inseguridad","Poco transporte","Demasiado caro","Pocas actividades"],"Activité":["Demasiado turístico","Mal organizado","Precio excesivo","Demasiado largo","Guía decepcionante","Demasiada gente"] },
+  de: { "Restaurant":["Zu laut","Langsamer Service","Kleine Portionen","Zu touristisch","Überteuert","Zu voll","Kalter Service","Schlechte Lage"],"Bar / Café":["Zu laut","Langsamer Service","Zu voll","Überteuert","Kalter Service","Schlechte Atmosphäre"],"Hôtel":["Zimmer zu klein","Lärm","Schlechtes WLAN","Mangelhafte Reinigung","Später Check-in","Überteuert","Schlechte Lage"],"Destination":["Zu touristisch","Massen","Sicherheitsprobleme","Schlechter Transport","Zu teuer","Wenig Aktivitäten"],"Activité":["Zu touristisch","Schlecht organisiert","Überteuert","Zu lang","Enttäuschender Guide","Zu viele Menschen"] },
+  it: { "Restaurant":["Troppo rumoroso","Servizio lento","Porzioni piccole","Troppo turistico","Prezzo eccessivo","Troppo affollato","Servizio freddo","Posizione pessima"],"Bar / Café":["Troppo rumoroso","Servizio lento","Troppo affollato","Prezzo eccessivo","Servizio freddo","Pessima atmosfera"],"Hôtel":["Camera troppo piccola","Rumore","Wi-Fi pessimo","Pulizia insufficiente","Check-in tardivo","Prezzo eccessivo","Posizione pessima"],"Destination":["Troppo turistico","Folle","Scarsa sicurezza","Pochi trasporti","Troppo caro","Poche attività"],"Activité":["Troppo turistico","Mal organizzato","Prezzo eccessivo","Troppo lungo","Guida deludente","Troppa gente"] },
+  pt: { "Restaurant":["Muito barulhento","Serviço lento","Porções pequenas","Muito turístico","Preço excessivo","Muito cheio","Serviço frio","Má localização"],"Bar / Café":["Muito barulhento","Serviço lento","Muito cheio","Preço excessivo","Serviço frio","Má atmosfera"],"Hôtel":["Quarto pequeno","Barulho","Wi-Fi fraco","Limpeza insuficiente","Check-in tardio","Preço excessivo","Má localização"],"Destination":["Muito turístico","Multidões","Falta de segurança","Poucos transportes","Muito caro","Poucas atividades"],"Activité":["Muito turístico","Mal organizado","Preço excessivo","Muito longo","Guia dececionante","Demasiadas pessoas"] },
+  nl: { "Restaurant":["Te luidruchtig","Trage bediening","Kleine porties","Te toeristisch","Te duur","Te druk","Koude bediening","Slechte locatie"],"Bar / Café":["Te luidruchtig","Trage bediening","Te druk","Te duur","Koude bediening","Slechte sfeer"],"Hôtel":["Kamer te klein","Lawaai","Slecht Wi-Fi","Gebrekkige schoonmaak","Late check-in","Te duur","Slechte locatie"],"Destination":["Te toeristisch","Drukte","Veiligheidsproblemen","Weinig transport","Te duur","Weinig activiteiten"],"Activité":["Te toeristisch","Slecht georganiseerd","Te duur","Te lang","Teleurstellende gids","Te druk"] },
 };
-const PREFS_LOVES_OPTIONS = ["Cuisine authentique", "Endroits intimistes", "Découvertes locales", "Vins naturels", "Petits producteurs", "Terrasses", "Architecture", "Nature", "Art et culture", "Gastronomie", "Kids friendly"];
-const PREFS_HATES_OPTIONS = ["Chaînes de restaurants", "Endroits bruyants", "Cuisine épicée", "Menus touristiques", "Grandes surfaces", "Foules", "Cuisine industrielle"];
+const PREFS_LOVES_BY_LANG = {
+  fr:["Cuisine authentique","Endroits intimistes","Découvertes locales","Vins naturels","Petits producteurs","Terrasses","Architecture","Nature","Art et culture","Gastronomie","Kids friendly"],
+  en:["Authentic cuisine","Intimate places","Local discoveries","Natural wines","Small producers","Terraces","Architecture","Nature","Art & culture","Gastronomy","Kids friendly"],
+  es:["Cocina auténtica","Lugares íntimos","Descubrimientos locales","Vinos naturales","Pequeños productores","Terrazas","Arquitectura","Naturaleza","Arte y cultura","Gastronomía","Apto para niños"],
+  de:["Authentische Küche","Intime Orte","Lokale Entdeckungen","Naturweine","Kleine Produzenten","Terrassen","Architektur","Natur","Kunst & Kultur","Gastronomie","Kinderfreundlich"],
+  it:["Cucina autentica","Luoghi intimi","Scoperte locali","Vini naturali","Piccoli produttori","Terrazze","Architettura","Natura","Arte e cultura","Gastronomia","Adatto ai bambini"],
+  pt:["Cozinha autêntica","Lugares íntimos","Descobertas locais","Vinhos naturais","Pequenos produtores","Esplanadas","Arquitetura","Natureza","Arte e cultura","Gastronomia","Adequado para crianças"],
+  nl:["Authentieke keuken","Intieme plekken","Lokale ontdekkingen","Natuurwijnen","Kleine producenten","Terrassen","Architectuur","Natuur","Kunst & cultuur","Gastronomie","Kindvriendelijk"],
+};
+const PREFS_HATES_BY_LANG = {
+  fr:["Chaînes de restaurants","Endroits bruyants","Cuisine épicée","Menus touristiques","Grandes surfaces","Foules","Cuisine industrielle"],
+  en:["Restaurant chains","Noisy places","Spicy food","Tourist menus","Shopping malls","Crowds","Industrial food"],
+  es:["Cadenas de restaurantes","Lugares ruidosos","Comida picante","Menús turísticos","Grandes superficies","Multitudes","Comida industrial"],
+  de:["Restaurantketten","Laute Orte","Scharfes Essen","Touristenmenüs","Einkaufszentren","Menschenmassen","Industrieessen"],
+  it:["Catene di ristoranti","Luoghi rumorosi","Cibo piccante","Menu turistici","Centri commerciali","Folle","Cibo industriale"],
+  pt:["Cadeias de restaurantes","Lugares barulhentos","Comida picante","Menus turísticos","Centros comerciais","Multidões","Comida industrial"],
+  nl:["Restaurantketens","Lawaaierige plekken","Gekruid eten","Touristenmenu's","Winkelcentra","Drukte","Industrieel voedsel"],
+};
+const TYPES_I18N = {
+  fr:{"Restaurant":"Restaurant","Hôtel":"Hôtel","Bar / Café":"Bar / Café","Destination":"Destination","Activité":"Activité"},
+  en:{"Restaurant":"Restaurant","Hôtel":"Hotel","Bar / Café":"Bar / Café","Destination":"Destination","Activité":"Activity"},
+  es:{"Restaurant":"Restaurante","Hôtel":"Hotel","Bar / Café":"Bar / Café","Destination":"Destino","Activité":"Actividad"},
+  de:{"Restaurant":"Restaurant","Hôtel":"Hotel","Bar / Café":"Bar / Café","Destination":"Reiseziel","Activité":"Aktivität"},
+  it:{"Restaurant":"Ristorante","Hôtel":"Hotel","Bar / Café":"Bar / Caffè","Destination":"Destinazione","Activité":"Attività"},
+  pt:{"Restaurant":"Restaurante","Hôtel":"Hotel","Bar / Café":"Bar / Café","Destination":"Destino","Activité":"Atividade"},
+  nl:{"Restaurant":"Restaurant","Hôtel":"Hotel","Bar / Café":"Bar / Café","Destination":"Bestemming","Activité":"Activiteit"},
+};
+// Keep these for backward compat (used in MemoryForm before lang is known)
+const LIKES_BY_TYPE = LIKES_BY_TYPE_LANG.en;
+const DISLIKES_BY_TYPE = DISLIKES_BY_TYPE_LANG.en;
+const PREFS_LOVES_OPTIONS = PREFS_LOVES_BY_LANG.en;
+const PREFS_HATES_OPTIONS = PREFS_HATES_BY_LANG.en;
 
 
 const LANGUAGES = [
@@ -43,7 +77,7 @@ const LANGUAGES = [
 
 const TRANSLATIONS = {
   fr: {
-    appTagline: "Votre agent de voyage personnel",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoris", tabAdd: "+ Ajouter", tabFriends: "👥 Amis", tabProfile: "Profil",
     logout: "Déconnexion",
     addPlace: "Nom du lieu", addType: "Type", addPrice: "Prix", addCity: "Ville", addCountry: "Pays",
@@ -85,7 +119,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Prénom et nom requis.", loginWelcome: "Bienvenue",
   },
   es: {
-    appTagline: "Tu agente de viaje personal",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Añadir", tabFriends: "👥 Amigos", tabProfile: "Perfil",
     logout: "Cerrar sesión",
     addPlace: "Nombre del lugar", addType: "Tipo", addPrice: "Precio", addCity: "Ciudad", addCountry: "País",
@@ -127,7 +161,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Nombre y apellido requeridos.", loginWelcome: "Bienvenido/a",
   },
   de: {
-    appTagline: "Ihr persönlicher Reiseassistent",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoriten", tabAdd: "+ Hinzufügen", tabFriends: "👥 Freunde", tabProfile: "Profil",
     logout: "Abmelden",
     addPlace: "Ortsname", addType: "Typ", addPrice: "Preis", addCity: "Stadt", addCountry: "Land",
@@ -169,7 +203,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Vor- und Nachname erforderlich.", loginWelcome: "Willkommen",
   },
   it: {
-    appTagline: "Il tuo agente di viaggio personale",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Preferiti", tabAdd: "+ Aggiungi", tabFriends: "👥 Amici", tabProfile: "Profilo",
     logout: "Disconnetti",
     addPlace: "Nome del posto", addType: "Tipo", addPrice: "Prezzo", addCity: "Città", addCountry: "Paese",
@@ -211,7 +245,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Nome e cognome richiesti.", loginWelcome: "Benvenuto/a",
   },
   pt: {
-    appTagline: "O seu agente de viagem pessoal",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Adicionar", tabFriends: "👥 Amigos", tabProfile: "Perfil",
     logout: "Sair",
     addPlace: "Nome do lugar", addType: "Tipo", addPrice: "Preço", addCity: "Cidade", addCountry: "País",
@@ -253,7 +287,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Nome e apelido obrigatórios.", loginWelcome: "Bem-vindo/a",
   },
   nl: {
-    appTagline: "Uw persoonlijke reisassistent",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favorieten", tabAdd: "+ Toevoegen", tabFriends: "👥 Vrienden", tabProfile: "Profiel",
     logout: "Uitloggen",
     addPlace: "Naam van de plek", addType: "Type", addPrice: "Prijs", addCity: "Stad", addCountry: "Land",
@@ -295,7 +329,7 @@ const TRANSLATIONS = {
     loginNameRequired: "Voor- en achternaam vereist.", loginWelcome: "Welkom",
   },
   en: {
-    appTagline: "Your personal travel agent",
+    appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favorites", tabAdd: "+ Add", tabFriends: "👥 Friends", tabProfile: "Profile",
     logout: "Sign out",
     addPlace: "Place name", addType: "Type", addPrice: "Price", addCity: "City", addCountry: "Country",
@@ -341,6 +375,8 @@ const TRANSLATIONS = {
 function useT(language) {
   return TRANSLATIONS[language] || TRANSLATIONS["en"];
 }
+
+
 
 const COLORS = {
   bg: "#0f0e0c", card: "#1a1814", border: "#2e2b25",
@@ -591,7 +627,7 @@ function DistanceSlider({ value, onChange }) {
   const idx = DISTANCE_STEPS.indexOf(value);
   return (
     <div className="distance-slider-wrap">
-      <div className="distance-slider-value">Rayon : {DISTANCE_LABELS[idx]}</div>
+      <div className="distance-slider-value">{DISTANCE_LABELS[idx]}</div>
       <input type="range" min={0} max={DISTANCE_STEPS.length-1} value={idx} onChange={e=>onChange(DISTANCE_STEPS[parseInt(e.target.value)])} />
       <div className="distance-slider-labels">{DISTANCE_LABELS.map(l=><span key={l} className="distance-slider-label">{l}</span>)}</div>
     </div>
@@ -641,7 +677,7 @@ function PlaceSearch({ onPlaceSelected }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_1"))?.longText || "";
+      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
       const googleTypes = details.types||[];
       let type = "Restaurant";
@@ -734,8 +770,8 @@ function GoogleMap({ recommendations }) {
 
 
 // Autocomplete spécial pour la localisation Reco — retourne aussi les coordonnées GPS
-function RecoPlaceSearch({ onPlaceSelected }) {
-  const [query, setQuery] = useState("");
+function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
+  const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -765,6 +801,8 @@ function RecoPlaceSearch({ onPlaceSelected }) {
     const val = e.target.value;
     setQuery(val); setSelected(null);
     if (!val) { onPlaceSelected(null); return; }
+    // Reset coords when typing manually - will be geocoded on "Find"
+    onPlaceSelected({ address: val, lat: null, lng: null });
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => search(val), 350);
   };
@@ -841,10 +879,10 @@ function RecoPlaceSearch({ onPlaceSelected }) {
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
 const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en" };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false, t }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
-  const likesOptions = LIKES_BY_TYPE[form.type]||LIKES_BY_TYPE["Restaurant"];
-  const dislikesOptions = DISLIKES_BY_TYPE[form.type]||DISLIKES_BY_TYPE["Restaurant"];
+  const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[form.type]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
+  const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[form.type]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
   const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
@@ -866,11 +904,11 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t }) {
         <div className="field"><label>{t?.addRating||"Rating"}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
         <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))} t={t}/>
         <div className="section-divider"><span>{t?.addLiked||"Liked"}</span></div>
-        <div className="field"><label>Sélectionner</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
-        <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
+        <div className="field"><label>{t?.addLikedSelect||"Select"}</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
+        <div className="field"><label>{t?.addLikedPrecise||"Details"}</label><textarea placeholder="..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
         <div className="section-divider"><span>{t?.addDisliked||"Disliked"}</span></div>
-        <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
-        <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
+        <div className="field"><label style={{color:"#a06060"}}>{t?.addDislikedSelect||"Select"}</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
+        <div className="field"><label style={{color:"#a06060"}}>{t?.addDislikedPrecise||"Details"}</label><textarea placeholder="..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
         <div style={{display:"flex",gap:8,marginTop:4}}>
           {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>{t?.duplicateCancel||"Cancel"}</button>}
           <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?(t?.addUpdate||"Update"):(t?.addSave||"Save")}</button>
@@ -892,7 +930,12 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
           {!isMine&&m.friendName&&<span className="badge friend">{m.friendName}</span>}
         </div>
       </div>
-      {(m.city||m.country)&&<div className="memory-location">📍 {[m.city,m.country].filter(Boolean).join(", ")}</div>}
+      {(m.city||m.country)&&<div className="memory-location">
+        📍 {[m.city,m.country].filter(Boolean).join(", ")}
+        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+(m.city?", "+m.city:"")+(m.country?", "+m.country:""))}`}
+          target="_blank" rel="noopener noreferrer"
+          style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
+      </div>}
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
@@ -931,6 +974,7 @@ export default function TravelAgent() {
   const [profile, setProfile] = useState(null);
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
   const t = useT(prefs.language || "en");
+  const lang = prefs.language || "en";
   const [prefsSaved, setPrefsSaved] = useState(false);
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(true);
@@ -945,6 +989,8 @@ export default function TravelAgent() {
   const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
   const [showFriendMems, setShowFriendMems] = useState(true);
+  const [showOnlyFriends, setShowOnlyFriends] = useState(false);
+  const [memSearch, setMemSearch] = useState("");
 
   // Reco
   const [recoType, setRecoType] = useState("Restaurant");
@@ -954,6 +1000,7 @@ export default function TravelAgent() {
   const [locMode, setLocMode] = useState(() => localStorage.getItem("outsy_locMode") || "free");
   const [freeLocation, setFreeLocation] = useState(() => localStorage.getItem("outsy_freeLocation") || "");
   const [gpsLocation, setGpsLocation] = useState(() => localStorage.getItem("outsy_gpsLocation") || "");
+  const [gpsReady, setGpsReady] = useState(true); // false while GPS is loading
   const [recoCoords, setRecoCoords] = useState(() => {
     try { const s = localStorage.getItem("outsy_recoCoords"); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -964,6 +1011,7 @@ export default function TravelAgent() {
   const [heartLoading, setHeartLoading] = useState(false);
   const [aiRecos, setAiRecos] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
+  const abortRef = useRef(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -981,15 +1029,32 @@ export default function TravelAgent() {
 
   useEffect(() => {
     if (!session) return;
+    const userId = session.user.id;
+    const cacheKey = `outsy_cache_${userId}`;
+
+    // Show cached data instantly
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { profile: p, memories: m, prefs: pr } = JSON.parse(cached);
+        if (p) setProfile(p);
+        if (m) setMemories(m);
+        if (pr) setPrefs({ ...DEFAULT_PREFS, ...pr });
+        setLoading(false); // Show UI immediately with cached data
+      }
+    } catch {}
+
+    // Then refresh from Supabase in background
     const load = async () => {
-      setLoading(true);
-      const userId = session.user.id;
+      if (!localStorage.getItem(cacheKey)) setLoading(true);
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
       if (prof) setProfile(prof);
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).single();
       if (pref) setPrefs({ ...DEFAULT_PREFS, ...pref });
+      // Save to cache
+      try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
       await loadFriends(userId);
       setLoading(false);
     };
@@ -1040,13 +1105,17 @@ export default function TravelAgent() {
   };
 
   const handleUpdate = async (form) => {
-    const { error } = await supabase.from('memories').update(form).eq('id', editMemory.id).eq('user_id', userId);
-    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...form}:m)); setEditMemory(null); showToast(t.toastUpdated); }
+    // Clean form - only send DB fields
+    const { isMine, friendName, distanceKm, _lat, _lng, ...cleanForm } = form;
+    const { error } = await supabase.from('memories').update(cleanForm).eq('id', editMemory.id).eq('user_id', userId);
+    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m)); setEditMemory(null); showToast(t.toastUpdated); }
+    else { console.error('Update error:', error); showToast('❌ ' + error.message); }
   };
 
   const handleDuplicateUpdate = async () => {
     const { newForm, existing } = duplicateAlert;
-    const updated = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
+    const merged = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
+    const { isMine, friendName, distanceKm, _lat, _lng, profiles, ...updated } = merged;
     await supabase.from('memories').update(updated).eq('id', existing.id).eq('user_id', userId);
     setMemories(prev=>prev.map(m=>m.id===existing.id?updated:m));
     setDuplicateAlert(null); showToast(t.toastUpdated);
@@ -1054,7 +1123,7 @@ export default function TravelAgent() {
 
   const deleteMemory = async (id) => {
     await supabase.from('memories').delete().eq('id', id).eq('user_id', userId);
-    setMemories(prev=>prev.filter(m=>m.id!==id));
+    setMemories(prev=>{ const next=prev.filter(m=>m.id!==id); try{localStorage.removeItem(`outsy_cache_${userId}`);}catch{} return next; });
   };
 
   const savePrefs = async () => {
@@ -1092,6 +1161,13 @@ export default function TravelAgent() {
 
   const logout = () => supabase.auth.signOut();
 
+  const cancelSearch = () => {
+    if (abortRef.current) abortRef.current.abort();
+    setHeartLoading(false);
+    setAiLoading(false);
+    setGeocoding(false);
+  };
+
   const sendResetEmail = async (email) => {
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin,
@@ -1123,12 +1199,15 @@ export default function TravelAgent() {
           const country = d.address?.country || "";
           const full = [number, road, city, country].filter(Boolean).join(", ");
           setGpsLocation(full || `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+          setGpsReady(true);
         }
       } catch {
         setGpsLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        setGpsReady(true);
       }
     }, (err) => {
       setGpsLocation("Erreur de localisation");
+      setGpsReady(true);
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
 
@@ -1144,10 +1223,15 @@ export default function TravelAgent() {
   const loadRecos = async () => {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
+    // Create new abort controller for this search
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
     setGeocoding(true);
-    // Use ref for immediate access (state update is async in React)
-    let coords = recoCoordsRef.current;
-    if (!coords) {
+    // GPS: use cached coords. Free text: always geocode fresh
+    let coords;
+    if (locMode === "gps" && recoCoordsRef.current?.lat) {
+      coords = recoCoordsRef.current;
+    } else {
       coords = await geocodeLocation(locationLabel);
       if (!coords) { setGeocoding(false); return; }
       setRecoCoords(coords);
@@ -1287,11 +1371,20 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = [...memories.map(m=>({...m,isMine:true})), ...(showFriendMems?friendMemories.map(m=>({...m,isMine:false})):[])].filter(m=>{
+  const filteredMemories = [
+    ...(showOnlyFriends ? [] : memories.map(m=>({...m,isMine:true}))),
+    ...((showFriendMems||showOnlyFriends) ? friendMemories.map(m=>({...m,isMine:false})) : [])
+  ].filter(m=>{
     if (filterType!==ALL&&m.type!==filterType) return false;
     if (filterPrice!==ALL&&m.price!==filterPrice) return false;
     if (filterRating!==ALL&&m.rating<parseInt(filterRating)) return false;
     if (filterKids&&!m.kidsf) return false;
+    if (memSearch.trim()) {
+      const q = memSearch.toLowerCase();
+      if (!m.name?.toLowerCase().includes(q) &&
+          !m.city?.toLowerCase().includes(q) &&
+          !m.country?.toLowerCase().includes(q)) return false;
+    }
     return true;
   });
 
@@ -1324,7 +1417,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm onSave={handleAdd} t={t} />}
+          {!loading && tab === "add" && <MemoryForm onSave={handleAdd} t={t} lang={lang}/>}
 
           {!loading && tab === "memories" && (
             <div>
@@ -1334,8 +1427,18 @@ IMPORTANT RULES:
                 <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[[ALL,t.filterAll],["1","1"],["2","2"],["3","3"],["4","4"],["5","5"]].map(([val,label])=><button key={val} className={`filter-btn ${filterRating===val?"active":""}`} onClick={()=>setFilterRating(val)}>{val===ALL?t.filterAll:`${val}★+`}</button>)}</div>
                 <div className="filters-row">
                   <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>{t.filterKids}</button>
-                  {friends.length>0&&<button className={`filter-btn ${showFriendMems?"active":""}`} onClick={()=>setShowFriendMems(!showFriendMems)}>{t.filterFriends}</button>}
+                  {friends.length>0&&(<>
+                    <button className={`filter-btn ${!showOnlyFriends&&showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(true);}}>👤+👥</button>
+                    <button className={`filter-btn ${!showOnlyFriends&&!showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(false);}}>👤 {t.filterMine||"Mine"}</button>
+                    <button className={`filter-btn ${showOnlyFriends?"active":""}`} onClick={()=>{setShowOnlyFriends(true);setShowFriendMems(true);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
+                  </>)}
                 </div>
+                <input
+                  value={memSearch}
+                  onChange={e=>setMemSearch(e.target.value)}
+                  placeholder={t.searchPlaces||"Search by name, city..."}
+                  style={{background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none",width:"100%",marginBottom:8,transition:"border-color 0.2s"}}
+                />
               </div>
               <div className="memory-list">
                 {filteredMemories.length===0?(
@@ -1444,14 +1547,15 @@ IMPORTANT RULES:
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileLikes}</div>
-                <div className="field"><label>Sélectionner</label><TagPicker options={PREFS_LOVES_OPTIONS} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
-                <div className="field"><label>Préciser</label><textarea placeholder="Autre chose..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
+                <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
+                <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
                 <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+
               </div>
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">{t.profileDislikes}</div>
-                <div className="field"><label style={{color:"#a06060"}}>Sélectionner</label><TagPicker options={PREFS_HATES_OPTIONS} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
-                <div className="field"><label style={{color:"#a06060"}}>Préciser</label><textarea placeholder="Autre chose..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
+                <div className="field"><label style={{color:"#a06060"}}>{t.profileDislikesSelect}</label><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
+                <div className="field"><label style={{color:"#a06060"}}>{t.profileDislikesPrecise}</label><textarea placeholder="..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileNotes}</div>
@@ -1470,22 +1574,29 @@ IMPORTANT RULES:
               <div className="reco-location-card">
                 <div className="reco-location-title">{t.recoLocation}</div>
                 <div className="location-row">
-                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);getGPS();}}>{t.recoGPS}</button>
+                  <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
                   <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);}}>{t.recoManual}</button>
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
-                {locMode==="free"&&<RecoPlaceSearch onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
+                {locMode==="free"&&<RecoPlaceSearch key={freeLocation||"empty"} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(t=><button key={t} className={`reco-type-btn ${recoType===t?"active":""}`} onClick={()=>setRecoType(t)}>{TYPE_ICONS[t]} {t}</button>)}</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>setRecoType(tp)}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>)}</div>
                 </div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
-                <button className="reco-btn" onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel}>
-                  {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
-                </button>
+                <div style={{display:"flex",gap:8}}>
+                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
+                    {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
+                  </button>
+                  {(heartLoading||aiLoading||geocoding)&&(
+                    <button onClick={cancelSearch} style={{padding:"13px 16px",background:"#3a1a1a",border:"1px solid #8b3a3a",borderRadius:10,color:"#e06060",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
+                      ✕ {t.cancel||"Cancel"}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {(heartMemories.length>0||nearbyPlaces.length>0)&&(
@@ -1510,7 +1621,7 @@ IMPORTANT RULES:
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
-                              <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
+                              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:"")+(p.address?"":(" "+(p.city||"")+" "+(p.country||""))))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
                               <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
                             </div>
                           </div>
@@ -1552,7 +1663,7 @@ IMPORTANT RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  <a href={`https://maps.google.com/search/?api=1&query=${encodeURIComponent(reco.name+", "+reco.address)}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
+                                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
@@ -1576,7 +1687,7 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{t.editTitle} {editMemory.name}</div>
-            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t}/>
+            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang}/>
           </div>
         </div>
       )}
@@ -1585,8 +1696,9 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">+ {recoToAdd.name}</div>
-            <MemoryForm initial={recoToAdd} onSave={async(form)=>{
-              const entry={...form,id:Date.now(),ts:Date.now(),user_id:userId};
+            <MemoryForm initial={recoToAdd} lang={lang} onSave={async(form)=>{
+              const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,...cleanF}=form;
+const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
               if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
               setRecoToAdd(null);
