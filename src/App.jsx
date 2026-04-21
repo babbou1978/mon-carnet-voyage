@@ -867,10 +867,10 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       </button>
 
       {/* Legend */}
-      <div style={{ position:"absolute", bottom: activePlace ? 120 : 8, left:8, display:"flex", gap:8, zIndex:10 }}>
-        {userCoords?.lat && <span style={{fontSize:10,color:"#f0ead8",background:"#1a1814",padding:"3px 7px",borderRadius:20,border:"1px solid #2e2b25"}}>🔵 You</span>}
-        {(heartMemories||[]).length > 0 && <span style={{fontSize:10,color:"#f0ead8",background:"#1a1814",padding:"3px 7px",borderRadius:20,border:"1px solid #2e2b25"}}>🔴 Favorites</span>}
-        {(recommendations||[]).length > 0 && <span style={{fontSize:10,color:"#f0ead8",background:"#1a1814",padding:"3px 7px",borderRadius:20,border:"1px solid #2e2b25"}}>🟡 AI picks</span>}
+      <div style={{ position:"absolute", top:8, left:48, display:"flex", gap:6, zIndex:10 }}>
+        {userCoords?.lat && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🔵 You</span>}
+        {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🔴 Favorites</span>}
+        {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🟡 AI picks</span>}
       </div>
 
       {/* Place popup on click */}
@@ -1081,7 +1081,7 @@ function MemoryCard({ m, onEdit, onDelete, isMine }) {
         <span className="memory-date">{formatDate(m.ts)}</span>
         {isMine&&<div className="memory-actions">
           <button className="edit-btn" onClick={()=>onEdit(m)}>✏️ Éditer</button>
-          <button className="del-btn" onClick={()=>onDelete(m.id)}>✕</button>
+          <button className="del-btn" onClick={()=>{ if(window.confirm(`Delete "${m.name}"?`)) onDelete(m.id); }}>✕</button>
         </div>}
       </div>
     </div>
@@ -1480,6 +1480,7 @@ IMPORTANT RULES:
 - matchScore 0-100 based on profile match
 - 2-3 concrete matchReasons explaining why this place fits
 - Full address required: street number, street name, city, country
+- NEVER suggest any of these places already in favorites: ${memories.map(m=>m.name).slice(0,20).join(', ')}
 - NEVER suggest places similar to disappointments
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
