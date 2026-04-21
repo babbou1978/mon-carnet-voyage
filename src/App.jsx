@@ -731,6 +731,8 @@ const MAP_STYLES = [
 
 function GoogleMap({ recommendations, userCoords, heartMemories }) {
   const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const boundsRef = useRef(null);
   const [activePlace, setActivePlace] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -746,6 +748,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
         styles: MAP_STYLES,
       });
+      mapInstance.current = map;
+      boundsRef.current = bounds;
       const geocoder = new window.google.maps.Geocoder();
       let total = 0, done = 0;
       const checkFit = () => { done++; if (done >= total && !bounds.isEmpty()) map.fitBounds(bounds); };
@@ -826,6 +830,13 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
     userCoords?.lng
   ]);
 
+  // Refit bounds when toggling fullscreen
+  useEffect(() => {
+    if (mapInstance.current && boundsRef.current && !boundsRef.current.isEmpty()) {
+      setTimeout(() => mapInstance.current.fitBounds(boundsRef.current), 100);
+    }
+  }, [fullscreen]);
+
   const mapStyle = fullscreen
     ? { position:"fixed", inset:0, zIndex:500, background:"#0f0e0c" }
     : { position:"relative", borderRadius:12, overflow:"hidden", border:"1px solid #2e2b25" };
@@ -835,6 +846,18 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       <div ref={mapRef} style={{ width:"100%", height: fullscreen ? "100vh" : "240px" }}/>
 
       {/* Fullscreen toggle */}
+      {/* Recenter button */}
+      <button onClick={() => {
+        if (mapInstance.current && boundsRef.current && !boundsRef.current.isEmpty()) {
+          mapInstance.current.fitBounds(boundsRef.current);
+        }
+      }} style={{
+        position:"absolute", top:8, left:8, background:"#1a1814", border:"1px solid #2e2b25",
+        borderRadius:6, width:32, height:32, color:"#f0ead8", cursor:"pointer", fontSize:16,
+        fontFamily:"'DM Sans',sans-serif", zIndex:10, display:"flex", alignItems:"center", justifyContent:"center",
+        boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
+      }}>⊕</button>
+
       <button onClick={() => setFullscreen(f => !f)} style={{
         position:"absolute", top:8, right:8, background:"#c9a84c", border:"none",
         borderRadius:6, padding:"6px 12px", color:"#0f0e0c", cursor:"pointer", fontSize:12,
