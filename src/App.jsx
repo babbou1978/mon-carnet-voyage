@@ -1014,7 +1014,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbRecos:"10" };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1117,6 +1117,7 @@ export default function TravelAgent() {
   const [loading, setLoading] = useState(true);
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
+  const [formKey, setFormKey] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState(null); // {id, name}
   const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
   const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
@@ -1145,6 +1146,7 @@ export default function TravelAgent() {
   const recoCoordsRef = useRef(null);
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
+  const [heartsLoaded, setHeartsLoaded] = useState(false);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [heartLoading, setHeartLoading] = useState(false);
   const [aiRecos, setAiRecos] = useState([]);
@@ -1239,7 +1241,7 @@ export default function TravelAgent() {
     if (duplicate) { setDuplicateAlert({ existing: duplicate, newForm: form }); return; }
     const entry = { ...form, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
-    if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); }
+    if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); setFormKey(k=>k+1); }
   };
 
   const handleUpdate = async (form) => {
@@ -1358,6 +1360,41 @@ export default function TravelAgent() {
     return null;
   };
 
+  const loadHearts = async (coordsToUse) => {
+    const candidates = [...memories,...friendMemories]
+      .filter(m=>m.rating>=3)
+      .filter(m=>recoType===ALL||m.type===recoType)
+      .filter(m=>recoPrice===ALL||m.price===recoPrice)
+      .filter(m=>!recoKids||m.kidsf);
+    let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
+    if (coordsToUse && candidates.length > 0) {
+      try {
+        const toGeocode = candidates.filter(m=>m.city||m.name);
+        if (toGeocode.length > 0) {
+          const geoRes = await fetch("/api/geocode-memories", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country})) })
+          });
+          const geoData = await geoRes.json();
+          const coordsMap = {};
+          (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[String(r.id)]={lat:r.lat,lng:r.lng}; });
+          heartMems = heartMems.map(m=>{
+            const c = coordsMap[String(m.id)];
+            if (c) { const distKm = calcDistance(coordsToUse.lat, coordsToUse.lng, c.lat, c.lng); return {...m,_lat:c.lat,_lng:c.lng,distanceKm:distKm}; }
+            return m;
+          });
+          const withCoords = heartMems.filter(m=>m.distanceKm!==undefined);
+          if (withCoords.length > 0) {
+            const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
+            heartMems = inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating);
+          } else { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
+        }
+      } catch { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
+    } else { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
+    setHeartMemories(heartMems.slice(0,10));
+    setHeartsLoaded(true);
+  };
+
   const loadRecos = async () => {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
@@ -1460,6 +1497,9 @@ export default function TravelAgent() {
     const friendLiked = friendMemories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
+    const nbRecosCount = prefs.nbRecos === "auto"
+      ? Math.max(3, 10 - heartMemories.length)
+      : parseInt(prefs.nbRecos) || 10;
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `User profile:
@@ -1473,7 +1513,7 @@ My favorites: ${liked||"None."}
 My disappointments: ${disliked||"None."}
 Friends favorites: ${friendLiked||"None."}
 
-Request: Find the 10 best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
+Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
 
 IMPORTANT RULES:
 - ALL places MUST be within ${distLabel} of "${locationLabel}"
@@ -1555,7 +1595,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm onSave={handleAdd} t={t} lang={lang}/>}
+          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} t={t} lang={lang}/>}
 
           {!loading && tab === "memories" && (
             <div>
@@ -1687,7 +1727,21 @@ IMPORTANT RULES:
                 <div className="prefs-card-title">{t.profileLikes}</div>
                 <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
                 <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
-                <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+                <div className="field">
+                <label>{t.nbRecosLabel||"Recommendations"}</label>
+                <div style={{display:"flex",gap:8}}>
+                  {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
+                    <button key={val} onClick={()=>setPrefs(p=>({...p,nbRecos:val}))}
+                      style={{flex:1,padding:"9px 4px",background:(prefs.nbRecos||"10")===val?"#c9a84c22":"#1a1814",
+                        border:`1px solid ${(prefs.nbRecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                        borderRadius:8,color:(prefs.nbRecos||"10")===val?"#c9a84c":"#8a8070",
+                        cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s"}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
 
               </div>
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
