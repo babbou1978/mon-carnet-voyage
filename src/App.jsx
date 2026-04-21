@@ -1238,7 +1238,10 @@ export default function TravelAgent() {
 
   const handleAdd = async (form) => {
     const duplicate = memories.find(m => m.name.toLowerCase()===form.name.toLowerCase());
-    if (duplicate) { setDuplicateAlert({ existing: duplicate, newForm: form }); return; }
+    if (duplicate) {
+      setDuplicateAlert({ existing: duplicate, newForm: form });
+      return;
+    }
     const entry = { ...form, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); setFormKey(k=>k+1); }
@@ -1258,7 +1261,7 @@ export default function TravelAgent() {
     const { isMine, friendName, distanceKm, _lat, _lng, profiles, ...updated } = merged;
     await supabase.from('memories').update(updated).eq('id', existing.id).eq('user_id', userId);
     setMemories(prev=>prev.map(m=>m.id===existing.id?updated:m));
-    setDuplicateAlert(null); showToast(t.toastUpdated);
+    setDuplicateAlert(null); showToast(t.toastUpdated); setFormKey(k=>k+1);
   };
 
   const deleteMemory = async (id) => {
