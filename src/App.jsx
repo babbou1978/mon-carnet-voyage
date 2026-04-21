@@ -1405,6 +1405,8 @@ export default function TravelAgent() {
     setHeartLoading(false);
 
     // AI Recos
+    console.log("Starting AI reco...");
+    try {
     setAiLoading(true); setAiRecos([]);
     const liked = memories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — aimé: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
@@ -1449,6 +1451,7 @@ IMPORTANT RULES:
       const data = await res.json();
       if (data.recommendations) setAiRecos(data.recommendations);
     } catch(err) { console.error("AI RECO ERROR:", err); }
+    } catch(outerErr) { console.error("AI OUTER ERROR:", outerErr); }
     setAiLoading(false);
   };
 
