@@ -1313,7 +1313,6 @@ export default function TravelAgent() {
     setHeartLoading(false);
 
     // AI Recos
-    try {
     setAiLoading(true); setAiRecos([]);
     const liked = memories.filter(m=>m.rating>=3).sort((a,b)=>b.rating-a.rating).slice(0,10)
       .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
