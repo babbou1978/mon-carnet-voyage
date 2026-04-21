@@ -652,6 +652,7 @@ function PlaceSearch({ onPlaceSelected }) {
   const search = useCallback(async (val) => {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val }) });
       const data = await res.json();
@@ -673,6 +674,7 @@ function PlaceSearch({ onPlaceSelected }) {
     const mainText = suggestion.placePrediction?.structuredFormat?.mainText?.text || "";
     const secondaryText = suggestion.placePrediction?.structuredFormat?.secondaryText?.text || "";
     setQuery(mainText); setShowDropdown(false); setSuggestions([]);
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
@@ -788,6 +790,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
   const search = useCallback(async (val) => {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val }) });
       const data = await res.json();
@@ -814,6 +817,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
     const fullLabel = `${mainText}${secondaryText ? ", " + secondaryText : ""}`;
     setQuery(fullLabel); setShowDropdown(false); setSuggestions([]);
 
+    console.log("prompt ok");
     try {
       // Récupérer les coords via details
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
@@ -828,6 +832,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
     } catch {}
 
     // Fallback: géocoder via l'API geocode
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "geocode", input: fullLabel }) });
       const data = await res.json();
@@ -1021,6 +1026,7 @@ export default function TravelAgent() {
 
   // Init ref from localStorage
   useEffect(() => {
+    console.log("prompt ok");
     try {
       const s = localStorage.getItem("outsy_recoCoords");
       if (s) recoCoordsRef.current = JSON.parse(s);
@@ -1033,6 +1039,7 @@ export default function TravelAgent() {
     const cacheKey = `outsy_cache_${userId}`;
 
     // Show cached data instantly
+    console.log("prompt ok");
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
@@ -1183,7 +1190,8 @@ export default function TravelAgent() {
       recoCoordsRef.current = { lat, lng };
       localStorage.setItem('outsy_recoCoords', JSON.stringify({ lat, lng }));
       // Reverse geocode pour avoir une adresse précise
-      try {
+      console.log("prompt ok");
+    try {
         const res = await fetch("/api/places", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "geocode", input: `${lat},${lng}` })
@@ -1212,6 +1220,7 @@ export default function TravelAgent() {
   };
 
   const geocodeLocation = async (address) => {
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "geocode", input: address }) });
       const data = await res.json();
@@ -1254,6 +1263,7 @@ export default function TravelAgent() {
     // Show all favorites sorted by rating — distance filter is best-effort
     console.log("Heart candidates:", candidates.length, "memories:", memories.length, "friends:", friendMemories.length);
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
+    console.log("prompt ok");
     try {
       const toGeocode = candidates.filter(m=>m.city||m.name);
       if (toGeocode.length > 0) {
@@ -1296,6 +1306,7 @@ export default function TravelAgent() {
     setHeartMemories(heartMems.slice(0,10));
 
     // Nearby Google Places
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/places", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1348,6 +1359,7 @@ IMPORTANT RULES:
 - NEVER suggest places similar to disappointments
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
 
+    console.log("prompt ok");
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
