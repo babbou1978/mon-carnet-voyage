@@ -658,7 +658,7 @@ function PlaceSearch({ onPlaceSelected }) {
       const data = await res.json();
       setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
     setLoading(false);
   }, []);
 
@@ -796,7 +796,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
       const data = await res.json();
       setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
     setLoading(false);
   }, []);
 
@@ -829,7 +829,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
         onPlaceSelected({ address: fullLabel, lat, lng });
         return;
       }
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
 
     // Fallback: géocoder via l'API geocode
     console.log("prompt ok");
@@ -841,7 +841,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
         onPlaceSelected({ address: fullLabel, lat: data.lat, lng: data.lng });
         return;
       }
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
 
     setSelected({ address: fullLabel, lat: null, lng: null });
     onPlaceSelected({ address: fullLabel, lat: null, lng: null });
@@ -1030,7 +1030,7 @@ export default function TravelAgent() {
     try {
       const s = localStorage.getItem("outsy_recoCoords");
       if (s) recoCoordsRef.current = JSON.parse(s);
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
   }, []);
 
   useEffect(() => {
@@ -1049,7 +1049,7 @@ export default function TravelAgent() {
         if (pr) setPrefs({ ...DEFAULT_PREFS, ...pr });
         setLoading(false); // Show UI immediately with cached data
       }
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
 
     // Then refresh from Supabase in background
     const load = async () => {
@@ -1225,7 +1225,7 @@ export default function TravelAgent() {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "geocode", input: address }) });
       const data = await res.json();
       if (data.lat) return { lat: data.lat, lng: data.lng };
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
     return null;
   };
 
@@ -1367,7 +1367,7 @@ IMPORTANT RULES:
       });
       const data = await res.json();
       if (data.recommendations) setAiRecos(data.recommendations);
-    } catch {}
+    } catch(e) { console.error("FETCH ERROR:", e.message); }
     setAiLoading(false);
   };
 
