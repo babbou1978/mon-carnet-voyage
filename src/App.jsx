@@ -1749,6 +1749,31 @@ IMPORTANT RULES:
               <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
 
               </div>
+              <div className="prefs-card">
+                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Recommendations"} & {t.profileBudget||"Budget"}</div>
+                <div className="field">
+                  <label>{t.nbRecosLabel||"Recommendations"}</label>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbRecos:val}))}
+                        style={{flex:1,padding:"10px 4px",background:(prefs.nbRecos||"10")===val?"#c9a84c22":"#1a1814",
+                          border:`1px solid ${(prefs.nbRecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                          borderRadius:8,color:(prefs.nbRecos||"10")===val?"#c9a84c":"#8a8070",
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="field">
+                  <label>{t.profileBudget}</label>
+                  <select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}>
+                    <option value="">{t.profileBudgetNone}</option>
+                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">{t.profileDislikes}</div>
                 <div className="field"><label style={{color:"#a06060"}}>{t.profileDislikesSelect}</label><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
