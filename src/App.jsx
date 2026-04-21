@@ -1409,11 +1409,11 @@ export default function TravelAgent() {
     try {
     setAiLoading(true); setAiRecos([]);
     console.log("AI step 1: building liked...");
-    const liked = memories.filter(m=>m.rating>=3)
-      .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — aimé: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
+    const liked = memories.filter(m=>m.rating>=3).sort((a,b)=>b.rating-a.rating).slice(0,10)
+      .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
       .join("\n");
-    const disliked = memories.filter(m=>m.rating>0&&m.rating<3)
-      .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"expérience mitigée"}`)
+    const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5)
+      .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
       .join("\n");
     const friendLiked = friendMemories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
@@ -1452,7 +1452,8 @@ IMPORTANT RULES:
         body: JSON.stringify({ prompt, structured: true, language: prefs.language || "en" }),
       });
       const data = await res.json();
-      console.log("AI response:", data.recommendations?.length, "recos", data.error||"", data.raw?.slice(0,100)||"");
+      console.log("AI response:", data.recommendations?.length, "recos", data.error||"");
+      if (data.raw) console.log("Raw:", data.raw.slice(0,300));
       if (data.recommendations) setAiRecos(data.recommendations);
     } catch(err) { console.error("AI RECO ERROR:", err); }
     } catch(outerErr) { console.error("AI OUTER ERROR:", outerErr); }
