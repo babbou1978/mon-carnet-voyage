@@ -1572,6 +1572,12 @@ IMPORTANT RULES:
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
 
+  // Auto-load hearts when location or filters change
+  useEffect(() => {
+    const coords = recoCoordsRef.current;
+    if (coords?.lat) { loadHearts(coords); }
+  }, [recoType, recoPrice, recoKids, distance, memories.length, friendMemories.length]); // eslint-disable-line
+
   return (
     <>
       <style>{css}</style>
