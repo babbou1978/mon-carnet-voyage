@@ -1746,8 +1746,6 @@ IMPORTANT RULES:
                   ))}
                 </div>
               </div>
-              <div className="field"><label>{t.profileBudget}</label><select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}><option value="">{t.profileBudgetNone}</option>{PRICES.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
-
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Recommendations"} & {t.profileBudget||"Budget"}</div>
