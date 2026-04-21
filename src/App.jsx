@@ -745,67 +745,61 @@ function UnifiedMap({ aiRecos, heartMemories, userCoords, fullscreen=false, onCl
       });
       mapInstance.current = map;
       const geocoder = new window.google.maps.Geocoder();
-      let pending = 0;
-
-      const addMarker = (pos, opts, placeData) => {
-        const marker = new window.google.maps.Marker({ position: pos, map, ...opts });
-        marker.addListener("click", () => setActivePlace(placeData));
-        bounds.extend(pos);
-        pending--;
-        if (pending <= 0) map.fitBounds(bounds);
-      };
-
-      // User position - blue
+      const allItems = [];
+      // User position
       if (userCoords?.lat) {
-        pending++;
-        const pos = { lat: userCoords.lat, lng: userCoords.lng };
         new window.google.maps.Marker({
-          position: pos, map, title: "My location", zIndex: 100,
+          position: { lat: userCoords.lat, lng: userCoords.lng },
+          map, title: "My location", zIndex: 100,
           icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#4a90d9", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 2, scale: 10 },
         });
-        bounds.extend(pos);
-        pending--;
-        if (pending <= 0 && pending >= 0) {}
+        bounds.extend({ lat: userCoords.lat, lng: userCoords.lng });
       }
 
-      // Heart memories - red
+      // Collect items to geocode
+      const toPlace = [];
       (heartMemories||[]).forEach(m => {
-        if (!m._lat) {
-          pending++;
-          geocoder.geocode({ address: `${m.name} ${m.city||""} ${m.country||""}` }, (res, status) => {
-            if (status==="OK"&&res[0]) {
-              addMarker(res[0].geometry.location, {
-                title: m.name,
-                icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#e05555", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 13 },
-                label: { text: "❤", color: "#fff", fontSize: "10px" },
-              }, { ...m, markerType: "heart" });
-            } else { pending--; if(pending<=0) map.fitBounds(bounds); }
-          });
-        } else {
-          pending++;
-          addMarker({ lat: m._lat, lng: m._lng }, {
-            title: m.name,
+        if (m._lat) {
+          const pos = { lat: m._lat, lng: m._lng };
+          const marker = new window.google.maps.Marker({
+            position: pos, map, title: m.name,
             icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#e05555", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 13 },
-          }, { ...m, markerType: "heart" });
+          });
+          marker.addListener("click", () => setActivePlace({ ...m, markerType: "heart" }));
+          bounds.extend(pos);
+        } else if (m.name || m.city) {
+          toPlace.push({ type: "heart", data: m, query: `${m.name} ${m.city||""} ${m.country||""}` });
         }
       });
-
-      // AI recos - gold
       (aiRecos||[]).forEach((reco, i) => {
-        if (!reco.address) return;
-        pending++;
-        geocoder.geocode({ address: reco.address }, (res, status) => {
-          if (status==="OK"&&res[0]) {
-            addMarker(res[0].geometry.location, {
-              title: reco.name,
-              label: { text: String(i+1), color: "#0f0e0c", fontWeight: "bold", fontSize: "11px" },
-              icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#c9a84c", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 16 },
-            }, { ...reco, markerType: "ai" });
-          } else { pending--; if(pending<=0) map.fitBounds(bounds); }
-        });
+        if (reco.address) toPlace.push({ type: "ai", data: reco, idx: i, query: reco.address });
       });
 
-      if (pending <= 0 && userCoords?.lat) map.setCenter({ lat: userCoords.lat, lng: userCoords.lng });
+      // Geocode remaining and fit bounds after all done
+      let done = 0;
+      const total = toPlace.length;
+      if (total === 0) { if (!bounds.isEmpty()) map.fitBounds(bounds); return; }
+
+      toPlace.forEach(item => {
+        geocoder.geocode({ address: item.query }, (res, status) => {
+          if (status === "OK" && res[0]) {
+            const pos = res[0].geometry.location;
+            const isHeart = item.type === "heart";
+            const marker = new window.google.maps.Marker({
+              position: pos, map, title: item.data.name,
+              label: isHeart ? undefined : { text: String(item.idx+1), color: "#0f0e0c", fontWeight: "bold", fontSize: "11px" },
+              icon: { path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: isHeart ? "#e05555" : "#c9a84c",
+                fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2,
+                scale: isHeart ? 13 : 16 },
+            });
+            marker.addListener("click", () => setActivePlace({ ...item.data, markerType: item.type }));
+            bounds.extend(pos);
+          }
+          done++;
+          if (done === total) { if (!bounds.isEmpty()) map.fitBounds(bounds); }
+        });
+      });
     };
 
     if (window.google) { loadMap(); }
@@ -1680,7 +1674,7 @@ IMPORTANT RULES:
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
-                {locMode==="free"&&<RecoPlaceSearch key={freeLocation||"empty"} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
+                {locMode==="free"&&<RecoPlaceSearch initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);setRecoCoords({lat:p.lat,lng:p.lng});}else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={setDistance}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
