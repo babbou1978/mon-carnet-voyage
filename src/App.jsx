@@ -1162,7 +1162,7 @@ export default function TravelAgent() {
   const logout = () => supabase.auth.signOut();
 
   const cancelSearch = () => {
-    if (abortRef.current) abortRef.current.abort();
+
     setHeartLoading(false);
     setAiLoading(false);
     setGeocoding(false);
@@ -1224,8 +1224,9 @@ export default function TravelAgent() {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
     // Create new abort controller for this search
+
     abortRef.current = new AbortController();
-    const signal = abortRef.current.signal;
+
     setGeocoding(true);
     // GPS: use cached coords. Free text: always geocode fresh
     let coords;
