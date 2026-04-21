@@ -1240,7 +1240,6 @@ export default function TravelAgent() {
       localStorage.setItem('outsy_recoCoords', JSON.stringify(coords));
     }
     setGeocoding(false);
-    console.log("Using coords:", coords.lat, coords.lng, "for:", locationLabel);
 
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
@@ -1252,7 +1251,6 @@ export default function TravelAgent() {
       .filter(m=>!recoKids||m.kidsf);
 
     // Show all favorites sorted by rating — distance filter is best-effort
-    console.log("Heart candidates:", candidates.length, "memories:", memories.length, "friends:", friendMemories.length);
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
     try {
       const toGeocode = candidates.filter(m=>m.city||m.name);
@@ -1264,8 +1262,6 @@ export default function TravelAgent() {
         const geoData = await geoRes.json();
         const coordsMap = {};
         (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[String(r.id)]={lat:r.lat,lng:r.lng}; });
-        console.log("coordsMap keys:", Object.keys(coordsMap));
-        console.log("heartMems IDs:", heartMems.map(m=>String(m.id)));
 
         heartMems = heartMems.map(m=>{
           const c = coordsMap[String(m.id)];
@@ -1280,7 +1276,6 @@ export default function TravelAgent() {
         const withCoords = heartMems.filter(m=>m.distanceKm!==undefined);
         if (withCoords.length > 0) {
           const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
-          console.log("In radius:", inRadius.length, "of", withCoords.length, "distance:", distance);
           // Don't include places without coords - they could be anywhere
           heartMems = inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating);
         } else {
@@ -1323,7 +1318,6 @@ export default function TravelAgent() {
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
 
-    console.log("distance value:", distance, "idx:", DISTANCE_STEPS.indexOf(distance));
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `User profile:
