@@ -819,7 +819,12 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       window.initGoogleMap = loadMap;
       document.head.appendChild(script);
     }
-  }, [recommendations, userCoords, heartMemories]);
+  }, [
+    JSON.stringify(recommendations?.map(r=>r.name)),
+    JSON.stringify(heartMemories?.map(m=>m.id)),
+    userCoords?.lat,
+    userCoords?.lng
+  ]);
 
   const mapStyle = fullscreen
     ? { position:"fixed", inset:0, zIndex:500, background:"#0f0e0c" }
@@ -831,11 +836,11 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
 
       {/* Fullscreen toggle */}
       <button onClick={() => setFullscreen(f => !f)} style={{
-        position:"absolute", top:8, right:8, background:"#1a1814", border:"1px solid #2e2b25",
-        borderRadius:6, padding:"5px 10px", color:"#c9a84c", cursor:"pointer", fontSize:11,
-        fontFamily:"'DM Sans',sans-serif", zIndex:10
+        position:"absolute", top:8, right:8, background:"#c9a84c", border:"none",
+        borderRadius:6, padding:"6px 12px", color:"#0f0e0c", cursor:"pointer", fontSize:12,
+        fontFamily:"'DM Sans',sans-serif", fontWeight:600, zIndex:10, boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
       }}>
-        {fullscreen ? "✕ Close" : "⛶ Full"}
+        {fullscreen ? "✕ Close" : "⛶ Fullscreen"}
       </button>
 
       {/* Legend */}
