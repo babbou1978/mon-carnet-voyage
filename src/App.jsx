@@ -1366,7 +1366,7 @@ IMPORTANT RULES:
         body: JSON.stringify({ prompt, structured: true, language: prefs.language || "en" }),
       });
       const data = await res.json();
-      if (data.recommendations) setAiRecos(data.recommendations);
+      console.log("DATA:", JSON.stringify(data).slice(0,200)); if (data.recommendations) setAiRecos(data.recommendations);
     } catch(e) { console.error("FETCH ERROR:", e.message); }
     setAiLoading(false);
   };
