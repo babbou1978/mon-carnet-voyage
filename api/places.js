@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location',
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.currentOpeningHours',
         },
         body: JSON.stringify({
           includedTypes: [googleType],
