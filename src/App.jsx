@@ -1408,6 +1408,7 @@ export default function TravelAgent() {
     console.log("Starting AI reco...");
     try {
     setAiLoading(true); setAiRecos([]);
+    console.log("AI step 1: building liked...");
     const liked = memories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — aimé: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — moins aimé: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
       .join("\n");
@@ -1418,6 +1419,7 @@ export default function TravelAgent() {
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
 
+    console.log("AI step 2: building prompt...");
     const favNames = memories.map(m=>m.name.toLowerCase());
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
@@ -1443,6 +1445,7 @@ IMPORTANT RULES:
 - NEVER suggest places similar to disappointments
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
 
+    console.log("AI step 3: fetching...");
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
