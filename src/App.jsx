@@ -1323,6 +1323,7 @@ export default function TravelAgent() {
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
 
+    console.log("distance value:", distance, "idx:", DISTANCE_STEPS.indexOf(distance));
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `User profile:
