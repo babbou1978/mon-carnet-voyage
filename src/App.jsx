@@ -1424,7 +1424,7 @@ export default function TravelAgent() {
     const prompt = `User profile:
 Likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"not specified"}
 Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"not specified"}
-Budget: ${recoPrice!=="Tous"?recoPrice:prefs.budget||"not specified"}
+Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
 Kids friendly required: ${recoKids?"yes":"no"}
 Preferred language for responses: ${langLabel}
 
