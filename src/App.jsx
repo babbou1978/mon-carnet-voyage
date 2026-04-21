@@ -1311,6 +1311,12 @@ export default function TravelAgent() {
     setGeocoding(false);
   };
 
+  // Auto-load hearts when filters or memories change
+  useEffect(() => {
+    const coords = recoCoordsRef.current;
+    if (coords?.lat) { loadHearts(coords); }
+  }, [recoType, recoPrice, recoKids, distance, memories.length, friendMemories.length]); // eslint-disable-line
+
   const sendResetEmail = async (email) => {
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin,
