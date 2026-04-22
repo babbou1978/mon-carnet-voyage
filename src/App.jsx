@@ -1014,7 +1014,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbRecos:"10" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10" };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1151,7 +1151,6 @@ export default function TravelAgent() {
   const [heartLoading, setHeartLoading] = useState(false);
   const [aiRecos, setAiRecos] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
-  const [nbRecosUsed, setNbRecosUsed] = useState(10);
   const abortRef = useRef(null);
 
   useEffect(() => {
@@ -1503,10 +1502,9 @@ export default function TravelAgent() {
     const friendLiked = friendMemories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
-    const nbRecosCount = prefs.nbRecos === "auto"
+    const nbRecosCount = prefs.nbrecos === "auto"
       ? Math.max(3, 10 - heartMemories.length)
-      : parseInt(prefs.nbRecos) || 10;
-    setNbRecosUsed(nbRecosCount);
+      : parseInt(prefs.nbrecos) || 10;
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `User profile:
@@ -1734,6 +1732,18 @@ IMPORTANT RULES:
                 <div className="prefs-card-title">{t.profileLikes}</div>
                 <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
                 <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
+              </div>
+              <div className="prefs-card">
+                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Recommendations"} & {t.profileBudget||"Budget"}</div>
+                <div className="field">
+                  <label>{t.nbRecosLabel||"Recommendations"}</label>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
+                        style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?"#c9a84c22":"#1a1814",
+                          border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                          borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
                         {label}
                       </button>
                     ))}
@@ -1831,7 +1841,7 @@ IMPORTANT RULES:
 
               {(aiLoading||aiRecos.length>0)&&(
                 <div className="reco-block">
-                  <div className="reco-block-title">{t.recoAI}<span>{nbRecosUsed} {t.recoAISub?.replace(/^\d+ /,"")}</span></div>
+                  <div className="reco-block-title">{t.recoAI}<span>{t.recoAISub}</span></div>
                   {aiLoading&&<div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
                   {aiRecos.length>0&&!aiLoading&&(
                     <>
