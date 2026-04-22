@@ -683,9 +683,20 @@ function PlaceSearch({ onPlaceSelected }) {
     setLoading(false);
   }, []);
 
+  const [activeIdx, setActiveIdx] = useState(-1);
+
+  const handleKeyDown = (e) => {
+    if (!showDropdown || !suggestions.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx(i=>Math.min(i+1, suggestions.length-1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx(i=>Math.max(i-1, -1)); }
+    else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); selectPlace(suggestions[activeIdx]); setActiveIdx(-1); }
+    else if (e.key === "Escape") { setShowDropdown(false); setActiveIdx(-1); }
+  };
+
   const handleInput = (e) => {
     const val = e.target.value;
     setQuery(val); setSelectedPlace(null);
+    setActiveIdx(-1);
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => search(val), 350);
   };
@@ -730,7 +741,7 @@ function PlaceSearch({ onPlaceSelected }) {
             const main = s.placePrediction?.structuredFormat?.mainText?.text||"";
             const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text||"";
             return (
-              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?"#2e2b25":"transparent"}}>
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?"#2e2b25":"transparent",borderRadius:4}}>
                 <div className="autocomplete-main">📍 {main}</div>
                 {secondary && <div className="autocomplete-sub">{secondary}</div>}
               </div>
