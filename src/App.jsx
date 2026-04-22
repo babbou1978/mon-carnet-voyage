@@ -110,7 +110,7 @@ const TRANSLATIONS = {
     recoAddFav: "+ Ajouter à mes coups de cœur", recoMapsLink: "Maps →",
     recoNoHeart: "Aucun coup de cœur dans ce rayon. Ajoutez des lieux notés ≥ 4★ !",
     duplicateTitle: "📍 Lieu déjà existant", duplicateText: "est déjà dans vos coups de cœur. Mettre à jour ?",
-    duplicateCancel: "Annuler", duplicateUpdate: "Mettre à jour",
+    duplicateCancel: "Annuler", duplicateEdit: "Modifier l'existant", duplicateUpdate: "Mettre à jour",
     editTitle: "✏️ Modifier", toastSaved: "✓ Souvenir enregistré !", toastUpdated: "✓ Coup de cœur mis à jour !",
     toastAdded: "✓ Ajouté à vos coups de cœur !", toastFriend: "✓ Demande envoyée !", toastFriendAdded: "✓ Ami ajouté !",
     loading: "Chargement... ✈️", loginConnect: "Se connecter", loginCreate: "Créer mon compte",
@@ -194,7 +194,7 @@ const TRANSLATIONS = {
     recoAddFav: "+ Zu Favoriten hinzufügen", recoMapsLink: "Maps →",
     recoNoHeart: "Keine Favoriten in diesem Bereich. Füge Orte mit ≥ 4★ hinzu!",
     duplicateTitle: "📍 Ort bereits vorhanden", duplicateText: "ist bereits in deinen Favoriten. Aktualisieren?",
-    duplicateCancel: "Abbrechen", duplicateUpdate: "Aktualisieren",
+    duplicateCancel: "Abbrechen", duplicateEdit: "Bestehenden bearbeiten", duplicateUpdate: "Aktualisieren",
     editTitle: "✏️ Bearbeiten", toastSaved: "✓ Gespeichert!", toastUpdated: "✓ Favorit aktualisiert!",
     toastAdded: "✓ Zu Favoriten hinzugefügt!", toastFriend: "✓ Anfrage gesendet!", toastFriendAdded: "✓ Freund hinzugefügt!",
     loading: "Laden... ✈️", loginConnect: "Anmelden", loginCreate: "Konto erstellen",
@@ -236,7 +236,7 @@ const TRANSLATIONS = {
     recoAddFav: "+ Aggiungi ai preferiti", recoMapsLink: "Maps →",
     recoNoHeart: "Nessun preferito in quest'area. Aggiungi posti con ≥ 4★!",
     duplicateTitle: "📍 Posto già esistente", duplicateText: "è già nei tuoi preferiti. Aggiornare?",
-    duplicateCancel: "Annulla", duplicateUpdate: "Aggiorna",
+    duplicateCancel: "Annulla", duplicateEdit: "Modifica esistente", duplicateUpdate: "Aggiorna",
     editTitle: "✏️ Modifica", toastSaved: "✓ Salvato!", toastUpdated: "✓ Preferito aggiornato!",
     toastAdded: "✓ Aggiunto ai preferiti!", toastFriend: "✓ Richiesta inviata!", toastFriendAdded: "✓ Amico aggiunto!",
     loading: "Caricamento... ✈️", loginConnect: "Accedi", loginCreate: "Crea account",
@@ -278,7 +278,7 @@ const TRANSLATIONS = {
     recoAddFav: "+ Adicionar aos favoritos", recoMapsLink: "Maps →",
     recoNoHeart: "Sem favoritos nesta área. Adicione lugares com ≥ 4★!",
     duplicateTitle: "📍 Lugar já existe", duplicateText: "já está nos seus favoritos. Atualizar?",
-    duplicateCancel: "Cancelar", duplicateUpdate: "Atualizar",
+    duplicateCancel: "Cancelar", duplicateEdit: "Editar existente", duplicateUpdate: "Atualizar",
     editTitle: "✏️ Editar", toastSaved: "✓ Guardado!", toastUpdated: "✓ Favorito atualizado!",
     toastAdded: "✓ Adicionado aos favoritos!", toastFriend: "✓ Pedido enviado!", toastFriendAdded: "✓ Amigo adicionado!",
     loading: "A carregar... ✈️", loginConnect: "Entrar", loginCreate: "Criar conta",
@@ -320,7 +320,7 @@ const TRANSLATIONS = {
     recoAddFav: "+ Toevoegen aan favorieten", recoMapsLink: "Maps →",
     recoNoHeart: "Geen favorieten in dit gebied. Voeg plekken toe met ≥ 4★!",
     duplicateTitle: "📍 Plek bestaat al", duplicateText: "staat al in je favorieten. Bijwerken?",
-    duplicateCancel: "Annuleren", duplicateUpdate: "Bijwerken",
+    duplicateCancel: "Annuleren", duplicateEdit: "Bestaande bewerken", duplicateUpdate: "Bijwerken",
     editTitle: "✏️ Bewerken", toastSaved: "✓ Opgeslagen!", toastUpdated: "✓ Favoriet bijgewerkt!",
     toastAdded: "✓ Toegevoegd aan favorieten!", toastFriend: "✓ Verzoek verzonden!", toastFriendAdded: "✓ Vriend toegevoegd!",
     loading: "Laden... ✈️", loginConnect: "Inloggen", loginCreate: "Account aanmaken",
@@ -362,7 +362,7 @@ const TRANSLATIONS = {
     recoAddFav: "+ Add to my favorites", recoMapsLink: "Maps →",
     recoNoHeart: "No favorites in this area. Add places with rating ≥ 4★!",
     duplicateTitle: "📍 Place already exists", duplicateText: "is already in your favorites. Update it?",
-    duplicateCancel: "Cancel", duplicateUpdate: "Update",
+    duplicateCancel: "Cancel", duplicateEdit: "Edit existing", duplicateUpdate: "Update",
     editTitle: "✏️ Edit", toastSaved: "✓ Place saved!", toastUpdated: "✓ Favorite updated!",
     toastAdded: "✓ Added to favorites!", toastFriend: "✓ Request sent!", toastFriendAdded: "✓ Friend added!",
     loading: "Loading... ✈️", loginConnect: "Sign in", loginCreate: "Create account",
@@ -1960,9 +1960,12 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
           <div className="alert-box">
             <div className="alert-title">{t.duplicateTitle}</div>
             <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> {t.duplicateText}</div>
-            <div className="alert-actions">
-              <button className="modal-btn secondary" onClick={()=>setDuplicateAlert(null)}>{t.duplicateCancel}</button>
-              <button className="modal-btn primary" onClick={handleDuplicateUpdate}>{t.duplicateUpdate}</button>
+            <div className="alert-actions" style={{flexDirection:"column",gap:8}}>
+              <div style={{display:"flex",gap:8,width:"100%"}}>
+                <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setDuplicateAlert(null)}>{t.duplicateCancel}</button>
+                <button className="modal-btn primary" style={{flex:1}} onClick={()=>{setEditMemory(duplicateAlert.existing);setTab("memories");setDuplicateAlert(null);}}>{t.duplicateEdit||"Edit existing"}</button>
+              </div>
+              <button className="modal-btn primary" style={{width:"100%",background:"#2e2b25",borderColor:"#8a8070",color:"#c9a84c"}} onClick={handleDuplicateUpdate}>{t.duplicateUpdate}</button>
             </div>
           </div>
         </div>
