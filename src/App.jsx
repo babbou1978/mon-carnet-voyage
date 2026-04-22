@@ -1099,7 +1099,8 @@ function calcDistance(lat1, lng1, lat2, lng2) {
 }
 
 export default 
-function CityPicker({ cities, onChange, placeholder, empty }) {
+function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
+  const cities = citiesRaw || [];
   const [input, setInput] = useState("");
 
   const add = () => {
