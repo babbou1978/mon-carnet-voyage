@@ -1730,9 +1730,9 @@ IMPORTANT RULES:
               </div>
 
               <div className="prefs-card">
-                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Recommendations"} & {t.profileBudget||"Budget"}</div>
+                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"AI Recommendation Number"} & {t.profileBudget||"Budget"}</div>
                 <div className="field">
-                  <label>{t.nbRecosLabel||"Recommendations"}</label>
+                  <label>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:8}}>
                     {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
