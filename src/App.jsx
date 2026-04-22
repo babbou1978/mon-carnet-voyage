@@ -101,7 +101,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Voir ❤️", friendsHeartTitle: "❤️ Coups de cœur de",
     friendsNoHeart: "n'a pas encore de coups de cœur.",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoType: "Type", recoPrice: "Prix", recoFind: "🔍 Trouver des lieux",
+    recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & amis",
@@ -143,7 +143,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
     friendsNoHeart: "aún no tiene favoritos.",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
-    recoType: "Tipo", recoPrice: "Precio", recoFind: "🔍 Buscar lugares",
+    recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
     recoGPS: "📍 Mi ubicación", recoManual: "✏️ Introducir", recoGPSLoading: "Obteniendo tu ubicación...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y amigos",
@@ -185,7 +185,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Anzeigen ❤️", friendsHeartTitle: "❤️ Favoriten von",
     friendsNoHeart: "hat noch keine Favoriten.",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
-    recoType: "Typ", recoPrice: "Preis", recoFind: "🔍 Orte finden",
+    recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
     recoGPS: "📍 Mein Standort", recoManual: "✏️ Eingeben", recoGPSLoading: "Standort wird ermittelt...",
     recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Freunde",
@@ -227,7 +227,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Vedi ❤️", friendsHeartTitle: "❤️ Preferiti di",
     friendsNoHeart: "non ha ancora preferiti.",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
-    recoType: "Tipo", recoPrice: "Prezzo", recoFind: "🔍 Trova posti",
+    recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
     recoGPS: "📍 La mia posizione", recoManual: "✏️ Inserisci", recoGPSLoading: "Recupero posizione...",
     recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e amici",
@@ -269,7 +269,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
     friendsNoHeart: "ainda não tem favoritos.",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
-    recoType: "Tipo", recoPrice: "Preço", recoFind: "🔍 Encontrar lugares",
+    recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
     recoGPS: "📍 A minha posição", recoManual: "✏️ Introduzir", recoGPSLoading: "A obter posição...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e amigos",
@@ -311,7 +311,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Bekijk ❤️", friendsHeartTitle: "❤️ Favorieten van",
     friendsNoHeart: "heeft nog geen favorieten.",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
-    recoType: "Type", recoPrice: "Prijs", recoFind: "🔍 Plekken vinden",
+    recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
     recoGPS: "📍 Mijn locatie", recoManual: "✏️ Invoeren", recoGPSLoading: "Locatie ophalen...",
     recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & vrienden",
@@ -353,7 +353,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "View ❤️", friendsHeartTitle: "❤️ Favorites from",
     friendsNoHeart: "has no favorites yet.",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoType: "Type", recoPrice: "Price", recoFind: "🔍 Find places",
+    recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & friends",
@@ -1794,6 +1794,20 @@ IMPORTANT RULES:
                 </div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>setRecoPrice(val)}>{label}</button>)}</div>
                 <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>setRecoKids(!recoKids)}>👶 Kids friendly</button>
+                <div className="field" style={{marginTop:4}}>
+                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:"#8a8070",fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
+                  <div style={{display:"flex",gap:6,marginTop:6}}>
+                    {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
+                        style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?"#c9a84c22":"#1a1814",
+                          border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                          borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600}}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div style={{display:"flex",gap:8}}>
                   <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
                     {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
