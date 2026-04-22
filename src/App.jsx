@@ -423,7 +423,7 @@ const css = `
   .autocomplete-loading { padding: 11px 14px; font-size: 12px; color: ${COLORS.muted}; text-align: center; }
   .place-badge { font-size: 11px; color: ${COLORS.accent}; margin-top: 4px; }
   .price-selector { display: flex; gap: 8px; }
-  .price-btn { padding: 6px 10px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .price-btn { padding: 5px 8px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 6px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .star-row { display: flex; gap: 8px; align-items: center; }
   .star { font-size: 24px; cursor: pointer; transition: transform 0.15s, opacity 0.15s; opacity: 0.25; filter: grayscale(1); user-select: none; }
@@ -1103,9 +1103,10 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
           {(form.type==="Restaurant"||form.type==="Bar / Café")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><select value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))}><option value="">-- Select --</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>)}
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
-        <div className="row-2">
-          <div className="field"><label>{t?.addCity||"City"}</label><input placeholder="Paris" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
-          <div className="field"><label>{t?.addCountry||"Country"}</label><input placeholder="France" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
+        <div className="field">
+          <label>{t?.addCity||"City"}</label>
+          <input placeholder="Paris, France" value={form.city?(form.country?`${form.city}, ${form.country}`:form.city):""} onChange={e=>{const parts=e.target.value.split(",").map(s=>s.trim());setForm(f=>({...f,city:parts[0]||"",country:parts[1]||""}));}} style={{color:form.address?COLORS.muted:"inherit"}}/>
+          {form.address&&<div style={{fontSize:11,color:COLORS.muted,marginTop:3}}>📍 {form.address}</div>}
         </div>
         <div className="field"><label>{t?.addRating||"Rating"}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
         <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))} t={t}/>
@@ -1811,7 +1812,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
+          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} onCancel={()=>setFormKey(k=>k+1)} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
 
           {!loading && tab === "memories" && (
             <div>
