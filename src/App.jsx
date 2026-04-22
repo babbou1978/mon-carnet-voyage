@@ -1098,7 +1098,6 @@ function calcDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-export default 
 function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
   const cities = citiesRaw || [];
   const [input, setInput] = useState("");
@@ -2069,3 +2068,5 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
     </>
   );
 }
+
+export default TravelAgent;
