@@ -1728,11 +1728,7 @@ IMPORTANT RULES:
                   </select>
                 </div>
               </div>
-              <div className="prefs-card">
-                <div className="prefs-card-title">{t.profileLikes}</div>
-                <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
-                <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
-              </div>
+
               <div className="prefs-card">
                 <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Recommendations"} & {t.profileBudget||"Budget"}</div>
                 <div className="field">
@@ -1756,6 +1752,11 @@ IMPORTANT RULES:
                     {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
+              </div>
+              <div className="prefs-card">
+                <div className="prefs-card-title">{t.profileLikes}</div>
+                <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
+                <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
               </div>
 
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
