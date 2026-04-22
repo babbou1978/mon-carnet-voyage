@@ -1960,12 +1960,9 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
           <div className="alert-box">
             <div className="alert-title">{t.duplicateTitle}</div>
             <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> {t.duplicateText}</div>
-            <div className="alert-actions" style={{flexDirection:"column",gap:8}}>
-              <div style={{display:"flex",gap:8,width:"100%"}}>
-                <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setDuplicateAlert(null)}>{t.duplicateCancel}</button>
-                <button className="modal-btn primary" style={{flex:1}} onClick={()=>{setEditMemory(duplicateAlert.existing);setTab("memories");setDuplicateAlert(null);}}>{t.duplicateEdit||"Edit existing"}</button>
-              </div>
-              <button className="modal-btn primary" style={{width:"100%",background:"#2e2b25",borderColor:"#8a8070",color:"#c9a84c"}} onClick={handleDuplicateUpdate}>{t.duplicateUpdate}</button>
+            <div className="alert-actions">
+              <button className="modal-btn secondary" onClick={()=>setDuplicateAlert(null)}>{t.duplicateCancel}</button>
+              <button className="modal-btn primary" onClick={()=>{setEditMemory(duplicateAlert.existing);setTab("memories");setDuplicateAlert(null);}}>{t.duplicateEdit||"Edit"}</button>
             </div>
           </div>
         </div>
