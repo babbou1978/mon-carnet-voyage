@@ -1014,7 +1014,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbRecos:"10" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10" };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1502,9 +1502,9 @@ export default function TravelAgent() {
     const friendLiked = friendMemories.filter(m=>m.rating>=3)
       .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
       .join("\n");
-    const nbRecosCount = prefs.nbRecos === "auto"
+    const nbRecosCount = prefs.nbrecos === "auto"
       ? Math.max(3, 10 - heartMemories.length)
-      : parseInt(prefs.nbRecos) || 10;
+      : parseInt(prefs.nbrecos) || 10;
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
     const prompt = `User profile:
@@ -1739,10 +1739,10 @@ IMPORTANT RULES:
                   <label>{t.nbRecosLabel||"Recommendations"}</label>
                   <div style={{display:"flex",gap:8}}>
                     {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
-                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbRecos:val}))}
-                        style={{flex:1,padding:"10px 4px",background:(prefs.nbRecos||"10")===val?"#c9a84c22":"#1a1814",
-                          border:`1px solid ${(prefs.nbRecos||"10")===val?"#c9a84c":"#2e2b25"}`,
-                          borderRadius:8,color:(prefs.nbRecos||"10")===val?"#c9a84c":"#8a8070",
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
+                        style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?"#c9a84c22":"#1a1814",
+                          border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                          borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
                         {label}
                       </button>
