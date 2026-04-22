@@ -653,9 +653,31 @@ function PlaceSearch({ onPlaceSelected }) {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: window._prefCities?.length > 0 ? `${window._prefCities.join(' ')} ${val}` : val }) });
-      const data = await res.json();
-      setSuggestions(data.suggestions||[]);
+      const cities = window._prefCities || [];
+      // Search globally + one search per preferred city in parallel
+      const queries = [
+        fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val }) }).then(r=>r.json()).catch(()=>({suggestions:[]})),
+        ...cities.slice(0,3).map(city =>
+          fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: `${val} near ${city}` }) }).then(r=>r.json()).catch(()=>({suggestions:[]}))
+        )
+      ];
+      const results = await Promise.all(queries);
+      // Merge: preferred cities first, then global, deduplicate by placeId
+      const seen = new Set();
+      const merged = [];
+      // First add results from preferred cities (skip global index 0)
+      for (let i = 1; i < results.length; i++) {
+        for (const s of (results[i].suggestions||[]).slice(0,2)) {
+          const id = s.placePrediction?.placeId||"";
+          if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
+        }
+      }
+      // Then fill with global results
+      for (const s of (results[0].suggestions||[])) {
+        const id = s.placePrediction?.placeId||"";
+        if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
+      }
+      setSuggestions(merged.slice(0,7));
       setShowDropdown(true);
     } catch {}
     setLoading(false);
@@ -926,9 +948,31 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: window._prefCities?.length > 0 ? `${window._prefCities.join(' ')} ${val}` : val }) });
-      const data = await res.json();
-      setSuggestions(data.suggestions||[]);
+      const cities = window._prefCities || [];
+      // Search globally + one search per preferred city in parallel
+      const queries = [
+        fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val }) }).then(r=>r.json()).catch(()=>({suggestions:[]})),
+        ...cities.slice(0,3).map(city =>
+          fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: `${val} near ${city}` }) }).then(r=>r.json()).catch(()=>({suggestions:[]}))
+        )
+      ];
+      const results = await Promise.all(queries);
+      // Merge: preferred cities first, then global, deduplicate by placeId
+      const seen = new Set();
+      const merged = [];
+      // First add results from preferred cities (skip global index 0)
+      for (let i = 1; i < results.length; i++) {
+        for (const s of (results[i].suggestions||[]).slice(0,2)) {
+          const id = s.placePrediction?.placeId||"";
+          if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
+        }
+      }
+      // Then fill with global results
+      for (const s of (results[0].suggestions||[])) {
+        const id = s.placePrediction?.placeId||"";
+        if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
+      }
+      setSuggestions(merged.slice(0,7));
       setShowDropdown(true);
     } catch {}
     setLoading(false);
