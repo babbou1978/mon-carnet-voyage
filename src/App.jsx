@@ -423,7 +423,7 @@ const css = `
   .autocomplete-loading { padding: 11px 14px; font-size: 12px; color: ${COLORS.muted}; text-align: center; }
   .place-badge { font-size: 11px; color: ${COLORS.accent}; margin-top: 4px; }
   .price-selector { display: flex; gap: 8px; }
-  .price-btn { flex: 1; padding: 10px 4px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .price-btn { padding: 6px 10px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .star-row { display: flex; gap: 8px; align-items: center; }
   .star { font-size: 24px; cursor: pointer; transition: transform 0.15s, opacity 0.15s; opacity: 0.25; filter: grayscale(1); user-select: none; }
@@ -711,12 +711,13 @@ function PlaceSearch({ onPlaceSelected }) {
       const details = await res.json();
       const components = details.addressComponents||[];
       const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
+      const fullAddress = data.formattedAddress || "";
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
       const googleTypes = details.types||[];
       let type = "Restaurant";
       for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type=GOOGLE_TYPE_MAP[gt]; break; } }
       const price = PRICE_MAP[details.priceLevel]||"€€";
-      const place = { name: mainText, city, country, type, price };
+      const place = { name: mainText, city, country, type, price, address: fullAddress };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
@@ -1089,7 +1090,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
-    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,type:place.type,price:place.price,likeTags:[],dislikeTags:[]}));
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,likeTags:[],dislikeTags:[]}));
     if (onDuplicate) onDuplicate(place.name);
   };
   return (
@@ -1099,7 +1100,6 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
       {form.name && <>
         <div className="row-2">
           <div className="field"><label>Type</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
-          {(form.type==="Restaurant"||form.type==="Bar / Café")&&(<div className="field"><label>Cuisine type</label><select value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))}><option value="">-- Select --</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>)}
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="row-2">
@@ -1136,7 +1136,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" })
         </div>
       </div>
       <div className="memory-meta" style={{marginBottom:4}}>
-        {m.cuisine&&<span className="badge" style={{background:"#1a2e1a",color:"#7abf8a",border:"1px solid #7abf8a44"}}>{m.cuisine}</span>}
+        {m.cuisine&&<span className="badge">{m.cuisine}</span>}
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
@@ -2093,7 +2093,7 @@ IMPORTANT RULES:
                                 <div className="ai-reco-rank">#{i+1}</div>
                               </div>
                               <div className="ai-reco-meta">
-                                {reco.cuisine&&<span className="badge" style={{background:"#1a2e1a",color:"#7abf8a",border:"1px solid #7abf8a44"}}>{reco.cuisine}</span>}
+                                {reco.cuisine&&<span className="badge">{reco.cuisine}</span>}
                                 <span className="badge price">{reco.price}</span>
                               </div>
                               {reco.matchScore&&(
