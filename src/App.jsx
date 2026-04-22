@@ -1829,7 +1829,7 @@ IMPORTANT RULES:
                 </div>
               </div>
 
-              {(recoCoords?.lat||heartMemories.length>0)&&(
+              {(heartMemories.length>0||aiRecos.length>0)&&(
                 <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories}/>
               )}
 
