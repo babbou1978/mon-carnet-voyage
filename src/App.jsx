@@ -1101,12 +1101,60 @@ function calcDistance(lat1, lng1, lat2, lng2) {
 function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
   const cities = citiesRaw || [];
   const [input, setInput] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showDrop, setShowDrop] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(-1);
+  const timerRef = useRef(null);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShowDrop(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const search = async (val) => {
+    if (!val) { setSuggestions([]); return; }
+    try {
+      const res = await fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ action:"autocomplete", input: val + " city" }) });
+      const data = await res.json();
+      const items = (data.suggestions||[]).map(s=>{
+        const main = s.placePrediction?.structuredFormat?.mainText?.text||"";
+        const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text||"";
+        return { label: secondary ? `${main}, ${secondary}` : main, name: main };
+      }).filter(s=>s.name);
+      setSuggestions(items.slice(0,5));
+      setShowDrop(true);
+      setActiveIdx(-1);
+    } catch {}
+  };
+
+  const handleInput = (e) => {
+    const val = e.target.value;
+    setInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => search(val), 300);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx(i=>Math.min(i+1,suggestions.length-1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx(i=>Math.max(i-1,-1)); }
+    else if (e.key === "Enter") { e.preventDefault(); if (activeIdx>=0) selectSuggestion(suggestions[activeIdx]); else add(); }
+    else if (e.key === "Escape") setShowDrop(false);
+  };
+
+  const selectSuggestion = (s) => {
+    if (!s.name || cities.includes(s.name)) return;
+    onChange([...cities, s.name]);
+    setInput(""); setSuggestions([]); setShowDrop(false);
+  };
 
   const add = () => {
     const val = input.trim();
     if (!val || cities.includes(val)) return;
     onChange([...cities, val]);
-    setInput("");
+    setInput(""); setSuggestions([]); setShowDrop(false);
   };
 
   const remove = (i) => onChange(cities.filter((_,idx)=>idx!==i));
@@ -1127,19 +1175,34 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
 
   return (
     <div>
-      <div style={{display:"flex",gap:8,marginBottom:8}}>
-        <input
-          value={input}
-          onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();add();} }}
-          placeholder={placeholder}
-          style={{flex:1,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,color:"#f0ead8",
-            fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none"}}
-        />
-        <button onClick={add} style={{background:"#c9a84c22",border:"1px solid #c9a84c",borderRadius:8,
-          padding:"9px 14px",color:"#c9a84c",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>
-          +
-        </button>
+      <div style={{position:"relative",marginBottom:8}} ref={wrapRef}>
+        <div style={{display:"flex",gap:8}}>
+          <input
+            value={input}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            onFocus={()=>suggestions.length>0&&setShowDrop(true)}
+            placeholder={placeholder}
+            style={{flex:1,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,color:"#f0ead8",
+              fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none"}}
+          />
+          <button onClick={add} style={{background:"#c9a84c22",border:"1px solid #c9a84c",borderRadius:8,
+            padding:"9px 14px",color:"#c9a84c",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>
+            +
+          </button>
+        </div>
+        {showDrop&&suggestions.length>0&&(
+          <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#1a1814",border:"1px solid #2e2b25",
+            borderRadius:8,zIndex:100,overflow:"hidden",marginTop:4,boxShadow:"0 4px 16px rgba(0,0,0,0.4)"}}>
+            {suggestions.map((s,i)=>(
+              <div key={i} onMouseDown={()=>selectSuggestion(s)}
+                style={{padding:"10px 14px",cursor:"pointer",fontSize:13,color:"#f0ead8",
+                  background:i===activeIdx?"#2e2b25":"transparent",borderBottom:"1px solid #2e2b2522"}}>
+                📍 {s.label}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       {cities.length===0 ? (
         <div style={{fontSize:12,color:"#8a8070",fontStyle:"italic"}}>{empty}</div>
