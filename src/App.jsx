@@ -1829,6 +1829,10 @@ IMPORTANT RULES:
                 </div>
               </div>
 
+              {(recoCoords?.lat||heartMemories.length>0)&&(
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories}/>
+              )}
+
               {(heartMemories.length>0||nearbyPlaces.length>0)&&(
                 <div className="reco-block">
                   <div className="reco-block-title">{t.recoHearts}<span>{t.recoHeartsNear}</span></div>
@@ -1869,7 +1873,6 @@ IMPORTANT RULES:
                   {aiLoading&&<div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
                   {aiRecos.length>0&&!aiLoading&&(
                     <>
-                      <GoogleMap recommendations={aiRecos.slice(0,10)} userCoords={recoCoords} heartMemories={heartMemories}/>
                       <div className="ai-reco-list">
                         {aiRecos.slice(0,10).map((reco,i)=>(
                           <div key={i} className="ai-reco-card">
