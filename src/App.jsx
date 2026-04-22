@@ -1053,6 +1053,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
           placeholder="Ex: 10 Downing Street London, Tour Eiffel Paris..."
           value={query}
           onChange={handleInput}
+          onKeyDown={handleKeyDown}
           onFocus={()=>suggestions.length>0&&setShowDropdown(true)}
           style={{background:COLORS.bg,border:`1px solid ${selected?COLORS.accent:COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans', sans-serif",fontSize:14,padding:"11px 14px",outline:"none",width:"100%",transition:"border-color 0.2s"}}
         />
