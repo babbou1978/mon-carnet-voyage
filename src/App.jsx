@@ -1962,7 +1962,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
             <div className="alert-title">{t.duplicateTitle}</div>
             <div className="alert-text"><strong>{duplicateAlert.existing.name}</strong> {t.duplicateText}</div>
             <div className="alert-actions">
-              <button className="modal-btn secondary" onClick={()=>setDuplicateAlert(null)}>{t.duplicateCancel}</button>
+              <button className="modal-btn secondary" onClick={()=>{setDuplicateAlert(null);setFormKey(k=>k+1);}}>{t.duplicateCancel}</button>
               <button className="modal-btn primary" onClick={()=>{setEditMemory(duplicateAlert.existing);setTab("memories");setDuplicateAlert(null);}}>{t.duplicateEdit||"Edit"}</button>
             </div>
           </div>
