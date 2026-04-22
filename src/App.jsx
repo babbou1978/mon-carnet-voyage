@@ -1016,7 +1016,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
 const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10" };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
   const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[form.type]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
   const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[form.type]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
@@ -1024,6 +1024,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en" }) {
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
     setForm(f=>({...f,name:place.name,city:place.city,country:place.country,type:place.type,price:place.price,likeTags:[],dislikeTags:[]}));
+    if (onDuplicate) onDuplicate(place.name);
   };
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -1609,7 +1610,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} t={t} lang={lang}/>}
+          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
 
           {!loading && tab === "memories" && (
             <div>
