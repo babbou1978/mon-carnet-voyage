@@ -653,7 +653,7 @@ function PlaceSearch({ onPlaceSelected }) {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val, locationBias: window._prefCities?.[0]||"" }) });
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: window._prefCities?.length > 0 ? `${window._prefCities.join(' ')} ${val}` : val }) });
       const data = await res.json();
       setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
@@ -926,7 +926,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val, locationBias: window._prefCities?.[0]||"" }) });
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: window._prefCities?.length > 0 ? `${window._prefCities.join(' ')} ${val}` : val }) });
       const data = await res.json();
       setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
