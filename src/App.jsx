@@ -719,7 +719,7 @@ function PlaceSearch({ onPlaceSelected }) {
     <div className="autocomplete-wrapper" ref={wrapperRef}>
       <div style={{position:"relative"}}>
         <input placeholder="Ex: Le Comptoir du Relais..." value={query} onChange={handleInput} onFocus={()=>suggestions.length>0&&setShowDropdown(true)}
-          style={{background:COLORS.card,border:`1px solid ${selectedPlace?COLORS.accent:COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans', sans-serif",fontSize:14,padding:"11px 14px",outline:"none",width:"100%",transition:"border-color 0.2s"}} />
+          onKeyDown={handleKeyDown} style={{background:COLORS.card,border:`1px solid ${selectedPlace?COLORS.accent:COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans', sans-serif",fontSize:14,padding:"11px 14px",outline:"none",width:"100%",transition:"border-color 0.2s"}} />
         {selectedPlace && <button onClick={clear} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16}}>✕</button>}
       </div>
       {selectedPlace && <div className="place-badge">✓ {selectedPlace.city}{selectedPlace.country?`, ${selectedPlace.country}`:""} • {selectedPlace.type} • {selectedPlace.price}</div>}
@@ -730,7 +730,7 @@ function PlaceSearch({ onPlaceSelected }) {
             const main = s.placePrediction?.structuredFormat?.mainText?.text||"";
             const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text||"";
             return (
-              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)}>
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?"#2e2b25":"transparent"}}>
                 <div className="autocomplete-main">📍 {main}</div>
                 {secondary && <div className="autocomplete-sub">{secondary}</div>}
               </div>
@@ -978,14 +978,24 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
     setLoading(false);
   }, []);
 
+  const [activeIdx, setActiveIdx] = useState(-1);
+
   const handleInput = (e) => {
     const val = e.target.value;
     setQuery(val); setSelected(null);
     if (!val) { onPlaceSelected(null); return; }
-    // Reset coords when typing manually - will be geocoded on "Find"
     onPlaceSelected({ address: val, lat: null, lng: null });
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => search(val), 350);
+    setActiveIdx(-1);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showDropdown) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx(i=>Math.min(i+1, suggestions.length-1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx(i=>Math.max(i-1, -1)); }
+    else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); selectPlace(suggestions[activeIdx]); setActiveIdx(-1); }
+    else if (e.key === "Escape") { setShowDropdown(false); setActiveIdx(-1); }
   };
 
   const selectPlace = async (suggestion) => {
@@ -1045,7 +1055,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
             const main=s.placePrediction?.structuredFormat?.mainText?.text||"";
             const secondary=s.placePrediction?.structuredFormat?.secondaryText?.text||"";
             return (
-              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)}>
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?"#2e2b25":"transparent"}}>
                 <div className="autocomplete-main">📍 {main}</div>
                 {secondary&&<div className="autocomplete-sub">{secondary}</div>}
               </div>
