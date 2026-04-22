@@ -712,6 +712,7 @@ function PlaceSearch({ onPlaceSelected }) {
       const components = details.addressComponents||[];
       const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
       const fullAddress = data.formattedAddress || "";
+      const fullAddress = data.formattedAddress || "";
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
       const googleTypes = details.types||[];
       let type = "Restaurant";
