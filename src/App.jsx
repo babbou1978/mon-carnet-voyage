@@ -1078,7 +1078,8 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
   );
 }
 
-const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
+const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexican","Lebanese","Greek","Spanish","British","American","Mediterranean","Vietnamese","Korean","Turkish","Moroccan","Austrian","Belgian","Scandinavian","Peruvian","Argentine","Brazilian","Australian","Modern European","Fusion","Vegetarian","Seafood","Steakhouse","Sushi","Pizza","Burger","Bistro","Brasserie","Wine bar","Cocktail bar","Café","Bakery"];
+const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
 const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onDuplicate }) {
@@ -1134,7 +1135,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" })
         </div>
       </div>
       <div className="memory-meta" style={{marginBottom:4}}>
-        <span className="badge">{TYPE_ICONS[m.type]} {(TYPES_I18N[lang]||TYPES_I18N.en)[m.type]||m.type}</span>
+        {m.cuisine&&<span className="badge" style={{background:"#1a2e1a",color:"#7abf8a",border:"1px solid #7abf8a44"}}>{m.cuisine}</span>}
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
@@ -2091,7 +2092,7 @@ IMPORTANT RULES:
                                 <div className="ai-reco-rank">#{i+1}</div>
                               </div>
                               <div className="ai-reco-meta">
-                                <span className="badge">{TYPE_ICONS[reco.type]||"📍"} {reco.type}</span>
+                                {reco.cuisine&&<span className="badge" style={{background:"#1a2e1a",color:"#7abf8a",border:"1px solid #7abf8a44"}}>{reco.cuisine}</span>}
                                 <span className="badge price">{reco.price}</span>
                               </div>
                               {reco.matchScore&&(
