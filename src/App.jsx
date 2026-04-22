@@ -1002,8 +1002,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
   };
 
   const handleKeyDown = (e) => {
-    if (!showDropdown) return;
-    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx(i=>Math.min(i+1, suggestions.length-1)); }
+    if (e.key === "ArrowDown") { e.preventDefault(); if (!showDropdown&&suggestions.length>0) setShowDropdown(true); setActiveIdx(i=>Math.min(i+1, suggestions.length-1)); }
     else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx(i=>Math.max(i-1, -1)); }
     else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); selectPlace(suggestions[activeIdx]); setActiveIdx(-1); }
     else if (e.key === "Escape") { setShowDropdown(false); setActiveIdx(-1); }
