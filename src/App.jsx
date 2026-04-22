@@ -1734,19 +1734,6 @@ IMPORTANT RULES:
                 <div className="prefs-card-title">{t.profileLikes}</div>
                 <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
                 <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
-                <div className="field">
-                <label>{t.nbRecosLabel||"Recommendations"}</label>
-                <div style={{display:"flex",gap:8}}>
-                  {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
-                    <button key={val} onClick={()=>setPrefs(p=>({...p,nbRecos:val}))}
-                      style={{flex:1,padding:"9px 4px",background:(prefs.nbRecos||"10")===val?"#c9a84c22":"#1a1814",
-                        border:`1px solid ${(prefs.nbRecos||"10")===val?"#c9a84c":"#2e2b25"}`,
-                        borderRadius:8,color:(prefs.nbRecos||"10")===val?"#c9a84c":"#8a8070",
-                        cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s"}}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
               </div>
               </div>
               <div className="prefs-card">
