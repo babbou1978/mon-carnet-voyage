@@ -1121,7 +1121,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" }) {
   return (
     <div className={`memory-card ${!isMine?"friend-card":""}`}>
       <div className="memory-top">
@@ -1133,9 +1133,12 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine }) {
           {!isMine&&m.friendName&&<span className="badge friend">{m.friendName}</span>}
         </div>
       </div>
-      {(m.city||m.country)&&<div className="memory-location">
-        📍 {[m.city,m.country].filter(Boolean).join(", ")}
-        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+(m.city?", "+m.city:"")+(m.country?", "+m.country:""))}`}
+      <div className="memory-meta" style={{marginBottom:4}}>
+        <span className="badge">{TYPE_ICONS[m.type]} {(TYPES_I18N[lang]||TYPES_I18N.en)[m.type]||m.type}</span>
+      </div>
+      {(m.address||m.city||m.country)&&<div className="memory-location">
+        📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
+        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+", "+(m.address||[m.city,m.country].filter(Boolean).join(", ")))}`}
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
@@ -1831,7 +1834,7 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}
+                ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}
               </div>
             </div>
           )}
@@ -2045,7 +2048,7 @@ IMPORTANT RULES:
                   {heartMemories.length>0&&(
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
-                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}</div>
+                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}</div>
                     </div>
                   )}
                   {nearbyPlaces.length>0&&(
@@ -2104,6 +2107,13 @@ IMPORTANT RULES:
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
+                                </div>
+                              )}
+                              {reco.openNow!==undefined&&(
+                                <div style={{fontSize:11,marginTop:3}}>
+                                  <span style={{color:reco.openNow?"#7abf8a":"#e06060",background:reco.openNow?"#1a2e1e":"#3a1a1a",padding:"2px 8px",borderRadius:20}}>
+                                    {reco.openNow?"🟢 Open now":"🔴 Closed"}
+                                  </span>
                                 </div>
                               )}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
