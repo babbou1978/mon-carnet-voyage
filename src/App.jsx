@@ -90,7 +90,7 @@ const TRANSLATIONS = {
     emptyFavorites: "Aucun coup de cœur encore", emptyFavoritesSub: "Commencez par ajouter un lieu",
     emptyResults: "Aucun résultat", emptyResultsSub: "Essayez d'autres filtres",
     profileIdentity: "👤 Mon identité", profileFirstName: "Prénom", profileLastName: "Nom",
-    profileLanguage: "🌍 Langue préférée", profileLanguageLabel: "Langue de l'interface et des recommandations",
+    prefCitiesLabel: "🏙️ Villes préférées", prefCitiesPlaceholder: "Ajouter une ville...", prefCitiesEmpty: "Aucune ville ajoutée", profileLanguage: "🌍 Langue préférée", profileLanguageLabel: "Langue de l'interface et des recommandations",
     profileLikes: "✨ Ce que j'aime", profileLikesSelect: "Sélectionner", profileLikesPrecise: "Préciser",
     profileBudget: "Budget habituel", profileBudgetNone: "Non renseigné",
     profileDislikes: "🚫 Ce que j'évite", profileDislikesSelect: "Sélectionner", profileDislikesPrecise: "Préciser",
@@ -132,7 +132,7 @@ const TRANSLATIONS = {
     emptyFavorites: "Aún sin favoritos", emptyFavoritesSub: "Empieza añadiendo un lugar",
     emptyResults: "Sin resultados", emptyResultsSub: "Prueba otros filtros",
     profileIdentity: "👤 Mi identidad", profileFirstName: "Nombre", profileLastName: "Apellido",
-    profileLanguage: "🌍 Idioma preferido", profileLanguageLabel: "Idioma de la interfaz y recomendaciones",
+    prefCitiesLabel: "🏙️ Ciudades preferidas", prefCitiesPlaceholder: "Añadir una ciudad...", prefCitiesEmpty: "Sin ciudades añadidas", profileLanguage: "🌍 Idioma preferido", profileLanguageLabel: "Idioma de la interfaz y recomendaciones",
     profileLikes: "✨ Lo que me gusta", profileLikesSelect: "Seleccionar", profileLikesPrecise: "Añadir detalles",
     profileBudget: "Presupuesto habitual", profileBudgetNone: "No especificado",
     profileDislikes: "🚫 Lo que evito", profileDislikesSelect: "Seleccionar", profileDislikesPrecise: "Añadir detalles",
@@ -174,7 +174,7 @@ const TRANSLATIONS = {
     emptyFavorites: "Noch keine Favoriten", emptyFavoritesSub: "Füge einen Ort hinzu",
     emptyResults: "Keine Ergebnisse", emptyResultsSub: "Versuche andere Filter",
     profileIdentity: "👤 Meine Identität", profileFirstName: "Vorname", profileLastName: "Nachname",
-    profileLanguage: "🌍 Bevorzugte Sprache", profileLanguageLabel: "Sprache der Oberfläche und Empfehlungen",
+    prefCitiesLabel: "🏙️ Bevorzugte Städte", prefCitiesPlaceholder: "Stadt hinzufügen...", prefCitiesEmpty: "Keine Städte hinzugefügt", profileLanguage: "🌍 Bevorzugte Sprache", profileLanguageLabel: "Sprache der Oberfläche und Empfehlungen",
     profileLikes: "✨ Was ich mag", profileLikesSelect: "Auswählen", profileLikesPrecise: "Details hinzufügen",
     profileBudget: "Übliches Budget", profileBudgetNone: "Nicht angegeben",
     profileDislikes: "🚫 Was ich meide", profileDislikesSelect: "Auswählen", profileDislikesPrecise: "Details hinzufügen",
@@ -216,7 +216,7 @@ const TRANSLATIONS = {
     emptyFavorites: "Ancora nessun preferito", emptyFavoritesSub: "Inizia aggiungendo un posto",
     emptyResults: "Nessun risultato", emptyResultsSub: "Prova altri filtri",
     profileIdentity: "👤 La mia identità", profileFirstName: "Nome", profileLastName: "Cognome",
-    profileLanguage: "🌍 Lingua preferita", profileLanguageLabel: "Lingua dell'interfaccia e delle raccomandazioni",
+    prefCitiesLabel: "🏙️ Città preferite", prefCitiesPlaceholder: "Aggiungi una città...", prefCitiesEmpty: "Nessuna città aggiunta", profileLanguage: "🌍 Lingua preferita", profileLanguageLabel: "Lingua dell'interfaccia e delle raccomandazioni",
     profileLikes: "✨ Cosa mi piace", profileLikesSelect: "Seleziona", profileLikesPrecise: "Aggiungi dettagli",
     profileBudget: "Budget abituale", profileBudgetNone: "Non specificato",
     profileDislikes: "🚫 Cosa evito", profileDislikesSelect: "Seleziona", profileDislikesPrecise: "Aggiungi dettagli",
@@ -258,7 +258,7 @@ const TRANSLATIONS = {
     emptyFavorites: "Ainda sem favoritos", emptyFavoritesSub: "Comece por adicionar um lugar",
     emptyResults: "Sem resultados", emptyResultsSub: "Tente outros filtros",
     profileIdentity: "👤 Minha identidade", profileFirstName: "Nome", profileLastName: "Apelido",
-    profileLanguage: "🌍 Idioma preferido", profileLanguageLabel: "Idioma da interface e recomendações",
+    prefCitiesLabel: "🏙️ Cidades preferidas", prefCitiesPlaceholder: "Adicionar uma cidade...", prefCitiesEmpty: "Sem cidades adicionadas", profileLanguage: "🌍 Idioma preferido", profileLanguageLabel: "Idioma da interface e recomendações",
     profileLikes: "✨ O que gosto", profileLikesSelect: "Selecionar", profileLikesPrecise: "Adicionar detalhes",
     profileBudget: "Orçamento habitual", profileBudgetNone: "Não especificado",
     profileDislikes: "🚫 O que evito", profileDislikesSelect: "Selecionar", profileDislikesPrecise: "Adicionar detalhes",
@@ -300,7 +300,7 @@ const TRANSLATIONS = {
     emptyFavorites: "Nog geen favorieten", emptyFavoritesSub: "Begin met een plek toevoegen",
     emptyResults: "Geen resultaten", emptyResultsSub: "Probeer andere filters",
     profileIdentity: "👤 Mijn identiteit", profileFirstName: "Voornaam", profileLastName: "Achternaam",
-    profileLanguage: "🌍 Voorkeurstaal", profileLanguageLabel: "Taal van de interface en aanbevelingen",
+    prefCitiesLabel: "🏙️ Voorkeurssteden", prefCitiesPlaceholder: "Stad toevoegen...", prefCitiesEmpty: "Geen steden toegevoegd", profileLanguage: "🌍 Voorkeurstaal", profileLanguageLabel: "Taal van de interface en aanbevelingen",
     profileLikes: "✨ Wat ik leuk vind", profileLikesSelect: "Selecteren", profileLikesPrecise: "Details toevoegen",
     profileBudget: "Gebruikelijk budget", profileBudgetNone: "Niet opgegeven",
     profileDislikes: "🚫 Wat ik vermijd", profileDislikesSelect: "Selecteren", profileDislikesPrecise: "Details toevoegen",
@@ -342,7 +342,7 @@ const TRANSLATIONS = {
     emptyFavorites: "No favorites yet", emptyFavoritesSub: "Start by adding a place",
     emptyResults: "No results", emptyResultsSub: "Try different filters",
     profileIdentity: "👤 My identity", profileFirstName: "First name", profileLastName: "Last name",
-    profileLanguage: "🌍 Preferred language", profileLanguageLabel: "Interface and recommendations language",
+    prefCitiesLabel: "🏙️ Preferred cities", prefCitiesPlaceholder: "Add a city...", prefCitiesEmpty: "No cities added yet", profileLanguage: "🌍 Preferred language", profileLanguageLabel: "Interface and recommendations language",
     profileLikes: "✨ What I like", profileLikesSelect: "Select", profileLikesPrecise: "Add details",
     profileBudget: "Usual budget", profileBudgetNone: "Not specified",
     profileDislikes: "🚫 What I avoid", profileDislikesSelect: "Select", profileDislikesPrecise: "Add details",
@@ -653,7 +653,7 @@ function PlaceSearch({ onPlaceSelected }) {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val }) });
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val, locationBias: window._prefCities?.[0]||"" }) });
       const data = await res.json();
       setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
@@ -926,7 +926,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val }) });
+      const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "autocomplete", input: val, locationBias: window._prefCities?.[0]||"" }) });
       const data = await res.json();
       setSuggestions(data.suggestions||[]);
       setShowDropdown(true);
@@ -1014,7 +1014,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
 }
 
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10" };
+const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1098,7 +1098,73 @@ function calcDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-export default function TravelAgent() {
+export default 
+function CityPicker({ cities, onChange, placeholder, empty }) {
+  const [input, setInput] = useState("");
+
+  const add = () => {
+    const val = input.trim();
+    if (!val || cities.includes(val)) return;
+    onChange([...cities, val]);
+    setInput("");
+  };
+
+  const remove = (i) => onChange(cities.filter((_,idx)=>idx!==i));
+
+  const moveUp = (i) => {
+    if (i===0) return;
+    const next = [...cities];
+    [next[i-1], next[i]] = [next[i], next[i-1]];
+    onChange(next);
+  };
+
+  const moveDown = (i) => {
+    if (i===cities.length-1) return;
+    const next = [...cities];
+    [next[i], next[i+1]] = [next[i+1], next[i]];
+    onChange(next);
+  };
+
+  return (
+    <div>
+      <div style={{display:"flex",gap:8,marginBottom:8}}>
+        <input
+          value={input}
+          onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();add();} }}
+          placeholder={placeholder}
+          style={{flex:1,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,color:"#f0ead8",
+            fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none"}}
+        />
+        <button onClick={add} style={{background:"#c9a84c22",border:"1px solid #c9a84c",borderRadius:8,
+          padding:"9px 14px",color:"#c9a84c",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>
+          +
+        </button>
+      </div>
+      {cities.length===0 ? (
+        <div style={{fontSize:12,color:"#8a8070",fontStyle:"italic"}}>{empty}</div>
+      ) : (
+        <div style={{display:"flex",flexDirection:"column",gap:4}}>
+          {cities.map((city,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:6,background:"#1a1814",
+              border:"1px solid #2e2b25",borderRadius:8,padding:"7px 10px"}}>
+              <span style={{fontSize:11,color:"#c9a84c",fontWeight:700,minWidth:18}}>#{i+1}</span>
+              <span style={{flex:1,fontSize:13,color:"#f0ead8"}}>{city}</span>
+              <button onClick={()=>moveUp(i)} disabled={i===0}
+                style={{background:"none",border:"none",color:i===0?"#3a3730":"#8a8070",cursor:i===0?"default":"pointer",fontSize:14,padding:"0 4px"}}>▲</button>
+              <button onClick={()=>moveDown(i)} disabled={i===cities.length-1}
+                style={{background:"none",border:"none",color:i===cities.length-1?"#3a3730":"#8a8070",cursor:i===cities.length-1?"default":"pointer",fontSize:14,padding:"0 4px"}}>▼</button>
+              <button onClick={()=>remove(i)}
+                style={{background:"none",border:"none",color:"#e06060",cursor:"pointer",fontSize:14,padding:"0 4px"}}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TravelAgent() {
   const [session, setSession] = useState(undefined);
   const [showResetModal, setShowResetModal] = useState(false);
   const [tab, setTab] = useState("reco");
@@ -1113,6 +1179,7 @@ export default function TravelAgent() {
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
   const t = useT(prefs.language || "en");
   const lang = prefs.language || "en";
+  window._prefCities = prefs.preferredCities || [];
   const [prefsSaved, setPrefsSaved] = useState(false);
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(true);
@@ -1737,6 +1804,16 @@ IMPORTANT RULES:
                     {LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.label}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div className="prefs-card">
+                <div className="prefs-card-title">{t.prefCitiesLabel||"🏙️ Preferred cities"}</div>
+                <CityPicker
+                  cities={prefs.preferredCities||[]}
+                  onChange={v=>setPrefs(p=>({...p,preferredCities:v}))}
+                  placeholder={t.prefCitiesPlaceholder||"Add a city..."}
+                  empty={t.prefCitiesEmpty||"No cities added yet"}
+                />
               </div>
 
               <div className="prefs-card">
