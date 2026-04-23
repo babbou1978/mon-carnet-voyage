@@ -1121,7 +1121,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
-function FriendsBadge({ friends, onViewFriend }) {
+function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -1134,33 +1134,43 @@ function FriendsBadge({ friends, onViewFriend }) {
 
   return (
     <div ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
-      <span
-        onClick={()=>setOpen(o=>!o)}
+      <span onClick={()=>setOpen(o=>!o)}
         style={{fontSize:10,color:"#9b8fe8",background:"#1e1a2e",border:"1px solid #9b8fe844",borderRadius:20,
           padding:"3px 7px",fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none",letterSpacing:"0.06em"}}>
         👥 {friends.length}
       </span>
       {open&&(
         <div style={{position:"absolute",top:"calc(100% + 4px)",right:0,background:"#1a1814",border:"1px solid #2e2b25",
-          borderRadius:10,padding:"8px 0",zIndex:100,minWidth:160,boxShadow:"0 4px 20px rgba(0,0,0,0.6)",whiteSpace:"nowrap"}}>
-          {friends.map((f,i)=>(
-            <div key={i}
-              onClick={()=>{setOpen(false);onViewFriend&&onViewFriend(f);}}
-              style={{fontSize:12,color:"#f0ead8",padding:"6px 14px",cursor:onViewFriend?"pointer":"default",
-                display:"flex",alignItems:"center",gap:6,transition:"background 0.1s"}}
-              onMouseEnter={e=>e.currentTarget.style.background="#2e2b25"}
-              onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-              👤 {f}
-              {onViewFriend&&<span style={{fontSize:10,color:"#c9a84c",marginLeft:"auto"}}>→</span>}
-            </div>
-          ))}
+          borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:220,boxShadow:"0 4px 20px rgba(0,0,0,0.6)"}}>
+          {friends.map((fname,i)=>{
+            const fMem = friendsData.find(m=>m.friendName===fname);
+            return (
+              <div key={i} style={{padding:"8px 12px",borderBottom:i<friends.length-1?"1px solid #2e2b2533":"none"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                  <span style={{fontSize:12,color:"#f0ead8",fontWeight:500}}>👤 {fname}</span>
+                  <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                    {fMem?.rating>0&&<span className="badge stars" style={{fontSize:9}}>{starsLabel(fMem.rating)}</span>}
+                    {fMem?.kidsf&&<span className="badge kids" style={{fontSize:9}}>👶</span>}
+                    {fMem?.price&&<span className="badge price" style={{fontSize:9}}>{fMem.price}</span>}
+                    {onViewFriend&&<span onClick={()=>{setOpen(false);onViewFriend(fname,fMem);}}
+                      style={{fontSize:14,color:"#c9a84c",cursor:"pointer",marginLeft:2}} title="Voir la fiche">→</span>}
+                  </div>
+                </div>
+                {fMem&&onSaveFriend&&<button onClick={()=>{setOpen(false);onSaveFriend(fMem);}}
+                  style={{marginTop:4,fontSize:10,color:"#c9a84c",background:"#c9a84c11",border:"1px solid #c9a84c33",
+                    borderRadius:6,padding:"3px 8px",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",width:"100%"}}>
+                  ⊕ Sauvegarder dans mes favoris
+                </button>}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend }) {
   return (
     <div className={`memory-card ${!isMine?"friend-card":""}`}>
       <div className="memory-top">
@@ -1168,7 +1178,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
         <div className="memory-meta">
           {m.rating>0&&<span className="badge stars">{starsLabel(m.rating)}</span>}
           {m.kidsf&&<span className="badge kids">👶</span>}
-          {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} onViewFriend={onViewFriend}/>}
+          {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend}/>}
           <span className="badge price">{m.price}</span>
         </div>
       </div>
@@ -1663,7 +1673,7 @@ function TravelAgent() {
       else {
         // Add friend to existing entry's friendsWhoHave
         const existing = deduped.find(x=>x.name.toLowerCase()===key);
-        if (existing) existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean);
+        if (existing) { existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean); existing.friendsData = [...(existing.friendsData||[]), m]; }
       }
     });
     setHeartMemories(deduped.slice(0,10));
@@ -1757,7 +1767,7 @@ function TravelAgent() {
       else {
         // Add friend to existing entry's friendsWhoHave
         const existing = deduped.find(x=>x.name.toLowerCase()===key);
-        if (existing) existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean);
+        if (existing) { existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean); existing.friendsData = [...(existing.friendsData||[]), m]; }
       }
     });
     setHeartMemories(deduped.slice(0,10));
@@ -1860,7 +1870,9 @@ IMPORTANT RULES:
     // For each of my memories, find friends who also have it
     const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
     myMems.forEach(m => {
-      m.friendsWhoHave = friendMems.filter(f=>f.name.toLowerCase()===m.name.toLowerCase()).map(f=>f.friendName).filter(Boolean);
+      const matchingFriends = friendMems.filter(f=>f.name.toLowerCase()===m.name.toLowerCase());
+      m.friendsWhoHave = matchingFriends.map(f=>f.friendName).filter(Boolean);
+      m.friendsData = matchingFriends;
     });
     
     if (showOnlyFriends) {
