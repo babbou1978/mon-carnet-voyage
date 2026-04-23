@@ -1121,6 +1121,24 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
+function FriendsBadge({ friends }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{position:"relative",display:"inline-block",marginBottom:4}}>
+      <button onClick={()=>setOpen(o=>!o)} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex",alignItems:"center",gap:4}}>
+        <span style={{fontSize:11,color:"#9b8fe8",background:"#1e1a2e",border:"1px solid #9b8fe844",borderRadius:20,padding:"2px 8px",fontFamily:"'DM Sans',sans-serif"}}>
+          👥 {friends.length}
+        </span>
+      </button>
+      {open&&(
+        <div style={{position:"absolute",top:"100%",left:0,marginTop:4,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,padding:"8px 12px",zIndex:50,minWidth:140,boxShadow:"0 4px 16px rgba(0,0,0,0.5)"}}>
+          {friends.map((f,i)=><div key={i} style={{fontSize:12,color:"#f0ead8",padding:"2px 0"}}>👤 {f}</div>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" }) {
   return (
     <div className={`memory-card ${!isMine?"friend-card":""}`}>
@@ -1142,7 +1160,8 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" })
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {!isMine&&m.friendName&&<div style={{fontSize:11,color:COLORS.accent,fontStyle:"italic",marginBottom:4}}>👤 {m.friendName}</div>}
+      {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave}/>}
+      {!isMine&&!m.friendsWhoHave?.length&&m.friendName&&<div style={{fontSize:11,color:COLORS.accent,fontStyle:"italic",marginBottom:4}}>👤 {m.friendName}</div>}
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
@@ -1763,22 +1782,52 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = [
-    ...(showOnlyFriends ? [] : memories.map(m=>({...m,isMine:true}))),
-    ...((showFriendMems||showOnlyFriends) ? friendMemories.map(m=>({...m,isMine:false})) : [])
-  ].filter(m=>{
-    if (filterType!==ALL&&m.type!==filterType) return false;
-    if (filterPrice!==ALL&&m.price!==filterPrice) return false;
-    if (filterRating!==ALL&&m.rating<parseInt(filterRating)) return false;
-    if (filterKids&&!m.kidsf) return false;
-    if (memSearch.trim()) {
-      const q = memSearch.toLowerCase();
-      if (!m.name?.toLowerCase().includes(q) &&
-          !m.city?.toLowerCase().includes(q) &&
-          !m.country?.toLowerCase().includes(q)) return false;
+  const filteredMemories = (() => {
+    const applyFilters = (m) => {
+      if (filterType!==ALL&&m.type!==filterType) return false;
+      if (filterPrice!==ALL&&m.price!==filterPrice) return false;
+      if (filterRating!==ALL&&m.rating<parseInt(filterRating)) return false;
+      if (filterKids&&!m.kidsf) return false;
+      if (memSearch.trim()) {
+        const q = memSearch.toLowerCase();
+        if (!m.name?.toLowerCase().includes(q)&&!m.city?.toLowerCase().includes(q)&&!m.country?.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    };
+    const myMems = memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]}));
+    const friendMems = (showFriendMems||showOnlyFriends) ? friendMemories.filter(applyFilters) : [];
+    
+    // For each of my memories, find friends who also have it
+    const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
+    myMems.forEach(m => {
+      m.friendsWhoHave = friendMems.filter(f=>f.name.toLowerCase()===m.name.toLowerCase()).map(f=>f.friendName).filter(Boolean);
+    });
+    
+    if (showOnlyFriends) {
+      // Only show friend memories (deduplicated by name, grouped)
+      const seen = new Map();
+      friendMems.forEach(f => {
+        const key = f.name.toLowerCase();
+        if (!seen.has(key)) seen.set(key, {...f, isMine:false, friendsWhoHave:[f.friendName].filter(Boolean)});
+        else seen.get(key).friendsWhoHave.push(f.friendName);
+      });
+      return [...seen.values()];
     }
-    return true;
-  });
+    
+    // Mixed view: my memories first, then friend-only memories
+    const friendOnlyMems = [];
+    const seenFriendNames = new Map();
+    friendMems.filter(f=>!myNames.has(f.name.toLowerCase())).forEach(f => {
+      const key = f.name.toLowerCase();
+      if (!seenFriendNames.has(key)) {
+        seenFriendNames.set(key, {...f, isMine:false, friendsWhoHave:[f.friendName].filter(Boolean)});
+      } else {
+        seenFriendNames.get(key).friendsWhoHave.push(f.friendName);
+      }
+    });
+    
+    return showOnlyFriends ? [] : [...myMems, ...seenFriendNames.values()];
+  })();
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
