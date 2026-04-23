@@ -1796,6 +1796,7 @@ IMPORTANT RULES:
     };
     const myMems = memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]}));
     const friendMems = (showFriendMems||showOnlyFriends) ? friendMemories.filter(applyFilters) : [];
+    console.log("DEBUG myMems:", myMems.map(m=>m.name), "friendMems:", friendMems.map(m=>m.name));
     
     // For each of my memories, find friends who also have it
     const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
