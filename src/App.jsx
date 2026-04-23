@@ -1121,25 +1121,46 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
-function FriendsBadge({ friends }) {
+function FriendsBadge({ friends, onViewFriend }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
   return (
-    <div style={{position:"relative",display:"inline-block",marginBottom:4}}>
-      <button onClick={()=>setOpen(o=>!o)} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex",alignItems:"center",gap:4}}>
-        <span style={{fontSize:11,color:"#9b8fe8",background:"#1e1a2e",border:"1px solid #9b8fe844",borderRadius:20,padding:"2px 8px",fontFamily:"'DM Sans',sans-serif"}}>
-          👥 {friends.length}
-        </span>
-      </button>
+    <div ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
+      <span
+        onClick={()=>setOpen(o=>!o)}
+        style={{fontSize:10,color:"#9b8fe8",background:"#1e1a2e",border:"1px solid #9b8fe844",borderRadius:20,
+          padding:"3px 7px",fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none",letterSpacing:"0.06em"}}>
+        👥 {friends.length}
+      </span>
       {open&&(
-        <div style={{position:"absolute",top:"100%",left:0,marginTop:4,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,padding:"8px 12px",zIndex:50,minWidth:140,boxShadow:"0 4px 16px rgba(0,0,0,0.5)"}}>
-          {friends.map((f,i)=><div key={i} style={{fontSize:12,color:"#f0ead8",padding:"2px 0"}}>👤 {f}</div>)}
+        <div style={{position:"absolute",top:"calc(100% + 4px)",right:0,background:"#1a1814",border:"1px solid #2e2b25",
+          borderRadius:10,padding:"8px 0",zIndex:100,minWidth:160,boxShadow:"0 4px 20px rgba(0,0,0,0.6)",whiteSpace:"nowrap"}}>
+          {friends.map((f,i)=>(
+            <div key={i}
+              onClick={()=>{setOpen(false);onViewFriend&&onViewFriend(f);}}
+              style={{fontSize:12,color:"#f0ead8",padding:"6px 14px",cursor:onViewFriend?"pointer":"default",
+                display:"flex",alignItems:"center",gap:6,transition:"background 0.1s"}}
+              onMouseEnter={e=>e.currentTarget.style.background="#2e2b25"}
+              onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+              👤 {f}
+              {onViewFriend&&<span style={{fontSize:10,color:"#c9a84c",marginLeft:"auto"}}>→</span>}
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend }) {
   return (
     <div className={`memory-card ${!isMine?"friend-card":""}`}>
       <div className="memory-top">
@@ -1160,8 +1181,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" })
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave}/>}
-      {!isMine&&!m.friendsWhoHave?.length&&m.friendName&&<div style={{fontSize:11,color:COLORS.accent,fontStyle:"italic",marginBottom:4}}>👤 {m.friendName}</div>}
+
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
@@ -1925,7 +1945,7 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}
+                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name)=>{const f=friends.find(x=>`${x.profile?.first_name} ${x.profile?.last_name}`.trim()===name); if(f){const fMems=friendMemories.filter(m=>m.user_id===f.friendUserId); setViewingFriend({name,memories:fMems}); setTab("friends");}}}/>)}
               </div>
             </div>
           )}
@@ -2146,7 +2166,7 @@ IMPORTANT RULES:
                   {heartMemories.length>0&&(
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
-                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}</div>
+                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name)=>{const f=friends.find(x=>`${x.profile?.first_name} ${x.profile?.last_name}`.trim()===name); if(f){const fMems=friendMemories.filter(m=>m.user_id===f.friendUserId); setViewingFriend({name,memories:fMems}); setTab("friends");}}}/>)}</div>
                     </div>
                   )}
                   {nearbyPlaces.length>0&&(
