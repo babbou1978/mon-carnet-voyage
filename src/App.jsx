@@ -1782,7 +1782,7 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = useMemo(() => {
+  const filteredMemories = (() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
       if (filterPrice!==ALL&&m.price!==filterPrice) return false;
@@ -1827,7 +1827,7 @@ IMPORTANT RULES:
     });
     
     return showOnlyFriends ? [] : [...myMems, ...seenFriendNames.values()];
-  }, [memories, friendMemories, showFriendMems, showOnlyFriends, filterType, filterPrice, filterRating, filterKids, memSearch]); // eslint-disable-line
+  })();
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
