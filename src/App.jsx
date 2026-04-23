@@ -1831,9 +1831,6 @@ IMPORTANT RULES:
     });
     
     const result = [...myMems, ...seenFriendNames.values()];
-    const dupes = result.filter((m,i)=>result.findIndex(x=>x.name.toLowerCase()===m.name.toLowerCase())!==i);
-    if(dupes.length>0) console.log("DUPES IN RESULT:", dupes.map(m=>m.name));
-    console.log("memories dupes:", memories.filter((m,i)=>memories.findIndex(x=>x.name.toLowerCase()===m.name.toLowerCase())!==i).map(m=>m.name));
     return showOnlyFriends ? [] : result;
   })();
 
@@ -1892,7 +1889,7 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`${m.id}-${m.isMine}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}
+                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})}/>)}
               </div>
             </div>
           )}
