@@ -784,6 +784,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
         mapId: "49c549e3ad4ad4323a538e40",
+        colorScheme: "DARK",
       });
       mapInstance.current = map;
       boundsRef.current = bounds;
