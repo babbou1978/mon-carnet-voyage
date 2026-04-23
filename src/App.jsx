@@ -711,13 +711,16 @@ function PlaceSearch({ onPlaceSelected }) {
       const details = await res.json();
       const components = details.addressComponents||[];
       const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
-      const fullAddress = data.formattedAddress || "";
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
+      const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
+      const route = components.find(c=>c.types?.includes("route"))?.longText || "";
+      const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
+      const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || details.formattedAddress || "";
       const googleTypes = details.types||[];
       let type = "Restaurant";
       for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type=GOOGLE_TYPE_MAP[gt]; break; } }
       const price = PRICE_MAP[details.priceLevel]||"€€";
-      const place = { name: mainText, city, country, type, price, address: fullAddress };
+      const place = { name: mainText, city, country, type, price, address: streetAddress };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
