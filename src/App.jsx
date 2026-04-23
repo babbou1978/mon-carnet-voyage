@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { APP_VERSION, BUILD_DATE } from "./version.js";
 import { supabase } from "./supabase.js";
 import Auth from "./Auth.jsx";
