@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { APP_VERSION, BUILD_DATE } from "./version.js";
 import { supabase } from "./supabase.js";
 import Auth from "./Auth.jsx";
@@ -1354,6 +1354,7 @@ function TravelAgent() {
   const [recoType, setRecoType] = useState("Restaurant");
   const [recoPrice, setRecoPrice] = useState(ALL);
   const [recoKids, setRecoKids] = useState(false);
+  const [recoFriendFilter, setRecoFriendFilter] = useState("all"); // all | mine | friends
   const [distance, setDistance] = useState(1000);
   const [locMode, setLocMode] = useState(() => localStorage.getItem("outsy_locMode") || "free");
   const [freeLocation, setFreeLocation] = useState(() => localStorage.getItem("outsy_freeLocation") || "");
@@ -1594,7 +1595,10 @@ function TravelAgent() {
   };
 
   const loadHearts = async (coordsToUse) => {
-    const candidates = [...memories,...friendMemories]
+    const candidates = [
+      ...(recoFriendFilter!=="friends" ? memories : []),
+      ...(recoFriendFilter!=="mine" ? friendMemories : [])
+    ]
       .filter(m=>m.rating>=3)
       .filter(m=>recoType===ALL||m.type===recoType)
       .filter(m=>recoPrice===ALL||m.price===recoPrice)
@@ -1782,7 +1786,7 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = (() => {
+  const filteredMemories = React.useMemo(() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
       if (filterPrice!==ALL&&m.price!==filterPrice) return false;
@@ -1827,7 +1831,7 @@ IMPORTANT RULES:
     });
     
     return showOnlyFriends ? [] : [...myMems, ...seenFriendNames.values()];
-  })();
+  }, [memories, friendMemories, showFriendMems, showOnlyFriends, filterType, filterPrice, filterRating, filterKids, memSearch]); // eslint-disable-line
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
@@ -2061,7 +2065,14 @@ IMPORTANT RULES:
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>{setRecoType(tp);setHeartsKey(k=>k+1);}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>)}</div>
                 </div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>{setRecoPrice(val);setHeartsKey(k=>k+1);}}>{label}</button>)}</div>
-                <button className={`filter-btn ${recoKids?"active":""}`} style={{alignSelf:"flex-start"}} onClick={()=>{setRecoKids(k=>!k);setHeartsKey(k=>k+1);}}>👶 Kids friendly</button>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                  <button className={`filter-btn ${recoKids?"active":""}`} onClick={()=>{setRecoKids(k=>!k);setHeartsKey(k=>k+1);}}>👶 Kids friendly</button>
+                  {friends.length>0&&(<>
+                    <button className={`filter-btn ${recoFriendFilter==="all"?"active":""}`} onClick={()=>{setRecoFriendFilter("all");setHeartsKey(k=>k+1);}}>👤+👥</button>
+                    <button className={`filter-btn ${recoFriendFilter==="mine"?"active":""}`} onClick={()=>{setRecoFriendFilter("mine");setHeartsKey(k=>k+1);}}>👤 {t.filterMine||"Mine"}</button>
+                    <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
+                  </>)}
+                </div>
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:"#8a8070",fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:6,marginTop:6}}>
