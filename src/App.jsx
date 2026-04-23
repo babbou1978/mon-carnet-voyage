@@ -1782,7 +1782,7 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = React.useMemo(() => {
+  const filteredMemories = useMemo(() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
       if (filterPrice!==ALL&&m.price!==filterPrice) return false;
