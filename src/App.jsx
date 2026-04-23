@@ -1628,7 +1628,25 @@ function TravelAgent() {
         }
       } catch { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
     } else { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
-    setHeartMemories(heartMems.slice(0,10));
+    // Deduplicate by name - keep isMine version if exists
+    const deduped = [];
+    const seenNames = new Set();
+    // First pass: add own memories
+    heartMems.filter(m=>m.isMine).forEach(m => {
+      const key = m.name.toLowerCase();
+      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
+    });
+    // Second pass: add friend-only memories
+    heartMems.filter(m=>!m.isMine).forEach(m => {
+      const key = m.name.toLowerCase();
+      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
+      else {
+        // Add friend to existing entry's friendsWhoHave
+        const existing = deduped.find(x=>x.name.toLowerCase()===key);
+        if (existing) existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean);
+      }
+    });
+    setHeartMemories(deduped.slice(0,10));
     setHeartsLoaded(true);
   };
 
@@ -1704,7 +1722,25 @@ function TravelAgent() {
       console.error("HEART FILTER ERROR:", err);
       heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
     }
-    setHeartMemories(heartMems.slice(0,10));
+    // Deduplicate by name - keep isMine version if exists
+    const deduped = [];
+    const seenNames = new Set();
+    // First pass: add own memories
+    heartMems.filter(m=>m.isMine).forEach(m => {
+      const key = m.name.toLowerCase();
+      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
+    });
+    // Second pass: add friend-only memories
+    heartMems.filter(m=>!m.isMine).forEach(m => {
+      const key = m.name.toLowerCase();
+      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
+      else {
+        // Add friend to existing entry's friendsWhoHave
+        const existing = deduped.find(x=>x.name.toLowerCase()===key);
+        if (existing) existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean);
+      }
+    });
+    setHeartMemories(deduped.slice(0,10));
 
     // Nearby Google Places
     try {
