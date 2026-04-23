@@ -1831,7 +1831,9 @@ IMPORTANT RULES:
     });
     
     const result = [...myMems, ...seenFriendNames.values()];
-    console.log("RESULT:", result.map(m=>m.name+"|"+m.isMine));
+    const dupes = result.filter((m,i)=>result.findIndex(x=>x.name.toLowerCase()===m.name.toLowerCase())!==i);
+    if(dupes.length>0) console.log("DUPES IN RESULT:", dupes.map(m=>m.name));
+    console.log("memories dupes:", memories.filter((m,i)=>memories.findIndex(x=>x.name.toLowerCase()===m.name.toLowerCase())!==i).map(m=>m.name));
     return showOnlyFriends ? [] : result;
   })();
 
