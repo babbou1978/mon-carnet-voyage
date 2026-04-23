@@ -1782,7 +1782,7 @@ IMPORTANT RULES:
     });
   };
 
-  const filteredMemories = (() => {
+  const filteredMemories = React.useMemo(() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
       if (filterPrice!==ALL&&m.price!==filterPrice) return false;
@@ -1796,7 +1796,6 @@ IMPORTANT RULES:
     };
     const myMems = memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]}));
     const friendMems = (showFriendMems||showOnlyFriends) ? friendMemories.filter(applyFilters) : [];
-    console.log("DEBUG myMems:", myMems.map(m=>m.name), "friendMems:", friendMems.map(m=>m.name));
     
     // For each of my memories, find friends who also have it
     const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
@@ -1828,7 +1827,7 @@ IMPORTANT RULES:
     });
     
     return showOnlyFriends ? [] : [...myMems, ...seenFriendNames.values()];
-  })();
+  }, [memories, friendMemories, showFriendMems, showOnlyFriends, filterType, filterPrice, filterRating, filterKids, memSearch]); // eslint-disable-line
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
