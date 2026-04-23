@@ -783,7 +783,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       const bounds = new window.google.maps.LatLngBounds();
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
-        mapId: "outsy-map",
+        mapId: "49c549e3ad4ad4323a538e40",
       });
       mapInstance.current = map;
       boundsRef.current = bounds;
