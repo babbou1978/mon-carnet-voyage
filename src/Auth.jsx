@@ -79,11 +79,15 @@ export default function Auth() {
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError(at.errorSignup); }
+      if (error) { setError(error.message || at.errorSignup); }
       else {
-        if (data.user) {
+        if (data.session && data.user) {
+          // Session available - upsert profile directly
           await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
           try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email }) }); } catch {}
+        } else if (data.user) {
+          // Email confirmation required - save via API with service key
+          try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email, userId: data.user.id }) }); } catch {}
         }
         setSuccess(`${at.welcome} ${firstName}!`);
       }
