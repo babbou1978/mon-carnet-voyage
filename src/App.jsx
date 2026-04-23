@@ -1103,10 +1103,10 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
           {(form.type==="Restaurant"||form.type==="Bar / Café")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><select value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))}><option value="">-- Select --</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>)}
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
-        <div className="field">
-          <label>{t?.addCity||"City"}</label>
-          <input placeholder="Paris, France" value={form.city?(form.country?`${form.city}, ${form.country}`:form.city):""} onChange={e=>{const parts=e.target.value.split(",").map(s=>s.trim());setForm(f=>({...f,city:parts[0]||"",country:parts[1]||""}));}} style={{color:form.address?COLORS.muted:"inherit"}}/>
-          {form.address&&<div style={{fontSize:11,color:COLORS.muted,marginTop:3}}>📍 {form.address}</div>}
+        <div className="field"><label>{t?.addAddress||"Address"}</label><input placeholder="22 Harcourt Street" value={form.address||""} onChange={e=>setForm(f=>({...f,address:e.target.value}))}/></div>
+        <div className="row-2">
+          <div className="field"><label>{t?.addCity||"City"}</label><input placeholder="London" value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))}/></div>
+          <div className="field"><label>{t?.addCountry||"Country"}</label><input placeholder="UK" value={form.country} onChange={e=>setForm(f=>({...f,country:e.target.value}))}/></div>
         </div>
         <div className="field"><label>{t?.addRating||"Rating"}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
         <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))} t={t}/>
