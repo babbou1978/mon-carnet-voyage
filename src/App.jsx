@@ -783,6 +783,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       const bounds = new window.google.maps.LatLngBounds();
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+        mapId: "outsy-map",
         styles: MAP_STYLES,
       });
       mapInstance.current = map;
@@ -794,11 +795,10 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       // User position - blue
       if (userCoords?.lat) {
         bounds.extend({ lat: userCoords.lat, lng: userCoords.lng });
-        new window.google.maps.Marker({
-          position: { lat: userCoords.lat, lng: userCoords.lng },
-          map, zIndex: 100,
-          icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#4a90d9", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3, scale: 10 },
-        });
+        (() => {
+          const pin = new window.google.maps.marker.PinElement({ background:"#4a90d9", borderColor:"#ffffff", glyphColor:"#ffffff", scale:0.9 });
+          new window.google.maps.marker.AdvancedMarkerElement({ position:{lat:userCoords.lat,lng:userCoords.lng}, map, zIndex:100, content:pin.element });
+        })();
       }
 
       // Heart memories - red
@@ -807,10 +807,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
         total++;
         if (m._lat) {
           const pos = { lat: m._lat, lng: m._lng };
-          const marker = new window.google.maps.Marker({
-            position: pos, map, title: m.name,
-            icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#e05555", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 12 },
-          });
+          const pin = new window.google.maps.marker.PinElement({ background:"#e05555", borderColor:"#0f0e0c", glyphColor:"#fff", scale:0.8 });
+          const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:m.name, content:pin.element });
           marker.addListener("click", () => setActivePlace({ ...m, markerType: "heart" }));
           bounds.extend(pos);
           checkFit();
@@ -818,10 +816,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
           geocoder.geocode({ address: `${m.name} ${m.city||""} ${m.country||""}` }, (res, status) => {
             if (status === "OK" && res[0]) {
               const pos = res[0].geometry.location;
-              const marker = new window.google.maps.Marker({
-                position: pos, map, title: m.name,
-                icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#e05555", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 12 },
-              });
+              const pin2 = new window.google.maps.marker.PinElement({ background:"#e05555", borderColor:"#0f0e0c", glyphColor:"#fff", scale:0.8 });
+              const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:m.name, content:pin2.element });
               marker.addListener("click", () => setActivePlace({ ...m, markerType: "heart" }));
               bounds.extend(pos);
             }
@@ -837,11 +833,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
         geocoder.geocode({ address: reco.address }, (results, status) => {
           if (status === "OK" && results[0]) {
             const pos = results[0].geometry.location;
-            const marker = new window.google.maps.Marker({
-              position: pos, map, title: reco.name,
-              label: { text: String(i+1), color: "#0f0e0c", fontWeight: "bold", fontSize: "12px" },
-              icon: { path: window.google.maps.SymbolPath.CIRCLE, fillColor: "#c9a84c", fillOpacity: 1, strokeColor: "#0f0e0c", strokeWeight: 2, scale: 16 },
-            });
+            const pinEl = new window.google.maps.marker.PinElement({ background:"#c9a84c", borderColor:"#0f0e0c", glyphColor:"#0f0e0c", glyph:String(i+1), scale:1.0 });
+            const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:reco.name, content:pinEl.element });
             marker.addListener("click", () => setActivePlace({ ...reco, markerType: "ai", idx: i+1 }));
             bounds.extend(pos);
           }
@@ -855,7 +848,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
     if (window.google) { loadMap(); }
     else {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY||""}&callback=initGoogleMap&loading=async`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY||""}&callback=initGoogleMap&loading=async&libraries=marker`;
       script.async = true;
       window.initGoogleMap = loadMap;
       document.head.appendChild(script);
