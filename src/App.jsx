@@ -1130,7 +1130,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" })
           {m.rating>0&&<span className="badge stars">{starsLabel(m.rating)}</span>}
           {m.kidsf&&<span className="badge kids">👶</span>}
           <span className="badge price">{m.price}</span>
-          {!isMine&&m.friendName&&<span className="badge friend">{m.friendName}</span>}
+
         </div>
       </div>
       <div className="memory-meta" style={{marginBottom:4}}>
@@ -1142,6 +1142,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en" })
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
+      {!isMine&&m.friendName&&<div style={{fontSize:11,color:COLORS.accent,fontStyle:"italic",marginBottom:4}}>👤 {m.friendName}</div>}
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
