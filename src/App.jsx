@@ -1394,11 +1394,11 @@ function TravelAgent() {
     // Then refresh from Supabase in background
     const load = async () => {
       if (!localStorage.getItem(cacheKey)) setLoading(true);
-      const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
+      const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
       if (prof) setProfile(prof);
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
-      const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).single();
+      const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).maybeSingle();
       if (pref) setPrefs({ ...DEFAULT_PREFS, ...pref });
       // Save to cache
       try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
