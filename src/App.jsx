@@ -1830,7 +1830,9 @@ IMPORTANT RULES:
       }
     });
     
-    return showOnlyFriends ? [] : [...myMems, ...seenFriendNames.values()];
+    const result = [...myMems, ...seenFriendNames.values()];
+    console.log("RESULT:", result.map(m=>m.name+"|"+m.isMine));
+    return showOnlyFriends ? [] : result;
   })();
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
