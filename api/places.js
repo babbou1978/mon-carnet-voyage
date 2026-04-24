@@ -31,6 +31,31 @@ export default async function handler(req, res) {
       }
       return res.status(200).json({ error: 'Not found' });
 
+    } else if (action === 'verify') {
+      // Verify if places are still operational
+      const { places: placesToVerify } = req.body;
+      const results = await Promise.all(placesToVerify.map(async (p) => {
+        try {
+          const r = await fetch('https://places.googleapis.com/v1/places:searchText', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': key,
+              'X-Goog-FieldMask': 'places.displayName,places.businessStatus',
+            },
+            body: JSON.stringify({ textQuery: `${p.name} ${p.address||''}`, maxResultCount: 1 }),
+          });
+          const data = await r.json();
+          const place = data.places?.[0];
+          return {
+            name: p.name,
+            operational: !place || place.businessStatus !== 'CLOSED_PERMANENTLY',
+            businessStatus: place?.businessStatus || 'UNKNOWN'
+          };
+        } catch { return { name: p.name, operational: true }; }
+      }));
+      return res.status(200).json({ results });
+
     } else if (action === 'nearby') {
       // Chercher des lieux populaires à proximité
       const typeMap = {

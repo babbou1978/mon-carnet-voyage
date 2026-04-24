@@ -1839,7 +1839,21 @@ IMPORTANT RULES:
         body: JSON.stringify({ prompt, structured: true, language: prefs.language || "en" }),
       });
       const data = await res.json();
-      if (data.recommendations) setAiRecos(data.recommendations);
+      if (data.recommendations) {
+        // Verify places are still operational via Google Places
+        try {
+          const verifyRes = await fetch("/api/places", {
+            method: "POST", headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ action:"verify", places: data.recommendations.map(r=>({name:r.name,address:r.address})) })
+          });
+          const verifyData = await verifyRes.json();
+          const closedNames = new Set((verifyData.results||[]).filter(r=>!r.operational).map(r=>r.name.toLowerCase()));
+          const filtered = data.recommendations.filter(r=>!closedNames.has(r.name.toLowerCase()));
+          setAiRecos(filtered);
+        } catch {
+          setAiRecos(data.recommendations);
+        }
+      }
     } catch(err) { console.error("AI error:", err); }
     setAiLoading(false);
   };
