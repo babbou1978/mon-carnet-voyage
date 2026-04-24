@@ -834,7 +834,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
         geocoder.geocode({ address: reco.address }, (results, status) => {
           if (status === "OK" && results[0]) {
             const pos = results[0].geometry.location;
-            const pinEl = new window.google.maps.marker.PinElement({ background:"#c9a84c", borderColor:"#0f0e0c", glyphColor:"#0f0e0c", glyph:String(i+1), scale:1.0 });
+            const pinEl = new window.google.maps.marker.PinElement({ background:"#c9a84c", borderColor:"#0f0e0c", glyphColor:"#0f0e0c", glyphText:String(i+1), scale:1.0 });
             const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:reco.name, content:pinEl });
             marker.addListener("gmp-click", () => setActivePlace({ ...reco, markerType: "ai", idx: i+1 }));
             bounds.extend(pos);
