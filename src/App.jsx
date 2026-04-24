@@ -451,6 +451,7 @@ const css = `
   .memory-list { display: flex; flex-direction: column; gap: 12px; }
   .memory-card { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 12px; padding: 16px; transition: border-color 0.2s; }
   .memory-card.friend-card { border-color: ${COLORS.accent}22; }
+  .memory-card.friend-memory-card { border-color: ${COLORS.accent}22; }
   .memory-card:hover { border-color: ${COLORS.accent}44; }
   .memory-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
   .memory-name { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 400; line-height: 1.2; }
@@ -1168,7 +1169,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
 
 function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend }) {
   return (
-    <div className={`memory-card ${!isMine?"friend-card":""}`}>
+    <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
         <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
         <div className="memory-meta">
