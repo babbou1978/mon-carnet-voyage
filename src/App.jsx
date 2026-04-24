@@ -1445,6 +1445,11 @@ function TravelAgent() {
       // Save to cache
       try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
       await loadFriends(userId);
+      // Load community-reported closed places
+      try {
+        const { data: closed } = await supabase.from('closed_places').select('name');
+        if (closed) setClosedPlaces(closed.map(p=>p.name.toLowerCase()));
+      } catch {}
       setLoading(false);
     };
     load();
@@ -1847,8 +1852,18 @@ IMPORTANT RULES:
             body: JSON.stringify({ action:"verify", places: data.recommendations.map(r=>({name:r.name,address:r.address})) })
           });
           const verifyData = await verifyRes.json();
-          const closedNames = new Set((verifyData.results||[]).filter(r=>!r.operational).map(r=>r.name.toLowerCase()));
-          const filtered = data.recommendations.filter(r=>!closedNames.has(r.name.toLowerCase()));
+          const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
+          // Store newly found closed places in community database
+          if (newlyClosed.length > 0) {
+            const toInsert = newlyClosed.map(r=>{
+              const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
+              return { name: r.name, address: reco?.address||'', confirmed_by: userId };
+            });
+            await supabase.from('closed_places').upsert(toInsert, { onConflict: 'name' });
+            setClosedPlaces(prev=>[...prev, ...newlyClosed.map(r=>r.name.toLowerCase())]);
+          }
+          const allClosed = new Set([...(verifyData.results||[]).filter(r=>!r.operational).map(r=>r.name.toLowerCase()), ...closedPlaces]);
+          const filtered = data.recommendations.filter(r=>!allClosed.has(r.name.toLowerCase()));
           setAiRecos(filtered);
         } catch {
           setAiRecos(data.recommendations);
