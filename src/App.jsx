@@ -1625,11 +1625,15 @@ function TravelAgent() {
   };
 
   const loadHearts = async (coordsToUse) => {
+    const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
     const candidates = [
-      ...(recoFriendFilter!=="friends" ? memories : []),
-      ...(recoFriendFilter!=="mine" ? friendMemories : [])
+      // My memories filtered by rating
+      ...(recoFriendFilter!=="friends" ? memories.filter(m=>m.rating>=3) : []),
+      // Friend memories: ALL versions of places I have, rated>=3 for standalone
+      ...(recoFriendFilter!=="mine" ? friendMemories.filter(m=>
+        myNames.has(m.name.toLowerCase()) || m.rating>=3  // always include if I have it too
+      ) : [])
     ]
-      .filter(m=>m.rating>=3)
       .filter(m=>recoType===ALL||m.type===recoType)
       .filter(m=>recoPrice===ALL||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
