@@ -55,7 +55,8 @@ export default async function handler(req, res) {
           };
         } catch { return { name: p.name, operational: true }; }
       }));
-      return res.status(200).json({ results });
+      console.log("VERIFY RESULTS:", JSON.stringify(results));
+      return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
       // Chercher des lieux populaires à proximité
