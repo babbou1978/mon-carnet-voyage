@@ -1448,7 +1448,7 @@ function TravelAgent() {
       // Load community-reported closed places
       try {
         const { data: closed } = await supabase.from('closed_places').select('name');
-        if (closed) setClosedPlaces(closed.map(p=>`${p.name}|${p.address||''}`.toLowerCase()));
+        if (closed) setClosedPlaces(closed.map(p=>p.place_id||`${p.name}|${p.address||''}`.toLowerCase()));
       } catch {}
       setLoading(false);
     };
@@ -1853,17 +1853,18 @@ IMPORTANT RULES:
           });
           const verifyData = await verifyRes.json();
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
-          // Store newly found closed places in community database
           if (newlyClosed.length > 0) {
             const toInsert = newlyClosed.map(r=>{
               const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
-              return { name: r.name, address: reco?.address||'' , confirmed_by: userId };
+              return { place_id: r.placeId||null, name: r.name, address: reco?.address||'', confirmed_by: userId };
             });
-            await supabase.from('closed_places').upsert(toInsert, { onConflict: 'name,address' });
-            setClosedPlaces(prev=>[...prev, ...newlyClosed.map(r=>r.name.toLowerCase())]);
+            await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id' });
+            const newIds = newlyClosed.map(r=>r.placeId||r.name.toLowerCase());
+            setClosedPlaces(prev=>[...prev, ...newIds]);
           }
-          const allClosed = new Set([...(verifyData.results||[]).filter(r=>!r.operational).map(r=>`${r.name}|${data.recommendations.find(x=>x.name===r.name)?.address||''}`.toLowerCase()), ...closedPlaces]);
-          const filtered = data.recommendations.filter(r=>!allClosed.has(`${r.name}|${r.address||''}`.toLowerCase()));
+          const closedIds = new Set([...(verifyData.results||[]).filter(r=>!r.operational).map(r=>r.placeId||r.name.toLowerCase()), ...closedPlaces]);
+          const closedNames = new Set(newlyClosed.map(r=>r.name.toLowerCase()));
+          const filtered = data.recommendations.filter(r=>!closedNames.has(r.name.toLowerCase()));
           setAiRecos(filtered);
         } catch {
           setAiRecos(data.recommendations);

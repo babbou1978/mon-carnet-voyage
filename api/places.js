@@ -41,7 +41,7 @@ export default async function handler(req, res) {
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': key,
-              'X-Goog-FieldMask': 'places.displayName,places.businessStatus',
+              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name',
             },
             body: JSON.stringify({ textQuery: `${p.name} ${p.address||''}`, maxResultCount: 1 }),
           });
@@ -49,6 +49,7 @@ export default async function handler(req, res) {
           const place = data.places?.[0];
           return {
             name: p.name,
+            placeId: place?.name?.split('/')?.pop() || null,
             operational: !place || place.businessStatus !== 'CLOSED_PERMANENTLY',
             businessStatus: place?.businessStatus || 'UNKNOWN'
           };
