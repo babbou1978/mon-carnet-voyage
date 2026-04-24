@@ -47,17 +47,11 @@ export default async function handler(req, res) {
           });
           const data = await r.json();
           const place = data.places?.[0];
-          // Only trust the result if the name matches reasonably well
-          const foundName = place?.displayName?.text?.toLowerCase()||"";
-          const searchedName = p.name.toLowerCase();
-          const nameMatches = foundName.includes(searchedName.split(" ")[0]) || 
-                              searchedName.includes(foundName.split(" ")[0]);
-          const isClosed = place && nameMatches && place.businessStatus === 'CLOSED_PERMANENTLY';
           return {
             name: p.name,
             placeId: place?.name?.split('/')?.pop() || null,
-            operational: !isClosed,
-            businessStatus: isClosed ? 'CLOSED_PERMANENTLY' : 'OPERATIONAL'
+            operational: !place || place.businessStatus !== 'CLOSED_PERMANENTLY',
+            businessStatus: place?.businessStatus || 'UNKNOWN'
           };
         } catch { return { name: p.name, operational: true }; }
       }));
