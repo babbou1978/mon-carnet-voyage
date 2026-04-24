@@ -1367,7 +1367,8 @@ function TravelAgent() {
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [formKey, setFormKey] = useState(0);
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // {id, name}
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [friendMemoryModal, setFriendMemoryModal] = useState(null); // {memory, friendName} // {id, name}
   const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
   const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
 
@@ -1961,7 +1962,8 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name)=>{const f=friends.find(x=>`${x.profile?.first_name} ${x.profile?.last_name}`.trim()===name); if(f){const fMems=friendMemories.filter(m=>m.user_id===f.friendUserId); setViewingFriend({name,memories:fMems}); setTab("friends");}}}/>)}
+                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{if(fMem)setFriendMemoryModal({memory:fMem,friendName:name});}}
+                  onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
               </div>
             </div>
           )}
@@ -2182,7 +2184,8 @@ IMPORTANT RULES:
                   {heartMemories.length>0&&(
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
-                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name)=>{const f=friends.find(x=>`${x.profile?.first_name} ${x.profile?.last_name}`.trim()===name); if(f){const fMems=friendMemories.filter(m=>m.user_id===f.friendUserId); setViewingFriend({name,memories:fMems}); setTab("friends");}}}/>)}</div>
+                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{if(fMem)setFriendMemoryModal({memory:fMem,friendName:name});}}
+                  onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}</div>
                     </div>
                   )}
                   {nearbyPlaces.length>0&&(
@@ -2291,6 +2294,24 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
         </div>
       )}
 
+      {friendMemoryModal&&(
+        <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setFriendMemoryModal(null);}}>
+          <div className="modal">
+            <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
+            <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
+            <div style={{display:"flex",gap:8,marginTop:12}}>
+              <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setFriendMemoryModal(null)}>Fermer</button>
+              <button className="modal-btn primary" style={{flex:1}} onClick={()=>{
+                const fMem=friendMemoryModal.memory;
+                const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());
+                setFriendMemoryModal(null);
+                if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}
+                else{handleAdd(fMem);}
+              }}>⊕ Sauvegarder</button>
+            </div>
+          </div>
+        </div>
+      )}
       {deleteConfirm&&(
         <div className="alert-overlay">
           <div className="alert-box">
