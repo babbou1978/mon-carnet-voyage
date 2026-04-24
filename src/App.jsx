@@ -1448,7 +1448,7 @@ function TravelAgent() {
       // Load community-reported closed places
       try {
         const { data: closed } = await supabase.from('closed_places').select('name');
-        if (closed) setClosedPlaces(closed.map(p=>p.name.toLowerCase()));
+        if (closed) setClosedPlaces(closed.map(p=>`${p.name}|${p.address||''}`.toLowerCase()));
       } catch {}
       setLoading(false);
     };
@@ -1857,13 +1857,13 @@ IMPORTANT RULES:
           if (newlyClosed.length > 0) {
             const toInsert = newlyClosed.map(r=>{
               const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
-              return { name: r.name, address: reco?.address||'', confirmed_by: userId };
+              return { name: r.name, address: reco?.address||'' , confirmed_by: userId };
             });
-            await supabase.from('closed_places').upsert(toInsert, { onConflict: 'name' });
+            await supabase.from('closed_places').upsert(toInsert, { onConflict: 'name,address' });
             setClosedPlaces(prev=>[...prev, ...newlyClosed.map(r=>r.name.toLowerCase())]);
           }
-          const allClosed = new Set([...(verifyData.results||[]).filter(r=>!r.operational).map(r=>r.name.toLowerCase()), ...closedPlaces]);
-          const filtered = data.recommendations.filter(r=>!allClosed.has(r.name.toLowerCase()));
+          const allClosed = new Set([...(verifyData.results||[]).filter(r=>!r.operational).map(r=>`${r.name}|${data.recommendations.find(x=>x.name===r.name)?.address||''}`.toLowerCase()), ...closedPlaces]);
+          const filtered = data.recommendations.filter(r=>!allClosed.has(`${r.name}|${r.address||''}`.toLowerCase()));
           setAiRecos(filtered);
         } catch {
           setAiRecos(data.recommendations);
