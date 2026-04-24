@@ -1627,9 +1627,13 @@ function TravelAgent() {
     const candidates = [
       // My memories filtered by rating
       ...(recoFriendFilter!=="friends" ? memories.filter(m=>m.rating>=3) : []),
-      // Friend memories: ALL versions of places I have, rated>=3 for standalone
+      // Friend memories:
+      // - if "friends only": only places NOT in my favorites
+      // - if "all": places I have (regardless of their rating) + standalone places (rating>=3)
       ...(recoFriendFilter!=="mine" ? friendMemories.filter(m=>
-        myNames.has(m.name.toLowerCase()) || m.rating>=3  // always include if I have it too
+        recoFriendFilter==="friends"
+          ? m.rating>=3  // friends only: apply rating filter strictly
+          : myNames.has(m.name.toLowerCase()) || m.rating>=3   // all: attach mine + standalone
       ) : [])
     ]
       .filter(m=>recoType===ALL||m.type===recoType)
