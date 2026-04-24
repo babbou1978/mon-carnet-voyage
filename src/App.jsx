@@ -1862,9 +1862,12 @@ IMPORTANT RULES:
             const newIds = newlyClosed.map(r=>r.placeId||r.name.toLowerCase());
             setClosedPlaces(prev=>[...prev, ...newIds]);
           }
-          const closedIds = new Set([...(verifyData.results||[]).filter(r=>!r.operational).map(r=>r.placeId||r.name.toLowerCase()), ...closedPlaces]);
-          const closedNames = new Set(newlyClosed.map(r=>r.name.toLowerCase()));
-          const filtered = data.recommendations.filter(r=>!closedNames.has(r.name.toLowerCase()));
+          // All closed names: newly detected + community database
+          const allClosedNames = new Set([
+            ...newlyClosed.map(r=>r.name.toLowerCase()),
+            ...closedPlaces.map(p=>typeof p==="string"?p.split("|")[0].toLowerCase():p)
+          ]);
+          const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
           setAiRecos(filtered);
         } catch {
           setAiRecos(data.recommendations);
