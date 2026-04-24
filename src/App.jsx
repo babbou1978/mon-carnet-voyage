@@ -1174,12 +1174,12 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
         <div className="memory-meta">
           {m.rating>0&&<span className="badge stars">{starsLabel(m.rating)}</span>}
           {m.kidsf&&<span className="badge kids">👶</span>}
-          {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend}/>}
           <span className="badge price">{m.price}</span>
         </div>
       </div>
-      <div className="memory-meta" style={{marginBottom:4}}>
+      <div className="memory-meta" style={{marginBottom:4,justifyContent:"flex-start"}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
+        {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend}/>}
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
