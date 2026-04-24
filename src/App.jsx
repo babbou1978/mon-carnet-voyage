@@ -1156,11 +1156,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
                       style={{fontSize:14,color:"#c9a84c",cursor:"pointer",marginLeft:2}} title="Voir la fiche">→</span>}
                   </div>
                 </div>
-                {fMem&&onSaveFriend&&<button onClick={()=>{setOpen(false);onSaveFriend(fMem);}}
-                  style={{marginTop:4,fontSize:10,color:"#c9a84c",background:"#c9a84c11",border:"1px solid #c9a84c33",
-                    borderRadius:6,padding:"3px 8px",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",width:"100%"}}>
-                  ⊕ Sauvegarder dans mes favoris
-                </button>}
+
               </div>
             );
           })}
