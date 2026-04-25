@@ -426,9 +426,9 @@ const css = `
   .price-btn { padding: 5px 8px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 6px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .star-row { display: flex; gap: 8px; align-items: center; }
-  .star { font-size: 24px; cursor: pointer; transition: transform 0.15s, opacity 0.15s; opacity: 0.25; filter: grayscale(1); user-select: none; }
-  .star.active { opacity: 1; filter: none; transform: scale(1.1); }
-  .star:hover { opacity: 0.75; filter: none; }
+  .star { font-size: 24px; cursor: pointer; transition: all 0.15s; color: #3a3520; user-select: none; }
+  .star.active { color: #c9a84c; transform: scale(1.1); }
+  .star:hover { color: #e8c97a; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .section-divider { display: flex; align-items: center; gap: 10px; margin: 2px 0; }
   .section-divider span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: ${COLORS.muted}; white-space: nowrap; }
