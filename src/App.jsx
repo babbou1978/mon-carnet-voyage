@@ -1828,7 +1828,7 @@ My favorites: ${liked||"None."}
 My disappointments: ${disliked||"None."}
 Friends favorites: ${friendLiked||"None."}
 
-Request: Find the ${Math.min(nbRecosCount+3, 15)} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}". I will display only the top ${nbRecosCount} after filtering.
+Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
 
 IMPORTANT RULES:
 - ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit - do not exceed it under any circumstance.
@@ -1866,7 +1866,36 @@ IMPORTANT RULES:
           ]);
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
           console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
-          setAiRecos(filtered);
+
+          // Filter by real distance if we have coords
+          if (coords?.lat && filtered.length > 0) {
+            try {
+              const geoRes = await fetch("/api/geocode-memories", {
+                method:"POST", headers:{"Content-Type":"application/json"},
+                body: JSON.stringify({ places: filtered.map(r=>({id:r.name,name:r.name,city:"",country:"",address:r.address})) })
+              });
+              const geoData = await geoRes.json();
+              const recoWithDist = filtered.map(r=>{
+                const g = (geoData.results||[]).find(x=>x.id===r.name);
+                const dist = g?.lat ? calcDistance(coords.lat, coords.lng, g.lat, g.lng)*1000 : null;
+                return {...r, _dist: dist};
+              });
+              const inRadius = recoWithDist.filter(r=>r._dist===null||r._dist<=distance);
+              const outRadius = recoWithDist.filter(r=>r._dist!==null&&r._dist>distance);
+              console.log(`In radius: ${inRadius.length}, Out of radius: ${outRadius.length}`);
+              if (inRadius.length >= nbRecosCount) {
+                // Enough results in radius - discard those outside
+                setAiRecos(inRadius.sort((a,b)=>(a._dist||0)-(b._dist||0)));
+              } else {
+                // Not enough in radius - keep all, sorted by distance
+                setAiRecos(recoWithDist.sort((a,b)=>(a._dist||0)-(b._dist||0)));
+              }
+            } catch {
+              setAiRecos(filtered);
+            }
+          } else {
+            setAiRecos(filtered);
+          }
           if (newlyClosed.length > 0) {
             try {
               const toInsert = newlyClosed.map(r=>{
