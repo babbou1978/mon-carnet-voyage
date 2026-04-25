@@ -1121,15 +1121,31 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
-function OpeningHoursWidget({ openNow, hours }) {
+function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
   const [expanded, setExpanded] = useState(false);
+
+  const formatTime = (isoTime) => {
+    if (!isoTime) return null;
+    try {
+      const d = new Date(isoTime);
+      return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    } catch { return null; }
+  };
+
+  const closeTime = formatTime(nextCloseTime);
+  const openTime = formatTime(nextOpenTime);
+
+  const statusText = openNow
+    ? `🟢 Open${closeTime ? " · Closes at "+closeTime : ""}`
+    : `🔴 Closed${openTime ? " · Opens at "+openTime : ""}`;
+
   return (
     <div style={{marginBottom:6}}>
       <div onClick={()=>hours?.length&&setExpanded(e=>!e)}
         style={{display:"inline-flex",alignItems:"center",gap:6,cursor:hours?.length?"pointer":"default"}}>
         <span style={{fontSize:11,color:openNow?"#7abf8a":"#e06060",background:openNow?"#1a2e1e":"#3a1a1a",
-          padding:"2px 8px",borderRadius:20}}>
-          {openNow?"🟢 Open now":"🔴 Closed"}
+          padding:"3px 10px",borderRadius:20}}>
+          {statusText}
         </span>
         {hours?.length&&<span style={{fontSize:10,color:"#8a8070"}}>{expanded?"▲":"▼"}</span>}
       </div>
@@ -1214,7 +1230,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours}/>}
+      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} nextCloseTime={m.nextCloseTime} nextOpenTime={m.nextOpenTime}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
@@ -1867,6 +1883,7 @@ function TravelAgent() {
         lat: p.location?.latitude, lng: p.location?.longitude,
         openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
         openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
+        nextCloseTime: p.currentOpeningHours?.nextCloseTime || null,
         nextOpenTime: p.currentOpeningHours?.nextOpenTime || null,
       })).filter(p=>p.name);
       setNearbyPlaces(places);
@@ -2413,7 +2430,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours}/>}
+                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} nextCloseTime={reco.nextCloseTime} nextOpenTime={reco.nextOpenTime}/>}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
