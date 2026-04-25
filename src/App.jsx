@@ -2394,7 +2394,7 @@ IMPORTANT RULES:
                             <div className="nearby-meta">
                               {p.rating&&<span className="badge stars">★ {p.rating.toFixed(1)}</span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
-                              {p.openNow!==undefined&&<span className="badge" style={{color:p.openNow?"#7abf8a":"#e06060",background:p.openNow?"#1a2e1e":"#3a1a1a"}}>{p.openNow?"Open":"Closed"}</span>}
+                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} nextCloseTime={p.nextCloseTime} nextOpenTime={p.nextOpenTime}/>}
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
