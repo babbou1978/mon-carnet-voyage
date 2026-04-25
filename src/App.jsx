@@ -1124,6 +1124,18 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
 function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
   const [expanded, setExpanded] = useState(false);
 
+  // Extract today's hours from weekdayDescriptions
+  const getTodayInfo = () => {
+    if (!hours?.length) return null;
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const daysFr = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+    const today = new Date().getDay();
+    const todayName = days[today];
+    const todayNameFr = daysFr[today];
+    return hours.find(h => h.startsWith(todayName) || h.startsWith(todayNameFr)) || null;
+  };
+  const todayHours = getTodayInfo();
+
   const formatTime = (isoTime) => {
     if (!isoTime) return null;
     try {
@@ -1136,7 +1148,7 @@ function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
   const openTime = formatTime(nextOpenTime);
 
   const statusText = openNow
-    ? `🟢 Open${closeTime ? " · Closes at "+closeTime : ""}`
+    ? `🟢 Open${closeTime ? " · Closes at "+closeTime : todayHours ? " · "+todayHours.split(": ").slice(1).join(": ") : ""}`
     : `🔴 Closed${openTime ? " · Opens at "+openTime : ""}`;
 
   return (
