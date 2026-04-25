@@ -1770,7 +1770,7 @@ function TravelAgent() {
         (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
         setHeartMemories(prev=>prev.map(m=>{
           const v = verifyMap[m.name.toLowerCase()];
-          return v?.openNow!==undefined ? {...m, openNow:v.openNow} : m;
+          return v ? {...m, openNow:v.openNow??m.openNow, openingHours:v.openingHours||m.openingHours||null} : m;
         }));
       } catch(e) { console.error("Verify favorites error:", e); }
     }
@@ -1875,10 +1875,10 @@ function TravelAgent() {
     // Preserve openNow from previous state if already enriched
     setHeartMemories(prev => {
       const prevMap = {};
-      prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = m.openNow; });
+      prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow, openingHours:m.openingHours}; });
       return deduped.slice(0,10).map(m => {
-        const prevOpenNow = prevMap[m.name.toLowerCase()];
-        return prevOpenNow!==undefined ? {...m, openNow:prevOpenNow} : m;
+        const prev = prevMap[m.name.toLowerCase()];
+        return prev ? {...m, openNow:prev.openNow, openingHours:prev.openingHours} : m;
       });
     });
 
