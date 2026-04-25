@@ -1374,8 +1374,7 @@ function TravelAgent() {
   const [filterPrice, setFilterPrice] = useState(ALL);
   const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
-  const [showFriendMems, setShowFriendMems] = useState(true);
-  const [showOnlyFriends, setShowOnlyFriends] = useState(false);
+  const [friendFilter, setFriendFilter] = useState("all"); // "all" | "mine" | "friends"
   const [memSearch, setMemSearch] = useState("");
 
   // Reco
@@ -1630,7 +1629,7 @@ function TravelAgent() {
   };
 
   const loadHearts = async (coordsToUse) => {
-    const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
+    const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
     const candidates = [
       // My memories filtered by rating
       ...(recoFriendFilter!=="friends" ? memories.filter(m=>m.rating>=3) : []),
@@ -1716,7 +1715,7 @@ function TravelAgent() {
 
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
-    const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
+    const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
     const myMems = memories
       .filter(m=>m.rating>=3)
       .filter(m=>recoType===ALL||m.type===recoType)
@@ -1949,18 +1948,18 @@ IMPORTANT RULES:
       }
       return true;
     };
-    const myMems = memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]}));
-    const friendMems = (showFriendMems||showOnlyFriends) ? friendMemories.filter(applyFilters) : [];
+    const myMems = friendFilter!=="friends" ? memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]})) : [];
+    const friendMems = friendFilter!=="mine" ? friendMemories.filter(applyFilters) : [];
     
     // For each of my memories, find friends who also have it
-    const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
+    const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
     myMems.forEach(m => {
       const matchingFriends = friendMems.filter(f=>f.name.toLowerCase()===m.name.toLowerCase());
       m.friendsWhoHave = matchingFriends.map(f=>f.friendName).filter(Boolean);
       m.friendsData = matchingFriends;
     });
     
-    if (showOnlyFriends) {
+    if (friendFilter==="friends") {
       // Only show friend memories NOT already in my favorites
       const seen = new Map();
       friendMems.filter(f=>!myNames.has(f.name.toLowerCase())).forEach(f => {
@@ -1983,8 +1982,7 @@ IMPORTANT RULES:
       }
     });
     
-    const result = [...myMems, ...seenFriendNames.values()];
-    return showOnlyFriends ? [] : result;
+    return [...myMems, ...seenFriendNames.values()];
   })();
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
@@ -2027,9 +2025,9 @@ IMPORTANT RULES:
                 <div className="filters-row">
                   <button className={`filter-btn ${filterKids?"active":""}`} onClick={()=>setFilterKids(!filterKids)}>{t.filterKids}</button>
                   {friends.length>0&&(<>
-                    <button className={`filter-btn ${!showOnlyFriends&&showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(true);}}>👤+👥</button>
-                    <button className={`filter-btn ${!showOnlyFriends&&!showFriendMems?"active":""}`} onClick={()=>{setShowOnlyFriends(false);setShowFriendMems(false);}}>👤 {t.filterMine||"Mine"}</button>
-                    <button className={`filter-btn ${showOnlyFriends?"active":""}`} onClick={()=>{setShowOnlyFriends(true);setShowFriendMems(true);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
+                    <button className={`filter-btn ${friendFilter==="all"?"active":""}`} onClick={()=>setFriendFilter("all")}>👤+👥</button>
+                    <button className={`filter-btn ${friendFilter==="mine"?"active":""}`} onClick={()=>setFriendFilter("mine")}>👤 {t.filterMine||"Mine"}</button>
+                    <button className={`filter-btn ${friendFilter==="friends"?"active":""}`} onClick={()=>setFriendFilter("friends")}>👥 {t.filterFriendsOnly||"Friends"}</button>
                   </>)}
                 </div>
                 <input
@@ -2042,7 +2040,7 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.filter(m=>{ if(showOnlyFriends&&m.isMine) return false; if(!showFriendMems&&!showOnlyFriends&&!m.isMine) return false; return true; }).map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
                   onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
               </div>
             </div>
