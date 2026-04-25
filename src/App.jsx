@@ -1365,7 +1365,8 @@ function TravelAgent() {
   const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [formKey, setFormKey] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [friendMemoryModal, setFriendMemoryModal] = useState(null); // {memory, friendName} // {id, name}
+  const [friendMemoryModal, setFriendMemoryModal] = useState(null);
+  const [closedFavoritesAlert, setClosedFavoritesAlert] = useState([]); // [{id, name}] // {memory, friendName} // {id, name}
   const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
   const [viewingFriend, setViewingFriend] = useState(null); // { name, memories }
 
@@ -1688,8 +1689,29 @@ function TravelAgent() {
         if (existing) { existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean); existing.friendsData = [...(existing.friendsData||[]), m]; }
       }
     });
-    setHeartMemories(deduped.slice(0,10));
+    const heartSlice = deduped.slice(0,10);
+    setHeartMemories(heartSlice);
     setHeartsLoaded(true);
+
+    // Verify favorites are still open
+    const myHearts = heartSlice.filter(m=>m.isMine&&m.name);
+    if (myHearts.length > 0) {
+      try {
+        const verifyRes = await fetch("/api/places", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ action:"verify", places: myHearts.map(m=>({name:m.name,address:m.address||""})) })
+        });
+        const verifyData = await verifyRes.json();
+        const closed = (verifyData.results||[]).filter(r=>!r.operational);
+        if (closed.length > 0) {
+          const closedFavs = closed.map(r=>{
+            const mem = myHearts.find(m=>m.name.toLowerCase()===r.name.toLowerCase());
+            return mem ? {id:mem.id, name:mem.name, placeId:r.placeId} : null;
+          }).filter(Boolean);
+          if (closedFavs.length > 0) setClosedFavoritesAlert(closedFavs);
+        }
+      } catch(e) { console.error("Verify favorites error:", e); }
+    }
   };
 
   const loadRecos = async () => {
@@ -2389,6 +2411,32 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
         </div>
       )}
 
+      {closedFavoritesAlert.length>0&&(
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-title">⚠️ Établissements fermés</div>
+            <p style={{fontSize:13,color:COLORS.muted,marginBottom:12}}>Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?</p>
+            {closedFavoritesAlert.map(f=>(
+              <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #2e2b2533"}}>
+                <span style={{fontSize:13,color:COLORS.text}}>🔴 {f.name}</span>
+              </div>
+            ))}
+            <div style={{display:"flex",gap:8,marginTop:16}}>
+              <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setClosedFavoritesAlert([])}>Garder</button>
+              <button className="modal-btn primary" style={{flex:1}} onClick={async()=>{
+                for (const f of closedFavoritesAlert) {
+                  await supabase.from('memories').delete().eq('id',f.id).eq('user_id',userId);
+                  setMemories(prev=>prev.filter(m=>m.id!==f.id));
+                  // Add to community closed list
+                  if (f.placeId) await supabase.from('closed_places').upsert({place_id:f.placeId,name:f.name},{onConflict:'place_id'});
+                }
+                setClosedFavoritesAlert([]);
+                showToast("✓ Favoris supprimés");
+              }}>Supprimer</button>
+            </div>
+          </div>
+        </div>
+      )}
       {friendMemoryModal&&(
         <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setFriendMemoryModal(null);}}>
           <div className="modal" style={{maxHeight:"90vh",overflowY:"auto"}}>
