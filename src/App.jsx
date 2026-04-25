@@ -1124,6 +1124,27 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
 function OpeningHoursWidget({ openNow, hours }) {
   const [expanded, setExpanded] = useState(false);
 
+  const convertToFr = (line) => {
+    if (!line) return line;
+    const dayMap = {
+      "Monday":"Lundi","Tuesday":"Mardi","Wednesday":"Mercredi",
+      "Thursday":"Jeudi","Friday":"Vendredi","Saturday":"Samedi","Sunday":"Dimanche"
+    };
+    let out = line;
+    Object.entries(dayMap).forEach(([en,fr])=>{ out = out.replace(en, fr); });
+    // Convert AM/PM to 24h
+    out = out.replace(/(\d+):(\d+)\s*AM/g, (_,h,m)=>{
+      const hh = h==="12"?"00":h.padStart(2,"0");
+      return `${hh}:${m}`;
+    });
+    out = out.replace(/(\d+):(\d+)\s*PM/g, (_,h,m)=>{
+      const hh = h==="12"?"12":String(parseInt(h)+12);
+      return `${hh}:${m}`;
+    });
+    out = out.replace(" – ", "–");
+    return out;
+  };
+
   const getTodayLine = () => {
     if (!hours?.length) return null;
     const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -1132,7 +1153,7 @@ function OpeningHoursWidget({ openNow, hours }) {
   };
 
   const todayLine = getTodayLine();
-  const todayTimes = todayLine ? todayLine.split(": ").slice(1).join(": ") : null;
+  const todayTimes = todayLine ? convertToFr(todayLine).split(": ").slice(1).join(": ") : null;
 
   const statusText = openNow
     ? `🟢 Open${todayTimes && todayTimes!=="Closed" ? " · "+todayTimes : ""}`
@@ -1152,7 +1173,8 @@ function OpeningHoursWidget({ openNow, hours }) {
         <div style={{marginTop:6,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,
           padding:"8px 12px",fontSize:11,color:"#8a8070",lineHeight:1.8}}>
           {hours.map((h,i)=>{
-            const [day,...rest] = h.split(": ");
+            const fr = convertToFr(h);
+            const [day,...rest] = fr.split(": ");
             return (
               <div key={i} style={{display:"flex",gap:8}}>
                 <span style={{minWidth:100,color:"#f0ead8",fontWeight:500}}>{day}</span>
