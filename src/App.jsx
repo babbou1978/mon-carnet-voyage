@@ -1828,7 +1828,7 @@ My favorites: ${liked||"None."}
 My disappointments: ${disliked||"None."}
 Friends favorites: ${friendLiked||"None."}
 
-Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
+Request: Find the ${Math.min(nbRecosCount+3, 15)} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}". I will display only the top ${nbRecosCount} after filtering.
 
 IMPORTANT RULES:
 - ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit - do not exceed it under any circumstance.
