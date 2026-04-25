@@ -588,6 +588,7 @@ const css = `
 `;
 
 function formatDate(ts) { return new Date(ts).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }); }
+function starsGoogle(r){if(!r)return null;const f=Math.floor(r),h=r-f>=0.3&&r-f<0.8,e=5-f-(h?1:0);return String.fromCharCode(9733).repeat(f)+(h?'½':'')+String.fromCharCode(9734).repeat(e)+' '+r.toFixed(1);}
 function starsLabel(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
 
 function StarPicker({ value, onChange }) {
