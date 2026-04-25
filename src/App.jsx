@@ -1121,6 +1121,33 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
+function OpeningHoursWidget({ openNow, hours }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div style={{marginBottom:6}}>
+      <div onClick={()=>hours?.length&&setExpanded(e=>!e)}
+        style={{display:"inline-flex",alignItems:"center",gap:6,cursor:hours?.length?"pointer":"default"}}>
+        <span style={{fontSize:11,color:openNow?"#7abf8a":"#e06060",background:openNow?"#1a2e1e":"#3a1a1a",
+          padding:"2px 8px",borderRadius:20}}>
+          {openNow?"🟢 Open now":"🔴 Closed"}
+        </span>
+        {hours?.length&&<span style={{fontSize:10,color:"#8a8070"}}>{expanded?"▲":"▼"}</span>}
+      </div>
+      {expanded&&hours?.length&&(
+        <div style={{marginTop:6,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,
+          padding:"8px 12px",fontSize:11,color:"#8a8070",lineHeight:1.8}}>
+          {hours.map((h,i)=>(
+            <div key={i} style={{display:"flex",gap:8}}>
+              <span style={{minWidth:90,color:"#f0ead8"}}>{h.split(":")[0]}</span>
+              <span>{h.split(":").slice(1).join(":").trim()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -1187,11 +1214,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {m.openNow!==undefined&&m.openNow!==null&&<div style={{marginBottom:4}}>
-        <span style={{fontSize:11,color:m.openNow?"#7abf8a":"#e06060",background:m.openNow?"#1a2e1e":"#3a1a1a",padding:"2px 8px",borderRadius:20}}>
-          {m.openNow?"🟢 Open now":"🔴 Closed"}
-        </span>
-      </div>}
+      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
@@ -1843,6 +1866,8 @@ function TravelAgent() {
         rating: p.rating, price: PRICE_MAP[p.priceLevel]||"",
         lat: p.location?.latitude, lng: p.location?.longitude,
         openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
+        openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
+        nextOpenTime: p.currentOpeningHours?.nextOpenTime || null,
       })).filter(p=>p.name);
       setNearbyPlaces(places);
     } catch { setNearbyPlaces([]); }
@@ -1916,7 +1941,7 @@ IMPORTANT RULES:
           (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
           const filtered = data.recommendations
             .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
-            .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v?.openNow!==undefined ? {...r, openNow:v.openNow} : r; });
+            .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours} : r; });
           console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
           console.log("Filtered addresses:", filtered.map(r=>r.name+": "+r.address));
 
@@ -2388,13 +2413,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&reco.openNow!==null&&(
-                                <div style={{fontSize:11,marginTop:3}}>
-                                  <span style={{color:reco.openNow?"#7abf8a":"#e06060",background:reco.openNow?"#1a2e1e":"#3a1a1a",padding:"2px 8px",borderRadius:20}}>
-                                    {reco.openNow?"🟢 Open now":"🔴 Closed"}
-                                  </span>
-                                </div>
-                              )}
+                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours}/>}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}

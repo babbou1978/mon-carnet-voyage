@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': key,
-              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours',
+              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours',
             },
             body: JSON.stringify({ textQuery: `${p.name} ${p.address||''}`, maxResultCount: 1 }),
           });
@@ -59,7 +59,8 @@ export default async function handler(req, res) {
             placeId: place?.name?.split('/')?.pop() || null,
             operational: !isClosed,
             businessStatus: isClosed ? 'CLOSED_PERMANENTLY' : 'OPERATIONAL',
-            openNow: place?.currentOpeningHours?.openNow ?? null
+            openNow: place?.currentOpeningHours?.openNow ?? place?.regularOpeningHours?.openNow ?? null,
+            openingHours: place?.currentOpeningHours?.weekdayDescriptions || place?.regularOpeningHours?.weekdayDescriptions || null
           };
         } catch { return { name: p.name, operational: true }; }
       }));
