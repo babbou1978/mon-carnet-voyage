@@ -1375,7 +1375,6 @@ function TravelAgent() {
   const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
   const [friendFilter, setFriendFilter] = useState("all"); // "all" | "mine" | "friends"
-  const [filteredMemoriesState, setFilteredMemoriesState] = useState([]);
   const [memSearch, setMemSearch] = useState("");
 
   // Reco
@@ -1937,8 +1936,7 @@ IMPORTANT RULES:
     });
   };
 
-  useEffect(() => {
-    const computeFiltered = () => {
+  const filteredMemories = (() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
       if (filterPrice!==ALL&&m.price!==filterPrice) return false;
@@ -1985,10 +1983,7 @@ IMPORTANT RULES:
     });
     
     return [...myMems, ...seenFriendNames.values()];
-    };
-    setFilteredMemoriesState(computeFiltered());
-  }, [friendFilter, memories, friendMemories, filterType, filterPrice, filterRating, filterKids, memSearch]); // eslint-disable-line
-  const filteredMemories = filteredMemoriesState;
+  })();
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
@@ -2042,7 +2037,7 @@ IMPORTANT RULES:
                   style={{background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none",width:"100%",marginBottom:8,transition:"border-color 0.2s"}}
                 />
               </div>
-              <div className="memory-list">
+              <div className="memory-list" key={friendFilter}>
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
                 ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
