@@ -1268,15 +1268,21 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
         <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
-        <div className="memory-meta">
-          {m.rating>0&&<span className="badge stars">{starsLabel(m.rating)}</span>}
-          {m.kidsf&&<span className="badge kids">👶</span>}
-          <span className="badge price">{m.price}</span>
-        </div>
       </div>
-      <div className="memory-meta" style={{marginBottom:4,justifyContent:"flex-start"}}>
+      <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
+        {(()=>{
+          if (m.isMine&&m.rating>0) return <span className="badge stars">{starsLabel(m.rating)}</span>;
+          if (!m.isMine&&m.friendsData?.length>0) {
+            const avg = m.friendsData.reduce((s,f)=>s+(f.rating||0),0)/m.friendsData.filter(f=>f.rating>0).length;
+            if (avg>0) return <span className="badge stars"><StarRating rating={avg} size={11}/></span>;
+          }
+          if (m.rating>0) return <span className="badge stars">{starsLabel(m.rating)}</span>;
+          return null;
+        })()}
+        {m.kidsf&&<span className="badge kids">👶</span>}
         {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend}/>}
+        <span className="badge price">{m.price}</span>
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
