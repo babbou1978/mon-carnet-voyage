@@ -1960,6 +1960,7 @@ IMPORTANT RULES:
       m.friendsData = matchingFriends;
     });
     
+    console.log("showOnlyFriends:", showOnlyFriends, "myMems:", myMems.length, "friendMems:", friendMems.length);
     if (showOnlyFriends) {
       // Only show friend memories NOT already in my favorites
       const seen = new Map();
