@@ -2093,11 +2093,14 @@ IMPORTANT RULES:
     const addrParts = (reco.address||"").split(",").map(s=>s.trim());
     const country = addrParts[addrParts.length-1] || "";
     const city = addrParts[addrParts.length-2] || "";
+    const streetAddress = addrParts.slice(0, addrParts.length-2).join(", ") || reco.address || "";
     setRecoToAdd({
       name: reco.name,
       type: reco.type || recoType,
       price: reco.price || "€€",
       city, country,
+      address: streetAddress,
+      cuisine: reco.cuisine || "",
       rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false
     });
   };
