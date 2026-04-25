@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': key,
-              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours',
+              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.priceLevel',
             },
             body: JSON.stringify({ textQuery: `${p.name} ${p.address||''}`, maxResultCount: 1 }),
           });
@@ -47,24 +47,35 @@ export default async function handler(req, res) {
           const place = data.places?.[0];
           const foundName = place?.displayName?.text?.toLowerCase()||"";
           const searchedName = p.name.toLowerCase();
-          // Require significant name overlap - at least 2 words or 60% of chars
           const searchWords = searchedName.split(" ").filter(w=>w.length>2);
           const matchingWords = searchWords.filter(w=>foundName.includes(w));
           const nameMatches = matchingWords.length >= Math.min(2, searchWords.length) ||
                               (matchingWords.length >= 1 && foundName.length > 5 && 
                                searchedName.includes(foundName.split(" ")[0]) && foundName.split(" ")[0].length > 4);
           const isClosed = place && nameMatches && place.businessStatus === 'CLOSED_PERMANENTLY';
+
+          // Extract cuisine from Google types
+          const cuisineTypes = ['italian','japanese','chinese','french','indian','thai','mexican',
+            'american','greek','spanish','mediterranean','british','korean','vietnamese','turkish',
+            'lebanese','moroccan','sushi','pizza','burger','steakhouse','seafood','vegetarian'];
+          const googleTypes = place?.types || [];
+          const cuisineType = googleTypes.find(t => cuisineTypes.some(c => t.toLowerCase().includes(c)));
+          const cuisine = cuisineType
+            ? cuisineType.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())
+            : null;
+
           return {
             name: p.name,
             placeId: place?.name?.split('/')?.pop() || null,
             operational: !isClosed,
             businessStatus: isClosed ? 'CLOSED_PERMANENTLY' : 'OPERATIONAL',
             openNow: place?.currentOpeningHours?.openNow ?? place?.regularOpeningHours?.openNow ?? null,
-            openingHours: place?.currentOpeningHours?.weekdayDescriptions || place?.regularOpeningHours?.weekdayDescriptions || null
+            openingHours: place?.currentOpeningHours?.weekdayDescriptions || place?.regularOpeningHours?.weekdayDescriptions || null,
+            googleRating: place?.rating || null,
+            cuisine: cuisine
           };
         } catch { return { name: p.name, operational: true }; }
       }));
-      console.log("VERIFY RESULTS:", JSON.stringify(results));
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
@@ -78,7 +89,7 @@ export default async function handler(req, res) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.currentOpeningHours.nextCloseTime,places.currentOpeningHours.nextOpenTime,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions',
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions',
         },
         body: JSON.stringify({
           includedTypes: [googleType],
@@ -90,12 +101,7 @@ export default async function handler(req, res) {
           languageCode: 'fr',
         }),
       });
-      const data = await r.json();
-      // Log openNow for debugging
-      (data.places||[]).forEach(p => {
-        console.log(`NEARBY: ${p.displayName?.text} openNow=${p.currentOpeningHours?.openNow} businessStatus=${p.businessStatus}`);
-      });
-      return res.status(200).json(data);
+      return res.status(200).json(await r.json());
     }
   } catch (error) {
     console.error(error);

@@ -1990,7 +1990,7 @@ IMPORTANT RULES:
           (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
           const filtered = data.recommendations
             .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
-            .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours} : r; });
+            .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r; });
           console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
           console.log("Filtered addresses:", filtered.map(r=>r.name+": "+r.address));
 
@@ -2445,6 +2445,7 @@ IMPORTANT RULES:
                               </div>
                               <div className="ai-reco-meta">
                                 {reco.cuisine&&<span className="badge">{reco.cuisine}</span>}
+                                {reco.googleRating&&<span className="badge stars" style={{fontSize:11}}>{starsGoogle(reco.googleRating)}</span>}
                                 <span className="badge price">{reco.price}</span>
                               </div>
                               {reco.matchScore&&(
