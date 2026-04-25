@@ -1869,7 +1869,8 @@ IMPORTANT RULES:
           ]);
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
           setAiRecos(filtered);
-        } catch {
+        } catch(verifyErr) {
+          console.error("Verify error:", verifyErr);
           setAiRecos(data.recommendations);
         }
       }
