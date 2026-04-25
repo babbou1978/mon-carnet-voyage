@@ -1961,9 +1961,9 @@ IMPORTANT RULES:
     });
     
     if (showOnlyFriends) {
-      // Only show friend memories (deduplicated by name, grouped)
+      // Only show friend memories NOT already in my favorites
       const seen = new Map();
-      friendMems.forEach(f => {
+      friendMems.filter(f=>!myNames.has(f.name.toLowerCase())).forEach(f => {
         const key = f.name.toLowerCase();
         if (!seen.has(key)) seen.set(key, {...f, isMine:false, friendsWhoHave:[f.friendName].filter(Boolean)});
         else seen.get(key).friendsWhoHave.push(f.friendName);
