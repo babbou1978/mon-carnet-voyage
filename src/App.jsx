@@ -1958,7 +1958,7 @@ IMPORTANT RULES:
       }
       return true;
     };
-    const myMems = friendFilter!=="friends" ? memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]})) : [];
+    const myMems = memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]}));
     const friendMems = friendFilter!=="mine" ? friendMemories.filter(applyFiltersNoRating) : [];
     
     // For each of my memories, find friends who also have it
