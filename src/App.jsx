@@ -610,7 +610,6 @@ function StarRating({ rating, size=13 }) {
   }
   return <span style={{display:"inline-flex",alignItems:"center",gap:1}}>{stars}<span style={{fontSize:10,marginLeft:3,color:"#c9a84c"}}>{rating.toFixed(1)}</span></span>;
 }
-function starsGoogle(r){ return r ? r.toFixed(1) : null; }
 function starsLabel(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
 
 function StarPicker({ value, onChange }) {
