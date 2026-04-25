@@ -1449,7 +1449,7 @@ function TravelAgent() {
       // Load community-reported closed places
       try {
         const { data: closed } = await supabase.from('closed_places').select('name,place_id,address');
-        if (closed) setClosedPlaces(closed.map(p=>p.name.toLowerCase()));
+        if (closed) setClosedPlaces(closed.map(p=>p.name)); // keep original case for AI prompt
       } catch {}
       setLoading(false);
     };
@@ -1840,7 +1840,7 @@ IMPORTANT RULES:
 - Full address required: street number, street name, city, country
 - NEVER suggest any of these places already in favorites: ${memories.map(m=>m.name).slice(0,20).join(', ')}
 - NEVER suggest places similar to disappointments
-- These venues are PERMANENTLY CLOSED, never suggest them: ${closedPlaces.map(n=>n.split("|")[0]).join(", ")||"none"}
+- These venues are PERMANENTLY CLOSED, NEVER suggest them: ${closedPlaces.join(", ")||"none"}
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
       const res = await fetch("/api/recommend", {
@@ -1862,7 +1862,7 @@ IMPORTANT RULES:
           if (closedPlaces.length > 0) console.log(`Community closed list (${closedPlaces.length}):`, closedPlaces);
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
-            ...closedPlaces
+            ...closedPlaces.map(n=>n.toLowerCase())
           ]);
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
           console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
@@ -1874,8 +1874,8 @@ IMPORTANT RULES:
                 return { place_id: r.placeId||null, name: r.name, address: reco?.address||'', confirmed_by: userId };
               });
               await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id' });
-              const newIds = newlyClosed.map(r=>r.placeId||r.name.toLowerCase());
-              setClosedPlaces(prev=>[...prev, ...newIds]);
+              const newIds = newlyClosed.map(r=>r.name);
+              setClosedPlaces(prev=>[...new Set([...prev, ...newIds])]);
             } catch(e) { console.error('Upsert closed_places error:', e); }
           }
         } catch(verifyErr) {
