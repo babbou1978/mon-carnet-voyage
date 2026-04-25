@@ -1652,7 +1652,7 @@ function TravelAgent() {
         if (toGeocode.length > 0) {
           const geoRes = await fetch("/api/geocode-memories", {
             method:"POST", headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country})) })
+            body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country,address:m.address||""})) })
           });
           const geoData = await geoRes.json();
           const coordsMap = {};
@@ -1730,7 +1730,7 @@ function TravelAgent() {
       if (toGeocode.length > 0) {
         const geoRes = await fetch("/api/geocode-memories", {
           method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country})) })
+          body: JSON.stringify({ places: toGeocode.map(m=>({id:m.id,name:m.name,city:m.city,country:m.country,address:m.address||""})) })
         });
         const geoData = await geoRes.json();
         const coordsMap = {};

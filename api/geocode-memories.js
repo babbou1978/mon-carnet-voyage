@@ -7,9 +7,10 @@ export default async function handler(req, res) {
   
   const results = await Promise.allSettled(
     places.map(async (place) => {
-      // Build the most specific query possible
-      const parts = [place.name, place.city, place.country].filter(Boolean);
-      const query = parts.join(', ');
+      // Build the most specific query possible - use address if available
+      const query = place.address
+        ? `${place.name}, ${place.address}`
+        : [place.name, place.city, place.country].filter(Boolean).join(', ');
       try {
         const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${key}&language=en`;
         const r = await fetch(url);
