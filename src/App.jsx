@@ -1121,15 +1121,21 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
-function OpeningHoursWidget({ openNow, hours }) {
+function OpeningHoursWidget({ openNow, hours, lang="en" }) {
   const [expanded, setExpanded] = useState(false);
 
   const convertToFr = (line) => {
     if (!line) return line;
-    const dayMap = {
-      "Monday":"Lundi","Tuesday":"Mardi","Wednesday":"Mercredi",
-      "Thursday":"Jeudi","Friday":"Vendredi","Saturday":"Samedi","Sunday":"Dimanche"
+    const dayMaps = {
+      fr: {"Monday":"Lundi","Tuesday":"Mardi","Wednesday":"Mercredi","Thursday":"Jeudi","Friday":"Vendredi","Saturday":"Samedi","Sunday":"Dimanche"},
+      es: {"Monday":"Lunes","Tuesday":"Martes","Wednesday":"Miércoles","Thursday":"Jueves","Friday":"Viernes","Saturday":"Sábado","Sunday":"Domingo"},
+      de: {"Monday":"Montag","Tuesday":"Dienstag","Wednesday":"Mittwoch","Thursday":"Donnerstag","Friday":"Freitag","Saturday":"Samstag","Sunday":"Sonntag"},
+      it: {"Monday":"Lunedì","Tuesday":"Martedì","Wednesday":"Mercoledì","Thursday":"Giovedì","Friday":"Venerdì","Saturday":"Sabato","Sunday":"Domenica"},
+      pt: {"Monday":"Segunda","Tuesday":"Terça","Wednesday":"Quarta","Thursday":"Quinta","Friday":"Sexta","Saturday":"Sábado","Sunday":"Domingo"},
+      nl: {"Monday":"Maandag","Tuesday":"Dinsdag","Wednesday":"Woensdag","Thursday":"Donderdag","Friday":"Vrijdag","Saturday":"Zaterdag","Sunday":"Zondag"},
+      en: {}
     };
+    const dayMap = dayMaps[lang] || {};
     let out = line;
     Object.entries(dayMap).forEach(([en,fr])=>{ out = out.replace(en, fr); });
     // Convert AM/PM to 24h
@@ -1254,7 +1260,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours}/>}
+      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
@@ -2406,7 +2412,7 @@ IMPORTANT RULES:
                             <div className="nearby-meta">
                               {p.rating&&<span className="badge stars">★ {p.rating.toFixed(1)}</span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
-                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours}/>}
+                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang}/>}
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
@@ -2454,7 +2460,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours}/>}
+                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang}/>}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
