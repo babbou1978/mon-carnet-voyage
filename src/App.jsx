@@ -1840,6 +1840,7 @@ IMPORTANT RULES:
 - Full address required: street number, street name, city, country
 - NEVER suggest any of these places already in favorites: ${memories.map(m=>m.name).slice(0,20).join(', ')}
 - NEVER suggest places similar to disappointments
+- These venues are PERMANENTLY CLOSED, never suggest them: ${closedPlaces.map(n=>n.split("|")[0]).join(", ")||"none"}
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
       const res = await fetch("/api/recommend", {
