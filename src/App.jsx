@@ -742,7 +742,24 @@ function PlaceSearch({ onPlaceSelected }) {
       let type = "Restaurant";
       for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type=GOOGLE_TYPE_MAP[gt]; break; } }
       const price = PRICE_MAP[details.priceLevel]||"€€";
-      const place = { name: mainText, city, country, type, price, address: streetAddress };
+      // Extract cuisine from Google types
+      const cuisineKeywords = {
+        italian:"Italian", japanese:"Japanese", chinese:"Chinese", french:"French",
+        indian:"Indian", thai:"Thai", mexican:"Mexican", american:"American",
+        greek:"Greek", spanish:"Spanish", mediterranean:"Mediterranean",
+        british:"British", korean:"Korean", vietnamese:"Vietnamese",
+        turkish:"Turkish", lebanese:"Lebanese", moroccan:"Moroccan",
+        sushi:"Sushi", pizza:"Pizza", burger:"Burger", steak:"Steakhouse",
+        seafood:"Seafood", vegetarian:"Vegetarian", bakery:"Bakery",
+        wine_bar:"Wine bar", cocktail:"Cocktail bar", cafe:"Café",
+        ramen:"Japanese", noodle:"Asian", brasserie:"Brasserie", bistro:"Bistro"
+      };
+      let cuisine = "";
+      for (const gt of googleTypes) {
+        const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
+        if (key) { cuisine = cuisineKeywords[key]; break; }
+      }
+      const place = { name: mainText, city, country, type, price, address: streetAddress, cuisine };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
@@ -1108,7 +1125,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
-    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,likeTags:[],dislikeTags:[]}));
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,cuisine:place.cuisine||"",likeTags:[],dislikeTags:[]}));
     if (onDuplicate) onDuplicate(place.name);
   };
   return (
