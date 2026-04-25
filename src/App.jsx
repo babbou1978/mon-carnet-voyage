@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { APP_VERSION, BUILD_DATE } from "./version.js";
 import { supabase } from "./supabase.js";
 import Auth from "./Auth.jsx";
@@ -1465,7 +1465,13 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
 function TravelAgent() {
   const [session, setSession] = useState(undefined);
   const [showResetModal, setShowResetModal] = useState(false);
-  const [tab, setTab] = useState("reco");
+  const [tab, _setTab] = useState("reco");
+  const scrollPositions = useRef({});
+  useLayoutEffect(() => {
+    const pos = scrollPositions.current._next ?? null;
+    if (pos !== null) { window.scrollTo({top: pos, behavior:"instant"}); scrollPositions.current._next = null; }
+  }, [tab]);
+  const setTab = (t) => { scrollPositions.current[tab] = window.scrollY; scrollPositions.current._next = scrollPositions.current[t] ?? 0; _setTab(t); };
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
   const [friends, setFriends] = useState([]);
