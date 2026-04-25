@@ -1936,6 +1936,7 @@ IMPORTANT RULES:
     });
   };
 
+  console.log("FILTER STATE:", friendFilter);
   const filteredMemories = (() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
