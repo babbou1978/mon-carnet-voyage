@@ -1375,6 +1375,7 @@ function TravelAgent() {
   const [filterRating, setFilterRating] = useState(ALL);
   const [filterKids, setFilterKids] = useState(false);
   const [friendFilter, setFriendFilter] = useState("all"); // "all" | "mine" | "friends"
+  const [filteredMemoriesState, setFilteredMemoriesState] = useState([]);
   const [memSearch, setMemSearch] = useState("");
 
   // Reco
@@ -1936,8 +1937,8 @@ IMPORTANT RULES:
     });
   };
 
-  console.log("FILTER STATE:", friendFilter);
-  const filteredMemories = (() => {
+  useEffect(() => {
+    const computeFiltered = () => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
       if (filterPrice!==ALL&&m.price!==filterPrice) return false;
@@ -1984,7 +1985,10 @@ IMPORTANT RULES:
     });
     
     return [...myMems, ...seenFriendNames.values()];
-  })();
+    };
+    setFilteredMemoriesState(computeFiltered());
+  }, [friendFilter, memories, friendMemories, filterType, filterPrice, filterRating, filterKids, memSearch]); // eslint-disable-line
+  const filteredMemories = filteredMemoriesState;
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : session.user.email;
   const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
