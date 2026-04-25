@@ -1891,8 +1891,14 @@ IMPORTANT RULES:
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlaces.map(n=>n.toLowerCase())
           ]);
-          const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
+          // Enrich recos with real openNow from Google
+          const verifyMap = {};
+          (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
+          const filtered = data.recommendations
+            .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
+            .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v?.openNow!==undefined ? {...r, openNow:v.openNow} : r; });
           console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
+          console.log("Filtered addresses:", filtered.map(r=>r.name+": "+r.address));
 
           // Filter by real distance if we have coords
           if (coords?.lat && filtered.length > 0) {
@@ -2362,7 +2368,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&(
+                              {reco.openNow!==undefined&&reco.openNow!==null&&(
                                 <div style={{fontSize:11,marginTop:3}}>
                                   <span style={{color:reco.openNow?"#7abf8a":"#e06060",background:reco.openNow?"#1a2e1e":"#3a1a1a",padding:"2px 8px",borderRadius:20}}>
                                     {reco.openNow?"🟢 Open now":"🔴 Closed"}

@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': key,
-              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name',
+              'X-Goog-FieldMask': 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours',
             },
             body: JSON.stringify({ textQuery: `${p.name} ${p.address||''}`, maxResultCount: 1 }),
           });
@@ -47,14 +47,19 @@ export default async function handler(req, res) {
           const place = data.places?.[0];
           const foundName = place?.displayName?.text?.toLowerCase()||"";
           const searchedName = p.name.toLowerCase();
-          const nameMatches = foundName.includes(searchedName.split(" ")[0]) ||
-                              searchedName.includes(foundName.split(" ")[0]);
+          // Require significant name overlap - at least 2 words or 60% of chars
+          const searchWords = searchedName.split(" ").filter(w=>w.length>2);
+          const matchingWords = searchWords.filter(w=>foundName.includes(w));
+          const nameMatches = matchingWords.length >= Math.min(2, searchWords.length) ||
+                              (matchingWords.length >= 1 && foundName.length > 5 && 
+                               searchedName.includes(foundName.split(" ")[0]) && foundName.split(" ")[0].length > 4);
           const isClosed = place && nameMatches && place.businessStatus === 'CLOSED_PERMANENTLY';
           return {
             name: p.name,
             placeId: place?.name?.split('/')?.pop() || null,
             operational: !isClosed,
-            businessStatus: isClosed ? 'CLOSED_PERMANENTLY' : 'OPERATIONAL'
+            businessStatus: isClosed ? 'CLOSED_PERMANENTLY' : 'OPERATIONAL',
+            openNow: place?.currentOpeningHours?.openNow ?? null
           };
         } catch { return { name: p.name, operational: true }; }
       }));
