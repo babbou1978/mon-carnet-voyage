@@ -1121,87 +1121,22 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   );
 }
 
-function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
+function OpeningHoursWidget({ openNow, hours }) {
   const [expanded, setExpanded] = useState(false);
 
-  const getTodayHours = () => {
+  const getTodayLine = () => {
     if (!hours?.length) return null;
     const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    const daysFr = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
     const today = new Date().getDay();
-    return hours.find(h => h.startsWith(days[today]) || h.startsWith(daysFr[today])) || null;
+    return hours.find(h => h.startsWith(days[today])) || null;
   };
 
-  const extractNextOpen = () => {
-    const todayH = getTodayHours();
-    if (!todayH) return null;
-    // e.g. "Saturday: 12:00 PM – 3:00 PM, 6:00 PM – 11:00 PM" or "Saturday: Closed"
-    const timePart = todayH.split(": ").slice(1).join(": ");
-    if (timePart === "Closed" || timePart === "Fermé") return null;
-    // Find next opening after now
-    const now = new Date();
-    const nowMins = now.getHours()*60 + now.getMinutes();
-    const slots = timePart.split(", ");
-    for (const slot of slots) {
-      const parts = slot.split(" – ");
-      if (parts.length < 2) continue;
-      const parseTime = (t) => {
-        const m = t.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-        if (!m) return null;
-        let h = parseInt(m[1]), min = parseInt(m[2]);
-        if (m[3]?.toUpperCase()==="PM" && h!==12) h+=12;
-        if (m[3]?.toUpperCase()==="AM" && h===12) h=0;
-        return h*60+min;
-      };
-      const openMins = parseTime(parts[0]);
-      const closeMins = parseTime(parts[1]);
-      if (openMins===null) continue;
-      if (nowMins < openMins) return parts[0]; // Opens later today
-      if (closeMins && nowMins < closeMins) return null; // Currently in this slot
-    }
-    return null;
-  };
+  const todayLine = getTodayLine();
+  const todayTimes = todayLine ? todayLine.split(": ").slice(1).join(": ") : null;
 
-  const extractCloseTime = () => {
-    const todayH = getTodayHours();
-    if (!todayH) return null;
-    const timePart = todayH.split(": ").slice(1).join(": ");
-    if (timePart === "Closed" || timePart === "Fermé") return null;
-    const now = new Date();
-    const nowMins = now.getHours()*60 + now.getMinutes();
-    const slots = timePart.split(", ");
-    for (const slot of slots) {
-      const parts = slot.split(" – ");
-      if (parts.length < 2) continue;
-      const parseTime = (t) => {
-        const m = t.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-        if (!m) return null;
-        let h = parseInt(m[1]), min = parseInt(m[2]);
-        if (m[3]?.toUpperCase()==="PM" && h!==12) h+=12;
-        if (m[3]?.toUpperCase()==="AM" && h===12) h=0;
-        return h*60+min;
-      };
-      const openMins = parseTime(parts[0]);
-      const closeMins = parseTime(parts[1]);
-      if (openMins!==null && closeMins!==null && nowMins>=openMins && nowMins<closeMins)
-        return parts[1]; // Currently open, return close time
-    }
-    return null;
-  };
-
-  const formatTime = (isoTime) => {
-    if (!isoTime) return null;
-    try {
-      const d = new Date(isoTime);
-      return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-    } catch { return null; }
-  };
-
-  const closeTime = formatTime(nextCloseTime) || extractCloseTime();
-  const openTime = formatTime(nextOpenTime) || extractNextOpen();
   const statusText = openNow
-    ? `🟢 Open${closeTime ? " · Closes at "+closeTime : ""}`
-    : `🔴 Closed${openTime ? " · Opens at "+openTime : ""}`;
+    ? `🟢 Open${todayTimes && todayTimes!=="Closed" ? " · "+todayTimes : ""}`
+    : `🔴 Closed${todayTimes && todayTimes!=="Closed" ? " · "+todayTimes : ""}`;
 
   return (
     <div style={{marginBottom:6}}>
@@ -1216,12 +1151,15 @@ function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
       {expanded&&hours?.length&&(
         <div style={{marginTop:6,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,
           padding:"8px 12px",fontSize:11,color:"#8a8070",lineHeight:1.8}}>
-          {hours.map((h,i)=>(
-            <div key={i} style={{display:"flex",gap:8}}>
-              <span style={{minWidth:90,color:"#f0ead8"}}>{h.split(":")[0]}</span>
-              <span>{h.split(":").slice(1).join(":").trim()}</span>
-            </div>
-          ))}
+          {hours.map((h,i)=>{
+            const [day,...rest] = h.split(": ");
+            return (
+              <div key={i} style={{display:"flex",gap:8}}>
+                <span style={{minWidth:100,color:"#f0ead8",fontWeight:500}}>{day}</span>
+                <span>{rest.join(": ")}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -1294,7 +1232,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} nextCloseTime={m.nextCloseTime} nextOpenTime={m.nextOpenTime}/>}
+      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
@@ -2446,7 +2384,7 @@ IMPORTANT RULES:
                             <div className="nearby-meta">
                               {p.rating&&<span className="badge stars">★ {p.rating.toFixed(1)}</span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
-                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} nextCloseTime={p.nextCloseTime} nextOpenTime={p.nextOpenTime}/>}
+                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours}/>}
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address}</div>}
                             <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
@@ -2494,7 +2432,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} nextCloseTime={reco.nextCloseTime} nextOpenTime={reco.nextOpenTime}/>}
+                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours}/>}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
