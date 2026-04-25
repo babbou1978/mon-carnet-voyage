@@ -1970,8 +1970,15 @@ IMPORTANT RULES:
     });
     
     if (friendFilter==="friends") {
-      // Only show friend memories NOT already in my favorites
+      // Show all friend memories, merging with mine if shared
       const seen = new Map();
+      // First add my shared places (places I have AND friend has)
+      myMems.filter(m=>friendMems.some(f=>f.name.toLowerCase()===m.name.toLowerCase())).forEach(m=>{
+        const key = m.name.toLowerCase();
+        const matches = friendMems.filter(f=>f.name.toLowerCase()===key);
+        seen.set(key, {...m, friendsWhoHave:matches.map(f=>f.friendName).filter(Boolean), friendsData:matches});
+      });
+      // Then add friend-only places
       friendMems.filter(f=>!myNames.has(f.name.toLowerCase())).forEach(f => {
         const key = f.name.toLowerCase();
         if (!seen.has(key)) seen.set(key, {...f, isMine:false, friendsWhoHave:[f.friendName].filter(Boolean)});
