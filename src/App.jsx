@@ -589,6 +589,28 @@ const css = `
 
 function formatDate(ts) { return new Date(ts).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }); }
 function starsGoogle(r){if(!r)return null;const f=Math.floor(r),h=r-f>=0.3&&r-f<0.8,e=5-f-(h?1:0);return String.fromCharCode(9733).repeat(f)+(h?'½':'')+String.fromCharCode(9734).repeat(e)+' '+r.toFixed(1);}
+function StarRating({ rating, size=13 }) {
+  if (!rating) return null;
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    const fill = Math.min(1, Math.max(0, rating - (i-1)));
+    const pct = Math.round(fill * 100);
+    stars.push(
+      <svg key={i} width={size} height={size} viewBox="0 0 20 20" style={{display:"inline-block",verticalAlign:"middle"}}>
+        <defs>
+          <linearGradient id={"sg"+i+Math.round(rating*10)}>
+            <stop offset={pct+"%"} stopColor="#c9a84c"/>
+            <stop offset={pct+"%"} stopColor="#3a3520"/>
+          </linearGradient>
+        </defs>
+        <polygon points="10,1 12.9,7 19.5,7.6 14.5,12 16.2,18.5 10,15 3.8,18.5 5.5,12 0.5,7.6 7.1,7"
+          fill={"url(#sg"+i+Math.round(rating*10)+")"}/>
+      </svg>
+    );
+  }
+  return <span style={{display:"inline-flex",alignItems:"center",gap:1}}>{stars}<span style={{fontSize:10,marginLeft:3,color:"#c9a84c"}}>{rating.toFixed(1)}</span></span>;
+}
+function starsGoogle(r){ return r ? r.toFixed(1) : null; }
 function starsLabel(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
 
 function StarPicker({ value, onChange }) {
@@ -2446,7 +2468,7 @@ IMPORTANT RULES:
                               </div>
                               <div className="ai-reco-meta">
                                 {reco.cuisine&&<span className="badge">{reco.cuisine}</span>}
-                                {reco.googleRating&&<span className="badge stars" style={{fontSize:11}}>{starsGoogle(reco.googleRating)}</span>}
+                                {reco.googleRating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={reco.googleRating} size={11}/></span>}
                                 <span className="badge price">{reco.price}</span>
                               </div>
                               {reco.matchScore&&(
