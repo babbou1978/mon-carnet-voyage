@@ -389,8 +389,9 @@ const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-  .header { padding: 20px 24px 14px; border-bottom: 1px solid ${COLORS.border}; position: sticky; top: 0; background: ${COLORS.bg}; z-index: 10; }
+  .app { max-width: 480px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .header { padding: 20px 24px 14px; border-bottom: 1px solid ${COLORS.border}; background: ${COLORS.bg}; z-index: 10; flex-shrink: 0; }
+  .tab-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .header-top { display: flex; justify-content: space-between; align-items: center; }
   .header-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 0.05em; }
   .header-logo span { color: ${COLORS.accent}; font-style: italic; }
