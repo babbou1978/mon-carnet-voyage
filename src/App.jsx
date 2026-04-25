@@ -1567,6 +1567,52 @@ function TravelAgent() {
       if (prof) setProfile(prof);
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
+
+      // Auto-enrich memories missing address/cuisine/city via Google
+      if (mems && mems.length > 0) {
+        const toEnrich = mems.filter(m => !m.address || !m.city || !m.cuisine);
+        if (toEnrich.length > 0) {
+          (async () => {
+            for (const m of toEnrich.slice(0, 20)) { // max 20 per login
+              try {
+                const query = `${m.name}${m.city ? ', '+m.city : ''}${m.country ? ', '+m.country : ''}`;
+                const r = await fetch('/api/places', {
+                  method: 'POST', headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({ action: 'verify', places: [{name: m.name, address: m.address||''}] })
+                });
+                const data = await r.json();
+                const result = data.results?.[0];
+                if (!result) continue;
+                
+                // Get full details from Places API
+                const r2 = await fetch('/api/places', {
+                  method: 'POST', headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({ action: 'geocode', input: query })
+                });
+                const geoData = await r2.json();
+                
+                const updates = {};
+                if (!m.address && result.placeId) {
+                  // Extract address from geocode
+                  if (geoData.address && !m.address) updates.address = geoData.address.split(',')[0]?.trim() || '';
+                }
+                if (!m.city && geoData.address) {
+                  const parts = geoData.address.split(',').map(s=>s.trim());
+                  if (parts.length >= 2) updates.city = parts[parts.length-2] || '';
+                  if (parts.length >= 1) updates.country = parts[parts.length-1] || '';
+                }
+                if (!m.cuisine && result.cuisine) updates.cuisine = result.cuisine;
+                
+                if (Object.keys(updates).length > 0) {
+                  await supabase.from('memories').update(updates).eq('id', m.id).eq('user_id', userId);
+                  setMemories(prev => prev.map(x => x.id===m.id ? {...x,...updates} : x));
+                  console.log(`Enriched: ${m.name}`, updates);
+                }
+              } catch(e) { console.error('Enrich error:', m.name, e); }
+            }
+          })();
+        }
+      }
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).maybeSingle();
       if (pref) setPrefs({ ...DEFAULT_PREFS, ...pref });
       // Save to cache
