@@ -1135,7 +1135,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
       {form.name && <>
         <div className="row-2">
           <div className="field"><label>Type</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
-          {(form.type==="Restaurant"||form.type==="Bar / Café")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><select value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))}><option value="">-- Select --</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>)}
+          {(form.type==="Restaurant"||form.type==="Bar / Café")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
           <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="field"><label>{t?.addAddress||"Address"}</label><input placeholder="22 Harcourt Street" value={form.address||""} onChange={e=>setForm(f=>({...f,address:e.target.value}))}/></div>
