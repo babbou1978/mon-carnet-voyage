@@ -78,7 +78,7 @@ export default async function handler(req, res) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.currentOpeningHours,places.regularOpeningHours,places.businessStatus,places.currentOpeningHours.nextCloseTime,places.currentOpeningHours.nextOpenTime',
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.currentOpeningHours.nextCloseTime,places.currentOpeningHours.nextOpenTime,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions',
         },
         body: JSON.stringify({
           includedTypes: [googleType],
