@@ -1848,6 +1848,7 @@ IMPORTANT RULES:
       });
       const data = await res.json();
       if (data.recommendations) {
+        console.log(`AI returned ${data.recommendations.length} recommendations:`, data.recommendations.map(r=>r.name));
         // Verify places are still operational via Google Places
         try {
           const verifyRes = await fetch("/api/places", {
@@ -1856,11 +1857,14 @@ IMPORTANT RULES:
           });
           const verifyData = await verifyRes.json();
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
+          if (newlyClosed.length > 0) console.log(`Filtered as CLOSED: ${newlyClosed.map(r=>r.name).join(', ')}`);
+          if (closedPlaces.length > 0) console.log(`Community closed list (${closedPlaces.length}):`, closedPlaces);
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlaces
           ]);
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
+          console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
           setAiRecos(filtered);
           if (newlyClosed.length > 0) {
             try {
