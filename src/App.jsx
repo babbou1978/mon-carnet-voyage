@@ -1867,12 +1867,7 @@ IMPORTANT RULES:
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlaces
           ]);
-          console.log("closedPlaces state:", closedPlaces);
-          console.log("newlyClosed:", newlyClosed.map(r=>r.name));
-          console.log("allClosedNames:", [...allClosedNames]);
-          console.log("recos before filter:", data.recommendations.map(r=>r.name));
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
-          console.log("recos after filter:", filtered.map(r=>r.name));
           setAiRecos(filtered);
         } catch {
           setAiRecos(data.recommendations);
