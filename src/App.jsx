@@ -1715,12 +1715,18 @@ function TravelAgent() {
 
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
-    const allMems = [...memories,...friendMemories];
-    const candidates = allMems
+    const myNames = new Set(memories.map(m=>m.name.toLowerCase()));
+    const myMems = memories
       .filter(m=>m.rating>=3)
       .filter(m=>recoType===ALL||m.type===recoType)
       .filter(m=>recoPrice===ALL||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
+    const friendMems = friendMemories.filter(m=>
+      myNames.has(m.name.toLowerCase()) || m.rating>=3 // always include friend version of my places
+    ).filter(m=>recoType===ALL||m.type===recoType)
+     .filter(m=>recoPrice===ALL||m.price===recoPrice)
+     .filter(m=>!recoKids||m.kidsf);
+    const candidates = [...myMems, ...friendMems];
 
     // Show all favorites sorted by rating — distance filter is best-effort
     console.log("Heart candidates:", candidates.length, "memories:", memories.length, "friends:", friendMemories.length);
