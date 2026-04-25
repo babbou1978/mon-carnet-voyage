@@ -1447,8 +1447,8 @@ function TravelAgent() {
       await loadFriends(userId);
       // Load community-reported closed places
       try {
-        const { data: closed } = await supabase.from('closed_places').select('name');
-        if (closed) setClosedPlaces(closed.map(p=>p.place_id||`${p.name}|${p.address||''}`.toLowerCase()));
+        const { data: closed } = await supabase.from('closed_places').select('name,place_id,address');
+        if (closed) setClosedPlaces(closed.map(p=>p.name.toLowerCase()));
       } catch {}
       setLoading(false);
     };
@@ -1865,7 +1865,7 @@ IMPORTANT RULES:
           // All closed names: newly detected + community database
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
-            ...closedPlaces.map(p=>typeof p==="string"?p.split("|")[0].toLowerCase():p)
+            ...closedPlaces
           ]);
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
           setAiRecos(filtered);
