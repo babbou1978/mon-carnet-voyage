@@ -1187,6 +1187,11 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
+      {m.openNow!==undefined&&m.openNow!==null&&<div style={{marginBottom:4}}>
+        <span style={{fontSize:11,color:m.openNow?"#7abf8a":"#e06060",background:m.openNow?"#1a2e1e":"#3a1a1a",padding:"2px 8px",borderRadius:20}}>
+          {m.openNow?"🟢 Open now":"🔴 Closed"}
+        </span>
+      </div>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
