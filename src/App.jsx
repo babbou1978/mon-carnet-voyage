@@ -1504,7 +1504,8 @@ function TravelAgent() {
       setDuplicateAlert({ existing: duplicate, newForm: form });
       return;
     }
-    const entry = { ...form, id: Date.now(), ts: Date.now(), user_id: userId };
+    const { isMine:_a, friendName:_b, distanceKm:_c, _lat, _lng, friendsData:_d, friendsWhoHave:_e, profiles:_f, user_id:_g, id:_h, ts:_ts, ...cleanForm } = form;
+    const entry = { ...cleanForm, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); setFormKey(k=>k+1); }
   };
