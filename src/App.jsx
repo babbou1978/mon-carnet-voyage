@@ -1831,7 +1831,9 @@ Friends favorites: ${friendLiked||"None."}
 Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
 
 IMPORTANT RULES:
-- ALL places MUST be within ${distLabel} of "${locationLabel}"
+- ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit - do not exceed it under any circumstance.
+- Before including a place, verify its address is physically within ${distLabel} walking distance from "${locationLabel}". If unsure, skip it.
+- A place at 1.5km when the limit is 1km must be excluded. No exceptions.
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
 - 2-3 concrete matchReasons explaining why this place fits
