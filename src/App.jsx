@@ -1141,7 +1141,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
         👥 {friends.length}
       </span>
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",right:0,background:"#1a1814",border:"1px solid #2e2b25",
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:"50%",transform:"translateX(-50%)",background:"#1a1814",border:"1px solid #2e2b25",
           borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:220,boxShadow:"0 4px 20px rgba(0,0,0,0.6)"}}>
           {friends.map((fname,i)=>{
             const fMem = friendsData.find(m=>m.friendName===fname);
