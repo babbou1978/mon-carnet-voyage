@@ -1948,8 +1948,18 @@ IMPORTANT RULES:
       }
       return true;
     };
+    const applyFiltersNoRating = (m) => {
+      if (filterType!==ALL&&m.type!==filterType) return false;
+      if (filterPrice!==ALL&&m.price!==filterPrice) return false;
+      if (filterKids&&!m.kidsf) return false;
+      if (memSearch.trim()) {
+        const q = memSearch.toLowerCase();
+        if (!m.name?.toLowerCase().includes(q)&&!m.city?.toLowerCase().includes(q)&&!m.country?.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    };
     const myMems = friendFilter!=="friends" ? memories.filter(applyFilters).map(m=>({...m,isMine:true,friendsWhoHave:[]})) : [];
-    const friendMems = friendFilter!=="mine" ? friendMemories.filter(applyFilters) : [];
+    const friendMems = friendFilter!=="mine" ? friendMemories.filter(applyFiltersNoRating) : [];
     
     // For each of my memories, find friends who also have it
     const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
