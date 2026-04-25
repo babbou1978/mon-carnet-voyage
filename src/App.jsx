@@ -1821,7 +1821,15 @@ function TravelAgent() {
         if (existing) { existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean); existing.friendsData = [...(existing.friendsData||[]), m]; }
       }
     });
-    setHeartMemories(deduped.slice(0,10));
+    // Preserve openNow from previous state if already enriched
+    setHeartMemories(prev => {
+      const prevMap = {};
+      prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = m.openNow; });
+      return deduped.slice(0,10).map(m => {
+        const prevOpenNow = prevMap[m.name.toLowerCase()];
+        return prevOpenNow!==undefined ? {...m, openNow:prevOpenNow} : m;
+      });
+    });
 
     // Nearby Google Places
     try {
