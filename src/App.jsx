@@ -2376,18 +2376,25 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
 
       {friendMemoryModal&&(
         <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setFriendMemoryModal(null);}}>
-          <div className="modal">
+          <div className="modal" style={{maxHeight:"90vh",overflowY:"auto"}}>
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
             <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
-            <div style={{display:"flex",gap:8,marginTop:12}}>
-              <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setFriendMemoryModal(null)}>Fermer</button>
-              <button className="modal-btn primary" style={{flex:1}} onClick={()=>{
-                const fMem=friendMemoryModal.memory;
-                const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());
-                setFriendMemoryModal(null);
-                if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}
-                else{handleAdd(fMem);}
-              }}>⊕ Sauvegarder</button>
+            <div style={{marginTop:16,borderTop:"1px solid #2e2b25",paddingTop:12}}>
+              <div style={{fontSize:11,color:"#8a8070",marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>Modifier avant de sauvegarder</div>
+              <MemoryForm
+                key={"friend-"+friendMemoryModal.memory.id}
+                initial={friendMemoryModal.memory}
+                isEdit={true}
+                t={t}
+                lang={lang}
+                onSave={(form)=>{
+                  const dup=memories.find(m=>m.name.toLowerCase()===form.name.toLowerCase());
+                  setFriendMemoryModal(null);
+                  if(dup){setDuplicateAlert({existing:dup,newForm:form});}
+                  else{handleAdd(form);}
+                }}
+                onCancel={()=>setFriendMemoryModal(null)}
+              />
             </div>
           </div>
         </div>
