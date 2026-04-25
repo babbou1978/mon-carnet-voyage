@@ -1141,7 +1141,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
         👥 {friends.length}
       </span>
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",left:"50%",transform:"translateX(-50%)",background:"#1a1814",border:"1px solid #2e2b25",
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:"#1a1814",border:"1px solid #2e2b25",
           borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:220,boxShadow:"0 4px 20px rgba(0,0,0,0.6)"}}>
           {friends.map((fname,i)=>{
             const fMem = friendsData.find(m=>m.friendName===fname);
@@ -1180,6 +1180,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       </div>
       <div className="memory-meta" style={{marginBottom:4,justifyContent:"flex-start"}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
+        {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend}/>}
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
@@ -1187,7 +1188,6 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
       </div>}
-      {(m.friendsWhoHave?.length>0)&&<div style={{marginBottom:4}}><FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend}/></div>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
