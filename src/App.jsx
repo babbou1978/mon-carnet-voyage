@@ -1394,6 +1394,7 @@ function TravelAgent() {
   const recoCoordsRef = useRef(null);
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
+  const [closedPlaces, setClosedPlaces] = useState([]);
   const [heartsLoaded, setHeartsLoaded] = useState(false);
   const [heartsKey, setHeartsKey] = useState(0);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -1853,22 +1854,23 @@ IMPORTANT RULES:
           });
           const verifyData = await verifyRes.json();
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
-          if (newlyClosed.length > 0) {
-            const toInsert = newlyClosed.map(r=>{
-              const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
-              return { place_id: r.placeId||null, name: r.name, address: reco?.address||'', confirmed_by: userId };
-            });
-            await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id' });
-            const newIds = newlyClosed.map(r=>r.placeId||r.name.toLowerCase());
-            setClosedPlaces(prev=>[...prev, ...newIds]);
-          }
-          // All closed names: newly detected + community database
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlaces
           ]);
           const filtered = data.recommendations.filter(r=>!allClosedNames.has(r.name.toLowerCase()));
           setAiRecos(filtered);
+          if (newlyClosed.length > 0) {
+            try {
+              const toInsert = newlyClosed.map(r=>{
+                const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
+                return { place_id: r.placeId||null, name: r.name, address: reco?.address||'', confirmed_by: userId };
+              });
+              await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id' });
+              const newIds = newlyClosed.map(r=>r.placeId||r.name.toLowerCase());
+              setClosedPlaces(prev=>[...prev, ...newIds]);
+            } catch(e) { console.error('Upsert closed_places error:', e); }
+          }
         } catch(verifyErr) {
           console.error("Verify error:", verifyErr);
           setAiRecos(data.recommendations);
