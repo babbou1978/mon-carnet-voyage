@@ -1124,17 +1124,70 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
 function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
   const [expanded, setExpanded] = useState(false);
 
-  // Extract today's hours from weekdayDescriptions
-  const getTodayInfo = () => {
+  const getTodayHours = () => {
     if (!hours?.length) return null;
     const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     const daysFr = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
     const today = new Date().getDay();
-    const todayName = days[today];
-    const todayNameFr = daysFr[today];
-    return hours.find(h => h.startsWith(todayName) || h.startsWith(todayNameFr)) || null;
+    return hours.find(h => h.startsWith(days[today]) || h.startsWith(daysFr[today])) || null;
   };
-  const todayHours = getTodayInfo();
+
+  const extractNextOpen = () => {
+    const todayH = getTodayHours();
+    if (!todayH) return null;
+    // e.g. "Saturday: 12:00 PM – 3:00 PM, 6:00 PM – 11:00 PM" or "Saturday: Closed"
+    const timePart = todayH.split(": ").slice(1).join(": ");
+    if (timePart === "Closed" || timePart === "Fermé") return null;
+    // Find next opening after now
+    const now = new Date();
+    const nowMins = now.getHours()*60 + now.getMinutes();
+    const slots = timePart.split(", ");
+    for (const slot of slots) {
+      const parts = slot.split(" – ");
+      if (parts.length < 2) continue;
+      const parseTime = (t) => {
+        const m = t.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+        if (!m) return null;
+        let h = parseInt(m[1]), min = parseInt(m[2]);
+        if (m[3]?.toUpperCase()==="PM" && h!==12) h+=12;
+        if (m[3]?.toUpperCase()==="AM" && h===12) h=0;
+        return h*60+min;
+      };
+      const openMins = parseTime(parts[0]);
+      const closeMins = parseTime(parts[1]);
+      if (openMins===null) continue;
+      if (nowMins < openMins) return parts[0]; // Opens later today
+      if (closeMins && nowMins < closeMins) return null; // Currently in this slot
+    }
+    return null;
+  };
+
+  const extractCloseTime = () => {
+    const todayH = getTodayHours();
+    if (!todayH) return null;
+    const timePart = todayH.split(": ").slice(1).join(": ");
+    if (timePart === "Closed" || timePart === "Fermé") return null;
+    const now = new Date();
+    const nowMins = now.getHours()*60 + now.getMinutes();
+    const slots = timePart.split(", ");
+    for (const slot of slots) {
+      const parts = slot.split(" – ");
+      if (parts.length < 2) continue;
+      const parseTime = (t) => {
+        const m = t.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+        if (!m) return null;
+        let h = parseInt(m[1]), min = parseInt(m[2]);
+        if (m[3]?.toUpperCase()==="PM" && h!==12) h+=12;
+        if (m[3]?.toUpperCase()==="AM" && h===12) h=0;
+        return h*60+min;
+      };
+      const openMins = parseTime(parts[0]);
+      const closeMins = parseTime(parts[1]);
+      if (openMins!==null && closeMins!==null && nowMins>=openMins && nowMins<closeMins)
+        return parts[1]; // Currently open, return close time
+    }
+    return null;
+  };
 
   const formatTime = (isoTime) => {
     if (!isoTime) return null;
@@ -1144,11 +1197,10 @@ function OpeningHoursWidget({ openNow, hours, nextCloseTime, nextOpenTime }) {
     } catch { return null; }
   };
 
-  const closeTime = formatTime(nextCloseTime);
-  const openTime = formatTime(nextOpenTime);
-
+  const closeTime = formatTime(nextCloseTime) || extractCloseTime();
+  const openTime = formatTime(nextOpenTime) || extractNextOpen();
   const statusText = openNow
-    ? `🟢 Open${closeTime ? " · Closes at "+closeTime : todayHours ? " · "+todayHours.split(": ").slice(1).join(": ") : ""}`
+    ? `🟢 Open${closeTime ? " · Closes at "+closeTime : ""}`
     : `🔴 Closed${openTime ? " · Opens at "+openTime : ""}`;
 
   return (
