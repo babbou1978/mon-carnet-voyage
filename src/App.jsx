@@ -2042,7 +2042,7 @@ IMPORTANT RULES:
               <div className="memory-list">
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.filter(m=>showOnlyFriends?!m.isMine:true).map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                ):filteredMemories.filter(m=>{ if(showOnlyFriends&&m.isMine) return false; if(!showFriendMems&&!showOnlyFriends&&!m.isMine) return false; return true; }).map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
                   onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
               </div>
             </div>
