@@ -1161,9 +1161,11 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
   const todayLine = getTodayLine();
   const todayTimes = todayLine ? convertToFr(todayLine).split(": ").slice(1).join(": ") : null;
 
+  const openLabel = {fr:"Ouvert",en:"Open",es:"Abierto",de:"Geöffnet",it:"Aperto",pt:"Aberto",nl:"Open"}[lang]||"Open";
+  const closedLabel = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
   const statusText = openNow
-    ? `🟢 Open${todayTimes && todayTimes!=="Closed" ? " · "+todayTimes : ""}`
-    : `🔴 Closed${todayTimes && todayTimes!=="Closed" ? " · "+todayTimes : ""}`;
+    ? `🟢 ${openLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`
+    : `🔴 ${closedLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`;
 
   return (
     <div style={{marginBottom:6}}>
