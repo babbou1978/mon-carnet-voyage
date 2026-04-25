@@ -560,7 +560,7 @@ const css = `
   .ai-reco-why { font-size: 13px; color: #b8ad98; line-height: 1.5; font-style: italic; }
   .ai-reco-tip { font-size: 12px; color: ${COLORS.accent}; line-height: 1.4; }
   .ai-reco-warning { font-size: 12px; color: #a06060; line-height: 1.4; }
-  .global-map-container { height: 240px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid ${COLORS.border}; }
+  .global-map-container { height: 240px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid ${COLORS.border}; position: relative; }
   .thinking { display: flex; gap: 5px; justify-content: center; padding: 20px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: ${COLORS.accent}; animation: bounce 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
