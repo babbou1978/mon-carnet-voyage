@@ -885,20 +885,20 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       }} style={{
         position:"absolute", top:8, left:8, background:"#1a1814", border:"1px solid #2e2b25",
         borderRadius:6, width:32, height:32, color:"#f0ead8", cursor:"pointer", fontSize:16,
-        fontFamily:"'DM Sans',sans-serif", zIndex:10, display:"flex", alignItems:"center", justifyContent:"center",
+        fontFamily:"'DM Sans',sans-serif", zIndex:1, display:"flex", alignItems:"center", justifyContent:"center",
         boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
       }}>⊕</button>
 
       <button onClick={() => setFullscreen(f => !f)} style={{
         position:"absolute", top:8, right:8, background:"#c9a84c", border:"none",
         borderRadius:6, padding:"6px 12px", color:"#0f0e0c", cursor:"pointer", fontSize:12,
-        fontFamily:"'DM Sans',sans-serif", fontWeight:600, zIndex:10, boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
+        fontFamily:"'DM Sans',sans-serif", fontWeight:600, zIndex:1, boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
       }}>
         {fullscreen ? "✕ Close" : "⛶ Fullscreen"}
       </button>
 
       {/* Legend */}
-      <div style={{ position:"absolute", top:8, left:48, display:"flex", gap:6, zIndex:10 }}>
+      <div style={{ position:"absolute", top:8, left:48, display:"flex", gap:6, zIndex:1 }}>
         {userCoords?.lat && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🔵 You</span>}
         {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🔴 Favorites</span>}
         {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🟡 AI picks</span>}
