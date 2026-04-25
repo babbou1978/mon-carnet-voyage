@@ -1709,6 +1709,13 @@ function TravelAgent() {
           }).filter(Boolean);
           if (closedFavs.length > 0) setClosedFavoritesAlert(closedFavs);
         }
+        // Enrich heartMemories with real openNow
+        const verifyMap = {};
+        (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
+        setHeartMemories(prev=>prev.map(m=>{
+          const v = verifyMap[m.name.toLowerCase()];
+          return v?.openNow!==undefined ? {...m, openNow:v.openNow} : m;
+        }));
       } catch(e) { console.error("Verify favorites error:", e); }
     }
   };
