@@ -617,8 +617,7 @@ function TagPicker({ options, selected, onChange, mode="like" }) {
 function KidsToggle({ value, onChange, t }) {
   return (
     <div className={`kids-toggle ${value?"on":""}`} onClick={()=>onChange(!value)}>
-      <span style={{fontSize:16}}>👶</span>
-      <span className="kids-toggle-label">{t?.addKids||"Kids friendly"}</span>
+      <span className="kids-toggle-label">{t?.addKids||"👶 Kids friendly"}</span>
       <div className="toggle-switch"><div className="toggle-knob"/></div>
     </div>
   );
