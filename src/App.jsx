@@ -1822,7 +1822,7 @@ function TravelAgent() {
         name: p.displayName?.text||"", address: p.formattedAddress||"",
         rating: p.rating, price: PRICE_MAP[p.priceLevel]||"",
         lat: p.location?.latitude, lng: p.location?.longitude,
-        openNow: p.currentOpeningHours?.openNow,
+        openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
       })).filter(p=>p.name);
       setNearbyPlaces(places);
     } catch { setNearbyPlaces([]); }
