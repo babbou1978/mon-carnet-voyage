@@ -759,7 +759,8 @@ function PlaceSearch({ onPlaceSelected }) {
         const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
         if (key) { cuisine = cuisineKeywords[key]; break; }
       }
-      const place = { name: mainText, city, country, type, price, address: streetAddress, cuisine };
+      const googlePlaceId = placeId || "";
+      const place = { name: mainText, city, country, type, price, address: streetAddress, cuisine, googlePlaceId };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
@@ -1125,7 +1126,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
-    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,cuisine:place.cuisine||"",likeTags:[],dislikeTags:[]}));
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,cuisine:place.cuisine||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
     if (onDuplicate) onDuplicate(place.name);
   };
   return (
@@ -1894,12 +1895,19 @@ function TravelAgent() {
           }).filter(Boolean);
           if (closedFavs.length > 0) setClosedFavoritesAlert(closedFavs);
         }
-        // Enrich heartMemories with real openNow
+        // Enrich heartMemories with real openNow + store placeId
         const verifyMap = {};
         (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
         setHeartMemories(prev=>prev.map(m=>{
           const v = verifyMap[m.name.toLowerCase()];
-          return v ? {...m, openNow:v.openNow??m.openNow, openingHours:v.openingHours||m.openingHours||null} : m;
+          if (!v) return m;
+          // Save placeId back to DB if missing
+          if (v.placeId && !m.google_place_id && m.user_id===userId) {
+            supabase.from('memories').update({google_place_id:v.placeId}).eq('id',m.id).then(()=>{
+              setMemories(prev2=>prev2.map(x=>x.id===m.id?{...x,google_place_id:v.placeId}:x));
+            });
+          }
+          return {...m, openNow:v.openNow??m.openNow, openingHours:v.openingHours||m.openingHours||null};
         }));
       } catch(e) { console.error("Verify favorites error:", e); }
     }
@@ -2084,7 +2092,7 @@ IMPORTANT RULES:
         try {
           const verifyRes = await fetch("/api/places", {
             method: "POST", headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({ action:"verify", places: data.recommendations.map(r=>({name:r.name,address:r.address})) })
+            body: JSON.stringify({ action:"verify", places: data.recommendations.map(r=>({name:r.name,address:r.address,googlePlaceId:""})) })
           });
           const verifyData = await verifyRes.json();
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
