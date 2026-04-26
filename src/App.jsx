@@ -1294,6 +1294,10 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark, t={
     // Translate day names
     Object.entries(dayMap).forEach(([en, local]) => { out = out.replace(en, local); });
 
+    // Translate "Closed" in the time part
+    const closedWord = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
+    out = out.replace(/\bClosed\b/g, closedWord);
+
     // Split day label from time part
     const dayMatch = out.match(/^([^:]+):\s*(.*)/s);
     if (!dayMatch) return out;
