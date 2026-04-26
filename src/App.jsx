@@ -378,12 +378,11 @@ function useT(language) {
 
 
 
-const COLORS = {
-  bg: "#0f0e0c", card: "#1a1814", border: "#2e2b25",
-  accent: "#c9a84c", accentLight: "#e8c97a",
-  text: "#f0ead8", muted: "#8a8070", tag: "#252219",
-  dislike: "#8b3a3a", dislikeBg: "#3a1a1a",
+const THEMES = {
+  dark:  { bg:"#0f0e0c", card:"#1a1814", border:"#2e2b25", accent:"#c9a84c", accentLight:"#e8c97a", text:"#f0ead8", muted:"#8a8070", tag:"#252219", dislike:"#8b3a3a", dislikeBg:"#3a1a1a", mapScheme:"DARK" },
+  light: { bg:"#faf8f4", card:"#ffffff", border:"#e8e0d0", accent:"#b8922a", accentLight:"#c9a84c", text:"#1a1410", muted:"#7a6a50", tag:"#f5f0e8", dislike:"#8b3a3a", dislikeBg:"#fce8e8", mapScheme:"LIGHT" },
 };
+const COLORS = THEMES.dark; // placeholder - overridden in TravelAgent
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
@@ -1471,7 +1470,7 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
 function TravelAgent() {
   const [session, setSession] = useState(undefined);
   const [themeKey, setThemeKey] = useState("light");
-  const COLORS = THEMES[themeKey] || THEMES.light;
+  const COLORS = THEMES[themeKey] || THEMES.light; // eslint-disable-line
   const [showResetModal, setShowResetModal] = useState(false);
   const [tab, _setTab] = useState("reco");
   const scrollPositions = useRef({});
