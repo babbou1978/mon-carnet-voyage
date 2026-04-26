@@ -90,31 +90,25 @@ export default async function handler(req, res) {
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
-      // Only use Google-validated place types
-      const typeMap = {
-        "Restaurant": ["restaurant"],
-        "Bar / Café": ["bar"],
-        "Hôtel": ["lodging"],
-        "Destination": ["tourist_attraction"],
-        "Activité": ["museum"]
+      const typeMap = { "Restaurant":"restaurant","Bar / Café":"bar","Hôtel":"lodging","Destination":"tourist_attraction","Activité":"museum" };
+      const googleType = typeMap[type] || "restaurant";
+      const body = {
+        includedTypes: [googleType],
+        maxResultCount: 20,
+        rankPreference: "POPULARITY",
+        locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radiusMeters: radius } },
+        languageCode: 'fr'
       };
-      const includedTypes = typeMap[type] || ["restaurant"];
       const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions'
-        },
-        body: JSON.stringify({
-          includedTypes,
-          maxResultCount: 20,
-          rankPreference: "POPULARITY",
-          locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radiusMeters: radius } },
-          languageCode: 'fr'
-        }),
+        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key,
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions' },
+        body: JSON.stringify(body),
       });
-      return res.status(200).json(await r.json());
+      const result = await r.json();
+      // Log for debugging
+      console.log('Nearby API response:', JSON.stringify({ status: r.status, placeCount: result.places?.length||0, error: result.error }));
+      return res.status(200).json(result);
     }
   } catch (error) {
     console.error(error);
