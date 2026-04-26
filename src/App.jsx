@@ -1270,7 +1270,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
   );
 }
 
-function OpeningHoursWidget({ openNow, hours, lang="en" }) {
+function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
   const [expanded, setExpanded] = useState(false);
 
   const convertToFr = (line) => {
@@ -1324,8 +1324,9 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
       <div onClick={()=>hours?.length&&setExpanded(e=>!e)}
         style={{display:"inline-flex",alignItems:"center",gap:6,cursor:hours?.length?"pointer":"default"}}>
         <span style={{fontSize:11,
-          color:openNow?"#7abf8a":maybeTemp?"#e8c97a":"#e06060",
-          background:openNow?"#1a2e1e":maybeTemp?"#2e2b10":"#3a1a1a",
+          color:openNow?"#5a9e6a":maybeTemp?"#b89a2a":"#c05050",
+          background:openNow?"rgba(90,158,106,0.12)":maybeTemp?"rgba(184,154,42,0.12)":"rgba(192,80,80,0.12)",
+          border:`1px solid ${openNow?"rgba(90,158,106,0.3)":maybeTemp?"rgba(184,154,42,0.3)":"rgba(192,80,80,0.3)"}`,
           padding:"3px 10px",borderRadius:20}}>
           {statusText}
         </span>
@@ -1458,7 +1459,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           className="maps-link" style={{marginLeft:8}}>Maps →</a>
       </div>}
-      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang}/>}
+      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang} COLORS={COLORS}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
@@ -2805,7 +2806,7 @@ IMPORTANT RULES:
                             <div className="nearby-meta">
                               {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
-                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang}/>}
+                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS}/>}
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address} <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a></div>}
                             <button className="add-to-carnet-btn" style={{margin:0,marginTop:4}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
@@ -2851,7 +2852,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang}/>}
+                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang} COLORS={COLORS}/>}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
