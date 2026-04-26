@@ -2373,7 +2373,8 @@ function TravelAgent() {
         });
     });
 
-    // Nearby Google Places
+    // Nearby Google Places — fetch FIRST, used both for display and as AI candidate list
+    let nearbyForAI = [];
     try {
       const res = await fetch("/api/places", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -2386,10 +2387,10 @@ function TravelAgent() {
         lat: p.location?.latitude, lng: p.location?.longitude,
         openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
         openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
-        nextCloseTime: p.currentOpeningHours?.nextCloseTime || null,
-        nextOpenTime: p.currentOpeningHours?.nextOpenTime || null,
       })).filter(p=>p.name);
       setNearbyPlaces(places);
+      // Filter out already visited places for AI
+      nearbyForAI = places.filter(p => !alreadyVisited.has(p.name));
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
@@ -2413,6 +2414,14 @@ function TravelAgent() {
       : parseInt(prefs.nbrecos) || 10;
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
+
+    // Build candidate list for AI from real Google Places within the radius
+    const candidateList = nearbyForAI.length > 0
+      ? nearbyForAI.map(p =>
+          `- ${p.name} | ${p.address} | Google: ${p.rating||"?"}★ | ${p.price||"?"}`
+        ).join("\n")
+      : null;
+
     const prompt = `User profile:
 Likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"not specified"}
 Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"not specified"}
@@ -2427,22 +2436,23 @@ ${liked||"None."}
 My disappointments (never recommend similar):
 ${disliked||"None."}
 
-Request: Find the ${Math.min(nbRecosCount + 5, 15)} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}"${coords?.lat ? ` (GPS: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})` : ""}. I need at least ${nbRecosCount} results strictly inside the radius.
+${candidateList
+  ? `CANDIDATE PLACES (real places from Google within ${distLabel} of the search center — you MUST choose ONLY from this list):
+${candidateList}
 
-IMPORTANT RULES:
-- The search center is exactly: ${coords?.lat ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}` : `"${locationLabel}"`}. ALL places MUST be within ${distLabel} of this point. This is a HARD limit.
-- Use the GPS coordinates above to verify each place's distance — do not rely on neighborhood names or approximate areas.
-- This is a dense urban area with MANY options. You MUST find ${nbRecosCount} places strictly within ${distLabel}. Do not give up early — search thoroughly within the radius before considering places outside it.
-- If you struggle to find enough, prioritize lesser-known authentic places over well-known tourist spots.
-- Sort by best match to the user profile (highest matchScore first)
-- matchScore 0-100 based on profile match
-- 2-3 short matchReasons (max 8 words each) — concrete tags like "Authentic cuisine", "Intimate setting", "No chains"
-- "why" field: 1 sentence (max 30 words) = "[Brief place description] — [personal reason citing something specific from the data above: a favorite place NAME, a cuisine, a destination, a stated preference, or something they avoid]". You MUST name something from the user data. Bad example: "Correspond à tes goûts." Good examples: "Cuisine de saison sur ardoise — même esprit que Barrafina, authenticité et fraîcheur des produits." / "Gastronomie japonaise raffinée — dans la lignée de Nobu que tu apprécies, même créativité."
-- Full address required: street number, street name, city, country
-- NEVER suggest any of these places (already shown): ${excludeList||"none"}
-- NEVER suggest places similar to my disappointments
-- These venues are PERMANENTLY CLOSED, NEVER suggest them: ${closedPlacesRef.current.join(", ")||"none"}
-- Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
+Task: Select the ${nbRecosCount} best candidates above that match the user profile best. Do NOT suggest any place not in this list.`
+  : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" (GPS: ${coords?.lat?.toFixed(5)}, ${coords?.lng?.toFixed(5)}) within ${distLabel}.`
+}
+
+RULES:
+- matchScore 0-100 based on profile match, sort by matchScore DESC
+- 2-3 short matchReasons (max 8 words each)
+- "why" field: 1 sentence (max 30 words) = "[Brief place description] — [personal reason citing a specific favorite name, cuisine, destination or preference from user data]"
+- Use the exact address from the candidate list
+- NEVER suggest: ${excludeList||"none"}
+- NEVER suggest anything similar to disappointments
+- PERMANENTLY CLOSED — never suggest: ${closedPlacesRef.current.join(", ")||"none"}
+- Write all text (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -2474,26 +2484,34 @@ IMPORTANT RULES:
             .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
             .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r; });
 
-          // Filter by real distance if we have coords
+          // Filter by real distance — use coords from nearbyForAI if available, else geocode
           if (coords?.lat && filtered.length > 0) {
             try {
-              const geoRes = await fetch("/api/geocode-memories", {
-                method:"POST", headers:{"Content-Type":"application/json"},
-                body: JSON.stringify({ places: filtered.map(r=>({id:r.name,name:r.name,city:"",country:"",address:r.address})) })
-              });
-              const geoData = await geoRes.json();
+              // Build coords map from nearbyForAI (already have coords from Google)
+              const nearbyCoordMap = {};
+              nearbyForAI.forEach(p => { if(p.lat&&p.lng) nearbyCoordMap[p.name.toLowerCase()] = {lat:p.lat, lng:p.lng}; });
+
+              // For any not found in nearby, geocode
+              const needGeocode = filtered.filter(r => !nearbyCoordMap[r.name.toLowerCase()]);
+              if (needGeocode.length > 0) {
+                const geoRes = await fetch("/api/geocode-memories", {
+                  method:"POST", headers:{"Content-Type":"application/json"},
+                  body: JSON.stringify({ places: needGeocode.map(r=>({id:r.name,name:r.name,city:"",country:"",address:r.address})) })
+                });
+                const geoData = await geoRes.json();
+                (geoData.results||[]).forEach(r=>{ if(r.lat) nearbyCoordMap[r.id.toLowerCase()]={lat:r.lat,lng:r.lng}; });
+              }
+
               const recoWithDist = filtered.map(r=>{
-                const g = (geoData.results||[]).find(x=>x.id===r.name);
-                const dist = g?.lat ? calcDistance(coords.lat, coords.lng, g.lat, g.lng)*1000 : null;
+                const c = nearbyCoordMap[r.name.toLowerCase()];
+                const dist = c ? calcDistance(coords.lat, coords.lng, c.lat, c.lng)*1000 : null;
                 return {...r, _dist: dist};
               });
               const inRadius = recoWithDist.filter(r=>r._dist===null||r._dist<=distance);
               const outRadius = recoWithDist.filter(r=>r._dist!==null&&r._dist>distance);
               if (inRadius.length >= nbRecosCount) {
-                // Enough results in radius - discard those outside
                 setAiRecos(inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)));
               } else {
-                // Not enough in radius - keep all but flag out-of-radius ones
                 const flagged = [
                   ...inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)),
                   ...outRadius.map(r=>({...r, outsideRadius:true})).sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0))
