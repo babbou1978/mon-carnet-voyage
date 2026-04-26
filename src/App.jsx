@@ -2454,13 +2454,12 @@ ${candidateList
 ${candidateList}
 
 Task: Pick the top ${nbRecosCount} numbers from this list that best match the user profile.
-In the JSON response, use "name" field as the NUMBER only (e.g. "name": "3") — nothing else.
-The system will resolve the actual restaurant name from the number.`
+In the JSON response, put ONLY the arabic digit number in the "name" field (e.g. "name": "3" for item 3, "name": "12" for item 12). Never use letters or roman numerals. The system will resolve the actual restaurant name automatically.`
   : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" within ${distLabel}.`
 }
 
 RULES:
-- "name" field = the NUMBER from the list (e.g. "3") — NOT the restaurant name
+- "name" field = ONLY the arabic digit (e.g. "3" or "12") corresponding to the item number in the list above. Example: if you pick item 3, write "name": "3". Never write the restaurant name, never use roman numerals.
 - matchScore 0-100, rank DESC
 - Skip places similar to disappointments
 - Skip: ${excludeList||"none"}
