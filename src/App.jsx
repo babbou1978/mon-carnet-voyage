@@ -118,6 +118,7 @@ const TRANSLATIONS = {
     deleteTitle: "Supprimer", deleteText: "sera retiré de vos favoris.", deleteConfirm: "Supprimer",
     closedTitle: "⚠️ Établissements fermés", closedText: "Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?", closedKeep: "Garder", closedRemove: "Supprimer", closedToast: "✓ Favoris supprimés",
     friendSaveLabel: "Modifier avant de sauvegarder",
+    editBtn: "✏️ Éditer",
     editTitle: "✏️ Modifier", toastSaved: "✓ Souvenir enregistré !", toastUpdated: "✓ Coup de cœur mis à jour !",
     toastAdded: "✓ Ajouté à vos coups de cœur !", toastFriend: "✓ Demande envoyée !", toastFriendAdded: "✓ Ami ajouté !",
     loading: "Chargement... ✈️", loginConnect: "Se connecter", loginCreate: "Créer mon compte",
@@ -167,6 +168,7 @@ const TRANSLATIONS = {
     closedTitle: "⚠️ Establecimientos cerrados", closedText: "Estos establecimientos parecen cerrados permanentemente. ¿Eliminarlos de tus Favoritos?", closedKeep: "Conservar", closedRemove: "Eliminar", closedToast: "✓ Favoritos eliminados",
     friendSaveLabel: "Editar antes de guardar",
     friendsHearts: "favoritos",
+    editBtn: "✏️ Editar",
     editTitle: "✏️ Editar", toastSaved: "✓ ¡Guardado!", toastUpdated: "✓ ¡Favorito actualizado!",
     toastAdded: "✓ ¡Añadido a favoritos!", toastFriend: "✓ ¡Solicitud enviada!", toastFriendAdded: "✓ ¡Amigo añadido!",
     loading: "Cargando... ✈️", loginConnect: "Iniciar sesión", loginCreate: "Crear cuenta",
@@ -216,6 +218,7 @@ const TRANSLATIONS = {
     closedTitle: "⚠️ Geschlossene Orte", closedText: "Diese Orte scheinen dauerhaft geschlossen. Aus Favoriten entfernen?", closedKeep: "Behalten", closedRemove: "Entfernen", closedToast: "✓ Favoriten entfernt",
     friendSaveLabel: "Vor dem Speichern bearbeiten",
     friendsHearts: "Favoriten",
+    editBtn: "✏️ Bearbeiten",
     editTitle: "✏️ Bearbeiten", toastSaved: "✓ Gespeichert!", toastUpdated: "✓ Favorit aktualisiert!",
     toastAdded: "✓ Zu Favoriten hinzugefügt!", toastFriend: "✓ Anfrage gesendet!", toastFriendAdded: "✓ Freund hinzugefügt!",
     loading: "Laden... ✈️", loginConnect: "Anmelden", loginCreate: "Konto erstellen",
@@ -266,6 +269,7 @@ const TRANSLATIONS = {
     friendSaveLabel: "Modifica prima di salvare",
     friendsHearts: "preferiti",
     friendsNoHeart: "non ha ancora preferiti.",
+    editBtn: "✏️ Modifica",
     editTitle: "✏️ Modifica", toastSaved: "✓ Salvato!", toastUpdated: "✓ Preferito aggiornato!",
     toastAdded: "✓ Aggiunto ai preferiti!", toastFriend: "✓ Richiesta inviata!", toastFriendAdded: "✓ Amico aggiunto!",
     loading: "Caricamento... ✈️", loginConnect: "Accedi", loginCreate: "Crea account",
@@ -316,6 +320,7 @@ const TRANSLATIONS = {
     friendSaveLabel: "Editar antes de guardar",
     friendsHearts: "favoritos",
     friendsNoHeart: "ainda não tem favoritos.",
+    editBtn: "✏️ Editar",
     editTitle: "✏️ Editar", toastSaved: "✓ Guardado!", toastUpdated: "✓ Favorito atualizado!",
     toastAdded: "✓ Adicionado aos favoritos!", toastFriend: "✓ Pedido enviado!", toastFriendAdded: "✓ Amigo adicionado!",
     loading: "A carregar... ✈️", loginConnect: "Entrar", loginCreate: "Criar conta",
@@ -366,6 +371,7 @@ const TRANSLATIONS = {
     friendSaveLabel: "Bewerken voor opslaan",
     friendsHearts: "favorieten",
     friendsNoHeart: "heeft nog geen favorieten.",
+    editBtn: "✏️ Bewerken",
     editTitle: "✏️ Bewerken", toastSaved: "✓ Opgeslagen!", toastUpdated: "✓ Favoriet bijgewerkt!",
     toastAdded: "✓ Toegevoegd aan favorieten!", toastFriend: "✓ Verzoek verzonden!", toastFriendAdded: "✓ Vriend toegevoegd!",
     loading: "Laden... ✈️", loginConnect: "Inloggen", loginCreate: "Account aanmaken",
@@ -416,6 +422,7 @@ const TRANSLATIONS = {
     friendSaveLabel: "Edit before saving",
     friendsHearts: "favorites",
     friendsNoHeart: "has no favorites yet.",
+    editBtn: "✏️ Edit",
     editTitle: "✏️ Edit", toastSaved: "✓ Place saved!", toastUpdated: "✓ Favorite updated!",
     toastAdded: "✓ Added to favorites!", toastFriend: "✓ Request sent!", toastFriendAdded: "✓ Friend added!",
     loading: "Loading... ✈️", loginConnect: "Sign in", loginCreate: "Create account",
@@ -1338,7 +1345,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, COLORS=THEMES.dark }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={} }) {
   return (
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
@@ -1363,7 +1370,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+", "+(m.address||[m.city,m.country].filter(Boolean).join(", ")))}`}
           target="_blank" rel="noopener noreferrer"
-          style={{color:"#c9a84c",fontSize:10,marginLeft:8,textDecoration:"none"}}>Maps →</a>
+          className="maps-link" style={{marginLeft:8}}>Maps →</a>
       </div>}
       {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang}/>}
 
@@ -1374,7 +1381,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       <div className="memory-footer">
         <span className="memory-date">{formatDate(m.ts)}</span>
         {isMine&&<div className="memory-actions">
-          <button className="edit-btn" onClick={()=>onEdit(m)}>✏️ Éditer</button>
+          <button className="edit-btn" onClick={()=>onEdit(m)}>{t.editBtn||"✏️ Edit"}</button>
           <button className="del-btn" onClick={()=>onDeleteRequest(m.id, m.name)}>✕</button>
         </div>}
       </div>
@@ -2373,7 +2380,7 @@ IMPORTANT RULES:
               <div className="memory-list" key={friendFilter}>
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
                   onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
               </div>
             </div>
@@ -2391,7 +2398,7 @@ IMPORTANT RULES:
                     <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} {t.friendsNoHeart}</div>
                   ):(
                     <div className="memory-list">
-                      {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} onEdit={()=>{}} onDelete={()=>{}}/>)}
+                      {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} t={t} lang={lang} onEdit={()=>{}} onDelete={()=>{}}/>)}
                     </div>
                   )}
                 </div>
@@ -2611,7 +2618,7 @@ IMPORTANT RULES:
                   {heartMemories.length>0&&(
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
-                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
                   onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}</div>
                     </div>
                   )}
@@ -2623,15 +2630,12 @@ IMPORTANT RULES:
                           <div key={i} className="nearby-card">
                             <div className="nearby-name">{TYPE_ICONS[recoType]} {p.name}</div>
                             <div className="nearby-meta">
-                              {p.rating&&<span className="badge stars">★ {p.rating.toFixed(1)}</span>}
+                              {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
                               {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang}/>}
                             </div>
-                            {p.address&&<div className="nearby-address">📍 {p.address}</div>}
-                            <div style={{display:"flex",gap:10,alignItems:"center",marginTop:4}}>
-                              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:"")+(p.address?"":(" "+(p.city||"")+" "+(p.country||""))))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a>
-                              <button className="add-to-carnet-btn" style={{margin:0}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
-                            </div>
+                            {p.address&&<div className="nearby-address">📍 {p.address} <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a></div>}
+                            <button className="add-to-carnet-btn" style={{margin:0,marginTop:4}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
                           </div>
                         ))}
                       </div>
@@ -2651,7 +2655,7 @@ IMPORTANT RULES:
                           <div key={i} className="ai-reco-card">
                             <div className="ai-reco-header">
                               <div className="ai-reco-top">
-                                <div className="ai-reco-name">{reco.name}</div>
+                                <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
                                 <div className="ai-reco-rank">#{i+1}</div>
                               </div>
                               <div className="ai-reco-meta">
@@ -2671,7 +2675,7 @@ IMPORTANT RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" style={{color:COLORS.accent,fontSize:11,marginLeft:8}}>{t.recoMapsLink}</a>
+                                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
                               {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang}/>}
@@ -2746,7 +2750,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
         <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setFriendMemoryModal(null);}}>
           <div className="modal" style={{maxHeight:"90vh",overflowY:"auto"}}>
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
-            <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} COLORS={COLORS} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
+            <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} COLORS={COLORS} t={t} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
             <div style={{marginTop:16,borderTop:`1px solid ${COLORS.border}`,paddingTop:12}}>
               <div style={{fontSize:11,color:COLORS.muted,marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>{t.friendSaveLabel||"Edit before saving"}</div>
               <MemoryForm
