@@ -1285,32 +1285,48 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
       en: {}
     };
     const dayMap = dayMaps[lang] || {};
-    // Normalize all Unicode whitespace and dashes first
+
+    // Normalize unicode whitespace and dashes
     let out = line
-      .replace(/\u202f/g, " ")   // narrow no-break space (used by Google between time and AM/PM)
-      .replace(/\u00a0/g, " ")   // non-breaking space
-      .replace(/\u2009/g, " ")   // thin space
-      .replace(/\u2013/g, "–")   // en dash
-      .replace(/\u2014/g, "–");  // em dash
+      .replace(/\u202f/g, " ").replace(/\u00a0/g, " ")
+      .replace(/\u2009/g, " ").replace(/\u2013/g, "–").replace(/\u2014/g, "–");
 
     // Translate day names
     Object.entries(dayMap).forEach(([en, local]) => { out = out.replace(en, local); });
 
-    // Convert all time+AM/PM occurrences to 24h
-    // Handles: "4:30 PM", "4 PM", "12:00 AM", etc.
-    out = out.replace(/(\d{1,2})(?::(\d{2}))?\s*[Aa][Mm]/g, (_, h, m) => {
-      const hh = h === "12" ? "00" : String(parseInt(h)).padStart(2, "0");
-      return `${hh}:${m || "00"}`;
-    });
-    out = out.replace(/(\d{1,2})(?::(\d{2}))?\s*[Pp][Mm]/g, (_, h, m) => {
-      const hh = h === "12" ? "12" : String(parseInt(h) + 12).padStart(2, "0");
-      return `${hh}:${m || "00"}`;
-    });
+    // Split day label from time part
+    const dayMatch = out.match(/^([^:]+):\s*(.*)/s);
+    if (!dayMatch) return out;
+    const dayPart = dayMatch[1];
+    const timePart = dayMatch[2];
 
-    // Normalize dashes with consistent spacing
-    out = out.replace(/\s*–\s*/g, "–").replace(/\s*-\s*/g, "–");
-    return out;
-  };
+    // Convert a single time slot like "5:30 – 10:30 PM" or "5:30 PM – 10:30 PM"
+    const convertSlot = (slot) => {
+      const s = slot.trim();
+      const hasInternalAMPM = /\d\s*[AP]M\s*[–\-]/i.test(s);
+      const hasPMEnd = /\d\s*PM\s*$/i.test(s);
+      const hasAMEnd = /\d\s*AM\s*$/i.test(s);
+      if (!hasPMEnd && !hasAMEnd) return s; // already 24h
+      if (hasInternalAMPM) {
+        // Each time has its own AM/PM
+        return s
+          .replace(/(\d{1,2})(?::(\d{2}))?\s*AM/gi, (_, h, m) =>
+            (h==="12"?"00":String(parseInt(h)).padStart(2,"0"))+":"+(m||"00"))
+          .replace(/(\d{1,2})(?::(\d{2}))?\s*PM/gi, (_, h, m) =>
+            (h==="12"?"12":String(parseInt(h)+12).padStart(2,"0"))+":"+(m||"00"))
+          .replace(/\s*–\s*/g,"–");
+      }
+      // PM/AM only at end — apply to ALL times in slot
+      const mer = hasPMEnd ? "PM" : "AM";
+      return s.replace(/\s*[AP]M\s*$/i, "")
+        .replace(/(\d{1,2})(?::(\d{2}))?/g, (_, h, m) =>
+          mer==="AM"
+            ? (h==="12"?"00":String(parseInt(h)).padStart(2,"0"))+":"+(m||"00")
+            : (h==="12"?"12":String(parseInt(h)+12).padStart(2,"0"))+":"+(m||"00"))
+        .replace(/\s*–\s*/g,"–").replace(/\s*-\s*/g,"–");
+    };
+
+    return dayPart + ": " + timePart.split(",").map(convertSlot).join(", ");
 
   const getTodayLine = () => {
     if (!hours?.length) return null;
