@@ -1973,18 +1973,25 @@ function TravelAgent() {
   };
 
   const loadHearts = async (coordsToUse, nbRecosOverride=null) => {
-    const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
+    const myMemoriesMap = new Map(memories.map(m=>[m.name.toLowerCase(), m]));
+    // Places I own with rating >= 3
+    const myGoodNames = new Set(memories.filter(m=>m.rating>=3).map(m=>m.name.toLowerCase()));
+    // Places I own with rating < 3 (too low) - must be excluded even if friend rated it well
+    const myBadNames = new Set(memories.filter(m=>m.rating>0&&m.rating<3).map(m=>m.name.toLowerCase()));
+
     const candidates = [
-      // My memories filtered by rating
+      // My memories with rating >= 3
       ...(recoFriendFilter!=="friends" ? memories.filter(m=>m.rating>=3) : []),
       // Friend memories:
-      // - if "friends only": only places NOT in my favorites
-      // - if "all": places I have (regardless of their rating) + standalone places (rating>=3)
-      ...(recoFriendFilter!=="mine" ? friendMemories.filter(m=>
-        recoFriendFilter==="friends"
-          ? m.rating>=3  // friends only: apply rating filter strictly
-          : myNames.has(m.name.toLowerCase()) || m.rating>=3   // all: attach mine + standalone
-      ) : [])
+      // - exclude any place I own with rating < 3 (my low rating wins)
+      // - if "friends only": only standalone places (not in my favorites at all) with rating >= 3
+      // - if "all": attach to my good places + standalone places with rating >= 3
+      ...(recoFriendFilter!=="mine" ? friendMemories.filter(m => {
+        const key = m.name.toLowerCase();
+        if (myBadNames.has(key)) return false; // I rated it badly, never show
+        if (recoFriendFilter==="friends") return !myMemoriesMap.has(key) && m.rating>=3;
+        return myGoodNames.has(key) || m.rating>=3;
+      }) : [])
     ]
       .filter(m=>recoType===ALL||m.type===recoType)
       .filter(m=>recoPrice===ALL||m.price===recoPrice)
@@ -2127,15 +2134,18 @@ function TravelAgent() {
 
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
-    const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
+    const myGoodNames = new Set(memories.filter(m=>m.rating>=3).map(m=>m.name.toLowerCase()));
+    const myBadNames = new Set(memories.filter(m=>m.rating>0&&m.rating<3).map(m=>m.name.toLowerCase()));
     const myMems = memories
       .filter(m=>m.rating>=3)
       .filter(m=>recoType===ALL||m.type===recoType)
       .filter(m=>recoPrice===ALL||m.price===recoPrice)
       .filter(m=>!recoKids||m.kidsf);
-    const friendMems = friendMemories.filter(m=>
-      myNames.has(m.name.toLowerCase()) || m.rating>=3 // always include friend version of my places
-    ).filter(m=>recoType===ALL||m.type===recoType)
+    const friendMems = friendMemories.filter(m => {
+      const key = m.name.toLowerCase();
+      if (myBadNames.has(key)) return false; // my low rating wins, never show
+      return myGoodNames.has(key) || m.rating>=3;
+    }).filter(m=>recoType===ALL||m.type===recoType)
      .filter(m=>recoPrice===ALL||m.price===recoPrice)
      .filter(m=>!recoKids||m.kidsf);
     const candidates = [...myMems, ...friendMems];
