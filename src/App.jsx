@@ -2016,7 +2016,7 @@ function TravelAgent() {
           const withCoords = heartMems.filter(m=>m.distanceKm!==undefined);
           if (withCoords.length > 0) {
             const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
-            heartMems = inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating);
+            heartMems = inRadius.sort((a,b)=>b.rating-a.rating||a.distanceKm-b.distanceKm);
           } else { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
         }
       } catch { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
@@ -2058,7 +2058,7 @@ function TravelAgent() {
     };
     deduped.sort((a,b) => {
       if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
-        return a.distanceKm - b.distanceKm || getDisplayRating(b) - getDisplayRating(a);
+        return getDisplayRating(b) - getDisplayRating(a) || a.distanceKm - b.distanceKm;
       }
       return getDisplayRating(b) - getDisplayRating(a);
     });
@@ -2177,7 +2177,7 @@ function TravelAgent() {
         if (withCoords.length > 0) {
           const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
           // Don't include places without coords - they could be anywhere
-          heartMems = inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating);
+          heartMems = inRadius.sort((a,b)=>b.rating-a.rating||a.distanceKm-b.distanceKm);
         } else {
           heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
         }
@@ -2223,7 +2223,7 @@ function TravelAgent() {
     };
     deduped.sort((a,b) => {
       if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
-        return a.distanceKm - b.distanceKm || getDisplayRating(b) - getDisplayRating(a);
+        return getDisplayRating(b) - getDisplayRating(a) || a.distanceKm - b.distanceKm;
       }
       return getDisplayRating(b) - getDisplayRating(a);
     });
