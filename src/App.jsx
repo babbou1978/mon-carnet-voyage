@@ -1633,6 +1633,11 @@ function TravelAgent() {
     return "light";
   });
   const COLORS = THEMES[themeKey] || THEMES.light; // eslint-disable-line
+
+  // Sync browser theme-color meta tag with current theme
+  useEffect(() => {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', COLORS.bg);
+  }, [themeKey]);
   const [showResetModal, setShowResetModal] = useState(false);
   const [tab, _setTab] = useState("reco");
   const scrollPositions = useRef({});
