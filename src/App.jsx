@@ -458,7 +458,7 @@ const getCSS = (COLORS) => `
   .badge { font-size: 10px; padding: 3px 7px; border-radius: 20px; background: ${COLORS.tag}; color: ${COLORS.muted}; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge.price { color: ${COLORS.accent}; background: ${COLORS.accent}18; }
   .badge.stars { color: ${COLORS.accent}; background: ${COLORS.accent}18; font-size: 11px; }
-  .badge.kids { color: #7abf8a; background: ${COLORS.mapScheme==="DARK"?"#1a2e1e":"#e8f5ee"}; }
+  .badge.kids { color: ${COLORS.accent}; background: ${COLORS.accent}18; }
   .badge.friend { color: ${COLORS.accent}; background: ${COLORS.accent}12; font-style: italic; }
   .memory-location { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 6px; }
   .memory-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
