@@ -1327,6 +1327,7 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
     };
 
     return dayPart + ": " + timePart.split(",").map(convertSlot).join(", ");
+  };
 
   const getTodayLine = () => {
     if (!hours?.length) return null;
