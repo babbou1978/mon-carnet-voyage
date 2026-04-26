@@ -2381,22 +2381,29 @@ function TravelAgent() {
         body: JSON.stringify({ action: "nearby", lat: coords.lat, lng: coords.lng, radius: distance, type: recoType }),
       });
       const data = await res.json();
-      const places = (data.places||[]).map(p=>({
-        name: p.displayName?.text||"", address: p.formattedAddress||"",
-        rating: p.rating, price: PRICE_MAP[p.priceLevel]||"",
-        lat: p.location?.latitude, lng: p.location?.longitude,
-        openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
-        openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
-      })).filter(p=>p.name);
-      setNearbyPlaces(places);
-      // Filter by real distance using Google coords (strict radius enforcement)
-      const strictInRadius = places.filter(p =>
-        p.lat && p.lng
-          ? calcDistance(coords.lat, coords.lng, p.lat, p.lng) * 1000 <= distance
-          : true
-      );
-      // Filter out already visited places for AI
-      nearbyForAI = strictInRadius.filter(p => !alreadyVisited.has(p.name));
+      const places = (data.places||[]).map(p=>{
+        const plat = p.location?.latitude, plng = p.location?.longitude;
+        const dist = plat && plng ? calcDistance(coords.lat, coords.lng, plat, plng) * 1000 : null;
+        return {
+          name: p.displayName?.text||"", address: p.formattedAddress||"",
+          rating: p.rating, price: PRICE_MAP[p.priceLevel]||"",
+          lat: plat, lng: plng, _dist: dist,
+          openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
+          openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
+        };
+      }).filter(p=>p.name);
+
+      // Sort: popularity (Google order = POPULARITY) in radius, then distance outside radius
+      const inRadius = places.filter(p => p._dist===null || p._dist<=distance);
+      const outRadius = places.filter(p => p._dist!==null && p._dist>distance)
+        .sort((a,b) => (a._dist||0)-(b._dist||0));
+      const sorted = [...inRadius, ...outRadius];
+
+      // For display: exclude my own favorites (heartMemories shown separately above)
+      setNearbyPlaces(sorted.filter(p => !alreadyVisited.has(p.name)));
+
+      // For AI: strictly in radius, exclude all visited (mine + friends)
+      nearbyForAI = inRadius.filter(p => !alreadyVisited.has(p.name));
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 

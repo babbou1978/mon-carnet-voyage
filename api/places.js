@@ -108,7 +108,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           includedTypes,
           maxResultCount: 20,
-          rankPreference: "DISTANCE",
+          rankPreference: "POPULARITY",
           locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radiusMeters: radius } },
           languageCode: 'fr'
         }),
