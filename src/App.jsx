@@ -1874,7 +1874,7 @@ function TravelAgent() {
           body: JSON.stringify({ action:"verify", places: myHearts.map(m=>({name:m.name,address:m.address||""})) })
         });
         const verifyData = await verifyRes.json();
-        const closed = (verifyData.results||[]).filter(r=>!r.operational);
+        const closed = (verifyData.results||[]).filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
         if (closed.length > 0) {
           const closedFavs = closed.map(r=>{
             const mem = myHearts.find(m=>m.name.toLowerCase()===r.name.toLowerCase());
@@ -2076,6 +2076,8 @@ IMPORTANT RULES:
           });
           const verifyData = await verifyRes.json();
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
+          const permClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
+          const tempClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_TEMPORARILY");
           if (newlyClosed.length > 0) console.log(`Filtered as CLOSED: ${newlyClosed.map(r=>r.name).join(', ')}`);
           if (closedPlaces.length > 0) console.log(`Community closed list (${closedPlaces.length}):`, closedPlaces);
           const allClosedNames = new Set([
@@ -2120,9 +2122,9 @@ IMPORTANT RULES:
           } else {
             setAiRecos(filtered);
           }
-          if (newlyClosed.length > 0) {
+          if (permClosed.length > 0) {
             try {
-              const toInsert = newlyClosed.map(r=>{
+              const toInsert = permClosed.map(r=>{
                 const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
                 return { place_id: r.placeId||null, name: r.name, address: reco?.address||'', confirmed_by: userId };
               });
