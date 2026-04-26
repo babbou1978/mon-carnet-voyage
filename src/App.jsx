@@ -2041,6 +2041,21 @@ function TravelAgent() {
         }
       }
     });
+
+    // Sort deduped by effective display rating (same logic as MemoryCard)
+    const getDisplayRating = (m) => {
+      if (m.isMine && m.rating > 0) return m.rating;
+      const rated = (m.friendsData||[]).filter(f => f.rating > 0);
+      if (rated.length > 0) return rated.reduce((s,f) => s + f.rating, 0) / rated.length;
+      return m.rating || 0;
+    };
+    deduped.sort((a,b) => {
+      if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+        return a.distanceKm - b.distanceKm || getDisplayRating(b) - getDisplayRating(a);
+      }
+      return getDisplayRating(b) - getDisplayRating(a);
+    });
+
     const nbHearts = (() => {
       const val = nbRecosOverride ?? prefs.nbrecos;
       return val === "auto" ? 10 : parseInt(val) || 10;
@@ -2160,7 +2175,6 @@ function TravelAgent() {
         heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
       }
     } catch(err) {
-      console.error("HEART FILTER ERROR:", err);
       heartMems = heartMems.sort((a,b)=>b.rating-a.rating);
     }
     // Deduplicate by name - keep isMine version if exists
@@ -2189,6 +2203,19 @@ function TravelAgent() {
           existing.friendsData.push(m);
         }
       }
+    });
+    // Sort by effective display rating after dedup (friend averages now available)
+    const getDisplayRating = (m) => {
+      if (m.isMine && m.rating > 0) return m.rating;
+      const rated = (m.friendsData||[]).filter(f => f.rating > 0);
+      if (rated.length > 0) return rated.reduce((s,f) => s + f.rating, 0) / rated.length;
+      return m.rating || 0;
+    };
+    deduped.sort((a,b) => {
+      if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+        return a.distanceKm - b.distanceKm || getDisplayRating(b) - getDisplayRating(a);
+      }
+      return getDisplayRating(b) - getDisplayRating(a);
     });
     // Preserve openNow from previous state if already enriched
     const nbHearts = prefs.nbrecos === "auto"
