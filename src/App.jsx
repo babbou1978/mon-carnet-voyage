@@ -1287,16 +1287,24 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
     const dayMap = dayMaps[lang] || {};
     let out = line;
     Object.entries(dayMap).forEach(([en,fr])=>{ out = out.replace(en, fr); });
-    // Convert AM/PM to 24h
-    out = out.replace(/(\d+):(\d+)\s*AM/g, (_,h,m)=>{
-      const hh = h==="12"?"00":h.padStart(2,"0");
+
+    // Normalize non-breaking spaces and various dash types
+    out = out.replace(/\u202f/g, " ").replace(/\u2009/g, " ").replace(/\u2013/g, "–").replace(/\u2014/g, "–");
+
+    // Convert AM/PM times to 24h
+    // Handle "X:XX AM" and "X:XX PM" - must handle ranges like "12:00 – 3:00 PM, 5:30 – 10:30 PM"
+    // Strategy: find each time+AM/PM pair and convert
+    out = out.replace(/(\d{1,2}):(\d{2})\s*[Aa][Mm]/g, (_, h, m) => {
+      const hh = h === "12" ? "00" : String(parseInt(h)).padStart(2, "0");
       return `${hh}:${m}`;
     });
-    out = out.replace(/(\d+):(\d+)\s*PM/g, (_,h,m)=>{
-      const hh = h==="12"?"12":String(parseInt(h)+12);
+    out = out.replace(/(\d{1,2}):(\d{2})\s*[Pp][Mm]/g, (_, h, m) => {
+      const hh = h === "12" ? "12" : String(parseInt(h) + 12).padStart(2, "0");
       return `${hh}:${m}`;
     });
-    out = out.replace(" – ", "–");
+
+    // Normalize dashes
+    out = out.replace(/\s*–\s*/g, "–").replace(/\s*-\s*/g, "–");
     return out;
   };
 
@@ -1338,10 +1346,13 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
           {hours.map((h,i)=>{
             const fr = convertToFr(h);
             const [day,...rest] = fr.split(": ");
+            const slots = rest.join(": ").split(", ");
             return (
-              <div key={i} style={{display:"flex",gap:8}}>
-                <span style={{minWidth:100,color:COLORS.text,fontWeight:500}}>{day}</span>
-                <span>{rest.join(": ")}</span>
+              <div key={i} style={{display:"flex",gap:8,marginBottom:2}}>
+                <span style={{minWidth:100,color:COLORS.text,fontWeight:500,flexShrink:0}}>{day}</span>
+                <span style={{display:"flex",flexDirection:"column",gap:1}}>
+                  {slots.map((slot,j)=><span key={j}>{slot}</span>)}
+                </span>
               </div>
             );
           })}
