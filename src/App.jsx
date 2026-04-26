@@ -1917,20 +1917,29 @@ function TravelAgent() {
     } else { heartMems = heartMems.sort((a,b)=>b.rating-a.rating); }
     // Deduplicate by name - keep isMine version if exists
     const deduped = [];
-    const seenNames = new Set();
-    // First pass: add own memories
+    const seenNamesMap = new Map();
+    // First pass: add own memories, initialize friendsWhoHave
     heartMems.filter(m=>m.isMine).forEach(m => {
       const key = m.name.toLowerCase();
-      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
+      if (!seenNamesMap.has(key)) {
+        const entry = {...m, friendsWhoHave:[], friendsData:[]};
+        seenNamesMap.set(key, entry);
+        deduped.push(entry);
+      }
     });
-    // Second pass: add friend-only memories
+    // Second pass: add friend-only memories or attach to existing
     heartMems.filter(m=>!m.isMine).forEach(m => {
       const key = m.name.toLowerCase();
-      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
-      else {
-        // Add friend to existing entry's friendsWhoHave
-        const existing = deduped.find(x=>x.name.toLowerCase()===key);
-        if (existing) { existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean); existing.friendsData = [...(existing.friendsData||[]), m]; }
+      if (!seenNamesMap.has(key)) {
+        const entry = {...m, friendsWhoHave:[m.friendName].filter(Boolean), friendsData:[m]};
+        seenNamesMap.set(key, entry);
+        deduped.push(entry);
+      } else {
+        const existing = seenNamesMap.get(key);
+        if (m.friendName && !existing.friendsWhoHave.includes(m.friendName)) {
+          existing.friendsWhoHave.push(m.friendName);
+          existing.friendsData.push(m);
+        }
       }
     });
     const heartSlice = deduped.slice(0,10);
@@ -1951,7 +1960,6 @@ function TravelAgent() {
           .map(r=>r.name.toLowerCase()));
         if (tempClosedNames.size > 0) {
           setHeartMemories(prev=>prev.filter(m=>!tempClosedNames.has(m.name.toLowerCase())));
-          console.log("Filtered temp closed:", [...tempClosedNames]);
         }
         const closed = (verifyData.results||[]).filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
         if (closed.length > 0) {
@@ -2055,20 +2063,29 @@ function TravelAgent() {
     }
     // Deduplicate by name - keep isMine version if exists
     const deduped = [];
-    const seenNames = new Set();
-    // First pass: add own memories
+    const seenNamesMap = new Map();
+    // First pass: add own memories, initialize friendsWhoHave
     heartMems.filter(m=>m.isMine).forEach(m => {
       const key = m.name.toLowerCase();
-      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
+      if (!seenNamesMap.has(key)) {
+        const entry = {...m, friendsWhoHave:[], friendsData:[]};
+        seenNamesMap.set(key, entry);
+        deduped.push(entry);
+      }
     });
-    // Second pass: add friend-only memories
+    // Second pass: add friend-only memories or attach to existing
     heartMems.filter(m=>!m.isMine).forEach(m => {
       const key = m.name.toLowerCase();
-      if (!seenNames.has(key)) { seenNames.add(key); deduped.push(m); }
-      else {
-        // Add friend to existing entry's friendsWhoHave
-        const existing = deduped.find(x=>x.name.toLowerCase()===key);
-        if (existing) { existing.friendsWhoHave = [...(existing.friendsWhoHave||[]), m.friendName].filter(Boolean); existing.friendsData = [...(existing.friendsData||[]), m]; }
+      if (!seenNamesMap.has(key)) {
+        const entry = {...m, friendsWhoHave:[m.friendName].filter(Boolean), friendsData:[m]};
+        seenNamesMap.set(key, entry);
+        deduped.push(entry);
+      } else {
+        const existing = seenNamesMap.get(key);
+        if (m.friendName && !existing.friendsWhoHave.includes(m.friendName)) {
+          existing.friendsWhoHave.push(m.friendName);
+          existing.friendsData.push(m);
+        }
       }
     });
     // Preserve openNow from previous state if already enriched
