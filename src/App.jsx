@@ -2314,6 +2314,20 @@ IMPORTANT RULES:
     });
   };
 
+  const addFriendToCarnet = (m) => {
+    // Pre-fill from friend's memory but reset personal fields
+    setRecoToAdd({
+      name: m.name,
+      type: m.type || "Restaurant",
+      price: m.price || "€€",
+      city: m.city || "",
+      country: m.country || "",
+      address: m.address || "",
+      cuisine: m.cuisine || "",
+      rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false
+    });
+  };
+
   const filteredMemories = (() => {
     const applyFilters = (m) => {
       if (filterType!==ALL&&m.type!==filterType) return false;
@@ -2436,7 +2450,7 @@ IMPORTANT RULES:
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
                 ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
-                  onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
+                  onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}
               </div>
             </div>
           )}
@@ -2454,7 +2468,7 @@ IMPORTANT RULES:
                   ):(
                     <div className="memory-list">
                       {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} t={t} lang={lang} onEdit={()=>{}} onDelete={()=>{}}
-                        onSaveFriend={(fMem)=>{const dup=memories.find(x=>x.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
+                        onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}
                     </div>
                   )}
                 </div>
@@ -2675,7 +2689,7 @@ IMPORTANT RULES:
                     <div>
                       <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
                       <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
-                  onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}</div>
+                  onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}</div>
                     </div>
                   )}
                   {nearbyPlaces.length>0&&(
@@ -2807,7 +2821,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
           <div className="modal" style={{maxHeight:"90vh",overflowY:"auto"}}>
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
             <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} COLORS={COLORS} t={t} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}
-              onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());setFriendMemoryModal(null);if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>
+              onSaveFriend={(fMem)=>{setFriendMemoryModal(null);addFriendToCarnet(fMem);}}/>
             <div style={{marginTop:16,borderTop:`1px solid ${COLORS.border}`,paddingTop:12}}>
               <div style={{fontSize:11,color:COLORS.muted,marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>{t.friendSaveLabel||"Edit before saving"}</div>
               <MemoryForm
