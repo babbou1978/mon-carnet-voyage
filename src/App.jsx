@@ -2427,10 +2427,11 @@ ${liked||"None."}
 My disappointments (never recommend similar):
 ${disliked||"None."}
 
-Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
+Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}"${coords?.lat ? ` (GPS: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})` : ""}.
 
 IMPORTANT RULES:
-- ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit.
+- The search center is exactly: ${coords?.lat ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}` : `"${locationLabel}"`}. ALL places MUST be within ${distLabel} of this point. This is a HARD limit.
+- Use the GPS coordinates above to verify each place's distance — do not rely on neighborhood names or approximate areas.
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
 - 2-3 short matchReasons (max 8 words each) — concrete tags like "Authentic cuisine", "Intimate setting", "No chains"
