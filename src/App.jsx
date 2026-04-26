@@ -119,6 +119,7 @@ const TRANSLATIONS = {
     closedTitle: "⚠️ Établissements fermés", closedText: "Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?", closedKeep: "Garder", closedRemove: "Supprimer", closedToast: "✓ Favoris supprimés",
     friendSaveLabel: "Modifier avant de sauvegarder",
     cancel: "Annuler",
+    unsavedTitle: "Modifications non sauvegardées", unsavedText: "Vous avez des modifications non sauvegardées. Quitter sans sauvegarder ?", unsavedStay: "Continuer", unsavedLeave: "Quitter",
     mapYou: "Vous", mapFavorites: "Favoris", mapAIPicks: "Sélection AI", mapClose: "✕ Fermer", mapFullscreen: "⛶ Plein écran", mapTooltip: "Voir la fiche",
     matchLabel: "% affinité",
     gpsError: "Erreur de localisation",
@@ -173,7 +174,7 @@ const TRANSLATIONS = {
     friendSaveLabel: "Editar antes de guardar",
     friendsHearts: "favoritos",
     cancel: "Cancelar",
-    mapYou: "Tú", mapFavorites: "Favoritos", mapAIPicks: "Selección AI", mapClose: "✕ Cerrar", mapFullscreen: "⛶ Pantalla completa", mapTooltip: "Ver ficha",
+    unsavedTitle: "Cambios sin guardar", unsavedText: "Tienes cambios sin guardar. ¿Salir sin guardar?", unsavedStay: "Seguir editando", unsavedLeave: "Salir", mapFavorites: "Favoritos", mapAIPicks: "Selección AI", mapClose: "✕ Cerrar", mapFullscreen: "⛶ Pantalla completa", mapTooltip: "Ver ficha",
     matchLabel: "% afinidad",
     gpsError: "Error de localización",
     editBtn: "✏️ Editar",
@@ -226,7 +227,7 @@ const TRANSLATIONS = {
     friendSaveLabel: "Vor dem Speichern bearbeiten",
     friendsHearts: "Favoriten",
     cancel: "Abbrechen",
-    mapYou: "Du", mapFavorites: "Favoriten", mapAIPicks: "AI-Auswahl", mapClose: "✕ Schließen", mapFullscreen: "⛶ Vollbild", mapTooltip: "Details ansehen",
+    unsavedTitle: "Ungespeicherte Änderungen", unsavedText: "Du hast ungespeicherte Änderungen. Ohne Speichern verlassen?", unsavedStay: "Weiter bearbeiten", unsavedLeave: "Verlassen", mapFavorites: "Favoriten", mapAIPicks: "AI-Auswahl", mapClose: "✕ Schließen", mapFullscreen: "⛶ Vollbild", mapTooltip: "Details ansehen",
     matchLabel: "% Übereinstimmung",
     gpsError: "Standortfehler",
     editBtn: "✏️ Bearbeiten",
@@ -280,7 +281,7 @@ const TRANSLATIONS = {
     friendsHearts: "preferiti",
     friendsNoHeart: "non ha ancora preferiti.",
     cancel: "Annulla",
-    mapYou: "Tu", mapFavorites: "Preferiti", mapAIPicks: "Selezione AI", mapClose: "✕ Chiudi", mapFullscreen: "⛶ Schermo intero", mapTooltip: "Vedi scheda",
+    unsavedTitle: "Modifiche non salvate", unsavedText: "Hai modifiche non salvate. Uscire senza salvare?", unsavedStay: "Continua a modificare", unsavedLeave: "Esci", mapFavorites: "Preferiti", mapAIPicks: "Selezione AI", mapClose: "✕ Chiudi", mapFullscreen: "⛶ Schermo intero", mapTooltip: "Vedi scheda",
     matchLabel: "% affinità",
     gpsError: "Errore di localizzazione",
     editBtn: "✏️ Modifica",
@@ -334,7 +335,7 @@ const TRANSLATIONS = {
     friendsHearts: "favoritos",
     friendsNoHeart: "ainda não tem favoritos.",
     cancel: "Cancelar",
-    mapYou: "Você", mapFavorites: "Favoritos", mapAIPicks: "Seleção AI", mapClose: "✕ Fechar", mapFullscreen: "⛶ Ecrã inteiro", mapTooltip: "Ver ficha",
+    unsavedTitle: "Alterações não guardadas", unsavedText: "Tens alterações não guardadas. Sair sem guardar?", unsavedStay: "Continuar a editar", unsavedLeave: "Sair", mapFavorites: "Favoritos", mapAIPicks: "Seleção AI", mapClose: "✕ Fechar", mapFullscreen: "⛶ Ecrã inteiro", mapTooltip: "Ver ficha",
     matchLabel: "% afinidade",
     gpsError: "Erro de localização",
     editBtn: "✏️ Editar",
@@ -388,7 +389,7 @@ const TRANSLATIONS = {
     friendsHearts: "favorieten",
     friendsNoHeart: "heeft nog geen favorieten.",
     cancel: "Annuleren",
-    mapYou: "Jij", mapFavorites: "Favorieten", mapAIPicks: "AI-keuze", mapClose: "✕ Sluiten", mapFullscreen: "⛶ Volledig scherm", mapTooltip: "Bekijk kaart",
+    unsavedTitle: "Niet-opgeslagen wijzigingen", unsavedText: "Je hebt niet-opgeslagen wijzigingen. Verlaten zonder opslaan?", unsavedStay: "Blijven bewerken", unsavedLeave: "Verlaten", mapFavorites: "Favorieten", mapAIPicks: "AI-keuze", mapClose: "✕ Sluiten", mapFullscreen: "⛶ Volledig scherm", mapTooltip: "Bekijk kaart",
     matchLabel: "% overeenkomst",
     gpsError: "Locatiefout",
     editBtn: "✏️ Bewerken",
@@ -442,7 +443,7 @@ const TRANSLATIONS = {
     friendsHearts: "favorites",
     friendsNoHeart: "has no favorites yet.",
     cancel: "Cancel",
-    mapYou: "You", mapFavorites: "Favorites", mapAIPicks: "AI picks", mapClose: "✕ Close", mapFullscreen: "⛶ Fullscreen", mapTooltip: "View details",
+    unsavedTitle: "Unsaved changes", unsavedText: "You have unsaved changes. Leave without saving?", unsavedStay: "Keep editing", unsavedLeave: "Leave", mapFavorites: "Favorites", mapAIPicks: "AI picks", mapClose: "✕ Close", mapFullscreen: "⛶ Fullscreen", mapTooltip: "View details",
     matchLabel: "% match",
     gpsError: "Location error",
     editBtn: "✏️ Edit",
@@ -505,7 +506,7 @@ const getCSS = (COLORS) => `
   .autocomplete-loading { padding: 11px 14px; font-size: 12px; color: ${COLORS.muted}; text-align: center; }
   .place-badge { font-size: 11px; color: ${COLORS.accent}; margin-top: 4px; }
   .price-selector { display: flex; gap: 8px; }
-  .price-btn { padding: 5px 8px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 6px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .price-btn { flex: 1; padding: 10px 4px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; text-align: center; white-space: nowrap; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .star-row { display: flex; gap: 8px; align-items: center; }
   .star { font-size: 24px; cursor: pointer; transition: all 0.15s; color: ${COLORS.border}; user-select: none; }
@@ -1203,6 +1204,20 @@ const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lov
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COLORS=THEMES.dark, onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
+  const [confirmClose, setConfirmClose] = useState(false);
+  const initialRef = useRef(JSON.stringify(initial||DEFAULT_FORM));
+  const isDirty = () => JSON.stringify(form) !== initialRef.current;
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (!onCancel) return;
+      if (!isDirty()) { onCancel(); return; }
+      setConfirmClose(true);
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [form]); // eslint-disable-line
   const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[form.type]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
   const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[form.type]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
   const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
@@ -1238,6 +1253,18 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COL
           {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>{t?.duplicateCancel||"Cancel"}</button>}
           <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?(t?.addUpdate||"Update"):(t?.addSave||"Save")}</button>
         </div>
+        {confirmClose&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div style={{background:COLORS.bg,border:`1px solid ${COLORS.accent}44`,borderRadius:16,padding:24,maxWidth:320,width:"100%",display:"flex",flexDirection:"column",gap:14}}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,color:COLORS.accent}}>{t?.unsavedTitle||"Unsaved changes"}</div>
+              <div style={{fontSize:13,color:COLORS.muted}}>{t?.unsavedText||"You have unsaved changes. Leave without saving?"}</div>
+              <div style={{display:"flex",gap:8}}>
+                <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setConfirmClose(false)}>{t?.unsavedStay||"Keep editing"}</button>
+                <button className="modal-btn primary" style={{flex:1,background:"#e06060",border:"none"}} onClick={()=>{setConfirmClose(false);onCancel();}}>{t?.unsavedLeave||"Leave"}</button>
+              </div>
+            </div>
+          </div>
+        )}
       </>}
     </div>
   );
