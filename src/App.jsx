@@ -1336,8 +1336,66 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
     return hours.find(h => h.startsWith(days[today])) || null;
   };
 
+  // Find next opening slot when currently closed
+  const getNextOpenLabel = () => {
+    if (!hours?.length) return null;
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const dayShort = {
+      fr:["dim.","lun.","mar.","mer.","jeu.","ven.","sam."],
+      en:["Sun.","Mon.","Tue.","Wed.","Thu.","Fri.","Sat."],
+      es:["dom.","lun.","mar.","mié.","jue.","vie.","sáb."],
+      de:["So.","Mo.","Di.","Mi.","Do.","Fr.","Sa."],
+      it:["dom.","lun.","mar.","mer.","gio.","ven.","sab."],
+      pt:["dom.","seg.","ter.","qua.","qui.","sex.","sáb."],
+      nl:["zo.","ma.","di.","wo.","do.","vr.","za."],
+    }[lang] || ["Sun.","Mon.","Tue.","Wed.","Thu.","Fri.","Sat."];
+    const opensLabel = {fr:"Ouvre à",en:"Opens at",es:"Abre a",de:"Öffnet um",it:"Apre alle",pt:"Abre às",nl:"Opent om"}[lang]||"Opens at";
+
+    const now = new Date();
+    const todayIdx = now.getDay();
+
+    // Check remaining slots today first, then next 6 days
+    for (let offset = 0; offset <= 6; offset++) {
+      const dayIdx = (todayIdx + offset) % 7;
+      const dayLine = hours.find(h => h.startsWith(days[dayIdx]));
+      if (!dayLine) continue;
+      const converted = convertToFr(dayLine);
+      const timePart = converted.split(": ").slice(1).join(": ");
+      const closedLabel = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
+      if (!timePart || timePart === closedLabel) continue;
+
+      // Extract first opening time of this day
+      const firstTime = timePart.split(",")[0].split("–")[0].trim();
+      if (!firstTime) continue;
+
+      // If today, check if this slot is still upcoming
+      if (offset === 0) {
+        const [hh, mm] = firstTime.split(":").map(Number);
+        const slotMinutes = hh * 60 + (mm || 0);
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // Also check if there's a later slot today
+        const slots = timePart.split(",");
+        const upcomingSlot = slots.find(slot => {
+          const t = slot.split("–")[0].trim();
+          const [sh, sm] = t.split(":").map(Number);
+          return (sh * 60 + (sm||0)) > nowMinutes;
+        });
+        if (upcomingSlot) {
+          const t = upcomingSlot.split("–")[0].trim();
+          return `${opensLabel} ${t}`;
+        }
+        continue; // no upcoming slot today, try tomorrow
+      }
+
+      return `${opensLabel} ${firstTime} ${dayShort[dayIdx]}`;
+    }
+    return null;
+  };
+
   const todayLine = getTodayLine();
   const todayTimes = todayLine ? convertToFr(todayLine).split(": ").slice(1).join(": ") : null;
+  const nextOpenLabel = !openNow ? getNextOpenLabel() : null;
 
   const openLabel = {fr:"Ouvert",en:"Open",es:"Abierto",de:"Geöffnet",it:"Aperto",pt:"Aberto",nl:"Open"}[lang]||"Open";
   const closedLabel = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
@@ -1346,7 +1404,7 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
     ? `🟢 ${openLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`
     : maybeTemp
       ? `⚠️ ${{fr:'Fermé temporairement',en:'Possibly temporarily closed',es:'Posiblemente cerrado temporalmente',de:'Möglicherweise vorübergehend geschlossen',it:'Possibilmente chiuso temporaneamente',pt:'Possivelmente fechado temporariamente',nl:'Mogelijk tijdelijk gesloten'}[lang]||'Possibly temporarily closed'}`
-      : `🔴 ${closedLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`;
+      : `🔴 ${closedLabel}${nextOpenLabel ? " · "+nextOpenLabel : ""}`;
 
   return (
     <div style={{marginBottom:6}}>
