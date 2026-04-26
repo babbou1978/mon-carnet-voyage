@@ -399,7 +399,7 @@ const getCSS = (COLORS) => `
   .header-middle { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 10px; }
   .tabs { display: flex; background: ${COLORS.card}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
   .tab { flex: 1; padding: 6px 2px; font-size: 9px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; background: none; border: none; color: ${COLORS.muted}; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-weight: 500; }
-  .tab.active { background: ${COLORS.accent}; color: #0f0e0c; }
+  .tab.active { background: ${COLORS.accent}; color: ${COLORS.bg}; }
   .content { flex: 1; padding: 20px 24px; overflow-y: auto; }
   .form-section { display: flex; flex-direction: column; gap: 14px; }
   .field { display: flex; flex-direction: column; gap: 6px; position: relative; }
@@ -440,7 +440,7 @@ const getCSS = (COLORS) => `
   .kids-toggle.on .toggle-switch { background: ${COLORS.accent}; }
   .toggle-knob { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; background: white; border-radius: 50%; transition: transform 0.2s; }
   .kids-toggle.on .toggle-knob { transform: translateX(16px); }
-  .save-btn { background: ${COLORS.accent}; color: #0f0e0c; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; margin-top: 4px; transition: all 0.2s; }
+  .save-btn { background: ${COLORS.accent}; color: ${COLORS.bg}; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; margin-top: 4px; transition: all 0.2s; }
   .save-btn:hover { background: ${COLORS.accentLight}; }
   .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .filters-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
@@ -477,7 +477,7 @@ const getCSS = (COLORS) => `
   .modal { background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
   .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: ${COLORS.accent}; }
   .modal-btn { flex: 1; padding: 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-  .modal-btn.primary { background: ${COLORS.accent}; color: #0f0e0c; border: none; }
+  .modal-btn.primary { background: ${COLORS.accent}; color: ${COLORS.bg}; border: none; }
   .modal-btn.primary:hover { background: ${COLORS.accentLight}; }
   .modal-btn.secondary { background: none; border: 1px solid ${COLORS.border}; color: ${COLORS.muted}; }
   .modal-btn.secondary:hover { border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
@@ -496,13 +496,13 @@ const getCSS = (COLORS) => `
   .friends-section { display: flex; flex-direction: column; gap: 16px; }
   .friend-search-row { display: flex; gap: 8px; }
   .friend-search-input { flex: 1; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 14px; outline: none; }
-  .friend-search-btn { padding: 11px 16px; background: ${COLORS.accent}; border: none; border-radius: 8px; color: #0f0e0c; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .friend-search-btn { padding: 11px 16px; background: ${COLORS.accent}; border: none; border-radius: 8px; color: ${COLORS.bg}; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; }
   .friend-card { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .friend-info { display: flex; flex-direction: column; gap: 2px; }
   .friend-name { font-size: 14px; color: ${COLORS.text}; font-weight: 500; }
   .friend-email { font-size: 11px; color: ${COLORS.muted}; }
   .friend-action-btn { padding: 6px 12px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-  .friend-action-btn.add { background: ${COLORS.accent}; color: #0f0e0c; }
+  .friend-action-btn.add { background: ${COLORS.accent}; color: ${COLORS.bg}; }
   .friend-action-btn.accept { background: #2a4a2e; color: #7abf8a; }
   .friend-action-btn.decline { background: ${COLORS.dislikeBg}; color: #a06060; margin-left: 4px; }
   .friend-action-btn.pending { background: ${COLORS.tag}; color: ${COLORS.muted}; cursor: default; }
@@ -565,7 +565,7 @@ const getCSS = (COLORS) => `
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes bounce { 0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)} }
-  .success-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${COLORS.accent}; color: #0f0e0c; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 300; animation: fadeInUp 0.3s ease, fadeOut 0.3s ease 1.7s forwards; }
+  .success-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${COLORS.accent}; color: ${COLORS.bg}; color: #0f0e0c; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 300; animation: fadeInUp 0.3s ease, fadeOut 0.3s ease 1.7s forwards; }
   @keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
   @keyframes fadeOut { to{opacity:0} }
   .count-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: ${COLORS.accent}; color: #0f0e0c; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
@@ -929,7 +929,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
 
       <button onClick={() => setFullscreen(f => !f)} style={{
         position:"absolute", top:8, right:8, background:"#c9a84c", border:"none",
-        borderRadius:6, padding:"6px 12px", color:"#0f0e0c", cursor:"pointer", fontSize:12,
+        borderRadius:6, padding:"6px 12px", color:COLORS.bg, cursor:"pointer", fontSize:12,
         fontFamily:"'DM Sans',sans-serif", fontWeight:600, zIndex:1, boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
       }}>
         {fullscreen ? "✕ Close" : "⛶ Fullscreen"}
@@ -950,13 +950,13 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
           borderRadius:10, padding:"12px 14px", zIndex:20
         }}>
           <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
-            <div style={{fontFamily:"'Cormorant Garamond',serif", fontSize:17, color:"#f0ead8", flex:1, marginRight:8}}>
+            <div style={{fontFamily:"'Cormorant Garamond',serif", fontSize:17, color:COLORS.text, flex:1, marginRight:8}}>
               {activePlace.idx && <span style={{color:"#c9a84c",marginRight:6}}>#{activePlace.idx}</span>}
               {activePlace.name}
             </div>
-            <button onClick={() => setActivePlace(null)} style={{background:"none",border:"none",color:"#8a8070",cursor:"pointer",fontSize:16}}>✕</button>
+            <button onClick={() => setActivePlace(null)} style={{background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16}}>✕</button>
           </div>
-          <div style={{fontSize:11,color:"#8a8070",marginTop:3}}>
+          <div style={{fontSize:11,color:COLORS.muted,marginTop:3}}>
             {activePlace.address || [activePlace.city, activePlace.country].filter(Boolean).join(", ")}
           </div>
           {activePlace.why && <div style={{fontSize:12,color:"#b8ad98",fontStyle:"italic",marginTop:4}}>« {activePlace.why} »</div>}
@@ -1219,17 +1219,17 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
           padding:"3px 10px",borderRadius:20}}>
           {statusText}
         </span>
-        {hours?.length&&<span style={{fontSize:10,color:"#8a8070"}}>{expanded?"▲":"▼"}</span>}
+        {hours?.length&&<span style={{fontSize:10,color:COLORS.muted}}>{expanded?"▲":"▼"}</span>}
       </div>
       {expanded&&hours?.length&&(
         <div style={{marginTop:6,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,
-          padding:"8px 12px",fontSize:11,color:"#8a8070",lineHeight:1.8}}>
+          padding:"8px 12px",fontSize:11,color:COLORS.muted,lineHeight:1.8}}>
           {hours.map((h,i)=>{
             const fr = convertToFr(h);
             const [day,...rest] = fr.split(": ");
             return (
               <div key={i} style={{display:"flex",gap:8}}>
-                <span style={{minWidth:100,color:"#f0ead8",fontWeight:500}}>{day}</span>
+                <span style={{minWidth:100,color:COLORS.text,fontWeight:500}}>{day}</span>
                 <span>{rest.join(": ")}</span>
               </div>
             );
@@ -1266,7 +1266,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
             return (
               <div key={i} style={{padding:"8px 12px",borderBottom:i<friends.length-1?`1px solid ${COLORS.border}44`:"none"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                  <span style={{fontSize:12,color:"#f0ead8",fontWeight:500}}>👤 {fname}</span>
+                  <span style={{fontSize:12,color:COLORS.text,fontWeight:500}}>👤 {fname}</span>
                   <div style={{display:"flex",gap:4,alignItems:"center"}}>
                     {fMem?.rating>0&&<span className="badge stars" style={{fontSize:9}}>{starsLabel(fMem.rating)}</span>}
                     {fMem?.kidsf&&<span className="badge kids" style={{fontSize:9}}>👶</span>}
@@ -2442,7 +2442,7 @@ IMPORTANT RULES:
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
                         style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
+                          borderRadius:8,color:(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.muted,
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
                         {label}
                       </button>
@@ -2506,13 +2506,13 @@ IMPORTANT RULES:
                   </>)}
                 </div>
                 <div className="field" style={{marginTop:4}}>
-                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:"#8a8070",fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
+                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:6,marginTop:6}}>
                     {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
                         style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
+                          borderRadius:8,color:(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.muted,
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600}}>
                         {label}
                       </button>
@@ -2678,7 +2678,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
             <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
             <div style={{marginTop:16,borderTop:`1px solid ${COLORS.border}`,paddingTop:12}}>
-              <div style={{fontSize:11,color:"#8a8070",marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>Modifier avant de sauvegarder</div>
+              <div style={{fontSize:11,color:COLORS.muted,marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>Modifier avant de sauvegarder</div>
               <MemoryForm
                 key={"friend-"+friendMemoryModal.memory.id}
                 initial={friendMemoryModal.memory}
