@@ -808,6 +808,7 @@ const MAP_STYLES = [
 function GoogleMap({ recommendations, userCoords, heartMemories }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+  useEffect(()=>{ mapInstance.current=null; }, [themeKey]);
   const boundsRef = useRef(null);
   const [activePlace, setActivePlace] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
