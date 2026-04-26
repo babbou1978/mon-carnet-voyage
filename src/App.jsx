@@ -2389,8 +2389,14 @@ function TravelAgent() {
         openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
       })).filter(p=>p.name);
       setNearbyPlaces(places);
+      // Filter by real distance using Google coords (strict radius enforcement)
+      const strictInRadius = places.filter(p =>
+        p.lat && p.lng
+          ? calcDistance(coords.lat, coords.lng, p.lat, p.lng) * 1000 <= distance
+          : true
+      );
       // Filter out already visited places for AI
-      nearbyForAI = places.filter(p => !alreadyVisited.has(p.name));
+      nearbyForAI = strictInRadius.filter(p => !alreadyVisited.has(p.name));
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
