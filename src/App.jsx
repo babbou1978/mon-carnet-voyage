@@ -2433,7 +2433,7 @@ IMPORTANT RULES:
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
 - 2-3 short matchReasons (max 8 words each) — concrete tags like "Authentic cuisine", "Intimate setting", "No chains"
-- "why" field: 1 sentence (max 25 words) structured as "[Brief place description] — [personal connection to user's favorites or profile]". Example: "Bar élégant avec terrasse — correspond à ton goût pour les endroits intimistes loin des chaînes." Always include both parts separated by " — ".
+- "why" field: 1 sentence (max 30 words) = "[Brief place description] — [specific personal reason]". The personal reason MUST cite something concrete from the user's data: a specific favorite place by name, a cuisine they loved, a destination they visited, a preference they stated, or something they explicitly avoid. Examples: "Cuisine inventive et raffinée — dans l'esprit de Barrafina que tu as adoré." / "Ambiance intime et produits frais — correspond à ton goût pour la cuisine locale loin des chaînes." / "Gastronomie japonaise authentique — dans la lignée de tes favoris japonais et de tes voyages en Asie."
 - Full address required: street number, street name, city, country
 - NEVER suggest any of these places (already shown): ${excludeList||"none"}
 - NEVER suggest places similar to my disappointments
