@@ -85,8 +85,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Sélectionner", addLikedPrecise: "Préciser", addDisliked: "Ce que j'ai moins aimé",
     addDislikedSelect: "Sélectionner", addDislikedPrecise: "Préciser",
     addSave: "Enregistrer", addUpdate: "Sauvegarder",
+    addCuisine: "Cuisine",
     filterType: "Type", filterPrice: "Prix", filterRating: "Note", filterKids: "👶 Kids friendly",
-    filterFriends: "👥 Amis", filterAll: "Tous", nbRecosLabel: "Nombre de recommandations AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    filterFriends: "👥 Amis", filterAll: "Tous", filterMine: "Mes lieux", filterFriendsOnly: "Amis",
+    searchPlaces: "Chercher par nom, ville...",
+    nbRecosLabel: "Nombre de recommandations AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Aucun coup de cœur encore", emptyFavoritesSub: "Commencez par ajouter un lieu",
     emptyResults: "Aucun résultat", emptyResultsSub: "Essayez d'autres filtres",
     profileIdentity: "👤 Mon identité", profileFirstName: "Prénom", profileLastName: "Nom",
@@ -100,6 +103,7 @@ const TRANSLATIONS = {
     friendsPending: "⏳ En attente", friendsAlready: "Déjà ami", friendsSent: "Envoyée", friendsAdd: "+ Ajouter",
     friendsAccept: "✓", friendsView: "Voir ❤️", friendsHeartTitle: "❤️ Coups de cœur de",
     friendsNoHeart: "n'a pas encore de coups de cœur.",
+    friendsHearts: "coups de cœur",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
     recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
@@ -111,6 +115,9 @@ const TRANSLATIONS = {
     recoNoHeart: "Aucun coup de cœur dans ce rayon. Ajoutez des lieux notés ≥ 4★ !",
     duplicateTitle: "📍 Lieu déjà existant", duplicateText: "est déjà dans vos coups de cœur. Mettre à jour ?",
     duplicateCancel: "Annuler", duplicateEdit: "Modifier l'existant", duplicateUpdate: "Mettre à jour",
+    deleteTitle: "Supprimer", deleteText: "sera retiré de vos favoris.", deleteConfirm: "Supprimer",
+    closedTitle: "⚠️ Établissements fermés", closedText: "Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?", closedKeep: "Garder", closedRemove: "Supprimer", closedToast: "✓ Favoris supprimés",
+    friendSaveLabel: "Modifier avant de sauvegarder",
     editTitle: "✏️ Modifier", toastSaved: "✓ Souvenir enregistré !", toastUpdated: "✓ Coup de cœur mis à jour !",
     toastAdded: "✓ Ajouté à vos coups de cœur !", toastFriend: "✓ Demande envoyée !", toastFriendAdded: "✓ Ami ajouté !",
     loading: "Chargement... ✈️", loginConnect: "Se connecter", loginCreate: "Créer mon compte",
@@ -127,8 +134,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Seleccionar", addLikedPrecise: "Añadir detalles", addDisliked: "Lo que no me gustó",
     addDislikedSelect: "Seleccionar", addDislikedPrecise: "Añadir detalles",
     addSave: "Guardar", addUpdate: "Actualizar",
+    addCuisine: "Cocina",
     filterType: "Tipo", filterPrice: "Precio", filterRating: "Nota", filterKids: "👶 Niños",
-    filterFriends: "👥 Amigos", filterAll: "Todos", nbRecosLabel: "Número de recomendaciones AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Mis lugares", filterFriendsOnly: "Amigos",
+    searchPlaces: "Buscar por nombre, ciudad...",
+    nbRecosLabel: "Número de recomendaciones AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Aún sin favoritos", emptyFavoritesSub: "Empieza añadiendo un lugar",
     emptyResults: "Sin resultados", emptyResultsSub: "Prueba otros filtros",
     profileIdentity: "👤 Mi identidad", profileFirstName: "Nombre", profileLastName: "Apellido",
@@ -153,6 +163,10 @@ const TRANSLATIONS = {
     recoNoHeart: "Sin favoritos en esta zona. ¡Añade lugares con ≥ 4★!",
     duplicateTitle: "📍 Lugar ya existe", duplicateText: "ya está en tus favoritos. ¿Actualizar?",
     duplicateCancel: "Cancelar", duplicateUpdate: "Actualizar",
+    deleteTitle: "Eliminar", deleteText: "se eliminará de tus favoritos.", deleteConfirm: "Eliminar",
+    closedTitle: "⚠️ Establecimientos cerrados", closedText: "Estos establecimientos parecen cerrados permanentemente. ¿Eliminarlos de tus Favoritos?", closedKeep: "Conservar", closedRemove: "Eliminar", closedToast: "✓ Favoritos eliminados",
+    friendSaveLabel: "Editar antes de guardar",
+    friendsHearts: "favoritos",
     editTitle: "✏️ Editar", toastSaved: "✓ ¡Guardado!", toastUpdated: "✓ ¡Favorito actualizado!",
     toastAdded: "✓ ¡Añadido a favoritos!", toastFriend: "✓ ¡Solicitud enviada!", toastFriendAdded: "✓ ¡Amigo añadido!",
     loading: "Cargando... ✈️", loginConnect: "Iniciar sesión", loginCreate: "Crear cuenta",
@@ -169,8 +183,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Auswählen", addLikedPrecise: "Details hinzufügen", addDisliked: "Was mir nicht gefiel",
     addDislikedSelect: "Auswählen", addDislikedPrecise: "Details hinzufügen",
     addSave: "Speichern", addUpdate: "Aktualisieren",
+    addCuisine: "Küche",
     filterType: "Typ", filterPrice: "Preis", filterRating: "Bewertung", filterKids: "👶 Kinder",
-    filterFriends: "👥 Freunde", filterAll: "Alle", nbRecosLabel: "Anzahl AI-Empfehlungen", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    filterFriends: "👥 Freunde", filterAll: "Alle", filterMine: "Meine Orte", filterFriendsOnly: "Freunde",
+    searchPlaces: "Nach Name, Stadt suchen...",
+    nbRecosLabel: "Anzahl AI-Empfehlungen", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Noch keine Favoriten", emptyFavoritesSub: "Füge einen Ort hinzu",
     emptyResults: "Keine Ergebnisse", emptyResultsSub: "Versuche andere Filter",
     profileIdentity: "👤 Meine Identität", profileFirstName: "Vorname", profileLastName: "Nachname",
@@ -195,6 +212,10 @@ const TRANSLATIONS = {
     recoNoHeart: "Keine Favoriten in diesem Bereich. Füge Orte mit ≥ 4★ hinzu!",
     duplicateTitle: "📍 Ort bereits vorhanden", duplicateText: "ist bereits in deinen Favoriten. Aktualisieren?",
     duplicateCancel: "Abbrechen", duplicateEdit: "Bestehenden bearbeiten", duplicateUpdate: "Aktualisieren",
+    deleteTitle: "Löschen", deleteText: "wird aus deinen Favoriten entfernt.", deleteConfirm: "Löschen",
+    closedTitle: "⚠️ Geschlossene Orte", closedText: "Diese Orte scheinen dauerhaft geschlossen. Aus Favoriten entfernen?", closedKeep: "Behalten", closedRemove: "Entfernen", closedToast: "✓ Favoriten entfernt",
+    friendSaveLabel: "Vor dem Speichern bearbeiten",
+    friendsHearts: "Favoriten",
     editTitle: "✏️ Bearbeiten", toastSaved: "✓ Gespeichert!", toastUpdated: "✓ Favorit aktualisiert!",
     toastAdded: "✓ Zu Favoriten hinzugefügt!", toastFriend: "✓ Anfrage gesendet!", toastFriendAdded: "✓ Freund hinzugefügt!",
     loading: "Laden... ✈️", loginConnect: "Anmelden", loginCreate: "Konto erstellen",
@@ -211,8 +232,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Seleziona", addLikedPrecise: "Aggiungi dettagli", addDisliked: "Cosa non mi è piaciuto",
     addDislikedSelect: "Seleziona", addDislikedPrecise: "Aggiungi dettagli",
     addSave: "Salva", addUpdate: "Aggiorna",
+    addCuisine: "Cucina",
     filterType: "Tipo", filterPrice: "Prezzo", filterRating: "Valutazione", filterKids: "👶 Bambini",
-    filterFriends: "👥 Amici", filterAll: "Tutti", nbRecosLabel: "Numero raccomandazioni AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    filterFriends: "👥 Amici", filterAll: "Tutti", filterMine: "I miei posti", filterFriendsOnly: "Amici",
+    searchPlaces: "Cerca per nome, città...",
+    nbRecosLabel: "Numero raccomandazioni AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Ancora nessun preferito", emptyFavoritesSub: "Inizia aggiungendo un posto",
     emptyResults: "Nessun risultato", emptyResultsSub: "Prova altri filtri",
     profileIdentity: "👤 La mia identità", profileFirstName: "Nome", profileLastName: "Cognome",
@@ -237,6 +261,11 @@ const TRANSLATIONS = {
     recoNoHeart: "Nessun preferito in quest'area. Aggiungi posti con ≥ 4★!",
     duplicateTitle: "📍 Posto già esistente", duplicateText: "è già nei tuoi preferiti. Aggiornare?",
     duplicateCancel: "Annulla", duplicateEdit: "Modifica esistente", duplicateUpdate: "Aggiorna",
+    deleteTitle: "Elimina", deleteText: "verrà rimosso dai tuoi preferiti.", deleteConfirm: "Elimina",
+    closedTitle: "⚠️ Posti chiusi", closedText: "Questi posti sembrano chiusi definitivamente. Rimuoverli dai Preferiti?", closedKeep: "Tieni", closedRemove: "Rimuovi", closedToast: "✓ Preferiti rimossi",
+    friendSaveLabel: "Modifica prima di salvare",
+    friendsHearts: "preferiti",
+    friendsNoHeart: "non ha ancora preferiti.",
     editTitle: "✏️ Modifica", toastSaved: "✓ Salvato!", toastUpdated: "✓ Preferito aggiornato!",
     toastAdded: "✓ Aggiunto ai preferiti!", toastFriend: "✓ Richiesta inviata!", toastFriendAdded: "✓ Amico aggiunto!",
     loading: "Caricamento... ✈️", loginConnect: "Accedi", loginCreate: "Crea account",
@@ -253,8 +282,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Selecionar", addLikedPrecise: "Adicionar detalhes", addDisliked: "O que não gostei",
     addDislikedSelect: "Selecionar", addDislikedPrecise: "Adicionar detalhes",
     addSave: "Guardar", addUpdate: "Atualizar",
+    addCuisine: "Cozinha",
     filterType: "Tipo", filterPrice: "Preço", filterRating: "Avaliação", filterKids: "👶 Crianças",
-    filterFriends: "👥 Amigos", filterAll: "Todos", nbRecosLabel: "Número de recomendações AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Os meus lugares", filterFriendsOnly: "Amigos",
+    searchPlaces: "Pesquisar por nome, cidade...",
+    nbRecosLabel: "Número de recomendações AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Ainda sem favoritos", emptyFavoritesSub: "Comece por adicionar um lugar",
     emptyResults: "Sem resultados", emptyResultsSub: "Tente outros filtros",
     profileIdentity: "👤 Minha identidade", profileFirstName: "Nome", profileLastName: "Apelido",
@@ -279,6 +311,11 @@ const TRANSLATIONS = {
     recoNoHeart: "Sem favoritos nesta área. Adicione lugares com ≥ 4★!",
     duplicateTitle: "📍 Lugar já existe", duplicateText: "já está nos seus favoritos. Atualizar?",
     duplicateCancel: "Cancelar", duplicateEdit: "Editar existente", duplicateUpdate: "Atualizar",
+    deleteTitle: "Eliminar", deleteText: "será removido dos seus favoritos.", deleteConfirm: "Eliminar",
+    closedTitle: "⚠️ Estabelecimentos fechados", closedText: "Estes estabelecimentos parecem fechados definitivamente. Removê-los dos Favoritos?", closedKeep: "Manter", closedRemove: "Remover", closedToast: "✓ Favoritos removidos",
+    friendSaveLabel: "Editar antes de guardar",
+    friendsHearts: "favoritos",
+    friendsNoHeart: "ainda não tem favoritos.",
     editTitle: "✏️ Editar", toastSaved: "✓ Guardado!", toastUpdated: "✓ Favorito atualizado!",
     toastAdded: "✓ Adicionado aos favoritos!", toastFriend: "✓ Pedido enviado!", toastFriendAdded: "✓ Amigo adicionado!",
     loading: "A carregar... ✈️", loginConnect: "Entrar", loginCreate: "Criar conta",
@@ -295,8 +332,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Selecteren", addLikedPrecise: "Details toevoegen", addDisliked: "Wat ik niet leuk vond",
     addDislikedSelect: "Selecteren", addDislikedPrecise: "Details toevoegen",
     addSave: "Opslaan", addUpdate: "Bijwerken",
+    addCuisine: "Keuken",
     filterType: "Type", filterPrice: "Prijs", filterRating: "Beoordeling", filterKids: "👶 Kinderen",
-    filterFriends: "👥 Vrienden", filterAll: "Alle", nbRecosLabel: "Aantal AI-aanbevelingen", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    filterFriends: "👥 Vrienden", filterAll: "Alle", filterMine: "Mijn plekken", filterFriendsOnly: "Vrienden",
+    searchPlaces: "Zoeken op naam, stad...",
+    nbRecosLabel: "Aantal AI-aanbevelingen", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Nog geen favorieten", emptyFavoritesSub: "Begin met een plek toevoegen",
     emptyResults: "Geen resultaten", emptyResultsSub: "Probeer andere filters",
     profileIdentity: "👤 Mijn identiteit", profileFirstName: "Voornaam", profileLastName: "Achternaam",
@@ -321,6 +361,11 @@ const TRANSLATIONS = {
     recoNoHeart: "Geen favorieten in dit gebied. Voeg plekken toe met ≥ 4★!",
     duplicateTitle: "📍 Plek bestaat al", duplicateText: "staat al in je favorieten. Bijwerken?",
     duplicateCancel: "Annuleren", duplicateEdit: "Bestaande bewerken", duplicateUpdate: "Bijwerken",
+    deleteTitle: "Verwijderen", deleteText: "wordt verwijderd uit je favorieten.", deleteConfirm: "Verwijderen",
+    closedTitle: "⚠️ Gesloten plekken", closedText: "Deze plekken lijken permanent gesloten. Verwijderen uit Favorieten?", closedKeep: "Bewaren", closedRemove: "Verwijderen", closedToast: "✓ Favorieten verwijderd",
+    friendSaveLabel: "Bewerken voor opslaan",
+    friendsHearts: "favorieten",
+    friendsNoHeart: "heeft nog geen favorieten.",
     editTitle: "✏️ Bewerken", toastSaved: "✓ Opgeslagen!", toastUpdated: "✓ Favoriet bijgewerkt!",
     toastAdded: "✓ Toegevoegd aan favorieten!", toastFriend: "✓ Verzoek verzonden!", toastFriendAdded: "✓ Vriend toegevoegd!",
     loading: "Laden... ✈️", loginConnect: "Inloggen", loginCreate: "Account aanmaken",
@@ -337,8 +382,11 @@ const TRANSLATIONS = {
     addLikedSelect: "Select", addLikedPrecise: "Add details", addDisliked: "What I didn't like",
     addDislikedSelect: "Select", addDislikedPrecise: "Add details",
     addSave: "Save", addUpdate: "Update",
+    addCuisine: "Cuisine",
     filterType: "Type", filterPrice: "Price", filterRating: "Rating", filterKids: "👶 Kids friendly",
-    filterFriends: "👥 Friends", filterAll: "All", nbRecosLabel: "AI Recommendation Number", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto (max based on favorites)",
+    filterFriends: "👥 Friends", filterAll: "All", filterMine: "My places", filterFriendsOnly: "Friends",
+    searchPlaces: "Search by name, city...",
+    nbRecosLabel: "AI Recommendation Number", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto (max based on favorites)",
     emptyFavorites: "No favorites yet", emptyFavoritesSub: "Start by adding a place",
     emptyResults: "No results", emptyResultsSub: "Try different filters",
     profileIdentity: "👤 My identity", profileFirstName: "First name", profileLastName: "Last name",
@@ -363,6 +411,11 @@ const TRANSLATIONS = {
     recoNoHeart: "No favorites in this area. Add places with rating ≥ 4★!",
     duplicateTitle: "📍 Place already exists", duplicateText: "is already in your favorites. Update it?",
     duplicateCancel: "Cancel", duplicateEdit: "Edit existing", duplicateUpdate: "Update",
+    deleteTitle: "Delete", deleteText: "will be removed from your favorites.", deleteConfirm: "Delete",
+    closedTitle: "⚠️ Closed places", closedText: "These places appear to be permanently closed. Remove them from your Favorites?", closedKeep: "Keep", closedRemove: "Remove", closedToast: "✓ Favorites removed",
+    friendSaveLabel: "Edit before saving",
+    friendsHearts: "favorites",
+    friendsNoHeart: "has no favorites yet.",
     editTitle: "✏️ Edit", toastSaved: "✓ Place saved!", toastUpdated: "✓ Favorite updated!",
     toastAdded: "✓ Added to favorites!", toastFriend: "✓ Request sent!", toastFriendAdded: "✓ Friend added!",
     loading: "Loading... ✈️", loginConnect: "Sign in", loginCreate: "Create account",
@@ -413,7 +466,7 @@ const getCSS = (COLORS) => `
   .tag-pill.selected-like { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .tag-pill.selected-dislike { background: #3a1a1a; border-color: #8b3a3a44; color: #a06060; }
   .autocomplete-wrapper { position: relative; }
-  .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; z-index: 50; background: #222018; border: 1px solid ${COLORS.accent}44; border-radius: 8px; margin-top: 4px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; z-index: 50; background: ${COLORS.card}; border: 1px solid ${COLORS.accent}44; border-radius: 8px; margin-top: 4px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
   .autocomplete-item { padding: 11px 14px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid ${COLORS.border}; }
   .autocomplete-item:last-child { border-bottom: none; }
   .autocomplete-item:hover { background: ${COLORS.accent}18; }
@@ -425,7 +478,7 @@ const getCSS = (COLORS) => `
   .price-btn { padding: 5px 8px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 6px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .star-row { display: flex; gap: 8px; align-items: center; }
-  .star { font-size: 24px; cursor: pointer; transition: all 0.15s; color: #3a3520; user-select: none; }
+  .star { font-size: 24px; cursor: pointer; transition: all 0.15s; color: ${COLORS.border}; user-select: none; }
   .star.active { color: #c9a84c; transform: scale(1.1); }
   .star:hover { color: #e8c97a; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -1469,7 +1522,17 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty, COLORS=TH
 
 function TravelAgent() {
   const [session, setSession] = useState(undefined);
-  const [themeKey, setThemeKey] = useState("light");
+  const [themeKey, setThemeKey] = useState(() => {
+    // Restore theme from localStorage immediately to avoid flash
+    try {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith("outsy_cache_"));
+      for (const k of keys) {
+        const cached = JSON.parse(localStorage.getItem(k) || "{}");
+        if (cached?.prefs?.theme) return cached.prefs.theme;
+      }
+    } catch {}
+    return "light";
+  });
   const COLORS = THEMES[themeKey] || THEMES.light; // eslint-disable-line
   const [showResetModal, setShowResetModal] = useState(false);
   const [tab, _setTab] = useState("reco");
@@ -1562,7 +1625,7 @@ function TravelAgent() {
         const { profile: p, memories: m, prefs: pr } = JSON.parse(cached);
         if (p) setProfile(p);
         if (m) setMemories(m);
-        if (pr) setPrefs({ ...DEFAULT_PREFS, ...pr });
+        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr }); if (pr.theme) setThemeKey(pr.theme); }
         setLoading(false); // Show UI immediately with cached data
       }
     } catch {}
@@ -1616,7 +1679,6 @@ function TravelAgent() {
                 if (Object.keys(updates).length > 0) {
                   await supabase.from('memories').update(updates).eq('id', m.id).eq('user_id', userId);
                   setMemories(prev => prev.map(x => x.id===m.id ? {...x,...updates} : x));
-                  console.log(`Enriched: ${m.name}`, updates);
                 }
               } catch(e) { console.error('Enrich error:', m.name, e); }
             }
@@ -1954,7 +2016,6 @@ function TravelAgent() {
     const candidates = [...myMems, ...friendMems];
 
     // Show all favorites sorted by rating — distance filter is best-effort
-    console.log("Heart candidates:", candidates.length, "memories:", memories.length, "friends:", friendMemories.length);
     let heartMems = candidates.map(m=>({...m,isMine:!m.friendName}));
     try {
       const toGeocode = candidates.filter(m=>m.city||m.name);
@@ -1966,8 +2027,6 @@ function TravelAgent() {
         const geoData = await geoRes.json();
         const coordsMap = {};
         (geoData.results||[]).forEach(r=>{ if(r.lat) coordsMap[String(r.id)]={lat:r.lat,lng:r.lng}; });
-        console.log("coordsMap keys:", Object.keys(coordsMap));
-        console.log("heartMems IDs:", heartMems.map(m=>String(m.id)));
 
         heartMems = heartMems.map(m=>{
           const c = coordsMap[String(m.id)];
@@ -1982,7 +2041,6 @@ function TravelAgent() {
         const withCoords = heartMems.filter(m=>m.distanceKm!==undefined);
         if (withCoords.length > 0) {
           const inRadius = withCoords.filter(m=>m.distanceKm*1000<=distance);
-          console.log("In radius:", inRadius.length, "of", withCoords.length, "distance:", distance);
           // Don't include places without coords - they could be anywhere
           heartMems = inRadius.sort((a,b)=>a.distanceKm-b.distanceKm||b.rating-a.rating);
         } else {
@@ -2091,7 +2149,6 @@ IMPORTANT RULES:
       });
       const data = await res.json();
       if (data.recommendations) {
-        console.log(`AI returned ${data.recommendations.length} recommendations:`, data.recommendations.map(r=>r.name));
         // Verify places are still operational via Google Places
         try {
           const verifyRes = await fetch("/api/places", {
@@ -2102,8 +2159,6 @@ IMPORTANT RULES:
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
           const permClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
           const tempClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_TEMPORARILY");
-          if (newlyClosed.length > 0) console.log(`Filtered as CLOSED: ${newlyClosed.map(r=>r.name).join(', ')}`);
-          if (closedPlaces.length > 0) console.log(`Community closed list (${closedPlaces.length}):`, closedPlaces);
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlaces.map(n=>n.toLowerCase())
@@ -2114,8 +2169,6 @@ IMPORTANT RULES:
           const filtered = data.recommendations
             .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
             .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r; });
-          console.log(`After closed filter: ${filtered.length} results:`, filtered.map(r=>r.name));
-          console.log("Filtered addresses:", filtered.map(r=>r.name+": "+r.address));
 
           // Filter by real distance if we have coords
           if (coords?.lat && filtered.length > 0) {
@@ -2132,7 +2185,6 @@ IMPORTANT RULES:
               });
               const inRadius = recoWithDist.filter(r=>r._dist===null||r._dist<=distance);
               const outRadius = recoWithDist.filter(r=>r._dist!==null&&r._dist>distance);
-              console.log(`In radius: ${inRadius.length}, Out of radius: ${outRadius.length}`);
               if (inRadius.length >= nbRecosCount) {
                 // Enough results in radius - discard those outside
                 setAiRecos(inRadius.sort((a,b)=>(a._dist||0)-(b._dist||0)));
@@ -2368,7 +2420,7 @@ IMPORTANT RULES:
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                     <div className="friend-info">
                       <div className="friend-name">{f.profile?.first_name} {f.profile?.last_name}</div>
-                      <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} coups de cœur</div>
+                      <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} {t.friendsHearts||"favorites"}</div>
                     </div>
                     <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>{t.friendsView}</button>
                   </div>
@@ -2381,7 +2433,7 @@ IMPORTANT RULES:
                   {pendingOut.map(f=>(
                     <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                       <div className="friend-info"><div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div></div>
-                      <span className="friend-action-btn pending">En attente</span>
+                      <span className="friend-action-btn pending">{t.friendsSent||"Pending"}</span>
                     </div>
                   ))}
                 </div>
@@ -2499,7 +2551,7 @@ IMPORTANT RULES:
                 </div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>{setRecoPrice(val);setHeartsKey(k=>k+1);}}>{label}</button>)}</div>
                 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                  <button className={`filter-btn ${recoKids?"active":""}`} onClick={()=>{setRecoKids(k=>!k);setHeartsKey(k=>k+1);}}>👶 Kids friendly</button>
+                  <button className={`filter-btn ${recoKids?"active":""}`} onClick={()=>{setRecoKids(k=>!k);setHeartsKey(k=>k+1);}}>{t.filterKids||"👶 Kids friendly"}</button>
                   {friends.length>0&&(<>
                     <button className={`filter-btn ${recoFriendFilter==="all"?"active":""}`} onClick={()=>{setRecoFriendFilter("all");setHeartsKey(k=>k+1);}}>👤+👥</button>
                     <button className={`filter-btn ${recoFriendFilter==="mine"?"active":""}`} onClick={()=>{setRecoFriendFilter("mine");setHeartsKey(k=>k+1);}}>👤 {t.filterMine||"Mine"}</button>
@@ -2650,15 +2702,15 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
       {closedFavoritesAlert.length>0&&(
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-title">⚠️ Établissements fermés</div>
-            <p style={{fontSize:13,color:COLORS.muted,marginBottom:12}}>Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?</p>
+            <div className="modal-title">{t.closedTitle||"⚠️ Closed places"}</div>
+            <p style={{fontSize:13,color:COLORS.muted,marginBottom:12}}>{t.closedText||"These places appear to be permanently closed. Remove them from your Favorites?"}</p>
             {closedFavoritesAlert.map(f=>(
               <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${COLORS.border}44`}}>
                 <span style={{fontSize:13,color:COLORS.text}}>🔴 {f.name}</span>
               </div>
             ))}
             <div style={{display:"flex",gap:8,marginTop:16}}>
-              <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setClosedFavoritesAlert([])}>Garder</button>
+              <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setClosedFavoritesAlert([])}>{t.closedKeep||"Keep"}</button>
               <button className="modal-btn primary" style={{flex:1}} onClick={async()=>{
                 for (const f of closedFavoritesAlert) {
                   await supabase.from('memories').delete().eq('id',f.id).eq('user_id',userId);
@@ -2667,8 +2719,8 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
                   if (f.placeId) await supabase.from('closed_places').upsert({place_id:f.placeId,name:f.name},{onConflict:'place_id'});
                 }
                 setClosedFavoritesAlert([]);
-                showToast("✓ Favoris supprimés");
-              }}>Supprimer</button>
+                showToast(t.closedToast||"✓ Favorites removed");
+              }}>{t.closedRemove||"Remove"}</button>
             </div>
           </div>
         </div>
@@ -2679,7 +2731,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
             <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
             <div style={{marginTop:16,borderTop:`1px solid ${COLORS.border}`,paddingTop:12}}>
-              <div style={{fontSize:11,color:COLORS.muted,marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>Modifier avant de sauvegarder</div>
+              <div style={{fontSize:11,color:COLORS.muted,marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>{t.friendSaveLabel||"Edit before saving"}</div>
               <MemoryForm
                 key={"friend-"+friendMemoryModal.memory.id}
                 initial={friendMemoryModal.memory}
