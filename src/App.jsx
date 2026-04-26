@@ -1574,12 +1574,15 @@ function TravelAgent() {
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
 
-      // Auto-enrich memories missing address/cuisine/city via Google
+      // Auto-enrich memories missing google_place_id/address/cuisine - once per day max
       if (mems && mems.length > 0) {
-        const toEnrich = mems.filter(m => !m.address || !m.city || !m.cuisine);
-        if (toEnrich.length > 0) {
+        const lastEnrich = localStorage.getItem("outsy_enriched");
+        const today = new Date().toDateString();
+        const toEnrich = mems.filter(m => !m.google_place_id || !m.address || !m.cuisine);
+        if (toEnrich.length > 0 && lastEnrich !== today) {
+          localStorage.setItem("outsy_enriched", today);
           (async () => {
-            for (const m of toEnrich.slice(0, 20)) { // max 20 per login
+            for (const m of toEnrich.slice(0, 10)) { // max 10 per day
               try {
                 const query = `${m.name}${m.city ? ', '+m.city : ''}${m.country ? ', '+m.country : ''}`;
                 const r = await fetch('/api/places', {
