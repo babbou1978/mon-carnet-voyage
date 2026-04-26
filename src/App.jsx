@@ -805,10 +805,9 @@ const MAP_STYLES = [
   {featureType:"poi",stylers:[{visibility:"off"}]},
 ];
 
-function GoogleMap({ recommendations, userCoords, heartMemories }) {
+function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLORS }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  useEffect(()=>{ mapInstance.current=null; }, [themeKey]);
   const boundsRef = useRef(null);
   const [activePlace, setActivePlace] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
@@ -913,7 +912,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
 
   return (
     <div style={mapStyle}>
-      <div ref={mapRef} style={{ width:"100%", height: fullscreen ? "100vh" : "240px" }}/>
+      <div key={themeKey} ref={mapRef} style={{ width:"100%", height: fullscreen ? "100vh" : "240px" }}/>
 
       {/* Fullscreen toggle */}
       {/* Recenter button */}
@@ -2533,7 +2532,7 @@ IMPORTANT RULES:
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories}/>
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} themeKey={themeKey} COLORS={COLORS}/>
               )}
 
               {(heartMemories.length>0||nearbyPlaces.length>0)&&(
