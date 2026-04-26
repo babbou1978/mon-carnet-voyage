@@ -1352,7 +1352,9 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
 
 function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={} }) {
   const [open, setOpen] = useState(false);
+  const [dropPos, setDropPos] = useState({top:0, left:0});
   const ref = useRef(null);
+  const badgeRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
@@ -1361,16 +1363,28 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
+  const handleOpen = () => {
+    if (open) { setOpen(false); return; }
+    if (badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect();
+      // Find the parent memory-card for left alignment
+      let cardEl = badgeRef.current.closest(".memory-card");
+      const cardLeft = cardEl ? cardEl.getBoundingClientRect().left : rect.left;
+      setDropPos({ top: rect.bottom + 6, left: cardLeft + 12 });
+    }
+    setOpen(true);
+  };
+
   return (
     <div ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
-      <span onClick={()=>setOpen(o=>!o)}
+      <span ref={badgeRef} onClick={handleOpen}
         style={{fontSize:10,color:COLORS.accent,background:`${COLORS.accent}18`,border:`1px solid ${COLORS.accent}44`,borderRadius:20,
           padding:"3px 7px",fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none",letterSpacing:"0.06em"}}>
         👥 {friends.length}
       </span>
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",right:0,left:"auto",background:COLORS.card,border:`1px solid ${COLORS.border}`,
-          borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:200,maxWidth:280,boxShadow:"0 4px 20px rgba(0,0,0,0.2)"}}>
+        <div style={{position:"fixed",top:dropPos.top,left:dropPos.left,background:COLORS.card,border:`1px solid ${COLORS.border}`,
+          borderRadius:10,padding:"8px 4px",zIndex:500,width:260,boxShadow:"0 4px 20px rgba(0,0,0,0.15)"}}>
           {friends.map((fname,i)=>{
             const fMem = friendsData.find(m=>m.friendName===fname);
             return (
