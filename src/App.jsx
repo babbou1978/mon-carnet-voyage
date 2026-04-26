@@ -2418,9 +2418,10 @@ Likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"not
 Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"not specified"}
 Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
 Kids friendly required: ${recoKids?"yes":"no"}
+Other notes: ${prefs.notes||"none"}
 Preferred language for responses: ${langLabel}
 
-My favorites (use to understand my taste, DO NOT recommend these):
+My top favorites — USE THEIR NAMES in the "why" field when relevant:
 ${liked||"None."}
 
 My disappointments (never recommend similar):
@@ -2433,7 +2434,7 @@ IMPORTANT RULES:
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
 - 2-3 short matchReasons (max 8 words each) — concrete tags like "Authentic cuisine", "Intimate setting", "No chains"
-- "why" field: 1 sentence (max 30 words) = "[Brief place description] — [specific personal reason]". The personal reason MUST cite something concrete from the user's data: a specific favorite place by name, a cuisine they loved, a destination they visited, a preference they stated, or something they explicitly avoid. Examples: "Cuisine inventive et raffinée — dans l'esprit de Barrafina que tu as adoré." / "Ambiance intime et produits frais — correspond à ton goût pour la cuisine locale loin des chaînes." / "Gastronomie japonaise authentique — dans la lignée de tes favoris japonais et de tes voyages en Asie."
+- "why" field: 1 sentence (max 30 words) = "[Brief place description] — [personal reason citing something specific from the data above: a favorite place NAME, a cuisine, a destination, a stated preference, or something they avoid]". You MUST name something from the user data. Bad example: "Correspond à tes goûts." Good examples: "Cuisine de saison sur ardoise — même esprit que Barrafina, authenticité et fraîcheur des produits." / "Gastronomie japonaise raffinée — dans la lignée de Nobu que tu apprécies, même créativité."
 - Full address required: street number, street name, city, country
 - NEVER suggest any of these places (already shown): ${excludeList||"none"}
 - NEVER suggest places similar to my disappointments
