@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       const body = {
         includedTypes: [googleType],
         maxResultCount: 20,
-        rankPreference: "POPULARITY",
+        rankPreference: "DISTANCE",
         locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: radius } },
         languageCode: 'fr'
       };
