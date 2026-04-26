@@ -1409,6 +1409,37 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
 }
 
 function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={} }) {
+  // Compute displayed values: own data if isMine, friend averages otherwise
+  const friendsWithData = (m.friendsData||[]);
+  const displayRating = (() => {
+    if (m.isMine && m.rating > 0) return m.rating;
+    if (!m.isMine && friendsWithData.length > 0) {
+      const rated = friendsWithData.filter(f => f.rating > 0);
+      if (rated.length > 0) return rated.reduce((s,f) => s + f.rating, 0) / rated.length;
+    }
+    return m.rating > 0 ? m.rating : null;
+  })();
+  const displayPrice = (() => {
+    if (m.isMine) return m.price;
+    if (friendsWithData.length > 0) {
+      const priced = friendsWithData.filter(f => f.price);
+      if (priced.length > 0) {
+        const avgEuros = priced.reduce((s,f) => s + (f.price||"").length, 0) / priced.length;
+        const count = Math.max(1, Math.min(4, Math.round(avgEuros)));
+        return "€".repeat(count);
+      }
+    }
+    return m.price;
+  })();
+  const displayKids = (() => {
+    if (m.isMine) return m.kidsf;
+    if (friendsWithData.length > 0) {
+      const kidsCount = friendsWithData.filter(f => f.kidsf).length;
+      return kidsCount / friendsWithData.length >= 0.5;
+    }
+    return m.kidsf;
+  })();
+
   return (
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
@@ -1416,18 +1447,10 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       </div>
       <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
-        {(()=>{
-          if (m.isMine&&m.rating>0) return <span className="badge stars"><StarRating rating={m.rating} size={11} emptyColor={COLORS.border}/></span>;
-          if (!m.isMine&&m.friendsData?.length>0) {
-            const avg = m.friendsData.reduce((s,f)=>s+(f.rating||0),0)/m.friendsData.filter(f=>f.rating>0).length;
-            if (avg>0) return <span className="badge stars"><StarRating rating={avg} size={11} emptyColor={COLORS.border}/></span>;
-          }
-          if (m.rating>0) return <span className="badge stars"><StarRating rating={m.rating} size={11} emptyColor={COLORS.border}/></span>;
-          return null;
-        })()}
-        {m.kidsf&&<span className="badge kids">👶</span>}
+        {displayRating>0&&<span className="badge stars"><StarRating rating={displayRating} size={11} emptyColor={COLORS.border}/></span>}
+        {displayKids&&<span className="badge kids">👶</span>}
         {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS} t={t}/>}
-        <span className="badge price">{m.price}</span>
+        {displayPrice&&<span className="badge price">{displayPrice}</span>}
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
