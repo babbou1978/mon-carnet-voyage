@@ -2068,7 +2068,6 @@ function TravelAgent() {
       localStorage.setItem('outsy_recoCoords', JSON.stringify(coords));
     }
     setGeocoding(false);
-    console.log("Using coords:", coords.lat, coords.lng, "for:", locationLabel);
 
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
@@ -2633,23 +2632,23 @@ IMPORTANT RULES:
                 <div className="reco-location-title">{t.recoLocation}</div>
                 <div className="location-row">
                   <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
-                  <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);}}>{t.recoManual}</button>
+                  <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);recoCoordsRef.current=null;localStorage.removeItem("outsy_recoCoords");}}>{t.recoManual}</button>
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
-                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={v=>{setDistance(v);setHeartsKey(k=>k+1);}}/></div>
+                <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={v=>{setDistance(v);if(locationLabel)setHeartsKey(k=>k+1);}}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>{setRecoType(tp);setHeartsKey(k=>k+1);}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>)}</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>{setRecoType(tp);if(locationLabel)setHeartsKey(k=>k+1);}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>)}</div>
                 </div>
-                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>{setRecoPrice(val);setHeartsKey(k=>k+1);}}>{label}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${recoPrice===val?"active":""}`} onClick={()=>{setRecoPrice(val);if(locationLabel)setHeartsKey(k=>k+1);}}>{label}</button>)}</div>
                 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                  <button className={`filter-btn ${recoKids?"active":""}`} onClick={()=>{setRecoKids(k=>!k);setHeartsKey(k=>k+1);}}>{t.filterKids||"👶 Kids friendly"}</button>
+                  <button className={`filter-btn ${recoKids?"active":""}`} onClick={()=>{setRecoKids(k=>!k);if(locationLabel)setHeartsKey(k=>k+1);}}>{t.filterKids||"👶 Kids friendly"}</button>
                   {friends.length>0&&(<>
-                    <button className={`filter-btn ${recoFriendFilter==="all"?"active":""}`} onClick={()=>{setRecoFriendFilter("all");setHeartsKey(k=>k+1);}}>👤+👥</button>
-                    <button className={`filter-btn ${recoFriendFilter==="mine"?"active":""}`} onClick={()=>{setRecoFriendFilter("mine");setHeartsKey(k=>k+1);}}>👤 {t.filterMine||"Mine"}</button>
-                    <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
+                    <button className={`filter-btn ${recoFriendFilter==="all"?"active":""}`} onClick={()=>{setRecoFriendFilter("all");if(locationLabel)setHeartsKey(k=>k+1);}}>👤+👥</button>
+                    <button className={`filter-btn ${recoFriendFilter==="mine"?"active":""}`} onClick={()=>{setRecoFriendFilter("mine");if(locationLabel)setHeartsKey(k=>k+1);}}>👤 {t.filterMine||"Mine"}</button>
+                    <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");if(locationLabel)setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
                   </>)}
                 </div>
                 <div className="field" style={{marginTop:4}}>
