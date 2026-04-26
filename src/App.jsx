@@ -388,7 +388,7 @@ const COLORS = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; transition: background 0.3s, color 0.3s; }
   .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
   .header { padding: 20px 24px 14px; border-bottom: 1px solid ${COLORS.border}; position: sticky; top: 0; background: ${COLORS.bg}; z-index: 10; }
   .header-top { display: flex; justify-content: space-between; align-items: center; }
@@ -824,7 +824,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
         mapId: "49c549e3ad4ad4323a538e40",
-        colorScheme: "DARK",
+        colorScheme: COLORS.mapScheme,
       });
       mapInstance.current = map;
       boundsRef.current = bounds;
@@ -1117,7 +1117,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
 
 const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexican","Lebanese","Greek","Spanish","British","American","Mediterranean","Vietnamese","Korean","Turkish","Moroccan","Austrian","Belgian","Scandinavian","Peruvian","Argentine","Brazilian","Australian","Modern European","Fusion","Vegetarian","Seafood","Steakhouse","Sushi","Pizza","Burger","Bistro","Brasserie","Wine bar","Cocktail bar","Café","Bakery"];
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
-const DEFAULT_PREFS = { loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
+const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1470,6 +1470,8 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
 
 function TravelAgent() {
   const [session, setSession] = useState(undefined);
+  const [themeKey, setThemeKey] = useState("light");
+  const COLORS = THEMES[themeKey] || THEMES.light;
   const [showResetModal, setShowResetModal] = useState(false);
   const [tab, _setTab] = useState("reco");
   const scrollPositions = useRef({});
@@ -1623,7 +1625,7 @@ function TravelAgent() {
         }
       }
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).maybeSingle();
-      if (pref) setPrefs({ ...DEFAULT_PREFS, ...pref });
+      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref }); if(pref.theme) setThemeKey(pref.theme); }
       // Save to cache
       try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
       await loadFriends(userId);
