@@ -123,7 +123,7 @@ const TRANSLATIONS = {
     mapYou: "Vous", mapFavorites: "Favoris", mapAIPicks: "Sélection AI", mapClose: "✕ Fermer", mapFullscreen: "⛶ Plein écran", mapTooltip: "Voir la fiche",
     matchLabel: "% affinité",
     gpsError: "Erreur de localisation",
-    editBtn: "✏️ Éditer",
+    editBtn: "✏️ Éditer", hoursOpen: "Ouvert", hoursClosed: "Fermé",
     editTitle: "✏️ Modifier", toastSaved: "✓ Souvenir enregistré !", toastUpdated: "✓ Coup de cœur mis à jour !",
     toastAdded: "✓ Ajouté à vos coups de cœur !", toastFriend: "✓ Demande envoyée !", toastFriendAdded: "✓ Ami ajouté !",
     loading: "Chargement... ✈️", loginConnect: "Se connecter", loginCreate: "Créer mon compte",
@@ -177,7 +177,7 @@ const TRANSLATIONS = {
     unsavedTitle: "Cambios sin guardar", unsavedText: "Tienes cambios sin guardar. ¿Salir sin guardar?", unsavedStay: "Seguir editando", unsavedLeave: "Salir", mapFavorites: "Favoritos", mapAIPicks: "Selección AI", mapClose: "✕ Cerrar", mapFullscreen: "⛶ Pantalla completa", mapTooltip: "Ver ficha",
     matchLabel: "% afinidad",
     gpsError: "Error de localización",
-    editBtn: "✏️ Editar",
+    editBtn: "✏️ Editar", hoursOpen: "Abierto", hoursClosed: "Cerrado",
     toastAdded: "✓ ¡Añadido a favoritos!", toastFriend: "✓ ¡Solicitud enviada!", toastFriendAdded: "✓ ¡Amigo añadido!",
     loading: "Cargando... ✈️", loginConnect: "Iniciar sesión", loginCreate: "Crear cuenta",
     loginEmail: "Email", loginPassword: "Contraseña", loginFirstName: "Nombre", loginLastName: "Apellido",
@@ -230,7 +230,7 @@ const TRANSLATIONS = {
     unsavedTitle: "Ungespeicherte Änderungen", unsavedText: "Du hast ungespeicherte Änderungen. Ohne Speichern verlassen?", unsavedStay: "Weiter bearbeiten", unsavedLeave: "Verlassen", mapFavorites: "Favoriten", mapAIPicks: "AI-Auswahl", mapClose: "✕ Schließen", mapFullscreen: "⛶ Vollbild", mapTooltip: "Details ansehen",
     matchLabel: "% Übereinstimmung",
     gpsError: "Standortfehler",
-    editBtn: "✏️ Bearbeiten",
+    editBtn: "✏️ Bearbeiten", hoursOpen: "Geöffnet", hoursClosed: "Geschlossen",
     toastAdded: "✓ Zu Favoriten hinzugefügt!", toastFriend: "✓ Anfrage gesendet!", toastFriendAdded: "✓ Freund hinzugefügt!",
     loading: "Laden... ✈️", loginConnect: "Anmelden", loginCreate: "Konto erstellen",
     loginEmail: "E-Mail", loginPassword: "Passwort", loginFirstName: "Vorname", loginLastName: "Nachname",
@@ -284,7 +284,7 @@ const TRANSLATIONS = {
     unsavedTitle: "Modifiche non salvate", unsavedText: "Hai modifiche non salvate. Uscire senza salvare?", unsavedStay: "Continua a modificare", unsavedLeave: "Esci", mapFavorites: "Preferiti", mapAIPicks: "Selezione AI", mapClose: "✕ Chiudi", mapFullscreen: "⛶ Schermo intero", mapTooltip: "Vedi scheda",
     matchLabel: "% affinità",
     gpsError: "Errore di localizzazione",
-    editBtn: "✏️ Modifica",
+    editBtn: "✏️ Modifica", hoursOpen: "Aperto", hoursClosed: "Chiuso",
     toastAdded: "✓ Aggiunto ai preferiti!", toastFriend: "✓ Richiesta inviata!", toastFriendAdded: "✓ Amico aggiunto!",
     loading: "Caricamento... ✈️", loginConnect: "Accedi", loginCreate: "Crea account",
     loginEmail: "Email", loginPassword: "Password", loginFirstName: "Nome", loginLastName: "Cognome",
@@ -338,7 +338,7 @@ const TRANSLATIONS = {
     unsavedTitle: "Alterações não guardadas", unsavedText: "Tens alterações não guardadas. Sair sem guardar?", unsavedStay: "Continuar a editar", unsavedLeave: "Sair", mapFavorites: "Favoritos", mapAIPicks: "Seleção AI", mapClose: "✕ Fechar", mapFullscreen: "⛶ Ecrã inteiro", mapTooltip: "Ver ficha",
     matchLabel: "% afinidade",
     gpsError: "Erro de localização",
-    editBtn: "✏️ Editar",
+    editBtn: "✏️ Editar", hoursOpen: "Aberto", hoursClosed: "Fechado",
     toastAdded: "✓ Adicionado aos favoritos!", toastFriend: "✓ Pedido enviado!", toastFriendAdded: "✓ Amigo adicionado!",
     loading: "A carregar... ✈️", loginConnect: "Entrar", loginCreate: "Criar conta",
     loginEmail: "Email", loginPassword: "Palavra-passe", loginFirstName: "Nome", loginLastName: "Apelido",
@@ -392,7 +392,7 @@ const TRANSLATIONS = {
     unsavedTitle: "Niet-opgeslagen wijzigingen", unsavedText: "Je hebt niet-opgeslagen wijzigingen. Verlaten zonder opslaan?", unsavedStay: "Blijven bewerken", unsavedLeave: "Verlaten", mapFavorites: "Favorieten", mapAIPicks: "AI-keuze", mapClose: "✕ Sluiten", mapFullscreen: "⛶ Volledig scherm", mapTooltip: "Bekijk kaart",
     matchLabel: "% overeenkomst",
     gpsError: "Locatiefout",
-    editBtn: "✏️ Bewerken",
+    editBtn: "✏️ Bewerken", hoursOpen: "Open", hoursClosed: "Gesloten",
     toastAdded: "✓ Toegevoegd aan favorieten!", toastFriend: "✓ Verzoek verzonden!", toastFriendAdded: "✓ Vriend toegevoegd!",
     loading: "Laden... ✈️", loginConnect: "Inloggen", loginCreate: "Account aanmaken",
     loginEmail: "E-mail", loginPassword: "Wachtwoord", loginFirstName: "Voornaam", loginLastName: "Achternaam",
@@ -446,7 +446,7 @@ const TRANSLATIONS = {
     unsavedTitle: "Unsaved changes", unsavedText: "You have unsaved changes. Leave without saving?", unsavedStay: "Keep editing", unsavedLeave: "Leave", mapFavorites: "Favorites", mapAIPicks: "AI picks", mapClose: "✕ Close", mapFullscreen: "⛶ Fullscreen", mapTooltip: "View details",
     matchLabel: "% match",
     gpsError: "Location error",
-    editBtn: "✏️ Edit",
+    editBtn: "✏️ Edit", hoursOpen: "Open", hoursClosed: "Closed",
     editTitle: "✏️ Edit", toastSaved: "✓ Place saved!", toastUpdated: "✓ Favorite updated!",
     toastAdded: "✓ Added to favorites!", toastFriend: "✓ Request sent!", toastFriendAdded: "✓ Friend added!",
     loading: "Loading... ✈️", loginConnect: "Sign in", loginCreate: "Create account",
@@ -1270,7 +1270,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
   );
 }
 
-function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
+function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark, t={} }) {
   const [expanded, setExpanded] = useState(false);
 
   const convertToFr = (line) => {
@@ -1416,8 +1416,8 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
     return currentSlot || slots[slots.length - 1]; // fallback to last slot
   };
 
-  const openLabel = {fr:"Ouvert",en:"Open",es:"Abierto",de:"Geöffnet",it:"Aperto",pt:"Aberto",nl:"Open"}[lang]||"Open";
-  const closedLabel = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
+  const openLabel = t.hoursOpen || {fr:"Ouvert",en:"Open",es:"Abierto",de:"Geöffnet",it:"Aperto",pt:"Aberto",nl:"Open"}[lang]||"Open";
+  const closedLabel = t.hoursClosed || {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
   const maybeTemp = !openNow && !hours?.length;
   const currentSlot = getCurrentSlot();
   const statusText = openNow
@@ -1569,7 +1569,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           target="_blank" rel="noopener noreferrer"
           className="maps-link" style={{marginLeft:8}}>Maps →</a>
       </div>}
-      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang} COLORS={COLORS}/>}
+      {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
       {m.why&&<div className="memory-why">« {m.why} »</div>}
@@ -2920,7 +2920,7 @@ IMPORTANT RULES:
                             <div className="nearby-meta">
                               {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
-                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS}/>}
+                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
                             </div>
                             {p.address&&<div className="nearby-address">📍 {p.address} <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a></div>}
                             <button className="add-to-carnet-btn" style={{margin:0,marginTop:4}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
@@ -2966,7 +2966,7 @@ IMPORTANT RULES:
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
-                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang} COLORS={COLORS}/>}
+                              {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
