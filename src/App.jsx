@@ -1118,7 +1118,7 @@ const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexic
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onDuplicate }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COLORS=THEMES.dark, onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
   const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[form.type]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
   const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[form.type]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
@@ -2278,7 +2278,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} onCancel={()=>setFormKey(k=>k+1)} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
+          {!loading && tab === "add" && <MemoryForm key={formKey} COLORS={COLORS} onSave={handleAdd} onCancel={()=>setFormKey(k=>k+1)} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
 
           {!loading && tab === "memories" && (
             <div>
@@ -2627,7 +2627,7 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{t.editTitle} {editMemory.name}</div>
-            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang}/>
+            <MemoryForm initial={editMemory} COLORS={COLORS} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang}/>
           </div>
         </div>
       )}
@@ -2636,7 +2636,7 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">+ {recoToAdd.name}</div>
-            <MemoryForm initial={recoToAdd} lang={lang} onSave={async(form)=>{
+            <MemoryForm initial={recoToAdd} lang={lang} COLORS={COLORS} onSave={async(form)=>{
               const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,...cleanF}=form;
 const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
@@ -2686,7 +2686,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
                 isEdit={true}
                 t={t}
                 lang={lang}
-                onSave={(form)=>{
+                COLORS={COLORS} onSave={(form)=>{
                   const dup=memories.find(m=>m.name.toLowerCase()===form.name.toLowerCase());
                   setFriendMemoryModal(null);
                   if(dup){setDuplicateAlert({existing:dup,newForm:form});}
