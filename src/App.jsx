@@ -2426,6 +2426,7 @@ IMPORTANT RULES:
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.prefCitiesLabel||"🏙️ Preferred cities"}</div>
                 <CityPicker
+                  COLORS={COLORS}
                   cities={prefs.preferredCities||[]}
                   onChange={v=>setPrefs(p=>({...p,preferredCities:v}))}
                   placeholder={t.prefCitiesPlaceholder||"Add a city..."}
