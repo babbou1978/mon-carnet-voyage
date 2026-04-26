@@ -2077,13 +2077,13 @@ function TravelAgent() {
     setHeartMemories(heartSlice);
     setHeartsLoaded(true);
 
-    // Verify favorites are still open
-    const myHearts = heartSlice.filter(m=>m.isMine&&m.name);
-    if (myHearts.length > 0) {
+    // Verify all hearts are still open (not just isMine)
+    const toVerify = heartSlice.filter(m=>m.name);
+    if (toVerify.length > 0) {
       try {
         const verifyRes = await fetch("/api/places", {
           method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ action:"verify", places: myHearts.map(m=>({name:m.name,address:m.address||""})) })
+          body: JSON.stringify({ action:"verify", places: toVerify.map(m=>({name:m.name,address:m.address||""})) })
         });
         const verifyData = await verifyRes.json();
         const tempClosedNames = new Set((verifyData.results||[])
@@ -2096,8 +2096,8 @@ function TravelAgent() {
         const closed = (verifyData.results||[]).filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
         if (closed.length > 0) {
           const closedFavs = closed.map(r=>{
-            const mem = myHearts.find(m=>m.name.toLowerCase()===r.name.toLowerCase());
-            return mem ? {id:mem.id, name:mem.name, placeId:r.placeId} : null;
+            const mem = toVerify.find(m=>m.name.toLowerCase()===r.name.toLowerCase());
+            return mem && mem.isMine ? {id:mem.id, name:mem.name, placeId:r.placeId} : null;
           }).filter(Boolean);
           if (closedFavs.length > 0) setClosedFavoritesAlert(closedFavs);
         }
@@ -2107,7 +2107,6 @@ function TravelAgent() {
         setHeartMemories(prev=>prev.map(m=>{
           const v = verifyMap[m.name.toLowerCase()];
           if (!v) return m;
-          // Save placeId back to DB if missing
           if (v.placeId && !m.google_place_id && m.user_id===userId) {
             supabase.from('memories').update({google_place_id:v.placeId}).eq('id',m.id).then(()=>{
               setMemories(prev2=>prev2.map(x=>x.id===m.id?{...x,google_place_id:v.placeId}:x));
@@ -2333,6 +2332,9 @@ IMPORTANT RULES:
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
           const permClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
           const tempClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_TEMPORARILY");
+          if (tempClosed.length > 0) {
+            tempClosed.forEach(r => tempClosedRef.current.add(r.name.toLowerCase()));
+          }
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlacesRef.current.map(n=>n.toLowerCase())
