@@ -1,6 +1,9 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { action, input, placeId, lat, lng, radius, type } = req.body;
+  const { action, input, placeId, lat, lng, type } = req.body;
+  const radius = parseFloat(req.body.radius);
+  const latF = parseFloat(lat);
+  const lngF = parseFloat(lng);
   const key = process.env.GOOGLE_PLACES_KEY;
 
   const FIELD_MASK_VERIFY = 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.priceLevel';
@@ -96,7 +99,7 @@ export default async function handler(req, res) {
         includedTypes: [googleType],
         maxResultCount: 20,
         rankPreference: "DISTANCE",
-        locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: radius } },
+        locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
         languageCode: 'fr'
       };
       const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
@@ -107,7 +110,8 @@ export default async function handler(req, res) {
       });
       const result = await r.json();
       // Log for debugging
-      console.log('Nearby API response:', JSON.stringify({ status: r.status, placeCount: result.places?.length||0, error: result.error }));
+      console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, type: googleType }));
+      console.log('Nearby API response:', JSON.stringify({ status: r.status, placeCount: result.places?.length||0, error: result.error?.message||null }));
       return res.status(200).json(result);
     }
   } catch (error) {
