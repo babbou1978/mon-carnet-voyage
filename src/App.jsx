@@ -2432,8 +2432,8 @@ IMPORTANT RULES:
 - ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit.
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
-- 2-3 short matchReasons (max 8 words each) explaining why this fits MY profile or MY favorites — do NOT mention friends
-- "why" field: 1 concise sentence linking the place to my specific tastes — do NOT mention friends by name
+- 2-3 short matchReasons (max 8 words each) — concrete tags like "Authentic cuisine", "Intimate setting", "No chains"
+- "why" field: 1 sentence (max 25 words) structured as "[Brief place description] — [personal connection to user's favorites or profile]". Example: "Bar élégant avec terrasse — correspond à ton goût pour les endroits intimistes loin des chaînes." Always include both parts separated by " — ".
 - Full address required: street number, street name, city, country
 - NEVER suggest any of these places (already shown): ${excludeList||"none"}
 - NEVER suggest places similar to my disappointments
