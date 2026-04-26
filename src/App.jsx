@@ -118,6 +118,10 @@ const TRANSLATIONS = {
     deleteTitle: "Supprimer", deleteText: "sera retiré de vos favoris.", deleteConfirm: "Supprimer",
     closedTitle: "⚠️ Établissements fermés", closedText: "Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?", closedKeep: "Garder", closedRemove: "Supprimer", closedToast: "✓ Favoris supprimés",
     friendSaveLabel: "Modifier avant de sauvegarder",
+    cancel: "Annuler",
+    mapYou: "Vous", mapFavorites: "Favoris", mapAIPicks: "Sélection AI", mapClose: "✕ Fermer", mapFullscreen: "⛶ Plein écran", mapTooltip: "Voir la fiche",
+    matchLabel: "% affinité",
+    gpsError: "Erreur de localisation",
     editBtn: "✏️ Éditer",
     editTitle: "✏️ Modifier", toastSaved: "✓ Souvenir enregistré !", toastUpdated: "✓ Coup de cœur mis à jour !",
     toastAdded: "✓ Ajouté à vos coups de cœur !", toastFriend: "✓ Demande envoyée !", toastFriendAdded: "✓ Ami ajouté !",
@@ -168,8 +172,11 @@ const TRANSLATIONS = {
     closedTitle: "⚠️ Establecimientos cerrados", closedText: "Estos establecimientos parecen cerrados permanentemente. ¿Eliminarlos de tus Favoritos?", closedKeep: "Conservar", closedRemove: "Eliminar", closedToast: "✓ Favoritos eliminados",
     friendSaveLabel: "Editar antes de guardar",
     friendsHearts: "favoritos",
+    cancel: "Cancelar",
+    mapYou: "Tú", mapFavorites: "Favoritos", mapAIPicks: "Selección AI", mapClose: "✕ Cerrar", mapFullscreen: "⛶ Pantalla completa", mapTooltip: "Ver ficha",
+    matchLabel: "% afinidad",
+    gpsError: "Error de localización",
     editBtn: "✏️ Editar",
-    editTitle: "✏️ Editar", toastSaved: "✓ ¡Guardado!", toastUpdated: "✓ ¡Favorito actualizado!",
     toastAdded: "✓ ¡Añadido a favoritos!", toastFriend: "✓ ¡Solicitud enviada!", toastFriendAdded: "✓ ¡Amigo añadido!",
     loading: "Cargando... ✈️", loginConnect: "Iniciar sesión", loginCreate: "Crear cuenta",
     loginEmail: "Email", loginPassword: "Contraseña", loginFirstName: "Nombre", loginLastName: "Apellido",
@@ -218,8 +225,11 @@ const TRANSLATIONS = {
     closedTitle: "⚠️ Geschlossene Orte", closedText: "Diese Orte scheinen dauerhaft geschlossen. Aus Favoriten entfernen?", closedKeep: "Behalten", closedRemove: "Entfernen", closedToast: "✓ Favoriten entfernt",
     friendSaveLabel: "Vor dem Speichern bearbeiten",
     friendsHearts: "Favoriten",
+    cancel: "Abbrechen",
+    mapYou: "Du", mapFavorites: "Favoriten", mapAIPicks: "AI-Auswahl", mapClose: "✕ Schließen", mapFullscreen: "⛶ Vollbild", mapTooltip: "Details ansehen",
+    matchLabel: "% Übereinstimmung",
+    gpsError: "Standortfehler",
     editBtn: "✏️ Bearbeiten",
-    editTitle: "✏️ Bearbeiten", toastSaved: "✓ Gespeichert!", toastUpdated: "✓ Favorit aktualisiert!",
     toastAdded: "✓ Zu Favoriten hinzugefügt!", toastFriend: "✓ Anfrage gesendet!", toastFriendAdded: "✓ Freund hinzugefügt!",
     loading: "Laden... ✈️", loginConnect: "Anmelden", loginCreate: "Konto erstellen",
     loginEmail: "E-Mail", loginPassword: "Passwort", loginFirstName: "Vorname", loginLastName: "Nachname",
@@ -269,8 +279,11 @@ const TRANSLATIONS = {
     friendSaveLabel: "Modifica prima di salvare",
     friendsHearts: "preferiti",
     friendsNoHeart: "non ha ancora preferiti.",
+    cancel: "Annulla",
+    mapYou: "Tu", mapFavorites: "Preferiti", mapAIPicks: "Selezione AI", mapClose: "✕ Chiudi", mapFullscreen: "⛶ Schermo intero", mapTooltip: "Vedi scheda",
+    matchLabel: "% affinità",
+    gpsError: "Errore di localizzazione",
     editBtn: "✏️ Modifica",
-    editTitle: "✏️ Modifica", toastSaved: "✓ Salvato!", toastUpdated: "✓ Preferito aggiornato!",
     toastAdded: "✓ Aggiunto ai preferiti!", toastFriend: "✓ Richiesta inviata!", toastFriendAdded: "✓ Amico aggiunto!",
     loading: "Caricamento... ✈️", loginConnect: "Accedi", loginCreate: "Crea account",
     loginEmail: "Email", loginPassword: "Password", loginFirstName: "Nome", loginLastName: "Cognome",
@@ -320,8 +333,11 @@ const TRANSLATIONS = {
     friendSaveLabel: "Editar antes de guardar",
     friendsHearts: "favoritos",
     friendsNoHeart: "ainda não tem favoritos.",
+    cancel: "Cancelar",
+    mapYou: "Você", mapFavorites: "Favoritos", mapAIPicks: "Seleção AI", mapClose: "✕ Fechar", mapFullscreen: "⛶ Ecrã inteiro", mapTooltip: "Ver ficha",
+    matchLabel: "% afinidade",
+    gpsError: "Erro de localização",
     editBtn: "✏️ Editar",
-    editTitle: "✏️ Editar", toastSaved: "✓ Guardado!", toastUpdated: "✓ Favorito atualizado!",
     toastAdded: "✓ Adicionado aos favoritos!", toastFriend: "✓ Pedido enviado!", toastFriendAdded: "✓ Amigo adicionado!",
     loading: "A carregar... ✈️", loginConnect: "Entrar", loginCreate: "Criar conta",
     loginEmail: "Email", loginPassword: "Palavra-passe", loginFirstName: "Nome", loginLastName: "Apelido",
@@ -371,8 +387,11 @@ const TRANSLATIONS = {
     friendSaveLabel: "Bewerken voor opslaan",
     friendsHearts: "favorieten",
     friendsNoHeart: "heeft nog geen favorieten.",
+    cancel: "Annuleren",
+    mapYou: "Jij", mapFavorites: "Favorieten", mapAIPicks: "AI-keuze", mapClose: "✕ Sluiten", mapFullscreen: "⛶ Volledig scherm", mapTooltip: "Bekijk kaart",
+    matchLabel: "% overeenkomst",
+    gpsError: "Locatiefout",
     editBtn: "✏️ Bewerken",
-    editTitle: "✏️ Bewerken", toastSaved: "✓ Opgeslagen!", toastUpdated: "✓ Favoriet bijgewerkt!",
     toastAdded: "✓ Toegevoegd aan favorieten!", toastFriend: "✓ Verzoek verzonden!", toastFriendAdded: "✓ Vriend toegevoegd!",
     loading: "Laden... ✈️", loginConnect: "Inloggen", loginCreate: "Account aanmaken",
     loginEmail: "E-mail", loginPassword: "Wachtwoord", loginFirstName: "Voornaam", loginLastName: "Achternaam",
@@ -392,7 +411,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Price", filterRating: "Rating", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Friends", filterAll: "All", filterMine: "My places", filterFriendsOnly: "Friends",
     searchPlaces: "Search by name, city...",
-    nbRecosLabel: "AI Recommendation Number", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto (max based on favorites)",
+    nbRecosLabel: "AI Recommendation Number", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "No favorites yet", emptyFavoritesSub: "Start by adding a place",
     emptyResults: "No results", emptyResultsSub: "Try different filters",
     profileIdentity: "👤 My identity", profileFirstName: "First name", profileLastName: "Last name",
@@ -422,6 +441,10 @@ const TRANSLATIONS = {
     friendSaveLabel: "Edit before saving",
     friendsHearts: "favorites",
     friendsNoHeart: "has no favorites yet.",
+    cancel: "Cancel",
+    mapYou: "You", mapFavorites: "Favorites", mapAIPicks: "AI picks", mapClose: "✕ Close", mapFullscreen: "⛶ Fullscreen", mapTooltip: "View details",
+    matchLabel: "% match",
+    gpsError: "Location error",
     editBtn: "✏️ Edit",
     editTitle: "✏️ Edit", toastSaved: "✓ Place saved!", toastUpdated: "✓ Favorite updated!",
     toastAdded: "✓ Added to favorites!", toastFriend: "✓ Request sent!", toastFriendAdded: "✓ Friend added!",
@@ -865,7 +888,7 @@ const MAP_STYLES = [
   {featureType:"poi",stylers:[{visibility:"off"}]},
 ];
 
-function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLORS }) {
+function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLORS, t={} }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const boundsRef = useRef(null);
@@ -992,14 +1015,14 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
         borderRadius:6, padding:"6px 12px", color:COLORS.bg, cursor:"pointer", fontSize:12,
         fontFamily:"'DM Sans',sans-serif", fontWeight:600, zIndex:1, boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
       }}>
-        {fullscreen ? "✕ Close" : "⛶ Fullscreen"}
+        {fullscreen ? t.mapClose||"✕ Close" : t.mapFullscreen||"⛶ Fullscreen"}
       </button>
 
       {/* Legend */}
       <div style={{ position:"absolute", top:8, left:48, display:"flex", gap:6, zIndex:1 }}>
-        {userCoords?.lat && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔵 You</span>}
-        {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔴 Favorites</span>}
-        {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🟡 AI picks</span>}
+        {userCoords?.lat && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔵 {t.mapYou||"You"}</span>}
+        {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔴 {t.mapFavorites||"Favorites"}</span>}
+        {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🟡 {t.mapAIPicks||"AI picks"}</span>}
       </div>
 
       {/* Place popup on click */}
@@ -1194,9 +1217,9 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COL
         :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
       {form.name && <>
         <div className="row-2">
-          <div className="field"><label>Type</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
+          <div className="field"><label>{t?.addType||"Type"}</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(tp=><option key={tp} value={tp}>{(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</option>)}</select></div>
           {(form.type==="Restaurant"||form.type==="Bar / Café")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
-          <div className="field"><label>Prix</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
+          <div className="field"><label>{t?.addPrice||"Prix"}</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="field"><label>{t?.addAddress||"Address"}</label><input placeholder="22 Harcourt Street" value={form.address||""} onChange={e=>setForm(f=>({...f,address:e.target.value}))}/></div>
         <div className="row-2">
@@ -1300,7 +1323,7 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
   );
 }
 
-function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COLORS=THEMES.dark }) {
+function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={} }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -1332,7 +1355,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
                     {fMem?.kidsf&&<span className="badge kids" style={{fontSize:9}}>👶</span>}
                     {fMem?.price&&<span className="badge price" style={{fontSize:9}}>{fMem.price}</span>}
                     {onViewFriend&&<span onClick={()=>{setOpen(false);onViewFriend(fname,fMem);}}
-                      style={{fontSize:14,color:"#c9a84c",cursor:"pointer",marginLeft:2}} title="Voir la fiche">→</span>}
+                      style={{fontSize:14,color:"#c9a84c",cursor:"pointer",marginLeft:2}} title={t?.mapTooltip||"View details"}>→</span>}
                   </div>
                 </div>
 
@@ -1363,7 +1386,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           return null;
         })()}
         {m.kidsf&&<span className="badge kids">👶</span>}
-        {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS}/>}
+        {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS} t={t}/>}
         <span className="badge price">{m.price}</span>
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
@@ -1866,7 +1889,7 @@ function TravelAgent() {
         setGpsReady(true);
       }
     }, (err) => {
-      setGpsLocation("Erreur de localisation");
+      setGpsLocation(t.gpsError||"Location error");
       setGpsReady(true);
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
@@ -2359,7 +2382,7 @@ IMPORTANT RULES:
           {!loading && tab === "memories" && (
             <div>
               <div style={{marginBottom:12}}>
-                <div className="filters-row"><span className="filter-label">{t.filterType}</span>{[[ALL,t.filterAll],...TYPES.map(x=>[x,x])].map(([val,label])=><button key={val} className={`filter-btn ${filterType===val?"active":""}`} onClick={()=>setFilterType(val)}>{val===ALL?t.filterAll:`${TYPE_ICONS[val]} ${val}`}</button>)}</div>
+                <div className="filters-row"><span className="filter-label">{t.filterType}</span>{[[ALL,t.filterAll],...TYPES.map(x=>[x,(TYPES_I18N[lang]||TYPES_I18N.en)[x]||x])].map(([val,label])=><button key={val} className={`filter-btn ${filterType===val?"active":""}`} onClick={()=>setFilterType(val)}>{val===ALL?t.filterAll:`${TYPE_ICONS[val]} ${label}`}</button>)}</div>
                 <div className="filters-row"><span className="filter-label">{t.filterPrice}</span>{[[ALL,t.filterAll],...PRICES.map(p=>[p,p])].map(([val,label])=><button key={val} className={`filter-btn ${filterPrice===val?"active":""}`} onClick={()=>setFilterPrice(val)}>{label}</button>)}</div>
                 <div className="filters-row"><span className="filter-label">{t.filterRating}</span>{[[ALL,t.filterAll],["1","1"],["2","2"],["3","3"],["4","4"],["5","5"]].map(([val,label])=><button key={val} className={`filter-btn ${filterRating===val?"active":""}`} onClick={()=>setFilterRating(val)}>{val===ALL?t.filterAll:`${val}★+`}</button>)}</div>
                 <div className="filters-row">
@@ -2609,7 +2632,7 @@ IMPORTANT RULES:
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} themeKey={themeKey} COLORS={COLORS}/>
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} themeKey={themeKey} COLORS={COLORS} t={t}/>
               )}
 
               {(heartMemories.length>0||nearbyPlaces.length>0)&&(
@@ -2666,7 +2689,7 @@ IMPORTANT RULES:
                               {reco.matchScore&&(
                                 <div className="match-score">
                                   <div className="match-bar-wrap"><div className="match-bar" style={{width:`${reco.matchScore}%`}}/></div>
-                                  <div className="match-score-label">{reco.matchScore}% match</div>
+                                  <div className="match-score-label">{reco.matchScore}{t.matchLabel||"% match"}</div>
                                 </div>
                               )}
                               {reco.matchReasons?.length>0&&(
