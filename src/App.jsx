@@ -89,7 +89,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Prix", filterRating: "Note", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Amis", filterAll: "Tous", filterMine: "Mes lieux", filterFriendsOnly: "Amis",
     searchPlaces: "Chercher par nom, ville...",
-    nbRecosLabel: "Nombre de recommandations AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Nombre de résultats (Favoris & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Aucun coup de cœur encore", emptyFavoritesSub: "Commencez par ajouter un lieu",
     emptyResults: "Aucun résultat", emptyResultsSub: "Essayez d'autres filtres",
     profileIdentity: "👤 Mon identité", profileFirstName: "Prénom", profileLastName: "Nom",
@@ -144,7 +144,7 @@ const TRANSLATIONS = {
     filterType: "Tipo", filterPrice: "Precio", filterRating: "Nota", filterKids: "👶 Niños",
     filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Mis lugares", filterFriendsOnly: "Amigos",
     searchPlaces: "Buscar por nombre, ciudad...",
-    nbRecosLabel: "Número de recomendaciones AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Número de resultados (Favoritos & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Aún sin favoritos", emptyFavoritesSub: "Empieza añadiendo un lugar",
     emptyResults: "Sin resultados", emptyResultsSub: "Prueba otros filtros",
     profileIdentity: "👤 Mi identidad", profileFirstName: "Nombre", profileLastName: "Apellido",
@@ -197,7 +197,7 @@ const TRANSLATIONS = {
     filterType: "Typ", filterPrice: "Preis", filterRating: "Bewertung", filterKids: "👶 Kinder",
     filterFriends: "👥 Freunde", filterAll: "Alle", filterMine: "Meine Orte", filterFriendsOnly: "Freunde",
     searchPlaces: "Nach Name, Stadt suchen...",
-    nbRecosLabel: "Anzahl AI-Empfehlungen", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Anzahl Ergebnisse (Favoriten & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Noch keine Favoriten", emptyFavoritesSub: "Füge einen Ort hinzu",
     emptyResults: "Keine Ergebnisse", emptyResultsSub: "Versuche andere Filter",
     profileIdentity: "👤 Meine Identität", profileFirstName: "Vorname", profileLastName: "Nachname",
@@ -250,7 +250,7 @@ const TRANSLATIONS = {
     filterType: "Tipo", filterPrice: "Prezzo", filterRating: "Valutazione", filterKids: "👶 Bambini",
     filterFriends: "👥 Amici", filterAll: "Tutti", filterMine: "I miei posti", filterFriendsOnly: "Amici",
     searchPlaces: "Cerca per nome, città...",
-    nbRecosLabel: "Numero raccomandazioni AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Numero risultati (Preferiti & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Ancora nessun preferito", emptyFavoritesSub: "Inizia aggiungendo un posto",
     emptyResults: "Nessun risultato", emptyResultsSub: "Prova altri filtri",
     profileIdentity: "👤 La mia identità", profileFirstName: "Nome", profileLastName: "Cognome",
@@ -304,7 +304,7 @@ const TRANSLATIONS = {
     filterType: "Tipo", filterPrice: "Preço", filterRating: "Avaliação", filterKids: "👶 Crianças",
     filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Os meus lugares", filterFriendsOnly: "Amigos",
     searchPlaces: "Pesquisar por nome, cidade...",
-    nbRecosLabel: "Número de recomendações AI", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Número de resultados (Favoritos & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Ainda sem favoritos", emptyFavoritesSub: "Comece por adicionar um lugar",
     emptyResults: "Sem resultados", emptyResultsSub: "Tente outros filtros",
     profileIdentity: "👤 Minha identidade", profileFirstName: "Nome", profileLastName: "Apelido",
@@ -358,7 +358,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Prijs", filterRating: "Beoordeling", filterKids: "👶 Kinderen",
     filterFriends: "👥 Vrienden", filterAll: "Alle", filterMine: "Mijn plekken", filterFriendsOnly: "Vrienden",
     searchPlaces: "Zoeken op naam, stad...",
-    nbRecosLabel: "Aantal AI-aanbevelingen", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Aantal resultaten (Favorieten & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Nog geen favorieten", emptyFavoritesSub: "Begin met een plek toevoegen",
     emptyResults: "Geen resultaten", emptyResultsSub: "Probeer andere filters",
     profileIdentity: "👤 Mijn identiteit", profileFirstName: "Voornaam", profileLastName: "Achternaam",
@@ -412,7 +412,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Price", filterRating: "Rating", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Friends", filterAll: "All", filterMine: "My places", filterFriendsOnly: "Friends",
     searchPlaces: "Search by name, city...",
-    nbRecosLabel: "AI Recommendation Number", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
+    nbRecosLabel: "Results limit (Favorites & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "No favorites yet", emptyFavoritesSub: "Start by adding a place",
     emptyResults: "No results", emptyResultsSub: "Try different filters",
     profileIdentity: "👤 My identity", profileFirstName: "First name", profileLastName: "Last name",
@@ -2040,7 +2040,10 @@ function TravelAgent() {
         }
       }
     });
-    const heartSlice = deduped.slice(0,10);
+    const nbHearts = prefs.nbrecos === "auto"
+      ? 10
+      : parseInt(prefs.nbrecos) || 10;
+    const heartSlice = deduped.slice(0, nbHearts);
     setHeartMemories(heartSlice);
     setHeartsLoaded(true);
 
@@ -2186,10 +2189,13 @@ function TravelAgent() {
       }
     });
     // Preserve openNow from previous state if already enriched
+    const nbHearts = prefs.nbrecos === "auto"
+      ? Math.max(3, 10 - (aiRecos.length || 0))
+      : parseInt(prefs.nbrecos) || 10;
     setHeartMemories(prev => {
       const prevMap = {};
       prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow, openingHours:m.openingHours}; });
-      return deduped.slice(0,10).map(m => {
+      return deduped.slice(0, nbHearts).map(m => {
         const prev = prevMap[m.name.toLowerCase()];
         return prev ? {...m, openNow:prev.openNow, openingHours:prev.openingHours} : m;
       });
@@ -2616,7 +2622,7 @@ IMPORTANT RULES:
               </div>
 
               <div className="prefs-card">
-                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"AI Recommendation Number"} & {t.profileBudget||"Budget"}</div>
+                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Results limit"} & {t.profileBudget||"Budget"}</div>
                 <div className="field">
                   <label>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:8}}>
