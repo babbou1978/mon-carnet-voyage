@@ -2394,14 +2394,13 @@ function TravelAgent() {
       }).filter(p=>p.name);
 
       // Debug log
-      console.log(`📍 Search center: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)} | Radius: ${distance}m`);
-      console.log(`📊 Google returned ${places.length} places:`);
-      places.forEach(p => {
+      const debugLines = places.map(p => {
         const distStr = p._dist !== null ? `${Math.round(p._dist)}m` : "no coords";
-        const inOut = p._dist !== null ? (p._dist <= distance ? "✅ IN" : "❌ OUT") : "❓";
-        const visited = alreadyVisited.has(p.name) ? "👤 visited" : "";
-        console.log(`  ${inOut} ${distStr.padStart(6)} | ${p.name} | ${p.address} ${visited}`);
+        const inOut = p._dist !== null ? (p._dist <= distance ? "✅ IN " : "❌ OUT") : "❓    ";
+        const visited = alreadyVisited.has(p.name) ? " 👤visited" : "";
+        return `  ${inOut} ${distStr.padStart(6)} | ${p.name} | ${p.address}${visited}`;
       });
+      console.log(`📍 Center: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)} | Radius: ${distance}m\n📊 Google returned ${places.length} places:\n${debugLines.join("\n")}`);
 
       // Sort: popularity (Google order = POPULARITY) in radius, then distance outside radius
       const inRadius = places.filter(p => p._dist===null || p._dist<=distance);
@@ -2414,8 +2413,8 @@ function TravelAgent() {
 
       // For AI: strictly in radius, exclude all visited (mine + friends)
       nearbyForAI = inRadius.filter(p => !alreadyVisited.has(p.name));
-      console.log(`🤖 AI candidates (in radius, not visited): ${nearbyForAI.length}`);
-      nearbyForAI.forEach(p => console.log(`  → ${p.name} | ${Math.round(p._dist||0)}m`));
+      const aiLines = nearbyForAI.map(p => `  → ${p.name} | ${Math.round(p._dist||0)}m`).join("\n");
+      console.log(`🤖 AI candidates (in radius, not visited): ${nearbyForAI.length}\n${aiLines}`);
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
