@@ -458,7 +458,7 @@ const getCSS = (COLORS) => `
   .badge { font-size: 10px; padding: 3px 7px; border-radius: 20px; background: ${COLORS.tag}; color: ${COLORS.muted}; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge.price { color: ${COLORS.accent}; background: ${COLORS.accent}18; }
   .badge.stars { color: #e8c97a; background: #2a2310; font-size: 11px; }
-  .badge.kids { color: #7abf8a; background: #1a2e1e; }
+  .badge.kids { color: #7abf8a; background: ${themeKey==="dark"?"#1a2e1e":"#e8f5ee"}; }
   .badge.friend { color: ${COLORS.accent}; background: ${COLORS.accent}12; font-style: italic; }
   .memory-location { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 6px; }
   .memory-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
@@ -1338,7 +1338,7 @@ function calcDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
+function CityPicker({ cities: citiesRaw, onChange, placeholder, empty, COLORS=THEMES.dark }) {
   const cities = citiesRaw || [];
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -1426,8 +1426,8 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
             style={{flex:1,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,color:COLORS.text,
               fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none"}}
           />
-          <button onClick={add} style={{background:"#c9a84c22",border:"1px solid #c9a84c",borderRadius:8,
-            padding:"9px 14px",color:"#c9a84c",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>
+          <button onClick={add} style={{background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}`,borderRadius:8,
+            padding:"9px 14px",color:COLORS.accent,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>
             +
           </button>
         </div>
@@ -1436,7 +1436,7 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
             borderRadius:8,zIndex:100,overflow:"hidden",marginTop:4,boxShadow:"0 4px 16px rgba(0,0,0,0.4)"}}>
             {suggestions.map((s,i)=>(
               <div key={i} onMouseDown={()=>selectSuggestion(s)}
-                style={{padding:"10px 14px",cursor:"pointer",fontSize:13,color:"#f0ead8",
+                style={{padding:"10px 14px",cursor:"pointer",fontSize:13,color:COLORS.text,
                   background:i===activeIdx?COLORS.border:"transparent",borderBottom:`1px solid ${COLORS.border}44`}}>
                 📍 {s.label}
               </div>
@@ -1445,18 +1445,18 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
         )}
       </div>
       {cities.length===0 ? (
-        <div style={{fontSize:12,color:"#8a8070",fontStyle:"italic"}}>{empty}</div>
+        <div style={{fontSize:12,color:COLORS.muted,fontStyle:"italic"}}>{empty}</div>
       ) : (
         <div style={{display:"flex",flexDirection:"column",gap:4}}>
           {cities.map((city,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:6,background:COLORS.tag,
               border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"7px 10px"}}>
               <span style={{fontSize:11,color:"#c9a84c",fontWeight:700,minWidth:18}}>#{i+1}</span>
-              <span style={{flex:1,fontSize:13,color:"#f0ead8"}}>{city}</span>
+              <span style={{flex:1,fontSize:13,color:COLORS.text}}>{city}</span>
               <button onClick={()=>moveUp(i)} disabled={i===0}
-                style={{background:"none",border:"none",color:i===0?"#3a3730":"#8a8070",cursor:i===0?"default":"pointer",fontSize:14,padding:"0 4px"}}>▲</button>
+                style={{background:"none",border:"none",color:i===0?COLORS.border:COLORS.muted,cursor:i===0?"default":"pointer",fontSize:14,padding:"0 4px"}}>▲</button>
               <button onClick={()=>moveDown(i)} disabled={i===cities.length-1}
-                style={{background:"none",border:"none",color:i===cities.length-1?"#3a3730":"#8a8070",cursor:i===cities.length-1?"default":"pointer",fontSize:14,padding:"0 4px"}}>▼</button>
+                style={{background:"none",border:"none",color:i===cities.length-1?COLORS.border:COLORS.muted,cursor:i===cities.length-1?"default":"pointer",fontSize:14,padding:"0 4px"}}>▼</button>
               <button onClick={()=>remove(i)}
                 style={{background:"none",border:"none",color:"#e06060",cursor:"pointer",fontSize:14,padding:"0 4px"}}>✕</button>
             </div>
