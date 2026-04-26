@@ -1435,6 +1435,11 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           <button className="del-btn" onClick={()=>onDeleteRequest(m.id, m.name)}>✕</button>
         </div>}
       </div>
+      {!isMine&&onSaveFriend&&(
+        <button className="add-to-carnet-btn" style={{width:"100%",justifyContent:"center",marginTop:4}} onClick={()=>onSaveFriend(m)}>
+          {t.recoAddFav||"+ Add to my favorites"}
+        </button>
+      )}
     </div>
   );
 }
@@ -2448,7 +2453,8 @@ IMPORTANT RULES:
                     <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} {t.friendsNoHeart}</div>
                   ):(
                     <div className="memory-list">
-                      {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} t={t} lang={lang} onEdit={()=>{}} onDelete={()=>{}}/>)}
+                      {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} t={t} lang={lang} onEdit={()=>{}} onDelete={()=>{}}
+                        onSaveFriend={(fMem)=>{const dup=memories.find(x=>x.name.toLowerCase()===fMem.name.toLowerCase());if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>)}
                     </div>
                   )}
                 </div>
@@ -2800,7 +2806,8 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
         <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setFriendMemoryModal(null);}}>
           <div className="modal" style={{maxHeight:"90vh",overflowY:"auto"}}>
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
-            <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} COLORS={COLORS} t={t} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
+            <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} COLORS={COLORS} t={t} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}
+              onSaveFriend={(fMem)=>{const dup=memories.find(m=>m.name.toLowerCase()===fMem.name.toLowerCase());setFriendMemoryModal(null);if(dup){setDuplicateAlert({existing:dup,newForm:fMem});}else{handleAdd(fMem);}}}/>
             <div style={{marginTop:16,borderTop:`1px solid ${COLORS.border}`,paddingTop:12}}>
               <div style={{fontSize:11,color:COLORS.muted,marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>{t.friendSaveLabel||"Edit before saving"}</div>
               <MemoryForm
