@@ -1689,6 +1689,7 @@ function TravelAgent() {
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
   const [closedPlaces, setClosedPlaces] = useState([]);
+  const [tempClosedPlaces, setTempClosedPlaces] = useState(new Set());
   const [heartsLoaded, setHeartsLoaded] = useState(false);
   const [heartsKey, setHeartsKey] = useState(0);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -2067,7 +2068,11 @@ function TravelAgent() {
       const val = nbRecosOverride ?? prefs.nbrecos;
       return val === "auto" ? 10 : parseInt(val) || 10;
     })();
-    const heartSlice = deduped.slice(0, nbHearts);
+    const allClosedNames = new Set([
+      ...closedPlaces.map(n=>n.toLowerCase()),
+      ...tempClosedPlaces
+    ]);
+    const heartSlice = deduped.filter(m=>!allClosedNames.has(m.name.toLowerCase())).slice(0, nbHearts);
     setHeartMemories(heartSlice);
     setHeartsLoaded(true);
 
@@ -2084,6 +2089,7 @@ function TravelAgent() {
           .filter(r=>r.businessStatus==="CLOSED_TEMPORARILY")
           .map(r=>r.name.toLowerCase()));
         if (tempClosedNames.size > 0) {
+          setTempClosedPlaces(prev => new Set([...prev, ...tempClosedNames]));
           setHeartMemories(prev=>prev.filter(m=>!tempClosedNames.has(m.name.toLowerCase())));
         }
         const closed = (verifyData.results||[]).filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
@@ -2228,16 +2234,24 @@ function TravelAgent() {
       return getDisplayRating(b) - getDisplayRating(a);
     });
     // Preserve openNow from previous state if already enriched
+    // Filter out permanently and temporarily closed places
     const nbHearts = prefs.nbrecos === "auto"
       ? Math.max(3, 10 - (aiRecos.length || 0))
       : parseInt(prefs.nbrecos) || 10;
+    const allClosedNames = new Set([
+      ...closedPlaces.map(n=>n.toLowerCase()),
+      ...tempClosedPlaces
+    ]);
     setHeartMemories(prev => {
       const prevMap = {};
       prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow, openingHours:m.openingHours}; });
-      return deduped.slice(0, nbHearts).map(m => {
-        const prev = prevMap[m.name.toLowerCase()];
-        return prev ? {...m, openNow:prev.openNow, openingHours:prev.openingHours} : m;
-      });
+      return deduped
+        .filter(m => !allClosedNames.has(m.name.toLowerCase()))
+        .slice(0, nbHearts)
+        .map(m => {
+          const p = prevMap[m.name.toLowerCase()];
+          return p ? {...m, openNow:p.openNow, openingHours:p.openingHours} : m;
+        });
     });
 
     // Nearby Google Places
