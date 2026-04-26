@@ -641,7 +641,7 @@ const getCSS = (COLORS) => `
 
 function formatDate(ts) { return new Date(ts).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }); }
 function starsGoogle(r){if(!r)return null;const f=Math.floor(r),h=r-f>=0.3&&r-f<0.8,e=5-f-(h?1:0);return String.fromCharCode(9733).repeat(f)+(h?'½':'')+String.fromCharCode(9734).repeat(e)+' '+r.toFixed(1);}
-function StarRating({ rating, size=13 }) {
+function StarRating({ rating, size=13, emptyColor="#3a3520" }) {
   if (!rating) return null;
   const stars = [];
   for (let i = 1; i <= 5; i++) {
@@ -652,7 +652,7 @@ function StarRating({ rating, size=13 }) {
         <defs>
           <linearGradient id={"sg"+i+Math.round(rating*10)}>
             <stop offset={pct+"%"} stopColor="#c9a84c"/>
-            <stop offset={pct+"%"} stopColor="#3a3520"/>
+            <stop offset={pct+"%"} stopColor={emptyColor}/>
           </linearGradient>
         </defs>
         <polygon points="10,1 12.9,7 19.5,7.6 14.5,12 16.2,18.5 10,15 3.8,18.5 5.5,12 0.5,7.6 7.1,7"
@@ -1350,7 +1350,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           if (m.isMine&&m.rating>0) return <span className="badge stars">{starsLabel(m.rating)}</span>;
           if (!m.isMine&&m.friendsData?.length>0) {
             const avg = m.friendsData.reduce((s,f)=>s+(f.rating||0),0)/m.friendsData.filter(f=>f.rating>0).length;
-            if (avg>0) return <span className="badge stars"><StarRating rating={avg} size={11}/></span>;
+            if (avg>0) return <span className="badge stars"><StarRating rating={avg} size={11} emptyColor={COLORS.border}/></span>;
           }
           if (m.rating>0) return <span className="badge stars">{starsLabel(m.rating)}</span>;
           return null;
@@ -2656,7 +2656,7 @@ IMPORTANT RULES:
                               </div>
                               <div className="ai-reco-meta">
                                 {reco.cuisine&&<span className="badge">{reco.cuisine}</span>}
-                                {reco.googleRating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={reco.googleRating} size={11}/></span>}
+                                {reco.googleRating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={reco.googleRating} size={11} emptyColor={COLORS.border}/></span>}
                                 <span className="badge price">{reco.price}</span>
                               </div>
                               {reco.matchScore&&(
