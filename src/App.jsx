@@ -2410,12 +2410,12 @@ function TravelAgent() {
           .join(", ")
       : "";
 
-    // All places already shown in Favorites section — must be excluded from AI results
-    const alreadyShown = new Set([
-      ...memories.map(m=>m.name.toLowerCase()),
-      ...heartMemories.map(m=>m.name.toLowerCase()),
+    // All places already visited by me OR any friend — must never appear in AI results
+    const alreadyVisited = new Set([
+      ...memories.map(m=>m.name),
+      ...friendMemories.map(m=>m.name),
     ]);
-    const excludeList = [...alreadyShown].map(n => memories.find(m=>m.name.toLowerCase()===n)?.name || heartMemories.find(m=>m.name.toLowerCase()===n)?.name).filter(Boolean).slice(0,30).join(", ");
+    const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
 
     const nbRecosCount = prefs.nbrecos === "auto"
       ? Math.max(3, 10 - heartMemories.length)
