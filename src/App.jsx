@@ -2496,45 +2496,42 @@ RULES:
             .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
             .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r; });
 
-          // Filter by real distance — use coords from nearbyForAI if available, else geocode
-          if (coords?.lat && filtered.length > 0) {
+          // Enrich AI results with coords from nearbyForAI (already validated in-radius by Google)
+          // For any place not found in nearbyForAI (AI hallucination), compute distance via geocoding
+          const nearbyCoordMap = {};
+          nearbyForAI.forEach(p => {
+            if (p.lat && p.lng) nearbyCoordMap[p.name.toLowerCase()] = {lat:p.lat, lng:p.lng, trusted:true};
+          });
+
+          const needGeocode = filtered.filter(r => !nearbyCoordMap[r.name.toLowerCase()]);
+          if (needGeocode.length > 0) {
             try {
-              // Build coords map from nearbyForAI (already have coords from Google)
-              const nearbyCoordMap = {};
-              nearbyForAI.forEach(p => { if(p.lat&&p.lng) nearbyCoordMap[p.name.toLowerCase()] = {lat:p.lat, lng:p.lng}; });
-
-              // For any not found in nearby, geocode
-              const needGeocode = filtered.filter(r => !nearbyCoordMap[r.name.toLowerCase()]);
-              if (needGeocode.length > 0) {
-                const geoRes = await fetch("/api/geocode-memories", {
-                  method:"POST", headers:{"Content-Type":"application/json"},
-                  body: JSON.stringify({ places: needGeocode.map(r=>({id:r.name,name:r.name,city:"",country:"",address:r.address})) })
-                });
-                const geoData = await geoRes.json();
-                (geoData.results||[]).forEach(r=>{ if(r.lat) nearbyCoordMap[r.id.toLowerCase()]={lat:r.lat,lng:r.lng}; });
-              }
-
-              const recoWithDist = filtered.map(r=>{
-                const c = nearbyCoordMap[r.name.toLowerCase()];
-                const dist = c ? calcDistance(coords.lat, coords.lng, c.lat, c.lng)*1000 : null;
-                return {...r, _dist: dist};
+              const geoRes = await fetch("/api/geocode-memories", {
+                method:"POST", headers:{"Content-Type":"application/json"},
+                body: JSON.stringify({ places: needGeocode.map(r=>({id:r.name,name:r.name,city:"",country:"",address:r.address})) })
               });
-              const inRadius = recoWithDist.filter(r=>r._dist===null||r._dist<=distance);
-              const outRadius = recoWithDist.filter(r=>r._dist!==null&&r._dist>distance);
-              if (inRadius.length >= nbRecosCount) {
-                setAiRecos(inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)));
-              } else {
-                const flagged = [
-                  ...inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)),
-                  ...outRadius.map(r=>({...r, outsideRadius:true})).sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0))
-                ];
-                setAiRecos(flagged);
-              }
-            } catch {
-              setAiRecos(filtered);
-            }
+              const geoData = await geoRes.json();
+              (geoData.results||[]).forEach(r=>{ if(r.lat) nearbyCoordMap[r.id.toLowerCase()]={lat:r.lat,lng:r.lng,trusted:false}; });
+            } catch {}
+          }
+
+          const recoWithDist = filtered.map(r=>{
+            const c = nearbyCoordMap[r.name.toLowerCase()];
+            const dist = c ? calcDistance(coords.lat, coords.lng, c.lat, c.lng)*1000 : null;
+            const outsideRadius = c && !c.trusted && dist !== null && dist > distance;
+            return {...r, _dist: dist, outsideRadius};
+          });
+
+          const inRadius = recoWithDist.filter(r => !r.outsideRadius);
+          const outRadius = recoWithDist.filter(r => r.outsideRadius);
+
+          if (inRadius.length >= nbRecosCount) {
+            setAiRecos(inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)));
           } else {
-            setAiRecos(filtered);
+            setAiRecos([
+              ...inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)),
+              ...outRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0))
+            ]);
           }
           if (permClosed.length > 0) {
             try {
