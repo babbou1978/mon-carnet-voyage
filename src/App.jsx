@@ -2481,15 +2481,7 @@ RULES:
                 const gp = nearbyForAI[idx];
                 return {...r, name: gp.name, address: gp.address, lat: gp.lat, lng: gp.lng, _dist: gp._dist};
               }
-              // Fallback: try fuzzy match on name against nearbyForAI
-              const nameLower = (r.name||"").toLowerCase();
-              const fuzzy = nearbyForAI.find(p =>
-                p.name.toLowerCase().includes(nameLower) || nameLower.includes(p.name.toLowerCase())
-              );
-              if (fuzzy) {
-                return {...r, name: fuzzy.name, address: fuzzy.address, lat: fuzzy.lat, lng: fuzzy.lng, _dist: fuzzy._dist};
-              }
-              return null; // discard
+              return null; // discard — invalid index or hallucination
             }).filter(Boolean)
           : data.recommendations;
 
@@ -2543,7 +2535,7 @@ RULES:
           }
         } catch(verifyErr) {
           console.error("Verify error:", verifyErr);
-          setAiRecos(data.recommendations);
+          setAiRecos(preResolved); // use resolved names, not raw numbers
         }
       }
     } catch(err) { console.error("AI error:", err); }
