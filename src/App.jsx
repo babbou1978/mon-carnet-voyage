@@ -404,7 +404,7 @@ const getCSS = (COLORS) => `
   .form-section { display: flex; flex-direction: column; gap: 14px; }
   .field { display: flex; flex-direction: column; gap: 6px; position: relative; }
   .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: ${COLORS.muted}; font-weight: 500; }
-  .field input, .field textarea, .field select { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%; }
+  .field input, .field textarea, .field select { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 16px; padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%; }
   .field input:focus, .field textarea:focus { border-color: ${COLORS.accent}; }
   .field textarea { resize: none; min-height: 60px; line-height: 1.5; }
   .field select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8070' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
@@ -457,8 +457,8 @@ const getCSS = (COLORS) => `
   .memory-meta { display: flex; gap: 4px; align-items: center; flex-shrink: 0; justify-content: flex-end; }
   .badge { font-size: 10px; padding: 3px 7px; border-radius: 20px; background: ${COLORS.tag}; color: ${COLORS.muted}; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge.price { color: ${COLORS.accent}; background: ${COLORS.accent}18; }
-  .badge.stars { color: ${COLORS.accent}; background: ${COLORS.accent}18; font-size: 11px; }
-  .badge.kids { color: ${COLORS.accent}; background: ${COLORS.accent}18; }
+  .badge.stars { color: #e8c97a; background: #2a2310; font-size: 11px; }
+  .badge.kids { color: #7abf8a; background: ${COLORS.mapScheme==="DARK"?"#1a2e1e":"#e8f5ee"}; }
   .badge.friend { color: ${COLORS.accent}; background: ${COLORS.accent}12; font-style: italic; }
   .memory-location { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 6px; }
   .memory-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
@@ -574,7 +574,7 @@ const getCSS = (COLORS) => `
   .empty-icon { font-size: 40px; margin-bottom: 12px; }
   .empty-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; }
   .empty-sub { font-size: 12px; margin-top: 6px; }
-  .inline-input { background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; width: 100%; margin-top: 0; transition: border-color 0.2s; }
+  .inline-input { background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; font-size: 16px; padding: 10px 14px; outline: none; width: 100%; margin-top: 0; transition: border-color 0.2s; }
   .inline-input:focus { border-color: ${COLORS.accent}; }
   .loading-overlay { text-align: center; padding: 40px 20px; color: ${COLORS.muted}; font-size: 13px; }
   .add-to-carnet-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid ${COLORS.accent}44; color: ${COLORS.accent}; border-radius: 6px; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
@@ -1118,7 +1118,7 @@ const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexic
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COLORS=THEMES.dark, onDuplicate }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
   const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[form.type]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
   const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[form.type]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
@@ -2278,7 +2278,7 @@ IMPORTANT RULES:
         <div className="content">
           {loading && <div className="loading-overlay">{t.loading}</div>}
 
-          {!loading && tab === "add" && <MemoryForm key={formKey} COLORS={COLORS} onSave={handleAdd} onCancel={()=>setFormKey(k=>k+1)} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
+          {!loading && tab === "add" && <MemoryForm key={formKey} onSave={handleAdd} onCancel={()=>setFormKey(k=>k+1)} t={t} lang={lang} onDuplicate={(name)=>{ const dup=memories.find(m=>m.name.toLowerCase()===name.toLowerCase()); if(dup) setDuplicateAlert({existing:dup,newForm:null}); }}/>}
 
           {!loading && tab === "memories" && (
             <div>
@@ -2426,7 +2426,6 @@ IMPORTANT RULES:
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.prefCitiesLabel||"🏙️ Preferred cities"}</div>
                 <CityPicker
-                  COLORS={COLORS}
                   cities={prefs.preferredCities||[]}
                   onChange={v=>setPrefs(p=>({...p,preferredCities:v}))}
                   placeholder={t.prefCitiesPlaceholder||"Add a city..."}
@@ -2627,7 +2626,7 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{t.editTitle} {editMemory.name}</div>
-            <MemoryForm initial={editMemory} COLORS={COLORS} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang}/>
+            <MemoryForm initial={editMemory} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang}/>
           </div>
         </div>
       )}
@@ -2636,7 +2635,7 @@ IMPORTANT RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">+ {recoToAdd.name}</div>
-            <MemoryForm initial={recoToAdd} lang={lang} COLORS={COLORS} onSave={async(form)=>{
+            <MemoryForm initial={recoToAdd} lang={lang} onSave={async(form)=>{
               const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,...cleanF}=form;
 const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
@@ -2686,7 +2685,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
                 isEdit={true}
                 t={t}
                 lang={lang}
-                COLORS={COLORS} onSave={(form)=>{
+                onSave={(form)=>{
                   const dup=memories.find(m=>m.name.toLowerCase()===form.name.toLowerCase());
                   setFriendMemoryModal(null);
                   if(dup){setDuplicateAlert({existing:dup,newForm:form});}
