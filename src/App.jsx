@@ -1202,7 +1202,7 @@ const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexic
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COLORS=THEMES.dark, onDuplicate }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
   const [confirmClose, setConfirmClose] = useState(false);
   const initialRef = useRef(JSON.stringify(initial||DEFAULT_FORM));
@@ -1228,8 +1228,8 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", COL
   };
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {!isEdit?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch COLORS={COLORS} onPlaceSelected={handlePlaceSelected}/></div>
-        :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
+      {(!isEdit&&!prefilled)?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch COLORS={COLORS} onPlaceSelected={handlePlaceSelected}/></div>
+        :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} readOnly={prefilled&&!isEdit} style={prefilled&&!isEdit?{opacity:0.7,cursor:"default"}:{}}/></div>}
       {form.name && <>
         <div className="row-2">
           <div className="field"><label>{t?.addType||"Type"}</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(tp=><option key={tp} value={tp}>{(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</option>)}</select></div>
@@ -2785,7 +2785,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
               if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
               setRecoToAdd(null);
-            }} onCancel={()=>setRecoToAdd(null)} isEdit={true} t={t}/>
+            }} onCancel={()=>setRecoToAdd(null)} isEdit={false} prefilled={true} t={t}/>
           </div>
         </div>
       )}
