@@ -2427,11 +2427,13 @@ ${liked||"None."}
 My disappointments (never recommend similar):
 ${disliked||"None."}
 
-Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}"${coords?.lat ? ` (GPS: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})` : ""}.
+Request: Find the ${Math.min(nbRecosCount + 5, 15)} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}"${coords?.lat ? ` (GPS: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})` : ""}. I need at least ${nbRecosCount} results strictly inside the radius.
 
 IMPORTANT RULES:
 - The search center is exactly: ${coords?.lat ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}` : `"${locationLabel}"`}. ALL places MUST be within ${distLabel} of this point. This is a HARD limit.
 - Use the GPS coordinates above to verify each place's distance — do not rely on neighborhood names or approximate areas.
+- This is a dense urban area with MANY options. You MUST find ${nbRecosCount} places strictly within ${distLabel}. Do not give up early — search thoroughly within the radius before considering places outside it.
+- If you struggle to find enough, prioritize lesser-known authentic places over well-known tourist spots.
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
 - 2-3 short matchReasons (max 8 words each) — concrete tags like "Authentic cuisine", "Intimate setting", "No chains"
@@ -2960,7 +2962,7 @@ IMPORTANT RULES:
                               <div className="ai-reco-top">
                                 <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
                                 <div style={{display:"flex",alignItems:"center",gap:6}}>
-                                  {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {Math.round(reco._dist)}m</span>}
+                                  {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <div className="ai-reco-rank">#{i+1}</div>
                                 </div>
                               </div>
