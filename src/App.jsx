@@ -1202,15 +1202,20 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
 
   const openLabel = {fr:"Ouvert",en:"Open",es:"Abierto",de:"Geöffnet",it:"Aperto",pt:"Aberto",nl:"Open"}[lang]||"Open";
   const closedLabel = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
+  const maybeTemp = !openNow && !hours?.length;
   const statusText = openNow
     ? `🟢 ${openLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`
-    : `🔴 ${closedLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`;
+    : maybeTemp
+      ? `⚠️ ${{fr:'Fermé temporairement',en:'Possibly temporarily closed',es:'Posiblemente cerrado temporalmente',de:'Möglicherweise vorübergehend geschlossen',it:'Possibilmente chiuso temporaneamente',pt:'Possivelmente fechado temporariamente',nl:'Mogelijk tijdelijk gesloten'}[lang]||'Possibly temporarily closed'}`
+      : `🔴 ${closedLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`;
 
   return (
     <div style={{marginBottom:6}}>
       <div onClick={()=>hours?.length&&setExpanded(e=>!e)}
         style={{display:"inline-flex",alignItems:"center",gap:6,cursor:hours?.length?"pointer":"default"}}>
-        <span style={{fontSize:11,color:openNow?"#7abf8a":"#e06060",background:openNow?"#1a2e1e":"#3a1a1a",
+        <span style={{fontSize:11,
+          color:openNow?"#7abf8a":maybeTemp?"#e8c97a":"#e06060",
+          background:openNow?"#1a2e1e":maybeTemp?"#2e2b10":"#3a1a1a",
           padding:"3px 10px",borderRadius:20}}>
           {statusText}
         </span>
