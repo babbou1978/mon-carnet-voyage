@@ -1696,6 +1696,7 @@ function TravelAgent() {
   const [aiRecos, setAiRecos] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
   const abortRef = useRef(null);
+  const nbRecosRef = useRef(prefs.nbrecos || "10");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -1830,7 +1831,7 @@ function TravelAgent() {
   useEffect(() => {
     if (heartsKey > 0) {
       const coords = recoCoordsRef.current;
-      if (coords?.lat) loadHearts(coords);
+      if (coords?.lat) loadHearts(coords, nbRecosRef.current);
     }
   }, [heartsKey]); // eslint-disable-line
 
@@ -1971,7 +1972,7 @@ function TravelAgent() {
     return null;
   };
 
-  const loadHearts = async (coordsToUse) => {
+  const loadHearts = async (coordsToUse, nbRecosOverride=null) => {
     const myNames = new Set(memories.map(m=>m.name.toLowerCase())); // all my places for dedup
     const candidates = [
       // My memories filtered by rating
@@ -2040,9 +2041,10 @@ function TravelAgent() {
         }
       }
     });
-    const nbHearts = prefs.nbrecos === "auto"
-      ? 10
-      : parseInt(prefs.nbrecos) || 10;
+    const nbHearts = (() => {
+      const val = nbRecosOverride ?? prefs.nbrecos;
+      return val === "auto" ? 10 : parseInt(val) || 10;
+    })();
     const heartSlice = deduped.slice(0, nbHearts);
     setHeartMemories(heartSlice);
     setHeartsLoaded(true);
@@ -2697,7 +2699,11 @@ IMPORTANT RULES:
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:6,marginTop:6}}>
                     {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
-                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
+                      <button key={val} onClick={()=>{
+                        nbRecosRef.current = val;
+                        setPrefs(p=>({...p,nbrecos:val}));
+                        if(locationLabel) setHeartsKey(k=>k+1);
+                      }}
                         style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
                           borderRadius:8,color:(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.muted,
