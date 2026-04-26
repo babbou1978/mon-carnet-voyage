@@ -1874,6 +1874,13 @@ function TravelAgent() {
           body: JSON.stringify({ action:"verify", places: myHearts.map(m=>({name:m.name,address:m.address||""})) })
         });
         const verifyData = await verifyRes.json();
+        const tempClosedNames = new Set((verifyData.results||[])
+          .filter(r=>r.businessStatus==="CLOSED_TEMPORARILY")
+          .map(r=>r.name.toLowerCase()));
+        if (tempClosedNames.size > 0) {
+          setHeartMemories(prev=>prev.filter(m=>!tempClosedNames.has(m.name.toLowerCase())));
+          console.log("Filtered temp closed:", [...tempClosedNames]);
+        }
         const closed = (verifyData.results||[]).filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
         if (closed.length > 0) {
           const closedFavs = closed.map(r=>{
