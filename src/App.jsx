@@ -1347,12 +1347,12 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
         {(()=>{
-          if (m.isMine&&m.rating>0) return <span className="badge stars">{starsLabel(m.rating)}</span>;
+          if (m.isMine&&m.rating>0) return <span className="badge stars"><StarRating rating={m.rating} size={11} emptyColor={COLORS.border}/></span>;
           if (!m.isMine&&m.friendsData?.length>0) {
             const avg = m.friendsData.reduce((s,f)=>s+(f.rating||0),0)/m.friendsData.filter(f=>f.rating>0).length;
             if (avg>0) return <span className="badge stars"><StarRating rating={avg} size={11} emptyColor={COLORS.border}/></span>;
           }
-          if (m.rating>0) return <span className="badge stars">{starsLabel(m.rating)}</span>;
+          if (m.rating>0) return <span className="badge stars"><StarRating rating={m.rating} size={11} emptyColor={COLORS.border}/></span>;
           return null;
         })()}
         {m.kidsf&&<span className="badge kids">👶</span>}
