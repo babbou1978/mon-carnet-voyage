@@ -380,7 +380,7 @@ function useT(language) {
 
 const THEMES = {
   dark:  { bg:"#0f0e0c", card:"#1a1814", border:"#2e2b25", accent:"#c9a84c", accentLight:"#e8c97a", text:"#f0ead8", muted:"#8a8070", tag:"#252219", dislike:"#8b3a3a", dislikeBg:"#3a1a1a", mapScheme:"DARK" },
-  light: { bg:"#faf8f4", card:"#ffffff", border:"#e8e0d0", accent:"#b8922a", accentLight:"#c9a84c", text:"#1a1410", muted:"#7a6a50", tag:"#f5f0e8", dislike:"#8b3a3a", dislikeBg:"#fce8e8", mapScheme:"LIGHT" },
+  light: { bg:"#f9f7f4", card:"#ffffff", border:"#e5dfd5", accent:"#b8922a", accentLight:"#c9a84c", text:"#1a1410", muted:"#6a5a40", tag:"#f5f0e8", dislike:"#8b3a3a", dislikeBg:"#fce8e8", mapScheme:"LIGHT" },
 };
 const COLORS = THEMES.dark; // placeholder - overridden in TravelAgent
 
