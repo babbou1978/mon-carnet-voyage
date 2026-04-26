@@ -96,7 +96,7 @@ export default async function handler(req, res) {
         includedTypes: [googleType],
         maxResultCount: 20,
         rankPreference: "POPULARITY",
-        locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radiusMeters: radius } },
+        locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: radius } },
         languageCode: 'fr'
       };
       const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
