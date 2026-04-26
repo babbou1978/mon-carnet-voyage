@@ -1569,6 +1569,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
+        {m.distanceKm!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+", "+(m.address||[m.city,m.country].filter(Boolean).join(", ")))}`}
           target="_blank" rel="noopener noreferrer"
           className="maps-link" style={{marginLeft:8}}>Maps →</a>
@@ -2453,8 +2454,8 @@ ${candidateList
   ? `RESTAURANT LIST — ${nearbyForAI.length} places near the user:
 ${candidateList}
 
-Task: Pick the top ${nbRecosCount} numbers from this list that best match the user profile.
-In the JSON response, put ONLY the arabic digit number in the "name" field (e.g. "name": "3" for item 3, "name": "12" for item 12). Never use letters or roman numerals. The system will resolve the actual restaurant name automatically.`
+Task: Pick the top ${nbRecosCount} from this list that best match the user profile.
+For each pick, set "idx" to the item number (e.g. idx: 3 for item 3) and "name" to the restaurant name as written in the list.`
   : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" within ${distLabel}.`
 }
 
@@ -2476,12 +2477,19 @@ RULES:
         // Pre-resolve AI number references to real Google places BEFORE verify
         const preResolved = nearbyForAI.length > 0
           ? data.recommendations.map(r => {
-              const idx = parseInt(r.name) - 1;
+              // Try idx field first (new approach), then parse name as number (fallback)
+              const rawIdx = r.idx ?? parseInt(r.name);
+              const idx = rawIdx - 1;
               if (!isNaN(idx) && idx >= 0 && idx < nearbyForAI.length) {
                 const gp = nearbyForAI[idx];
                 return {...r, name: gp.name, address: gp.address, lat: gp.lat, lng: gp.lng, _dist: gp._dist};
               }
-              return null; // discard — invalid index or hallucination
+              // Try exact name match in nearbyForAI
+              const exactMatch = nearbyForAI.find(p => p.name.toLowerCase() === (r.name||"").toLowerCase());
+              if (exactMatch) {
+                return {...r, name: exactMatch.name, address: exactMatch.address, lat: exactMatch.lat, lng: exactMatch.lng, _dist: exactMatch._dist};
+              }
+              return null;
             }).filter(Boolean)
           : data.recommendations;
 
@@ -2997,6 +3005,7 @@ RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
+                                  {reco._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}

@@ -25,7 +25,8 @@ Required format:
 {
   "recommendations": [
     {
-      "name": "IMPORTANT: Put ONLY the arabic digit number here (e.g. 3, 7, 12). Example: if you pick item 5 from the list, write \"name\": \"5\". Never write the place name here.",
+      "name": "Place name — write the actual restaurant name here",
+      "idx": "IMPORTANT: When a numbered candidate list is provided, put the item number here as an integer (e.g. 3). Leave null if no list.",
       "type": "place type",
       "cuisine": "specific cuisine or venue style (e.g. French Bistro, Italian Trattoria, Japanese Sushi, Wine Bar, Steakhouse) or null if not food",
       "openNow": null,
