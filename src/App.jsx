@@ -1689,7 +1689,8 @@ function TravelAgent() {
   const [geocoding, setGeocoding] = useState(false);
   const [heartMemories, setHeartMemories] = useState([]);
   const [closedPlaces, setClosedPlaces] = useState([]);
-  const [tempClosedPlaces, setTempClosedPlaces] = useState(new Set());
+  const closedPlacesRef = useRef([]);
+  const tempClosedRef = useRef(new Set());
   const [heartsLoaded, setHeartsLoaded] = useState(false);
   const [heartsKey, setHeartsKey] = useState(0);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -1793,7 +1794,7 @@ function TravelAgent() {
       // Load community-reported closed places
       try {
         const { data: closed } = await supabase.from('closed_places').select('name,place_id,address');
-        if (closed) setClosedPlaces(closed.map(p=>p.name)); // keep original case for AI prompt
+        if (closed) { const names = closed.map(p=>p.name); setClosedPlaces(names); closedPlacesRef.current = names; }
       } catch {}
       setLoading(false);
     };
@@ -2069,8 +2070,8 @@ function TravelAgent() {
       return val === "auto" ? 10 : parseInt(val) || 10;
     })();
     const allClosedNames = new Set([
-      ...closedPlaces.map(n=>n.toLowerCase()),
-      ...tempClosedPlaces
+      ...closedPlacesRef.current.map(n=>n.toLowerCase()),
+      ...tempClosedRef.current
     ]);
     const heartSlice = deduped.filter(m=>!allClosedNames.has(m.name.toLowerCase())).slice(0, nbHearts);
     setHeartMemories(heartSlice);
@@ -2089,7 +2090,7 @@ function TravelAgent() {
           .filter(r=>r.businessStatus==="CLOSED_TEMPORARILY")
           .map(r=>r.name.toLowerCase()));
         if (tempClosedNames.size > 0) {
-          setTempClosedPlaces(prev => new Set([...prev, ...tempClosedNames]));
+          tempClosedNames.forEach(n => tempClosedRef.current.add(n));
           setHeartMemories(prev=>prev.filter(m=>!tempClosedNames.has(m.name.toLowerCase())));
         }
         const closed = (verifyData.results||[]).filter(r=>r.businessStatus==="CLOSED_PERMANENTLY");
@@ -2239,8 +2240,8 @@ function TravelAgent() {
       ? Math.max(3, 10 - (aiRecos.length || 0))
       : parseInt(prefs.nbrecos) || 10;
     const allClosedNames = new Set([
-      ...closedPlaces.map(n=>n.toLowerCase()),
-      ...tempClosedPlaces
+      ...closedPlacesRef.current.map(n=>n.toLowerCase()),
+      ...tempClosedRef.current
     ]);
     setHeartMemories(prev => {
       const prevMap = {};
@@ -2334,7 +2335,7 @@ IMPORTANT RULES:
           const tempClosed = newlyClosed.filter(r=>r.businessStatus==="CLOSED_TEMPORARILY");
           const allClosedNames = new Set([
             ...newlyClosed.map(r=>r.name.toLowerCase()),
-            ...closedPlaces.map(n=>n.toLowerCase())
+            ...closedPlacesRef.current.map(n=>n.toLowerCase())
           ]);
           // Enrich recos with real openNow from Google
           const verifyMap = {};
@@ -2379,7 +2380,9 @@ IMPORTANT RULES:
               });
               await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id' });
               const newIds = newlyClosed.map(r=>r.name);
-              setClosedPlaces(prev=>[...new Set([...prev, ...newIds])]);
+              const newNames = [...new Set([...closedPlacesRef.current, ...newIds])];
+              setClosedPlaces(newNames);
+              closedPlacesRef.current = newNames;
             } catch(e) { console.error('Upsert closed_places error:', e); }
           }
         } catch(verifyErr) {
