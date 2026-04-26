@@ -2489,10 +2489,14 @@ IMPORTANT RULES:
               const outRadius = recoWithDist.filter(r=>r._dist!==null&&r._dist>distance);
               if (inRadius.length >= nbRecosCount) {
                 // Enough results in radius - discard those outside
-                setAiRecos(inRadius.sort((a,b)=>(a._dist||0)-(b._dist||0)));
+                setAiRecos(inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)));
               } else {
-                // Not enough in radius - keep all, sorted by distance
-                setAiRecos(recoWithDist.sort((a,b)=>(a._dist||0)-(b._dist||0)));
+                // Not enough in radius - keep all but flag out-of-radius ones
+                const flagged = [
+                  ...inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)),
+                  ...outRadius.map(r=>({...r, outsideRadius:true})).sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0))
+                ];
+                setAiRecos(flagged);
               }
             } catch {
               setAiRecos(filtered);
@@ -2955,7 +2959,10 @@ IMPORTANT RULES:
                             <div className="ai-reco-header">
                               <div className="ai-reco-top">
                                 <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
-                                <div className="ai-reco-rank">#{i+1}</div>
+                                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                  {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {Math.round(reco._dist)}m</span>}
+                                  <div className="ai-reco-rank">#{i+1}</div>
+                                </div>
                               </div>
                               <div className="ai-reco-meta">
                                 {reco.cuisine&&<span className="badge">{reco.cuisine}</span>}
