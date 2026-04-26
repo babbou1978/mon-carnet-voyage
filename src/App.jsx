@@ -2481,7 +2481,15 @@ RULES:
                 const gp = nearbyForAI[idx];
                 return {...r, name: gp.name, address: gp.address, lat: gp.lat, lng: gp.lng, _dist: gp._dist};
               }
-              return null; // discard invalid
+              // Fallback: try fuzzy match on name against nearbyForAI
+              const nameLower = (r.name||"").toLowerCase();
+              const fuzzy = nearbyForAI.find(p =>
+                p.name.toLowerCase().includes(nameLower) || nameLower.includes(p.name.toLowerCase())
+              );
+              if (fuzzy) {
+                return {...r, name: fuzzy.name, address: fuzzy.address, lat: fuzzy.lat, lng: fuzzy.lng, _dist: fuzzy._dist};
+              }
+              return null; // discard
             }).filter(Boolean)
           : data.recommendations;
 
