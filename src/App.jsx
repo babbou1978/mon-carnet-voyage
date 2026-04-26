@@ -384,7 +384,7 @@ const THEMES = {
 };
 const COLORS = THEMES.dark; // placeholder - overridden in TravelAgent
 
-const css = `
+const getCSS = (COLORS) => `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: ${COLORS.bg}; color: ${COLORS.text}; font-family: 'DM Sans', sans-serif; min-height: 100vh; transition: background 0.3s, color 0.3s; }
@@ -2254,7 +2254,7 @@ IMPORTANT RULES:
 
   return (
     <>
-      <style>{css}</style>
+      <style>{getCSS(COLORS)}</style>
       <div className="app">
         <div className="header">
           <div className="header-top">
