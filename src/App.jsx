@@ -946,7 +946,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
       {activePlace && (
         <div style={{
           position:"absolute", bottom:8, left:8, right:8,
-          background:"#1a1814", border:`1px solid ${activePlace.markerType==="heart"?"#e05555":"#c9a84c"}`,
+          background:COLORS.card, border:`1px solid ${activePlace.markerType==="heart"?"#e05555":"#c9a84c"}`,
           borderRadius:10, padding:"12px 14px", zIndex:20
         }}>
           <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
@@ -1222,7 +1222,7 @@ function OpeningHoursWidget({ openNow, hours, lang="en" }) {
         {hours?.length&&<span style={{fontSize:10,color:"#8a8070"}}>{expanded?"▲":"▼"}</span>}
       </div>
       {expanded&&hours?.length&&(
-        <div style={{marginTop:6,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,
+        <div style={{marginTop:6,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,
           padding:"8px 12px",fontSize:11,color:"#8a8070",lineHeight:1.8}}>
           {hours.map((h,i)=>{
             const fr = convertToFr(h);
@@ -1259,12 +1259,12 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend }) {
         👥 {friends.length}
       </span>
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:"#1a1814",border:"1px solid #2e2b25",
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:COLORS.card,border:`1px solid ${COLORS.border}`,
           borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:220,boxShadow:"0 4px 20px rgba(0,0,0,0.6)"}}>
           {friends.map((fname,i)=>{
             const fMem = friendsData.find(m=>m.friendName===fname);
             return (
-              <div key={i} style={{padding:"8px 12px",borderBottom:i<friends.length-1?"1px solid #2e2b2533":"none"}}>
+              <div key={i} style={{padding:"8px 12px",borderBottom:i<friends.length-1?`1px solid ${COLORS.border}44`:"none"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
                   <span style={{fontSize:12,color:"#f0ead8",fontWeight:500}}>👤 {fname}</span>
                   <div style={{display:"flex",gap:4,alignItems:"center"}}>
@@ -1423,7 +1423,7 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
             onKeyDown={handleKeyDown}
             onFocus={()=>suggestions.length>0&&setShowDrop(true)}
             placeholder={placeholder}
-            style={{flex:1,background:"#1a1814",border:"1px solid #2e2b25",borderRadius:8,color:"#f0ead8",
+            style={{flex:1,background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,color:COLORS.text,
               fontFamily:"'DM Sans',sans-serif",fontSize:13,padding:"9px 12px",outline:"none"}}
           />
           <button onClick={add} style={{background:"#c9a84c22",border:"1px solid #c9a84c",borderRadius:8,
@@ -1432,12 +1432,12 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
           </button>
         </div>
         {showDrop&&suggestions.length>0&&(
-          <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#1a1814",border:"1px solid #2e2b25",
+          <div style={{position:"absolute",top:"100%",left:0,right:0,background:COLORS.card,border:`1px solid ${COLORS.border}`,
             borderRadius:8,zIndex:100,overflow:"hidden",marginTop:4,boxShadow:"0 4px 16px rgba(0,0,0,0.4)"}}>
             {suggestions.map((s,i)=>(
               <div key={i} onMouseDown={()=>selectSuggestion(s)}
                 style={{padding:"10px 14px",cursor:"pointer",fontSize:13,color:"#f0ead8",
-                  background:i===activeIdx?"#2e2b25":"transparent",borderBottom:"1px solid #2e2b2522"}}>
+                  background:i===activeIdx?COLORS.border:"transparent",borderBottom:`1px solid ${COLORS.border}44`}}>
                 📍 {s.label}
               </div>
             ))}
@@ -1449,8 +1449,8 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty }) {
       ) : (
         <div style={{display:"flex",flexDirection:"column",gap:4}}>
           {cities.map((city,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:6,background:"#1a1814",
-              border:"1px solid #2e2b25",borderRadius:8,padding:"7px 10px"}}>
+            <div key={i} style={{display:"flex",alignItems:"center",gap:6,background:COLORS.tag,
+              border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"7px 10px"}}>
               <span style={{fontSize:11,color:"#c9a84c",fontWeight:700,minWidth:18}}>#{i+1}</span>
               <span style={{flex:1,fontSize:13,color:"#f0ead8"}}>{city}</span>
               <button onClick={()=>moveUp(i)} disabled={i===0}
@@ -2441,7 +2441,7 @@ IMPORTANT RULES:
                     {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
                         style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                          border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
                           borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
                         {label}
@@ -2511,7 +2511,7 @@ IMPORTANT RULES:
                     {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
                         style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
+                          border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
                           borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600}}>
                         {label}
@@ -2652,7 +2652,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
             <div className="modal-title">⚠️ Établissements fermés</div>
             <p style={{fontSize:13,color:COLORS.muted,marginBottom:12}}>Ces établissements semblent définitivement fermés. Voulez-vous les supprimer de vos Favoris ?</p>
             {closedFavoritesAlert.map(f=>(
-              <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #2e2b2533"}}>
+              <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${COLORS.border}44`}}>
                 <span style={{fontSize:13,color:COLORS.text}}>🔴 {f.name}</span>
               </div>
             ))}
@@ -2677,7 +2677,7 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
           <div className="modal" style={{maxHeight:"90vh",overflowY:"auto"}}>
             <div className="modal-title">👤 {friendMemoryModal.friendName}</div>
             <MemoryCard m={friendMemoryModal.memory} isMine={false} lang={lang} onEdit={()=>{}} onDelete={()=>{}} onDeleteRequest={()=>{}}/>
-            <div style={{marginTop:16,borderTop:"1px solid #2e2b25",paddingTop:12}}>
+            <div style={{marginTop:16,borderTop:`1px solid ${COLORS.border}`,paddingTop:12}}>
               <div style={{fontSize:11,color:"#8a8070",marginBottom:10,textAlign:"center",textTransform:"uppercase",letterSpacing:"0.1em"}}>Modifier avant de sauvegarder</div>
               <MemoryForm
                 key={"friend-"+friendMemoryModal.memory.id}
