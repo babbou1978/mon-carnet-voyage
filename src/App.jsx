@@ -1285,25 +1285,29 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
       en: {}
     };
     const dayMap = dayMaps[lang] || {};
-    let out = line;
-    Object.entries(dayMap).forEach(([en,fr])=>{ out = out.replace(en, fr); });
+    // Normalize all Unicode whitespace and dashes first
+    let out = line
+      .replace(/\u202f/g, " ")   // narrow no-break space (used by Google between time and AM/PM)
+      .replace(/\u00a0/g, " ")   // non-breaking space
+      .replace(/\u2009/g, " ")   // thin space
+      .replace(/\u2013/g, "–")   // en dash
+      .replace(/\u2014/g, "–");  // em dash
 
-    // Normalize non-breaking spaces and various dash types
-    out = out.replace(/\u202f/g, " ").replace(/\u2009/g, " ").replace(/\u2013/g, "–").replace(/\u2014/g, "–");
+    // Translate day names
+    Object.entries(dayMap).forEach(([en, local]) => { out = out.replace(en, local); });
 
-    // Convert AM/PM times to 24h
-    // Handle "X:XX AM" and "X:XX PM" - must handle ranges like "12:00 – 3:00 PM, 5:30 – 10:30 PM"
-    // Strategy: find each time+AM/PM pair and convert
-    out = out.replace(/(\d{1,2}):(\d{2})\s*[Aa][Mm]/g, (_, h, m) => {
+    // Convert all time+AM/PM occurrences to 24h
+    // Handles: "4:30 PM", "4 PM", "12:00 AM", etc.
+    out = out.replace(/(\d{1,2})(?::(\d{2}))?\s*[Aa][Mm]/g, (_, h, m) => {
       const hh = h === "12" ? "00" : String(parseInt(h)).padStart(2, "0");
-      return `${hh}:${m}`;
+      return `${hh}:${m || "00"}`;
     });
-    out = out.replace(/(\d{1,2}):(\d{2})\s*[Pp][Mm]/g, (_, h, m) => {
+    out = out.replace(/(\d{1,2})(?::(\d{2}))?\s*[Pp][Mm]/g, (_, h, m) => {
       const hh = h === "12" ? "12" : String(parseInt(h) + 12).padStart(2, "0");
-      return `${hh}:${m}`;
+      return `${hh}:${m || "00"}`;
     });
 
-    // Normalize dashes
+    // Normalize dashes with consistent spacing
     out = out.replace(/\s*–\s*/g, "–").replace(/\s*-\s*/g, "–");
     return out;
   };
@@ -2250,8 +2254,7 @@ function TravelAgent() {
       }
       return getDisplayRating(b) - getDisplayRating(a);
     });
-    // Preserve openNow from previous state if already enriched
-    // Filter out permanently and temporarily closed places
+    // Preserve openNow status from previous state but NOT openingHours (force re-fetch for fresh data)
     const nbHearts = prefs.nbrecos === "auto"
       ? Math.max(3, 10 - (aiRecos.length || 0))
       : parseInt(prefs.nbrecos) || 10;
@@ -2261,13 +2264,13 @@ function TravelAgent() {
     ]);
     setHeartMemories(prev => {
       const prevMap = {};
-      prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow, openingHours:m.openingHours}; });
+      prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow}; });
       return deduped
         .filter(m => !allClosedNames.has(m.name.toLowerCase()))
         .slice(0, nbHearts)
         .map(m => {
           const p = prevMap[m.name.toLowerCase()];
-          return p ? {...m, openNow:p.openNow, openingHours:p.openingHours} : m;
+          return p ? {...m, openNow:p.openNow} : m;
         });
     });
 
