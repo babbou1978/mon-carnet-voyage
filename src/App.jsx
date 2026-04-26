@@ -2386,7 +2386,8 @@ function TravelAgent() {
         const dist = plat && plng ? calcDistance(coords.lat, coords.lng, plat, plng) * 1000 : null;
         return {
           name: p.displayName?.text||"", address: p.formattedAddress||"",
-          rating: p.rating, price: PRICE_MAP[p.priceLevel]||"",
+          rating: p.rating, userRatingCount: p.userRatingCount||0,
+          price: PRICE_MAP[p.priceLevel]||"",
           lat: plat, lng: plng, _dist: dist,
           openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
           openingHours: p.currentOpeningHours?.weekdayDescriptions || p.regularOpeningHours?.weekdayDescriptions || null,
@@ -2427,10 +2428,10 @@ function TravelAgent() {
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
 
-    // Build candidate list for AI from real Google Places within the radius
+    // Build candidate list — numbered for AI to reference by index only
     const candidateList = nearbyForAI.length > 0
-      ? nearbyForAI.map(p =>
-          `- ${p.name} | ${p.address} | Google: ${p.rating||"?"}★ | ${p.price||"?"}`
+      ? nearbyForAI.map((p, i) =>
+          `${i+1}. ${p.name} | Google: ${p.rating||"?"}★ (${p.userRatingCount||0} avis) | ${p.price||"?"}`
         ).join("\n")
       : null;
 
@@ -2440,30 +2441,31 @@ Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"
 Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
 Kids friendly required: ${recoKids?"yes":"no"}
 Other notes: ${prefs.notes||"none"}
-Preferred language for responses: ${langLabel}
+Preferred language: ${langLabel}
 
-My top favorites — USE THEIR NAMES in the "why" field when relevant:
+My top favorites (reference by name in "why" field):
 ${liked||"None."}
 
-My disappointments (never recommend similar):
+My disappointments (skip similar places):
 ${disliked||"None."}
 
 ${candidateList
-  ? `CANDIDATE PLACES (real places from Google within ${distLabel} of the search center — you MUST choose ONLY from this list):
+  ? `RESTAURANT LIST — ${nearbyForAI.length} places near the user:
 ${candidateList}
 
-Task: Select the ${nbRecosCount} best candidates above that match the user profile best. Do NOT suggest any place not in this list.`
-  : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" (GPS: ${coords?.lat?.toFixed(5)}, ${coords?.lng?.toFixed(5)}) within ${distLabel}.`
+Task: Pick the top ${nbRecosCount} numbers from this list that best match the user profile.
+In the JSON response, use "name" field as the NUMBER only (e.g. "name": "3") — nothing else.
+The system will resolve the actual restaurant name from the number.`
+  : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" within ${distLabel}.`
 }
 
 RULES:
-- matchScore 0-100 based on profile match, sort by matchScore DESC
+- "name" field = the NUMBER from the list (e.g. "3") — NOT the restaurant name
+- matchScore 0-100, rank DESC
+- Skip places similar to disappointments
+- Skip: ${excludeList||"none"}
 - 2-3 short matchReasons (max 8 words each)
-- "why" field: 1 sentence (max 30 words) = "[Brief place description] — [personal reason citing a specific favorite name, cuisine, destination or preference from user data]"
-- Use the exact address from the candidate list
-- NEVER suggest: ${excludeList||"none"}
-- NEVER suggest anything similar to disappointments
-- PERMANENTLY CLOSED — never suggest: ${closedPlacesRef.current.join(", ")||"none"}
+- "why": 1 sentence = "[Brief place description] — [personal reason citing a favorite, cuisine or preference by name]"
 - Write all text (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
       const res = await fetch("/api/recommend", {
@@ -2472,11 +2474,23 @@ RULES:
       });
       const data = await res.json();
       if (data.recommendations) {
+        // Pre-resolve AI number references to real Google places BEFORE verify
+        const preResolved = nearbyForAI.length > 0
+          ? data.recommendations.map(r => {
+              const idx = parseInt(r.name) - 1;
+              if (!isNaN(idx) && idx >= 0 && idx < nearbyForAI.length) {
+                const gp = nearbyForAI[idx];
+                return {...r, name: gp.name, address: gp.address, lat: gp.lat, lng: gp.lng, _dist: gp._dist};
+              }
+              return null; // discard invalid
+            }).filter(Boolean)
+          : data.recommendations;
+
         // Verify places are still operational via Google Places
         try {
           const verifyRes = await fetch("/api/places", {
             method: "POST", headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({ action:"verify", places: data.recommendations.map(r=>({name:r.name,address:r.address,googlePlaceId:""})) })
+            body: JSON.stringify({ action:"verify", places: preResolved.map(r=>({name:r.name,address:r.address,googlePlaceId:""})) })
           });
           const verifyData = await verifyRes.json();
           const newlyClosed = (verifyData.results||[]).filter(r=>!r.operational);
@@ -2489,40 +2503,24 @@ RULES:
             ...newlyClosed.map(r=>r.name.toLowerCase()),
             ...closedPlacesRef.current.map(n=>n.toLowerCase())
           ]);
-          // Enrich recos with real openNow from Google
+
+          // preResolved already has real names + coords from Google
+          const resolvedRecos = preResolved.filter(r =>
+            !alreadyVisited.has(r.name) && !allClosedNames.has(r.name.toLowerCase())
+          );
+
+          const filtered = resolvedRecos
+            .sort((a,b) => (b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0));
+
+          // Enrich with openNow from verify
           const verifyMap = {};
-          (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
-          const filtered = data.recommendations
-            .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
-            .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r; });
-
-          // Match AI results back to Google nearby list using exact coords and address
-          const nearbyMap = {};
-          nearbyForAI.forEach(p => { nearbyMap[p.name.toLowerCase()] = p; });
-
-          // Separate matched (from Google list) vs hallucinated (not in list)
-          const matched = [];
-          const hallucinated = [];
-          filtered.forEach(r => {
-            const googlePlace = nearbyMap[r.name.toLowerCase()];
-            if (googlePlace) {
-              // Use Google's real address and coords
-              matched.push({...r, address: googlePlace.address, _dist: googlePlace._dist, outsideRadius: false});
-            } else {
-              hallucinated.push({...r, outsideRadius: true});
-            }
+          (verifyData.results||[]).forEach(r => { verifyMap[r.name.toLowerCase()] = r; });
+          const enriched = filtered.map(r => {
+            const v = verifyMap[r.name.toLowerCase()];
+            return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r;
           });
 
-          // Sort matched by matchScore
-          const sortedMatched = matched.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0));
-
-          if (sortedMatched.length >= nbRecosCount) {
-            // Enough real matches — discard hallucinations
-            setAiRecos(sortedMatched);
-          } else {
-            // Not enough — append flagged hallucinations
-            setAiRecos([...sortedMatched, ...hallucinated.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0))]);
-          }
+          setAiRecos(enriched);
           if (permClosed.length > 0) {
             try {
               const toInsert = permClosed.map(r=>{

@@ -98,14 +98,14 @@ export default async function handler(req, res) {
       const body = {
         includedTypes: [googleType],
         maxResultCount: 20,
-        rankPreference: "DISTANCE",
+        rankPreference: "POPULARITY",
         locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
         languageCode: 'fr'
       };
       const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions' },
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions' },
         body: JSON.stringify(body),
       });
       const result = await r.json();
