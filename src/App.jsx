@@ -2401,9 +2401,22 @@ function TravelAgent() {
     const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5)
       .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
       .join("\n");
-    const friendLiked = friendMemories.filter(m=>m.rating>=3)
-      .map(m=>`- ${m.name} (${m.type}) [ami: ${m.friendName}]`)
-      .join("\n");
+
+    // Friends favorites used as taste signal only, not as direct recommendations
+    const friendTasteSignal = recoFriendFilter !== "mine" && friendMemories.filter(m=>m.rating>=3).length > 0
+      ? "Friends with similar taste also liked: " + friendMemories.filter(m=>m.rating>=3)
+          .slice(0,8)
+          .map(m=>`${m.name} (${m.type})`)
+          .join(", ")
+      : "";
+
+    // All places already shown in Favorites section — must be excluded from AI results
+    const alreadyShown = new Set([
+      ...memories.map(m=>m.name.toLowerCase()),
+      ...heartMemories.map(m=>m.name.toLowerCase()),
+    ]);
+    const excludeList = [...alreadyShown].map(n => memories.find(m=>m.name.toLowerCase()===n)?.name || heartMemories.find(m=>m.name.toLowerCase()===n)?.name).filter(Boolean).slice(0,30).join(", ");
+
     const nbRecosCount = prefs.nbrecos === "auto"
       ? Math.max(3, 10 - heartMemories.length)
       : parseInt(prefs.nbrecos) || 10;
@@ -2416,23 +2429,26 @@ Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
 Kids friendly required: ${recoKids?"yes":"no"}
 Preferred language for responses: ${langLabel}
 
-My favorites: ${liked||"None."}
-My disappointments: ${disliked||"None."}
-Friends favorites: ${friendLiked||"None."}
+My favorites (use to understand my taste, DO NOT recommend these):
+${liked||"None."}
+
+My disappointments (never recommend similar):
+${disliked||"None."}
+
+${friendTasteSignal}
 
 Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
 
 IMPORTANT RULES:
-- ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit - do not exceed it under any circumstance.
-- Before including a place, verify its address is physically within ${distLabel} walking distance from "${locationLabel}". If unsure, skip it.
-- A place at 1.5km when the limit is 1km must be excluded. No exceptions.
+- ALL places MUST be within ${distLabel} of "${locationLabel}". This is a HARD limit.
 - Sort by best match to the user profile (highest matchScore first)
 - matchScore 0-100 based on profile match
-- 2-3 concrete matchReasons explaining why this place fits
+- 2-3 short matchReasons (max 8 words each) explaining why this fits MY profile or MY favorites — do NOT mention friends
+- "why" field: 1 concise sentence linking the place to my specific tastes — do NOT mention friends by name
 - Full address required: street number, street name, city, country
-- NEVER suggest any of these places already in favorites: ${memories.map(m=>m.name).slice(0,20).join(', ')}
-- NEVER suggest places similar to disappointments
-- These venues are PERMANENTLY CLOSED, NEVER suggest them: ${closedPlaces.join(", ")||"none"}
+- NEVER suggest any of these places (already shown): ${excludeList||"none"}
+- NEVER suggest places similar to my disappointments
+- These venues are PERMANENTLY CLOSED, NEVER suggest them: ${closedPlacesRef.current.join(", ")||"none"}
 - Write all text content (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
       const res = await fetch("/api/recommend", {
