@@ -1035,7 +1035,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
         }}>
           <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
             <div style={{fontFamily:"'Cormorant Garamond',serif", fontSize:17, color:COLORS.text, flex:1, marginRight:8}}>
-              {activePlace.idx && <span style={{color:"#c9a84c",marginRight:6}}>#{activePlace.idx}</span>}
+              {activePlace.idx && <span style={{color:COLORS.accent,marginRight:6}}>#{activePlace.idx}</span>}
               {activePlace.name}
             </div>
             <button onClick={() => setActivePlace(null)} style={{background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16}}>✕</button>
@@ -1186,7 +1186,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
             const main=s.placePrediction?.structuredFormat?.mainText?.text||"";
             const secondary=s.placePrediction?.structuredFormat?.secondaryText?.text||"";
             return (
-              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?"#2e2b25":"transparent"}}>
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?COLORS.border:"transparent"}}>
                 <div className="autocomplete-main">📍 {main}</div>
                 {secondary&&<div className="autocomplete-sub">{secondary}</div>}
               </div>
@@ -1603,7 +1603,7 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty, COLORS=TH
           {cities.map((city,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:6,background:COLORS.tag,
               border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"7px 10px"}}>
-              <span style={{fontSize:11,color:"#c9a84c",fontWeight:700,minWidth:18}}>#{i+1}</span>
+              <span style={{fontSize:11,color:COLORS.accent,fontWeight:700,minWidth:18}}>#{i+1}</span>
               <span style={{flex:1,fontSize:13,color:COLORS.text}}>{city}</span>
               <button onClick={()=>moveUp(i)} disabled={i===0}
                 style={{background:"none",border:"none",color:i===0?COLORS.border:COLORS.muted,cursor:i===0?"default":"pointer",fontSize:14,padding:"0 4px"}}>▲</button>
@@ -2775,7 +2775,7 @@ IMPORTANT RULES:
                     {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
                   </button>
                   {(heartLoading||aiLoading||geocoding)&&(
-                    <button onClick={cancelSearch} style={{padding:"13px 16px",background:"#3a1a1a",border:"1px solid #8b3a3a",borderRadius:10,color:"#e06060",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
+                    <button onClick={cancelSearch} style={{padding:"13px 16px",background:COLORS.dislikeBg,border:`1px solid ${COLORS.dislike}44`,borderRadius:10,color:"#e06060",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
                       ✕ {t.cancel||"Cancel"}
                     </button>
                   )}
