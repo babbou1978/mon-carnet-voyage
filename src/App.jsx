@@ -1397,11 +1397,31 @@ function OpeningHoursWidget({ openNow, hours, lang="en", COLORS=THEMES.dark }) {
   const todayTimes = todayLine ? convertToFr(todayLine).split(": ").slice(1).join(": ") : null;
   const nextOpenLabel = !openNow ? getNextOpenLabel() : null;
 
+  // When open, find the current active slot only
+  const getCurrentSlot = () => {
+    if (!openNow || !todayTimes) return todayTimes;
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const slots = todayTimes.split(",").map(s => s.trim());
+    const currentSlot = slots.find(slot => {
+      const parts = slot.split("–");
+      if (parts.length < 2) return false;
+      const [sh, sm] = parts[0].trim().split(":").map(Number);
+      const [eh, em] = parts[1].trim().split(":").map(Number);
+      const start = sh * 60 + (sm || 0);
+      const end = eh * 60 + (em || 0);
+      const endAdj = end < start ? end + 24 * 60 : end; // handle midnight crossing
+      return nowMinutes >= start && nowMinutes <= endAdj;
+    });
+    return currentSlot || slots[slots.length - 1]; // fallback to last slot
+  };
+
   const openLabel = {fr:"Ouvert",en:"Open",es:"Abierto",de:"Geöffnet",it:"Aperto",pt:"Aberto",nl:"Open"}[lang]||"Open";
   const closedLabel = {fr:"Fermé",en:"Closed",es:"Cerrado",de:"Geschlossen",it:"Chiuso",pt:"Fechado",nl:"Gesloten"}[lang]||"Closed";
   const maybeTemp = !openNow && !hours?.length;
+  const currentSlot = getCurrentSlot();
   const statusText = openNow
-    ? `🟢 ${openLabel}${todayTimes && todayTimes!==closedLabel ? " · "+todayTimes : ""}`
+    ? `🟢 ${openLabel}${currentSlot && currentSlot!==closedLabel ? " · "+currentSlot : ""}`
     : maybeTemp
       ? `⚠️ ${{fr:'Fermé temporairement',en:'Possibly temporarily closed',es:'Posiblemente cerrado temporalmente',de:'Möglicherweise vorübergehend geschlossen',it:'Possibilmente chiuso temporaneamente',pt:'Possivelmente fechado temporariamente',nl:'Mogelijk tijdelijk gesloten'}[lang]||'Possibly temporarily closed'}`
       : `🔴 ${closedLabel}${nextOpenLabel ? " · "+nextOpenLabel : ""}`;
