@@ -2496,42 +2496,32 @@ RULES:
             .filter(r=>!allClosedNames.has(r.name.toLowerCase()))
             .map(r=>{ const v=verifyMap[r.name.toLowerCase()]; return v ? {...r, openNow:v.openNow??r.openNow, openingHours:v.openingHours||r.openingHours, googleRating:v.googleRating||null, cuisine:v.cuisine||r.cuisine} : r; });
 
-          // Enrich AI results with coords from nearbyForAI (already validated in-radius by Google)
-          // For any place not found in nearbyForAI (AI hallucination), compute distance via geocoding
-          const nearbyCoordMap = {};
-          nearbyForAI.forEach(p => {
-            if (p.lat && p.lng) nearbyCoordMap[p.name.toLowerCase()] = {lat:p.lat, lng:p.lng, trusted:true};
+          // Match AI results back to Google nearby list using exact coords and address
+          const nearbyMap = {};
+          nearbyForAI.forEach(p => { nearbyMap[p.name.toLowerCase()] = p; });
+
+          // Separate matched (from Google list) vs hallucinated (not in list)
+          const matched = [];
+          const hallucinated = [];
+          filtered.forEach(r => {
+            const googlePlace = nearbyMap[r.name.toLowerCase()];
+            if (googlePlace) {
+              // Use Google's real address and coords
+              matched.push({...r, address: googlePlace.address, _dist: googlePlace._dist, outsideRadius: false});
+            } else {
+              hallucinated.push({...r, outsideRadius: true});
+            }
           });
 
-          const needGeocode = filtered.filter(r => !nearbyCoordMap[r.name.toLowerCase()]);
-          if (needGeocode.length > 0) {
-            try {
-              const geoRes = await fetch("/api/geocode-memories", {
-                method:"POST", headers:{"Content-Type":"application/json"},
-                body: JSON.stringify({ places: needGeocode.map(r=>({id:r.name,name:r.name,city:"",country:"",address:r.address})) })
-              });
-              const geoData = await geoRes.json();
-              (geoData.results||[]).forEach(r=>{ if(r.lat) nearbyCoordMap[r.id.toLowerCase()]={lat:r.lat,lng:r.lng,trusted:false}; });
-            } catch {}
-          }
+          // Sort matched by matchScore
+          const sortedMatched = matched.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0));
 
-          const recoWithDist = filtered.map(r=>{
-            const c = nearbyCoordMap[r.name.toLowerCase()];
-            const dist = c ? calcDistance(coords.lat, coords.lng, c.lat, c.lng)*1000 : null;
-            const outsideRadius = c && !c.trusted && dist !== null && dist > distance;
-            return {...r, _dist: dist, outsideRadius};
-          });
-
-          const inRadius = recoWithDist.filter(r => !r.outsideRadius);
-          const outRadius = recoWithDist.filter(r => r.outsideRadius);
-
-          if (inRadius.length >= nbRecosCount) {
-            setAiRecos(inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)));
+          if (sortedMatched.length >= nbRecosCount) {
+            // Enough real matches — discard hallucinations
+            setAiRecos(sortedMatched);
           } else {
-            setAiRecos([
-              ...inRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0)),
-              ...outRadius.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0))
-            ]);
+            // Not enough — append flagged hallucinations
+            setAiRecos([...sortedMatched, ...hallucinated.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0))]);
           }
           if (permClosed.length > 0) {
             try {
