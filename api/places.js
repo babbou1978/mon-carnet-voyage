@@ -90,13 +90,28 @@ export default async function handler(req, res) {
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
-      const typeMap = { "Restaurant":"restaurant","Bar / Café":"cafe","Hôtel":"lodging","Destination":"tourist_attraction","Activité":"museum" };
+      const typeMap = {
+        "Restaurant": ["restaurant", "food"],
+        "Bar / Café": ["bar", "cafe", "coffee_shop"],
+        "Hôtel": ["lodging", "hotel"],
+        "Destination": ["tourist_attraction", "point_of_interest"],
+        "Activité": ["museum", "art_gallery"]
+      };
+      const includedTypes = typeMap[type] || ["restaurant", "food"];
       const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions' },
-        body: JSON.stringify({ includedTypes:[typeMap[type]||"restaurant"], maxResultCount:10, rankPreference:"POPULARITY",
-          locationRestriction:{circle:{center:{latitude:lat,longitude:lng},radiusMeters:radius}}, languageCode:'fr' }),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': key,
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions'
+        },
+        body: JSON.stringify({
+          includedTypes,
+          maxResultCount: 20,
+          rankPreference: "DISTANCE",
+          locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radiusMeters: radius } },
+          languageCode: 'fr'
+        }),
       });
       return res.status(200).json(await r.json());
     }
