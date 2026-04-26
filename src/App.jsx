@@ -655,7 +655,7 @@ function DistanceSlider({ value, onChange }) {
   );
 }
 
-function PlaceSearch({ onPlaceSelected }) {
+function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -976,7 +976,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
 
 
 // Autocomplete spécial pour la localisation Reco — retourne aussi les coordonnées GPS
-function RecoPlaceSearch({ onPlaceSelected, initialValue="" }) {
+function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark }) {
   const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1130,7 +1130,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, t, lang="en", onD
   };
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {!isEdit?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch onPlaceSelected={handlePlaceSelected}/></div>
+      {!isEdit?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch COLORS={COLORS} onPlaceSelected={handlePlaceSelected}/></div>
         :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/></div>}
       {form.name && <>
         <div className="row-2">
@@ -2490,7 +2490,7 @@ IMPORTANT RULES:
                 </div>
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
-                {locMode==="free"&&<RecoPlaceSearch initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
+                {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={v=>{setDistance(v);setHeartsKey(k=>k+1);}}/></div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
