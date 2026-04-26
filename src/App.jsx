@@ -1369,23 +1369,22 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
         👥 {friends.length}
       </span>
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:COLORS.card,border:`1px solid ${COLORS.border}`,
-          borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:220,boxShadow:"0 4px 20px rgba(0,0,0,0.6)"}}>
+        <div style={{position:"absolute",top:"calc(100% + 4px)",right:0,left:"auto",background:COLORS.card,border:`1px solid ${COLORS.border}`,
+          borderRadius:10,padding:"8px 4px",zIndex:100,minWidth:200,maxWidth:280,boxShadow:"0 4px 20px rgba(0,0,0,0.2)"}}>
           {friends.map((fname,i)=>{
             const fMem = friendsData.find(m=>m.friendName===fname);
             return (
               <div key={i} style={{padding:"8px 12px",borderBottom:i<friends.length-1?`1px solid ${COLORS.border}44`:"none"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                  <span style={{fontSize:12,color:COLORS.text,fontWeight:500}}>👤 {fname}</span>
-                  <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                    {fMem?.rating>0&&<span className="badge stars" style={{fontSize:9}}>{starsLabel(fMem.rating)}</span>}
+                  <span style={{fontSize:12,color:COLORS.text,fontWeight:500,flexShrink:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>👤 {fname}</span>
+                  <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
+                    {fMem?.rating>0&&<StarRating rating={fMem.rating} size={10} emptyColor={COLORS.border}/>}
                     {fMem?.kidsf&&<span className="badge kids" style={{fontSize:9}}>👶</span>}
-                    {fMem?.price&&<span className="badge price" style={{fontSize:9}}>{fMem.price}</span>}
+                    {fMem?.price&&<span className="badge price" style={{fontSize:9,whiteSpace:"nowrap"}}>{fMem.price}</span>}
                     {onViewFriend&&<span onClick={()=>{setOpen(false);onViewFriend(fname,fMem);}}
-                      style={{fontSize:14,color:"#c9a84c",cursor:"pointer",marginLeft:2}} title={t?.mapTooltip||"View details"}>→</span>}
+                      style={{fontSize:14,color:COLORS.accent,cursor:"pointer",marginLeft:2,flexShrink:0}} title={t?.mapTooltip||"View details"}>→</span>}
                   </div>
                 </div>
-
               </div>
             );
           })}
