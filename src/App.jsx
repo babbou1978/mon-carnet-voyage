@@ -2402,15 +2402,7 @@ function TravelAgent() {
       .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
       .join("\n");
 
-    // Friends favorites used as taste signal only, not as direct recommendations
-    const friendTasteSignal = recoFriendFilter !== "mine" && friendMemories.filter(m=>m.rating>=3).length > 0
-      ? "Friends with similar taste also liked: " + friendMemories.filter(m=>m.rating>=3)
-          .slice(0,8)
-          .map(m=>`${m.name} (${m.type})`)
-          .join(", ")
-      : "";
-
-    // All places already visited by me OR any friend — must never appear in AI results
+    const nbRecosCount = prefs.nbrecos === "auto"
     const alreadyVisited = new Set([
       ...memories.map(m=>m.name),
       ...friendMemories.map(m=>m.name),
@@ -2434,8 +2426,6 @@ ${liked||"None."}
 
 My disappointments (never recommend similar):
 ${disliked||"None."}
-
-${friendTasteSignal}
 
 Request: Find the ${nbRecosCount} best ${recoType} within STRICT ${distLabel} radius around "${locationLabel}".
 
