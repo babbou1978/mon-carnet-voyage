@@ -90,14 +90,15 @@ export default async function handler(req, res) {
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
+      // Only use Google-validated place types
       const typeMap = {
-        "Restaurant": ["restaurant", "food"],
-        "Bar / Café": ["bar", "cafe", "coffee_shop"],
-        "Hôtel": ["lodging", "hotel"],
-        "Destination": ["tourist_attraction", "point_of_interest"],
-        "Activité": ["museum", "art_gallery"]
+        "Restaurant": ["restaurant"],
+        "Bar / Café": ["bar"],
+        "Hôtel": ["lodging"],
+        "Destination": ["tourist_attraction"],
+        "Activité": ["museum"]
       };
-      const includedTypes = typeMap[type] || ["restaurant", "food"];
+      const includedTypes = typeMap[type] || ["restaurant"];
       const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
         headers: {
