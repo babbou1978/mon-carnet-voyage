@@ -784,7 +784,7 @@ function PlaceSearch({ onPlaceSelected }) {
             const main = s.placePrediction?.structuredFormat?.mainText?.text||"";
             const secondary = s.placePrediction?.structuredFormat?.secondaryText?.text||"";
             return (
-              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?"#2e2b25":"transparent",borderRadius:4}}>
+              <div key={i} className="autocomplete-item" onMouseDown={()=>selectPlace(s)} style={{background:i===activeIdx?COLORS.border:"transparent",borderRadius:4}}>
                 <div className="autocomplete-main">📍 {main}</div>
                 {secondary && <div className="autocomplete-sub">{secondary}</div>}
               </div>
@@ -823,7 +823,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
         mapId: "49c549e3ad4ad4323a538e40",
-        colorScheme: COLORS.mapScheme,
+        colorScheme: COLORS.mapScheme || 'DARK',
       });
       mapInstance.current = map;
       boundsRef.current = bounds;
@@ -907,8 +907,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
   }, [fullscreen]);
 
   const mapStyle = fullscreen
-    ? { position:"fixed", inset:0, zIndex:500, background:"#0f0e0c" }
-    : { position:"relative", borderRadius:12, overflow:"hidden", border:"1px solid #2e2b25" };
+    ? { position:"fixed", inset:0, zIndex:500, background:COLORS.bg }
+    : { position:"relative", borderRadius:12, overflow:"hidden", border:`1px solid ${COLORS.border}` };
 
   return (
     <div style={mapStyle}>
@@ -921,8 +921,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
           mapInstance.current.fitBounds(boundsRef.current);
         }
       }} style={{
-        position:"absolute", top:8, left:8, background:"#1a1814", border:"1px solid #2e2b25",
-        borderRadius:6, width:32, height:32, color:"#f0ead8", cursor:"pointer", fontSize:16,
+        position:"absolute", top:8, left:8, background:COLORS.card, border:`1px solid ${COLORS.border}`,
+        borderRadius:6, width:32, height:32, color:COLORS.text, cursor:"pointer", fontSize:16,
         fontFamily:"'DM Sans',sans-serif", zIndex:1, display:"flex", alignItems:"center", justifyContent:"center",
         boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
       }}>⊕</button>
@@ -937,9 +937,9 @@ function GoogleMap({ recommendations, userCoords, heartMemories }) {
 
       {/* Legend */}
       <div style={{ position:"absolute", top:8, left:48, display:"flex", gap:6, zIndex:1 }}>
-        {userCoords?.lat && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🔵 You</span>}
-        {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🔴 Favorites</span>}
-        {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:"#f0ead8",background:"#1a181488",padding:"4px 9px",borderRadius:20,border:"1px solid #2e2b25",backdropFilter:"blur(4px)"}}>🟡 AI picks</span>}
+        {userCoords?.lat && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔵 You</span>}
+        {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔴 Favorites</span>}
+        {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🟡 AI picks</span>}
       </div>
 
       {/* Place popup on click */}
@@ -2440,7 +2440,7 @@ IMPORTANT RULES:
                   <div style={{display:"flex",gap:8}}>
                     {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
-                        style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?"#c9a84c22":"#1a1814",
+                        style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
                           borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
@@ -2510,7 +2510,7 @@ IMPORTANT RULES:
                   <div style={{display:"flex",gap:6,marginTop:6}}>
                     {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
-                        style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?"#c9a84c22":"#1a1814",
+                        style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?"#c9a84c":"#2e2b25"}`,
                           borderRadius:8,color:(prefs.nbrecos||"10")===val?"#c9a84c":"#8a8070",
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600}}>
