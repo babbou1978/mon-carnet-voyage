@@ -25,7 +25,7 @@ Required format:
 {
   "recommendations": [
     {
-      "name": "Place name",
+      "name": "The digit number from the candidate list (e.g. \"3\") — or the place name if no numbered list was provided",
       "type": "place type",
       "cuisine": "specific cuisine or venue style (e.g. French Bistro, Italian Trattoria, Japanese Sushi, Wine Bar, Steakhouse) or null if not food",
       "openNow": null,
