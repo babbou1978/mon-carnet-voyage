@@ -2402,7 +2402,6 @@ function TravelAgent() {
       .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
       .join("\n");
 
-    const nbRecosCount = prefs.nbrecos === "auto"
     const alreadyVisited = new Set([
       ...memories.map(m=>m.name),
       ...friendMemories.map(m=>m.name),
