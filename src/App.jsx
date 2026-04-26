@@ -2399,6 +2399,21 @@ IMPORTANT RULES:
                 </div>
               </div>
               <div className="prefs-card">
+                <div className="prefs-card-title">🎨 Theme</div>
+                <div style={{display:"flex",gap:10,marginTop:8}}>
+                  {["light","dark"].map(th=>(
+                    <button key={th} onClick={()=>{setThemeKey(th);setPrefs(p=>({...p,theme:th}));}}
+                      style={{flex:1,padding:"10px",borderRadius:10,fontSize:13,
+                        fontFamily:"'DM Sans',sans-serif",fontWeight:600,cursor:"pointer",
+                        border:`1px solid ${themeKey===th?COLORS.accent:COLORS.border}`,
+                        background:themeKey===th?`${COLORS.accent}22`:"transparent",
+                        color:themeKey===th?COLORS.accent:COLORS.muted}}>
+                      {th==="light"?"☀️ Light":"🌙 Dark"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileLanguage}</div>
                 <div className="field">
                   <label>{t.profileLanguageLabel}</label>
