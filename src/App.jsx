@@ -2474,8 +2474,10 @@ RULES:
       });
       const data = await res.json();
       if (data.recommendations) {
-        console.warn("🤖 AI raw:", JSON.stringify(data.recommendations.map(r=>({name:r.name,idx:r.idx}))));
-        console.warn("📍 nearbyForAI:", nearbyForAI.length, nearbyForAI.map(p=>p.name).join(", "));
+        // DEBUG: show in UI temporarily
+        const debugInfo = `nearbyForAI: ${nearbyForAI.length} | AI names: ${data.recommendations.map(r=>`${r.name}(idx:${r.idx})`).join(", ")}`;
+        setAiRecos([{name:"🔍 DEBUG", address: debugInfo, matchScore:0, matchReasons:[], why:"", _dist:0}]);
+        await new Promise(r=>setTimeout(r,5000)); // show for 5s
         // Pre-resolve AI number references to real Google places BEFORE verify
         const preResolved = nearbyForAI.length > 0
           ? data.recommendations.map(r => {
