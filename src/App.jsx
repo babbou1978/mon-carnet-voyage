@@ -1815,6 +1815,7 @@ function TravelAgent() {
   const [heartsLoaded, setHeartsLoaded] = useState(false);
   const [heartsKey, setHeartsKey] = useState(0);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
+  const [showNearby, setShowNearby] = useState(false);
   const [heartLoading, setHeartLoading] = useState(false);
   const [aiRecos, setAiRecos] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
@@ -2401,16 +2402,15 @@ function TravelAgent() {
         };
       }).filter(p=>p.name);
 
-      // With DISTANCE ranking, Google guarantees results within the radius
-      // Keep all results sorted by distance for display, closest first
-      const inRadius = places; // all returned are within radius
-      const sorted = [...places].sort((a,b) => (a._dist||0)-(b._dist||0));
+      // Sort by rating DESC, distance ASC for tie-breaking
+      const sorted = [...places]
+        .filter(p => !alreadyVisited.has(p.name))
+        .sort((a,b) => (b.rating||0)-(a.rating||0) || (a._dist||0)-(b._dist||0));
 
-      // For display: exclude my own favorites (heartMemories shown separately above)
-      setNearbyPlaces(sorted.filter(p => !alreadyVisited.has(p.name)));
+      setNearbyPlaces(sorted);
 
-      // For AI: strictly in radius, exclude all visited (mine + friends)
-      nearbyForAI = inRadius.filter(p => !alreadyVisited.has(p.name));
+      // For AI: all places excluding visited (used as candidate list)
+      nearbyForAI = places.filter(p => !alreadyVisited.has(p.name));
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
@@ -2953,21 +2953,38 @@ RULES:
                   )}
                   {nearbyPlaces.length>0&&(
                     <div style={{marginTop:heartMemories.length>0?16:0}}>
-                      <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoNearby}</div>
-                      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                        {nearbyPlaces.map((p,i)=>(
-                          <div key={i} className="nearby-card">
-                            <div className="nearby-name">{TYPE_ICONS[recoType]} {p.name}</div>
-                            <div className="nearby-meta">
-                              {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
-                              {p.price&&<span className="badge price">{p.price}</span>}
-                              {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
-                            </div>
-                            {p.address&&<div className="nearby-address">📍 {p.address} <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a></div>}
-                            <button className="add-to-carnet-btn" style={{margin:0,marginTop:4}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
-                          </div>
-                        ))}
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                        <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em"}}>{t.recoNearby}</div>
+                        <button onClick={()=>setShowNearby(s=>!s)} style={{fontSize:11,color:COLORS.accent,background:"none",border:"none",cursor:"pointer",padding:0}}>
+                          {showNearby ? "▲ Masquer" : "▼ Afficher"}
+                        </button>
                       </div>
+                      {showNearby&&(()=>{
+                        const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
+                        const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
+                        const nbLimit = prefs.nbrecos==="auto" ? 5 : Math.min(parseInt(prefs.nbrecos)||5, 5);
+                        const filtered = nearbyPlaces
+                          .filter(p => !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase()))
+                          .slice(0, nbLimit);
+                        return (
+                          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                            {filtered.map((p,i)=>(
+                              <div key={i} className="nearby-card">
+                                <div className="nearby-name">{TYPE_ICONS[recoType]} {p.name}
+                                  {p._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted,fontWeight:400}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
+                                </div>
+                                <div className="nearby-meta">
+                                  {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/> {p.rating}</span>}
+                                  {p.price&&<span className="badge price">{p.price}</span>}
+                                  {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
+                                </div>
+                                {p.address&&<div className="nearby-address">📍 {p.address} <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a></div>}
+                                <button className="add-to-carnet-btn" style={{margin:0,marginTop:4}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
