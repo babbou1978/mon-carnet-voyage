@@ -2363,6 +2363,12 @@ function TravelAgent() {
       ...closedPlacesRef.current.map(n=>n.toLowerCase()),
       ...tempClosedRef.current
     ]);
+    const newHeartNames = new Set(
+      deduped
+        .filter(m => !allClosedNames.has(m.name.toLowerCase()))
+        .slice(0, nbHearts)
+        .map(m => m.name)
+    );
     setHeartMemories(prev => {
       const prevMap = {};
       prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow}; });
@@ -2376,8 +2382,7 @@ function TravelAgent() {
     });
 
     // Only exclude places actually shown in heartMemories (coups de coeur)
-    // Not all memories/friendMemories — a bad-rated friend place should still be recommendable
-    const alreadyVisited = new Set(heartMemories.map(m=>m.name));
+    const alreadyVisited = newHeartNames;
 
     // Nearby Google Places — fetch FIRST, used both for display and as AI candidate list
     let nearbyForAI = [];
