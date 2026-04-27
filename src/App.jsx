@@ -2474,6 +2474,8 @@ RULES:
       });
       const data = await res.json();
       if (data.recommendations) {
+        console.warn("🤖 AI raw:", JSON.stringify(data.recommendations.map(r=>({name:r.name,idx:r.idx}))));
+        console.warn("📍 nearbyForAI:", nearbyForAI.length, nearbyForAI.map(p=>p.name).join(", "));
         // Pre-resolve AI number references to real Google places BEFORE verify
         const preResolved = nearbyForAI.length > 0
           ? data.recommendations.map(r => {
