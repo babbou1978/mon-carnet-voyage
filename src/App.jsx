@@ -2375,11 +2375,9 @@ function TravelAgent() {
         });
     });
 
-    // All places already visited — must be declared BEFORE nearby fetch
-    const alreadyVisited = new Set([
-      ...memories.map(m=>m.name),
-      ...friendMemories.map(m=>m.name),
-    ]);
+    // Only exclude places actually shown in heartMemories (coups de coeur)
+    // Not all memories/friendMemories — a bad-rated friend place should still be recommendable
+    const alreadyVisited = new Set(heartMemories.map(m=>m.name));
 
     // Nearby Google Places — fetch FIRST, used both for display and as AI candidate list
     let nearbyForAI = [];
