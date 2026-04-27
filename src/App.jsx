@@ -2374,6 +2374,12 @@ function TravelAgent() {
         });
     });
 
+    // All places already visited — must be declared BEFORE nearby fetch
+    const alreadyVisited = new Set([
+      ...memories.map(m=>m.name),
+      ...friendMemories.map(m=>m.name),
+    ]);
+
     // Nearby Google Places — fetch FIRST, used both for display and as AI candidate list
     let nearbyForAI = [];
     try {
@@ -2417,10 +2423,6 @@ function TravelAgent() {
       .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
       .join("\n");
 
-    const alreadyVisited = new Set([
-      ...memories.map(m=>m.name),
-      ...friendMemories.map(m=>m.name),
-    ]);
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
 
     const nbRecosCount = prefs.nbrecos === "auto"
@@ -2474,10 +2476,6 @@ RULES:
       });
       const data = await res.json();
       if (data.recommendations) {
-        // DEBUG: show in UI temporarily
-        const debugInfo = `nearbyForAI: ${nearbyForAI.length} | AI names: ${data.recommendations.map(r=>`${r.name}(idx:${r.idx})`).join(", ")}`;
-        setAiRecos([{name:"🔍 DEBUG", address: debugInfo, matchScore:0, matchReasons:[], why:"", _dist:0}]);
-        await new Promise(r=>setTimeout(r,5000)); // show for 5s
         // Pre-resolve AI number references to real Google places BEFORE verify
         const preResolved = nearbyForAI.length > 0
           ? data.recommendations.map(r => {
