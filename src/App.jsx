@@ -613,7 +613,7 @@ const getCSS = (COLORS) => `
     font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic;
     color: ${COLORS.accent};
     padding: 10px 12px; margin: 0 -12px;
-    position: sticky; top: 138px; z-index: 5;
+    position: sticky; top: 121px; z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
   }
