@@ -612,11 +612,12 @@ const getCSS = (COLORS) => `
   .reco-block-title {
     font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic;
     color: ${COLORS.accent};
-    padding: 10px 12px; margin: 0 -12px;
-    border-radius: 8px;
-    position: sticky; top: 140px; z-index: 5;
+    padding: 14px 12px 10px; margin: 0 -12px;
+    border-radius: 0;
+    position: sticky; top: 130px; z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
+    box-shadow: 0 -10px 0 0 ${COLORS.bg};
   }
   .reco-block.section-hearts .reco-block-title { color: #d4869b; }
   .reco-block.section-nearby .reco-block-title { color: #7a9d7a; }
