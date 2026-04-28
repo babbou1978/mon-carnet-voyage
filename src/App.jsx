@@ -3000,7 +3000,9 @@ RULES:
                               <div className="ai-reco-top">
                                 <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
                                 <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                  {reco._dist!=null&&!reco.outsideRadius&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
+                                  <button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>
                                   <div className="ai-reco-rank">#{i+1}</div>
                                 </div>
                               </div>
@@ -3021,7 +3023,6 @@ RULES:
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
-                                  {reco._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reco.name+(reco.address?", "+reco.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
                                 </div>
                               )}
@@ -3029,7 +3030,6 @@ RULES:
                               {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
-                              <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet(reco)}>{t.recoAddFav}</button>
                             </div>
                           </div>
                         ))}
@@ -3055,6 +3055,10 @@ RULES:
                           <div className="ai-reco-header">
                             <div className="ai-reco-top">
                               <div className="ai-reco-name">{TYPE_ICONS[recoType]} {p.name}</div>
+                              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                {p._dist!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
+                                <button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>
+                              </div>
                             </div>
                             <div className="ai-reco-meta">
                               {p.cuisine&&<span className="badge">{p.cuisine.toUpperCase()}</span>}
@@ -3064,14 +3068,12 @@ RULES:
                             {p.address&&(
                               <div className="ai-reco-address">
                                 📍 {p.address}
-                                {p._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
                                 <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
                               </div>
                             )}
                             {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
                             {p.editorialSummary&&<div className="ai-reco-why">« {p.editorialSummary} »</div>}
                             {!p.editorialSummary&&p.topReview&&<div className="ai-reco-why" style={{fontSize:12}}>💬 « {p.topReview} »</div>}
-                            <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}>{t.recoAddFav}</button>
                           </div>
                         </div>
                       ))}
