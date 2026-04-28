@@ -93,7 +93,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
-      // Multiple sub-types per category for better coverage of dense areas
+      // Multi-type for better coverage in dense areas (Marylebone has many sub-types)
       const typeGroups = {
         "Restaurant": ["restaurant", "seafood_restaurant", "italian_restaurant", "japanese_restaurant", "french_restaurant"],
         "Bar / Café": ["bar", "cafe"],
@@ -102,9 +102,9 @@ export default async function handler(req, res) {
         "Activité": ["museum"]
       };
       const types = typeGroups[type] || ["restaurant"];
-      const fieldMask = 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions';
+      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions';
 
-      // Fetch all type variants in parallel and merge
+      // Fetch all types in parallel
       const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
@@ -118,16 +118,18 @@ export default async function handler(req, res) {
       }).then(r => r.json()).catch(() => ({places:[]})));
 
       const responses = await Promise.all(requests);
-      const allPlaces = [];
-      const seenIds = new Set();
+
+      // Dedup by displayName (fallback) since place id format may vary
+      const seen = new Map();
       responses.forEach(resp => {
         (resp.places||[]).forEach(p => {
-          const id = p.name; // unique Google place ID
-          if (!seenIds.has(id)) { seenIds.add(id); allPlaces.push(p); }
+          const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
+          if (key && !seen.has(key)) seen.set(key, p);
         });
       });
+      const allPlaces = Array.from(seen.values());
 
-      // Sort by popularity (rating × log(count) for credible quality signal)
+      // Sort by quality: rating × log(reviewCount)
       allPlaces.sort((a, b) => {
         const sa = (a.rating||0) * Math.log10((a.userRatingCount||0)+1);
         const sb = (b.rating||0) * Math.log10((b.userRatingCount||0)+1);
@@ -135,7 +137,7 @@ export default async function handler(req, res) {
       });
 
       console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types }));
-      console.log('Nearby merged:', JSON.stringify({ totalPlaces: allPlaces.length, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})) }));
+      console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})), top5: allPlaces.slice(0,5).map(p=>p.displayName?.text) }));
 
       return res.status(200).json({ places: allPlaces.slice(0, 30) });
     }
