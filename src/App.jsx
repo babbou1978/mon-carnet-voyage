@@ -901,16 +901,26 @@ const MAP_STYLES = [
   {featureType:"poi",stylers:[{visibility:"off"}]},
 ];
 
-function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLORS, t={} }) {
+function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, themeKey, COLORS, t={} }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const boundsRef = useRef(null);
+  const markersRef = useRef({ hearts: [], ai: [], nearby: [] });
   const [activePlace, setActivePlace] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: false });
+
+  // ESC key to exit fullscreen
+  useEffect(() => {
+    if (!fullscreen) return;
+    const handler = (e) => { if (e.key === "Escape") setFullscreen(false); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [fullscreen]);
 
   useEffect(() => {
     if (!mapRef.current) return;
-    const hasContent = recommendations?.length || userCoords?.lat || heartMemories?.length;
+    const hasContent = recommendations?.length || userCoords?.lat || heartMemories?.length || nearbyPlaces?.length;
     if (!hasContent) return;
 
     const loadMap = () => {
@@ -923,6 +933,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
       });
       mapInstance.current = map;
       boundsRef.current = bounds;
+      markersRef.current = { hearts: [], ai: [], nearby: [] };
       const geocoder = new window.google.maps.Geocoder();
       let total = 0, done = 0;
       const checkFit = () => { done++; if (done >= total && !bounds.isEmpty()) map.fitBounds(bounds); };
@@ -930,30 +941,31 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
       // User position - blue
       if (userCoords?.lat) {
         bounds.extend({ lat: userCoords.lat, lng: userCoords.lng });
-        (() => {
-          const pin = new window.google.maps.marker.PinElement({ background:"#4a90d9", borderColor:"#ffffff", glyphColor:"#ffffff", scale:0.9 });
-          new window.google.maps.marker.AdvancedMarkerElement({ position:{lat:userCoords.lat,lng:userCoords.lng}, map, zIndex:100, content:pin });
-        })();
+        const pin = new window.google.maps.marker.PinElement({ background:"#4a90d9", borderColor:"#ffffff", glyphColor:"#ffffff", scale:1.0 });
+        new window.google.maps.marker.AdvancedMarkerElement({ position:{lat:userCoords.lat,lng:userCoords.lng}, map, zIndex:100, content:pin });
       }
 
-      // Heart memories - red
-      (heartMemories||[]).forEach(m => {
+      // Heart memories - red, numbered
+      (heartMemories||[]).forEach((m, i) => {
         if (!m._lat && !m.city && !m.name) return;
         total++;
+        const num = String(i+1);
         if (m._lat) {
           const pos = { lat: m._lat, lng: m._lng };
-          const pin = new window.google.maps.marker.PinElement({ background:"#e05555", borderColor:"#0f0e0c", glyphColor:"#fff", scale:0.8 });
+          const pin = new window.google.maps.marker.PinElement({ background:"#e05555", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:num, scale:1.0 });
           const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:m.name, content:pin });
-          marker.addListener("gmp-click", () => setActivePlace({ ...m, markerType: "heart" }));
+          marker.addListener("gmp-click", () => setActivePlace({ ...m, markerType: "heart", idx: i+1 }));
+          markersRef.current.hearts.push(marker);
           bounds.extend(pos);
           checkFit();
         } else {
           geocoder.geocode({ address: `${m.name} ${m.city||""} ${m.country||""}` }, (res, status) => {
             if (status === "OK" && res[0]) {
               const pos = res[0].geometry.location;
-              const pin2 = new window.google.maps.marker.PinElement({ background:"#e05555", borderColor:"#0f0e0c", glyphColor:"#fff", scale:0.8 });
+              const pin2 = new window.google.maps.marker.PinElement({ background:"#e05555", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:num, scale:1.0 });
               const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:m.name, content:pin2 });
-              marker.addListener("gmp-click", () => setActivePlace({ ...m, markerType: "heart" }));
+              marker.addListener("gmp-click", () => setActivePlace({ ...m, markerType: "heart", idx: i+1 }));
+              markersRef.current.hearts.push(marker);
               bounds.extend(pos);
             }
             checkFit();
@@ -961,20 +973,41 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
         }
       });
 
-      // AI recommendations - gold
+      // AI recommendations - gold, numbered
       (recommendations||[]).forEach((reco, i) => {
         if (!reco.address) return;
         total++;
-        geocoder.geocode({ address: reco.address }, (results, status) => {
-          if (status === "OK" && results[0]) {
-            const pos = results[0].geometry.location;
-            const pinEl = new window.google.maps.marker.PinElement({ background:"#c9a84c", borderColor:"#0f0e0c", glyphColor:"#0f0e0c", glyphText:String(i+1), scale:1.0 });
-            const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:reco.name, content:pinEl });
-            marker.addListener("gmp-click", () => setActivePlace({ ...reco, markerType: "ai", idx: i+1 }));
-            bounds.extend(pos);
-          }
+        const setupMarker = (pos) => {
+          const pinEl = new window.google.maps.marker.PinElement({ background:"#c9a84c", borderColor:"#0f0e0c", glyphColor:"#0f0e0c", glyphText:String(i+1), scale:1.0 });
+          const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:reco.name, content:pinEl });
+          marker.addListener("gmp-click", () => setActivePlace({ ...reco, markerType: "ai", idx: i+1 }));
+          markersRef.current.ai.push(marker);
+        };
+        if (reco.lat && reco.lng) {
+          const pos = { lat: reco.lat, lng: reco.lng };
+          setupMarker(pos);
+          bounds.extend(pos);
           checkFit();
-        });
+        } else {
+          geocoder.geocode({ address: reco.address }, (results, status) => {
+            if (status === "OK" && results[0]) {
+              const pos = results[0].geometry.location;
+              setupMarker(pos);
+              bounds.extend(pos);
+            }
+            checkFit();
+          });
+        }
+      });
+
+      // Nearby places - green, numbered (hidden by default)
+      (nearbyPlaces||[]).forEach((p, i) => {
+        if (!p.lat || !p.lng) return;
+        const pos = { lat: p.lat, lng: p.lng };
+        const pinEl = new window.google.maps.marker.PinElement({ background:"#7a9d7a", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:String(i+1), scale:1.0 });
+        const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map:null, title:p.name, content:pinEl });
+        marker.addListener("gmp-click", () => setActivePlace({ ...p, markerType: "nearby", idx: i+1 }));
+        markersRef.current.nearby.push(marker);
       });
 
       if (total === 0 && !bounds.isEmpty()) map.fitBounds(bounds);
@@ -991,9 +1024,28 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
   }, [
     JSON.stringify(recommendations?.map(r=>r.name)),
     JSON.stringify(heartMemories?.map(m=>m.id)),
+    JSON.stringify(nearbyPlaces?.map(p=>p.name)),
     userCoords?.lat,
     userCoords?.lng
   ]);
+
+  // Toggle marker visibility on legend click
+  const toggleLayer = (layer) => {
+    setVisible(v => {
+      const newVal = !v[layer];
+      const map = mapInstance.current;
+      markersRef.current[layer].forEach(m => { m.map = newVal ? map : null; });
+      return { ...v, [layer]: newVal };
+    });
+  };
+
+  // Apply initial visibility
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    Object.entries(visible).forEach(([layer, isVisible]) => {
+      markersRef.current[layer]?.forEach(m => { m.map = isVisible ? mapInstance.current : null; });
+    });
+  }, [visible.hearts, visible.ai, visible.nearby]);
 
   // Refit bounds when toggling fullscreen
   useEffect(() => {
@@ -1006,48 +1058,47 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
     ? { position:"fixed", inset:0, zIndex:500, background:COLORS.bg }
     : { position:"relative", borderRadius:12, overflow:"hidden", border:`1px solid ${COLORS.border}` };
 
+  const ctrlBtnStyle = {
+    background:COLORS.card, border:`1px solid ${COLORS.border}`,
+    borderRadius:6, width:32, height:32, color:COLORS.text, cursor:"pointer", fontSize:14,
+    fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", justifyContent:"center",
+    boxShadow:"0 2px 8px rgba(0,0,0,0.4)", padding:0
+  };
+
   return (
     <div style={mapStyle}>
       <div key={themeKey} ref={mapRef} style={{ width:"100%", height: fullscreen ? "100vh" : "240px" }}/>
 
-      {/* Fullscreen toggle */}
-      {/* Recenter button */}
-      <button onClick={() => {
-        if (mapInstance.current && boundsRef.current && !boundsRef.current.isEmpty()) {
-          mapInstance.current.fitBounds(boundsRef.current);
-        }
-      }} style={{
-        position:"absolute", top:8, left:8, background:COLORS.card, border:`1px solid ${COLORS.border}`,
-        borderRadius:6, width:32, height:32, color:COLORS.text, cursor:"pointer", fontSize:16,
-        fontFamily:"'DM Sans',sans-serif", zIndex:1, display:"flex", alignItems:"center", justifyContent:"center",
-        boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
-      }}>⊕</button>
+      {/* Top control bar — recenter + fullscreen */}
+      <div style={{ position:"absolute", top:8, right:8, display:"flex", gap:6, zIndex:2 }}>
+        <button onClick={() => {
+          if (mapInstance.current && boundsRef.current && !boundsRef.current.isEmpty()) {
+            mapInstance.current.fitBounds(boundsRef.current);
+          }
+        }} style={ctrlBtnStyle} title={t.mapRecenter||"Recenter"}>⊕</button>
+        <button onClick={() => setFullscreen(f => !f)} style={ctrlBtnStyle} title={fullscreen ? (t.mapClose||"Close") : (t.mapFullscreen||"Fullscreen")}>
+          {fullscreen ? "✕" : "⛶"}
+        </button>
+      </div>
 
-      <button onClick={() => setFullscreen(f => !f)} style={{
-        position:"absolute", top:8, right:8, background:"#c9a84c", border:"none",
-        borderRadius:6, padding:"6px 12px", color:COLORS.bg, cursor:"pointer", fontSize:12,
-        fontFamily:"'DM Sans',sans-serif", fontWeight:600, zIndex:1, boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
-      }}>
-        {fullscreen ? t.mapClose||"✕ Close" : t.mapFullscreen||"⛶ Fullscreen"}
-      </button>
-
-      {/* Legend */}
-      <div style={{ position:"absolute", top:8, left:48, display:"flex", gap:6, zIndex:1 }}>
-        {userCoords?.lat && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔵 {t.mapYou||"You"}</span>}
-        {(heartMemories||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🔴 {t.mapFavorites||"Favorites"}</span>}
-        {(recommendations||[]).length > 0 && <span style={{fontSize:12,color:COLORS.text,background:`${COLORS.card}cc`,padding:"4px 9px",borderRadius:20,border:`1px solid ${COLORS.border}`,backdropFilter:"blur(4px)"}}>🟡 {t.mapAIPicks||"AI picks"}</span>}
+      {/* Clickable legend — bottom left, away from controls */}
+      <div style={{ position:"absolute", bottom:8, left:8, display:"flex", gap:5, flexWrap:"wrap", zIndex:1, maxWidth:"calc(100% - 16px)" }}>
+        {userCoords?.lat && <span style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`}}>🔵 {t.mapYou||"You"}</span>}
+        {(heartMemories||[]).length > 0 && <button onClick={()=>toggleLayer("hearts")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.hearts?1:0.45}}>🔴 {t.mapFavorites||"Favorites"}</button>}
+        {(recommendations||[]).length > 0 && <button onClick={()=>toggleLayer("ai")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.ai?1:0.45}}>🟡 {t.mapAIPicks||"AI"}</button>}
+        {(nearbyPlaces||[]).length > 0 && <button onClick={()=>toggleLayer("nearby")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.nearby?1:0.45}}>🟢 {t.mapNearby||"Popular"}</button>}
       </div>
 
       {/* Place popup on click */}
       {activePlace && (
         <div style={{
-          position:"absolute", bottom:8, left:8, right:8,
-          background:COLORS.card, border:`1px solid ${activePlace.markerType==="heart"?"#e05555":"#c9a84c"}`,
+          position:"absolute", bottom:48, left:8, right:8,
+          background:COLORS.card, border:`1px solid ${activePlace.markerType==="heart"?"#e05555":activePlace.markerType==="nearby"?"#7a9d7a":"#c9a84c"}`,
           borderRadius:10, padding:"12px 14px", zIndex:20
         }}>
           <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
             <div style={{fontFamily:"'Cormorant Garamond',serif", fontSize:17, color:COLORS.text, flex:1, marginRight:8}}>
-              {activePlace.idx && <span style={{color:COLORS.accent,marginRight:6}}>#{activePlace.idx}</span>}
+              {activePlace.idx && <span style={{color:activePlace.markerType==="heart"?"#e05555":activePlace.markerType==="nearby"?"#7a9d7a":COLORS.accent,marginRight:6}}>#{activePlace.idx}</span>}
               {activePlace.name}
             </div>
             <button onClick={() => setActivePlace(null)} style={{background:"none",border:"none",color:COLORS.muted,cursor:"pointer",fontSize:16}}>✕</button>
@@ -1056,7 +1107,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, themeKey, COLOR
             {activePlace.address || [activePlace.city, activePlace.country].filter(Boolean).join(", ")}
           </div>
           {activePlace.why && <div style={{fontSize:12,color:"#b8ad98",fontStyle:"italic",marginTop:4}}>« {activePlace.why} »</div>}
-          {activePlace.rating > 0 && <div style={{fontSize:12,color:"#e8c97a",marginTop:3}}>{"★".repeat(activePlace.rating)}</div>}
+          {activePlace.rating > 0 && <div style={{fontSize:12,color:"#e8c97a",marginTop:3}}>{"★".repeat(Math.round(activePlace.rating))}</div>}
           <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activePlace.name+(activePlace.address?", "+activePlace.address:""))}`}
             target="_blank" rel="noopener noreferrer"
             style={{display:"inline-block",marginTop:8,fontSize:11,color:"#c9a84c",border:"1px solid #c9a84c44",padding:"3px 10px",borderRadius:6,textDecoration:"none"}}>
@@ -3000,7 +3051,7 @@ RULES:
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0||nearbyPlaces.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} themeKey={themeKey} COLORS={COLORS} t={t}/>
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={nearbyPlaces} themeKey={themeKey} COLORS={COLORS} t={t}/>
               )}
 
               {heartMemories.length>0&&(
