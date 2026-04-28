@@ -2989,7 +2989,7 @@ RULES:
                     🔥 {t.recoFindNearby||"Lieux populaires"}
                   </button>
                   <button className="reco-btn" style={{flex:"1 1 140px",fontSize:11,padding:"13px 8px",background:`${COLORS.accent}22`,borderColor:COLORS.accent,color:COLORS.accent,fontWeight:700}} onClick={()=>loadRecos(false)} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
-                    {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:"✨ "+(t.recoFind||"Demander à Outsy AI")}
+                    {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:(t.recoFind||"✨ Demander à Outsy AI")}
                   </button>
                   {(heartLoading||aiLoading||geocoding)&&(
                     <button onClick={cancelSearch} style={{padding:"13px 16px",background:COLORS.dislikeBg,border:`1px solid ${COLORS.dislike}44`,borderRadius:10,color:"#e06060",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
