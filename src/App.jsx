@@ -2411,6 +2411,7 @@ function TravelAgent() {
         return {
           name: p.displayName?.text||"", address: p.formattedAddress||"",
           rating: p.rating, userRatingCount: p.userRatingCount||0,
+          cuisine: p.cuisine || null,
           price: PRICE_MAP[p.priceLevel]||"",
           lat: plat, lng: plng, _dist: dist,
           openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
@@ -3050,8 +3051,8 @@ RULES:
                               <div className="ai-reco-name">{TYPE_ICONS[recoType]} {p.name}</div>
                             </div>
                             <div className="ai-reco-meta">
-                              {p.cuisine&&<span className="badge">{p.cuisine}</span>}
-                              {p.rating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/> {p.rating}</span>}
+                              {p.cuisine&&<span className="badge">{p.cuisine.toUpperCase()}</span>}
+                              {p.rating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
                             </div>
                             {p.address&&(

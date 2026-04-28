@@ -119,12 +119,15 @@ export default async function handler(req, res) {
 
       const responses = await Promise.all(requests);
 
-      // Dedup by displayName (fallback) since place id format may vary
+      // Dedup by displayName, add cuisine extraction
       const seen = new Map();
       responses.forEach(resp => {
         (resp.places||[]).forEach(p => {
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
-          if (key && !seen.has(key)) seen.set(key, p);
+          if (key && !seen.has(key)) {
+            p.cuisine = extractCuisine(p.types);
+            seen.set(key, p);
+          }
         });
       });
       const allPlaces = Array.from(seen.values());
