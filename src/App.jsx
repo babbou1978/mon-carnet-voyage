@@ -3032,7 +3032,7 @@ RULES:
                 </div>
               )}
 
-              {nearbyPlaces.length>0&&(()=>{
+              {aiRecos.length>0&&!aiLoading&&nearbyPlaces.length>0&&(()=>{
                 const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
                 const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
                 const filtered = nearbyPlaces.filter(p =>
@@ -3041,27 +3041,29 @@ RULES:
                 if (filtered.length === 0) return null;
                 return (
                   <div className="reco-block">
-                    <div className="reco-block-title">{t.recoNearby}<span>{t.recoNearbySub||"Triés par note et distance"}</span></div>
-                    <div className="memory-list">
+                    <div className="reco-block-title">{t.recoNearby}<span>{t.recoNearbySub||"Sorted by rating and distance"}</span></div>
+                    <div className="ai-reco-list">
                       {filtered.map((p,i)=>(
-                        <div key={i} className="memory-card">
-                          <div className="memory-header">
-                            <div className="memory-name">{TYPE_ICONS[recoType]} {p.name}</div>
-                          </div>
-                          <div className="memory-meta">
-                            {p.cuisine&&<span className="badge type">{p.cuisine.toUpperCase()}</span>}
-                            {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={13} emptyColor={COLORS.border}/> {p.rating}</span>}
-                            {p.price&&<span className="badge price">{p.price}</span>}
-                          </div>
-                          {p.address&&(
-                            <div className="memory-location">
-                              📍 {p.address}
-                              {p._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
-                              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
+                        <div key={i} className="ai-reco-card">
+                          <div className="ai-reco-header">
+                            <div className="ai-reco-top">
+                              <div className="ai-reco-name">{TYPE_ICONS[recoType]} {p.name}</div>
                             </div>
-                          )}
-                          {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
-                          <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}>{t.recoAddFav}</button>
+                            <div className="ai-reco-meta">
+                              {p.cuisine&&<span className="badge">{p.cuisine}</span>}
+                              {p.rating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/> {p.rating}</span>}
+                              {p.price&&<span className="badge price">{p.price}</span>}
+                            </div>
+                            {p.address&&(
+                              <div className="ai-reco-address">
+                                📍 {p.address}
+                                {p._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
+                                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
+                              </div>
+                            )}
+                            {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
+                            <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}>{t.recoAddFav}</button>
+                          </div>
                         </div>
                       ))}
                     </div>
