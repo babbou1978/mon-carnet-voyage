@@ -484,7 +484,7 @@ const getCSS = (COLORS) => `
   .tabs { display: flex; background: ${COLORS.card}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
   .tab { flex: 1; padding: 6px 2px; font-size: 9px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; background: none; border: none; color: ${COLORS.muted}; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-weight: 500; }
   .tab.active { background: ${COLORS.accent}; color: ${COLORS.bg}; }
-  .content { flex: 1; padding: 20px 24px; overflow-y: auto; }
+  .content { flex: 1; padding: 20px 24px; }
   .form-section { display: flex; flex-direction: column; gap: 14px; }
   .field { display: flex; flex-direction: column; gap: 6px; position: relative; }
   .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: ${COLORS.muted}; font-weight: 500; }
@@ -614,7 +614,7 @@ const getCSS = (COLORS) => `
     color: ${COLORS.accent};
     padding: 10px 12px; margin: 0 -12px;
     border-radius: 8px;
-    position: sticky; top: 0; z-index: 5;
+    position: sticky; top: 140px; z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
   }
