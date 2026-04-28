@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { action, input, placeId, lat, lng, type } = req.body;
+  const { action, input, placeId, lat, lng, type, lang } = req.body;
+  const userLang = lang || 'en';
   const radius = parseFloat(req.body.radius);
   const latF = parseFloat(lat);
   const lngF = parseFloat(lng);
@@ -43,18 +44,18 @@ export default async function handler(req, res) {
       const r = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key },
-        body: JSON.stringify({ input, languageCode: 'fr' }),
+        body: JSON.stringify({ input, languageCode: userLang }),
       });
       return res.status(200).json(await r.json());
 
     } else if (action === 'details') {
-      const r = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=fr`, {
+      const r = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=${userLang}`, {
         headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'displayName,formattedAddress,addressComponents,priceLevel,types,rating,location' },
       });
       return res.status(200).json(await r.json());
 
     } else if (action === 'geocode') {
-      const r = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(input)}&key=${key}&language=fr`);
+      const r = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(input)}&key=${key}&language=${userLang}`);
       const data = await r.json();
       if (data.results?.[0]) {
         const loc = data.results[0].geometry.location;
@@ -70,7 +71,7 @@ export default async function handler(req, res) {
           let place;
           if (p.googlePlaceId) {
             // Use placeId directly - much more reliable
-            const r = await fetch(`https://places.googleapis.com/v1/places/${p.googlePlaceId}?languageCode=fr`, {
+            const r = await fetch(`https://places.googleapis.com/v1/places/${p.googlePlaceId}?languageCode=${userLang}`, {
               headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': FIELD_MASK_DETAILS_FULL },
             });
             place = await r.json();
@@ -113,7 +114,7 @@ export default async function handler(req, res) {
           maxResultCount: 20,
           rankPreference: "POPULARITY",
           locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
-          languageCode: 'fr'
+          languageCode: userLang
         }),
       }).then(r => r.json()).catch(() => ({places:[]})));
 
