@@ -631,7 +631,7 @@ const getCSS = (COLORS) => `
   .ai-reco-header { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
   .ai-reco-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
   .ai-reco-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: ${COLORS.text}; }
-  .ai-reco-rank { font-size: 22px; font-family: 'Cormorant Garamond', serif; color: ${COLORS.accent}; font-style: italic; }
+  .ai-reco-rank { font-size: 28px; font-family: 'Cormorant Garamond', serif; color: ${COLORS.accent}; font-style: italic; font-weight: 500; }
   .ai-reco-meta { display: flex; gap: 6px; flex-wrap: wrap; }
   .match-score { display: flex; align-items: center; gap: 6px; }
   .match-bar-wrap { flex: 1; height: 4px; background: ${COLORS.border}; border-radius: 4px; overflow: hidden; }
