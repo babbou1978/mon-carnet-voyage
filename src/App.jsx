@@ -614,7 +614,7 @@ const getCSS = (COLORS) => `
     color: ${COLORS.accent};
     padding: 10px 12px; margin: 0 -12px;
     border-radius: 8px;
-    position: sticky; top: 60px; z-index: 5;
+    position: sticky; top: 130px; z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
   }
