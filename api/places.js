@@ -102,7 +102,7 @@ export default async function handler(req, res) {
         "Activité": ["museum"]
       };
       const types = typeGroups[type] || ["restaurant"];
-      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions';
+      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
 
       // Fetch all types in parallel
       const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {

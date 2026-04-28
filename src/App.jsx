@@ -2408,10 +2408,16 @@ function TravelAgent() {
       const places = (data.places||[]).map(p=>{
         const plat = p.location?.latitude, plng = p.location?.longitude;
         const dist = plat && plng ? calcDistance(coords.lat, coords.lng, plat, plng) * 1000 : null;
+        // Pick the best 5-star review for display, or top review otherwise
+        const reviews = p.reviews || [];
+        const fiveStarReview = reviews.find(r => r.rating === 5 && r.text?.text?.length > 30 && r.text.text.length < 200);
+        const topReview = fiveStarReview || reviews.find(r => r.text?.text?.length > 30 && r.text.text.length < 200);
         return {
           name: p.displayName?.text||"", address: p.formattedAddress||"",
           rating: p.rating, userRatingCount: p.userRatingCount||0,
           cuisine: p.cuisine || null,
+          editorialSummary: p.editorialSummary?.text || null,
+          topReview: topReview?.text?.text || null,
           price: PRICE_MAP[p.priceLevel]||"",
           lat: plat, lng: plng, _dist: dist,
           openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
@@ -3063,6 +3069,8 @@ RULES:
                               </div>
                             )}
                             {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
+                            {p.editorialSummary&&<div className="ai-reco-why">« {p.editorialSummary} »</div>}
+                            {!p.editorialSummary&&p.topReview&&<div className="ai-reco-why" style={{fontSize:12}}>💬 « {p.topReview} »</div>}
                             <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}>{t.recoAddFav}</button>
                           </div>
                         </div>
