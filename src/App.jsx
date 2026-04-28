@@ -105,7 +105,7 @@ const TRANSLATIONS = {
     friendsNoHeart: "n'a pas encore de coups de cœur.",
     friendsHearts: "coups de cœur",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI",
+    recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & amis",
@@ -159,7 +159,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
     friendsNoHeart: "aún no tiene favoritos.",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
-    recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI",
+    recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
     recoGPS: "📍 Mi ubicación", recoManual: "✏️ Introducir", recoGPSLoading: "Obteniendo tu ubicación...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y amigos",
@@ -212,7 +212,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Anzeigen ❤️", friendsHeartTitle: "❤️ Favoriten von",
     friendsNoHeart: "hat noch keine Favoriten.",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
-    recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen",
+    recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
     recoGPS: "📍 Mein Standort", recoManual: "✏️ Eingeben", recoGPSLoading: "Standort wird ermittelt...",
     recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Freunde",
@@ -265,7 +265,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Vedi ❤️", friendsHeartTitle: "❤️ Preferiti di",
     friendsNoHeart: "non ha ancora preferiti.",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
-    recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI",
+    recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
     recoGPS: "📍 La mia posizione", recoManual: "✏️ Inserisci", recoGPSLoading: "Recupero posizione...",
     recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e amici",
@@ -319,7 +319,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
     friendsNoHeart: "ainda não tem favoritos.",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
-    recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI",
+    recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
     recoGPS: "📍 A minha posição", recoManual: "✏️ Introduzir", recoGPSLoading: "A obter posição...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e amigos",
@@ -373,7 +373,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "Bekijk ❤️", friendsHeartTitle: "❤️ Favorieten van",
     friendsNoHeart: "heeft nog geen favorieten.",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
-    recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI",
+    recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
     recoGPS: "📍 Mijn locatie", recoManual: "✏️ Invoeren", recoGPSLoading: "Locatie ophalen...",
     recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & vrienden",
@@ -427,7 +427,7 @@ const TRANSLATIONS = {
     friendsAccept: "✓", friendsView: "View ❤️", friendsHeartTitle: "❤️ Favorites from",
     friendsNoHeart: "has no favorites yet.",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI",
+    recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & friends",
@@ -1571,6 +1571,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
         <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
+        {m.distanceKm!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600,marginLeft:8}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
       </div>
       <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
@@ -1581,7 +1582,6 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
-        {m.distanceKm!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+", "+(m.address||[m.city,m.country].filter(Boolean).join(", ")))}`}
           target="_blank" rel="noopener noreferrer"
           className="maps-link" style={{marginLeft:8}}>Maps →</a>
@@ -2256,7 +2256,7 @@ function TravelAgent() {
     }
   };
 
-  const loadRecos = async () => {
+  const loadRecos = async (skipAI = false) => {
     const locationLabel = locMode==="gps" ? gpsLocation : freeLocation;
     if (!locationLabel) return;
     // Create new abort controller for this search
@@ -2469,6 +2469,9 @@ function TravelAgent() {
       nearbyForAI = places.filter(p => !alreadyVisited.has(p.name));
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
+
+    // Skip AI if user only wants nearby places
+    if (skipAI) { setAiRecos([]); return; }
 
     // AI Recos
     setAiLoading(true); setAiRecos([]);
@@ -2981,9 +2984,12 @@ RULES:
                     ))}
                   </div>
                 </div>
-                <div style={{display:"flex",gap:8}}>
-                  <button className="reco-btn" style={{flex:1}} onClick={loadRecos} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
-                    {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:t.recoFind}
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  <button className="reco-btn" style={{flex:"1 1 140px",fontSize:11,padding:"13px 8px"}} onClick={()=>loadRecos(true)} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
+                    🔥 {t.recoFindNearby||"Lieux populaires"}
+                  </button>
+                  <button className="reco-btn" style={{flex:"1 1 140px",fontSize:11,padding:"13px 8px",background:`${COLORS.accent}22`,borderColor:COLORS.accent,color:COLORS.accent,fontWeight:700}} onClick={()=>loadRecos(false)} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
+                    {geocoding?t.recoLocating:heartLoading||aiLoading?t.recoSearching:"✨ "+(t.recoFind||"Demander à Outsy AI")}
                   </button>
                   {(heartLoading||aiLoading||geocoding)&&(
                     <button onClick={cancelSearch} style={{padding:"13px 16px",background:COLORS.dislikeBg,border:`1px solid ${COLORS.dislike}44`,borderRadius:10,color:"#e06060",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
@@ -3057,7 +3063,7 @@ RULES:
                 </div>
               )}
 
-              {aiRecos.length>0&&!aiLoading&&nearbyPlaces.length>0&&(()=>{
+              {!aiLoading&&nearbyPlaces.length>0&&(()=>{
                 const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
                 const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
                 const filtered = nearbyPlaces.filter(p =>
