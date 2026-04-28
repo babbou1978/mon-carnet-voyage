@@ -1821,6 +1821,10 @@ function TravelAgent() {
   const [aiLoading, setAiLoading] = useState(false);
   const abortRef = useRef(null);
   const nbRecosRef = useRef(prefs.nbrecos || "10");
+  const [recoLimit, setRecoLimit] = useState(prefs.nbrecos || "10");
+  useEffect(() => {
+    if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
+  }, [prefs.nbrecos]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -2188,7 +2192,7 @@ function TravelAgent() {
     });
 
     const nbHearts = (() => {
-      const val = nbRecosOverride ?? prefs.nbrecos;
+      const val = nbRecosOverride ?? recoLimit;
       return val === "auto" ? 10 : parseInt(val) || 10;
     })();
     const allClosedNames = new Set([
@@ -2363,9 +2367,9 @@ function TravelAgent() {
       return getDisplayRating(b) - getDisplayRating(a);
     });
     // Preserve openNow status from previous state but NOT openingHours (force re-fetch for fresh data)
-    const nbHearts = prefs.nbrecos === "auto"
+    const nbHearts = recoLimit === "auto"
       ? Math.max(3, 10 - (aiRecos.length || 0))
-      : parseInt(prefs.nbrecos) || 10;
+      : parseInt(recoLimit) || 10;
     const allClosedNames = new Set([
       ...closedPlacesRef.current.map(n=>n.toLowerCase()),
       ...tempClosedRef.current
@@ -2378,13 +2382,15 @@ function TravelAgent() {
     );
     setHeartMemories(prev => {
       const prevMap = {};
-      prev.forEach(m => { if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow}; });
+      prev.forEach(m => {
+        if(m.openNow!==undefined) prevMap[m.name.toLowerCase()] = {openNow:m.openNow, openingHours:m.openingHours};
+      });
       return deduped
         .filter(m => !allClosedNames.has(m.name.toLowerCase()))
         .slice(0, nbHearts)
         .map(m => {
           const p = prevMap[m.name.toLowerCase()];
-          return p ? {...m, openNow:p.openNow} : m;
+          return p ? {...m, openNow:p.openNow, openingHours:p.openingHours||m.openingHours} : m;
         });
     });
 
@@ -2463,9 +2469,9 @@ function TravelAgent() {
 
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
 
-    const nbRecosCount = prefs.nbrecos === "auto"
+    const nbRecosCount = recoLimit === "auto"
       ? Math.max(3, 10 - heartMemories.length)
-      : parseInt(prefs.nbrecos) || 10;
+      : parseInt(recoLimit) || 10;
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
 
@@ -2951,12 +2957,12 @@ RULES:
                     {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>{
                         nbRecosRef.current = val;
-                        setPrefs(p=>({...p,nbrecos:val}));
+                        setRecoLimit(val);
                         if(locationLabel) setHeartsKey(k=>k+1);
                       }}
-                        style={{flex:1,padding:"8px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.muted,
+                        style={{flex:1,padding:"8px 4px",background:(recoLimit||"10")===val?`${COLORS.accent}22`:COLORS.card,
+                          border:`1px solid ${(recoLimit||"10")===val?COLORS.accent:COLORS.border}`,
+                          borderRadius:8,color:(recoLimit||"10")===val?COLORS.accent:COLORS.muted,
                           cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600}}>
                         {label}
                       </button>
@@ -2999,11 +3005,11 @@ RULES:
                             <div className="ai-reco-header">
                               <div className="ai-reco-top">
                                 <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
-                                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                <div style={{display:"flex",alignItems:"center",gap:8}}>
                                   {reco._dist!=null&&!reco.outsideRadius&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
-                                  <button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>
                                   <div className="ai-reco-rank">#{i+1}</div>
+                                  <button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>
                                 </div>
                               </div>
                               <div className="ai-reco-meta">
