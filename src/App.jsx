@@ -604,8 +604,23 @@ const getCSS = (COLORS) => `
   .reco-section { display: flex; flex-direction: column; gap: 20px; }
   .reco-location-card { background: ${COLORS.card}; border: 1px solid ${COLORS.accent}44; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
   .reco-location-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; color: ${COLORS.accent}; }
-  .reco-block { display: flex; flex-direction: column; gap: 14px; }
-  .reco-block-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: ${COLORS.accent}; padding-bottom: 8px; border-bottom: 1px solid ${COLORS.border}; }
+  .reco-block { display: flex; flex-direction: column; gap: 14px; position: relative; }
+  .reco-block::before { content: ''; position: absolute; left: -8px; top: 50px; bottom: 0; width: 3px; border-radius: 2px; opacity: 0.4; }
+  .reco-block.section-hearts::before { background: #d4869b; }
+  .reco-block.section-ai::before { background: ${COLORS.accent}; }
+  .reco-block.section-nearby::before { background: #7a9d7a; }
+  .reco-block-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic;
+    color: ${COLORS.accent};
+    padding: 10px 12px; margin: 0 -12px;
+    border-radius: 8px;
+    position: sticky; top: 0; z-index: 10;
+    background: ${COLORS.bg};
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid ${COLORS.border};
+  }
+  .reco-block.section-hearts .reco-block-title { color: #d4869b; }
+  .reco-block.section-nearby .reco-block-title { color: #7a9d7a; }
   .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
@@ -2986,7 +3001,7 @@ RULES:
               )}
 
               {heartMemories.length>0&&(
-                <div className="reco-block">
+                <div className="reco-block section-hearts">
                   <div className="reco-block-title">{t.recoHearts}<span>{t.recoHeartsNear}</span></div>
                   <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}</div>
@@ -2994,7 +3009,7 @@ RULES:
               )}
 
               {(aiLoading||aiRecos.length>0)&&(
-                <div className="reco-block">
+                <div className="reco-block section-ai">
                   <div className="reco-block-title">{t.recoAI}<span>{t.recoAISub}</span></div>
                   {aiLoading&&<div className="thinking"><div className="dot"/><div className="dot"/><div className="dot"/></div>}
                   {aiRecos.length>0&&!aiLoading&&(
@@ -3053,7 +3068,7 @@ RULES:
                 );
                 if (filtered.length === 0) return null;
                 return (
-                  <div className="reco-block">
+                  <div className="reco-block section-nearby">
                     <div className="reco-block-title">{t.recoNearby}<span>{t.recoNearbySub||"Sorted by rating and distance"}</span></div>
                     <div className="ai-reco-list">
                       {filtered.map((p,i)=>(
