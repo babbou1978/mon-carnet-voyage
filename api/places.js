@@ -93,26 +93,51 @@ export default async function handler(req, res) {
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
-      const typeMap = { "Restaurant":"restaurant","Bar / Café":"bar","Hôtel":"lodging","Destination":"tourist_attraction","Activité":"museum" };
-      const googleType = typeMap[type] || "restaurant";
-      const body = {
-        includedTypes: [googleType],
-        maxResultCount: 20,
-        rankPreference: "POPULARITY",
-        locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
-        languageCode: 'fr'
+      // Multiple sub-types per category for better coverage of dense areas
+      const typeGroups = {
+        "Restaurant": ["restaurant", "seafood_restaurant", "italian_restaurant", "japanese_restaurant", "french_restaurant"],
+        "Bar / Café": ["bar", "cafe"],
+        "Hôtel": ["lodging"],
+        "Destination": ["tourist_attraction"],
+        "Activité": ["museum"]
       };
-      const r = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
+      const types = typeGroups[type] || ["restaurant"];
+      const fieldMask = 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions';
+
+      // Fetch all type variants in parallel and merge
+      const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions' },
-        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
+        body: JSON.stringify({
+          includedTypes: [t],
+          maxResultCount: 20,
+          rankPreference: "POPULARITY",
+          locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
+          languageCode: 'fr'
+        }),
+      }).then(r => r.json()).catch(() => ({places:[]})));
+
+      const responses = await Promise.all(requests);
+      const allPlaces = [];
+      const seenIds = new Set();
+      responses.forEach(resp => {
+        (resp.places||[]).forEach(p => {
+          const id = p.name; // unique Google place ID
+          if (!seenIds.has(id)) { seenIds.add(id); allPlaces.push(p); }
+        });
       });
-      const result = await r.json();
-      // Log for debugging
-      console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, type: googleType }));
-      console.log('Nearby API response:', JSON.stringify({ status: r.status, placeCount: result.places?.length||0, error: result.error?.message||null }));
-      return res.status(200).json(result);
+
+      // Sort by popularity (rating × log(count) for credible quality signal)
+      allPlaces.sort((a, b) => {
+        const sa = (a.rating||0) * Math.log10((a.userRatingCount||0)+1);
+        const sb = (b.rating||0) * Math.log10((b.userRatingCount||0)+1);
+        return sb - sa;
+      });
+
+      console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types }));
+      console.log('Nearby merged:', JSON.stringify({ totalPlaces: allPlaces.length, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})) }));
+
+      return res.status(200).json({ places: allPlaces.slice(0, 30) });
     }
   } catch (error) {
     console.error(error);
