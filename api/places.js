@@ -139,7 +139,7 @@ export default async function handler(req, res) {
       console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types }));
       console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})), top5: allPlaces.slice(0,5).map(p=>p.displayName?.text) }));
 
-      return res.status(200).json({ places: allPlaces.slice(0, 30) });
+      return res.status(200).json({ places: allPlaces });
     }
   } catch (error) {
     console.error(error);

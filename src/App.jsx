@@ -109,7 +109,7 @@ const TRANSLATIONS = {
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & amis",
-    recoInCarnet: "Dans votre carnet", recoNearby: "Lieux populaires à proximité",
+    recoInCarnet: "Dans votre carnet", recoNearby: "🔥 Lieux populaires à proximité", recoNearbySub: "Triés par note et distance",
     recoAI: "✨ Outsy AI", recoAISub: "10 recommandations triées par affinité",
     recoAddFav: "+ Ajouter à mes coups de cœur", recoMapsLink: "Maps →",
     recoNoHeart: "Aucun coup de cœur dans ce rayon. Ajoutez des lieux notés ≥ 4★ !",
@@ -163,7 +163,7 @@ const TRANSLATIONS = {
     recoLocating: "Localizando...", recoSearching: "Buscando...",
     recoGPS: "📍 Mi ubicación", recoManual: "✏️ Introducir", recoGPSLoading: "Obteniendo tu ubicación...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y amigos",
-    recoInCarnet: "En tu colección", recoNearby: "Lugares populares cercanos",
+    recoInCarnet: "En tu colección", recoNearby: "🔥 Lugares populares cercanos", recoNearbySub: "Ordenados por valoración y distancia",
     recoAI: "✨ Outsy AI", recoAISub: "10 recomendaciones por afinidad",
     recoAddFav: "+ Añadir a favoritos", recoMapsLink: "Maps →",
     recoNoHeart: "Sin favoritos en esta zona. ¡Añade lugares con ≥ 4★!",
@@ -216,7 +216,7 @@ const TRANSLATIONS = {
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
     recoGPS: "📍 Mein Standort", recoManual: "✏️ Eingeben", recoGPSLoading: "Standort wird ermittelt...",
     recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Freunde",
-    recoInCarnet: "In deiner Sammlung", recoNearby: "Beliebte Orte in der Nähe",
+    recoInCarnet: "In deiner Sammlung", recoNearby: "🔥 Beliebte Orte in der Nähe", recoNearbySub: "Sortiert nach Bewertung und Entfernung",
     recoAI: "✨ Outsy AI", recoAISub: "10 Empfehlungen nach Übereinstimmung",
     recoAddFav: "+ Zu Favoriten hinzufügen", recoMapsLink: "Maps →",
     recoNoHeart: "Keine Favoriten in diesem Bereich. Füge Orte mit ≥ 4★ hinzu!",
@@ -269,7 +269,7 @@ const TRANSLATIONS = {
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
     recoGPS: "📍 La mia posizione", recoManual: "✏️ Inserisci", recoGPSLoading: "Recupero posizione...",
     recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e amici",
-    recoInCarnet: "Nella tua collezione", recoNearby: "Posti popolari vicini",
+    recoInCarnet: "Nella tua collezione", recoNearby: "🔥 Posti popolari vicini", recoNearbySub: "Ordinati per valutazione e distanza",
     recoAI: "✨ Outsy AI", recoAISub: "10 raccomandazioni per affinità",
     recoAddFav: "+ Aggiungi ai preferiti", recoMapsLink: "Maps →",
     recoNoHeart: "Nessun preferito in quest'area. Aggiungi posti con ≥ 4★!",
@@ -323,7 +323,7 @@ const TRANSLATIONS = {
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
     recoGPS: "📍 A minha posição", recoManual: "✏️ Introduzir", recoGPSLoading: "A obter posição...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e amigos",
-    recoInCarnet: "Na sua coleção", recoNearby: "Lugares populares perto",
+    recoInCarnet: "Na sua coleção", recoNearby: "🔥 Lugares populares perto", recoNearbySub: "Ordenados por avaliação e distância",
     recoAI: "✨ Outsy AI", recoAISub: "10 recomendações por afinidade",
     recoAddFav: "+ Adicionar aos favoritos", recoMapsLink: "Maps →",
     recoNoHeart: "Sem favoritos nesta área. Adicione lugares com ≥ 4★!",
@@ -377,7 +377,7 @@ const TRANSLATIONS = {
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
     recoGPS: "📍 Mijn locatie", recoManual: "✏️ Invoeren", recoGPSLoading: "Locatie ophalen...",
     recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & vrienden",
-    recoInCarnet: "In jouw collectie", recoNearby: "Populaire plekken in de buurt",
+    recoInCarnet: "In jouw collectie", recoNearby: "🔥 Populaire plekken in de buurt", recoNearbySub: "Gesorteerd op beoordeling en afstand",
     recoAI: "✨ Outsy AI", recoAISub: "10 aanbevelingen op basis van overeenkomst",
     recoAddFav: "+ Toevoegen aan favorieten", recoMapsLink: "Maps →",
     recoNoHeart: "Geen favorieten in dit gebied. Voeg plekken toe met ≥ 4★!",
@@ -431,7 +431,7 @@ const TRANSLATIONS = {
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & friends",
-    recoInCarnet: "In your collection", recoNearby: "Popular nearby places",
+    recoInCarnet: "In your collection", recoNearby: "🔥 Popular nearby places", recoNearbySub: "Sorted by rating and distance",
     recoAI: "✨ Outsy AI", recoAISub: "10 recommendations ranked by match",
     recoAddFav: "+ Add to my favorites", recoMapsLink: "Maps →",
     recoNoHeart: "No favorites in this area. Add places with rating ≥ 4★!",
@@ -2260,6 +2260,13 @@ function TravelAgent() {
     }
     setGeocoding(false);
 
+    // DEBUG: initialize debug object early so it's always available
+    if (typeof window !== "undefined") {
+      window.__outsy = window.__outsy || {};
+      window.__outsy.searchCenter = {lat: coords.lat, lng: coords.lng, radius: distance, label: locationLabel};
+      window.__outsy.lastSearch = new Date().toISOString();
+    }
+
     // Coups de cœur — filtrer par distance réelle
     setHeartLoading(true);
     const myGoodNames = new Set(memories.filter(m=>m.rating>=3).map(m=>m.name.toLowerCase()));
@@ -2961,56 +2968,15 @@ RULES:
                 </div>
               </div>
 
-              {(heartMemories.length>0||aiRecos.length>0)&&(
+              {(heartMemories.length>0||aiRecos.length>0||nearbyPlaces.length>0)&&(
                 <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} themeKey={themeKey} COLORS={COLORS} t={t}/>
               )}
 
-              {(heartMemories.length>0||nearbyPlaces.length>0)&&(
+              {heartMemories.length>0&&(
                 <div className="reco-block">
                   <div className="reco-block-title">{t.recoHearts}<span>{t.recoHeartsNear}</span></div>
-                  {heartMemories.length>0&&(
-                    <div>
-                      <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{t.recoInCarnet}</div>
-                      <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                  <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}</div>
-                    </div>
-                  )}
-                  {nearbyPlaces.length>0&&(
-                    <div style={{marginTop:heartMemories.length>0?16:0}}>
-                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-                        <div style={{fontSize:11,color:COLORS.muted,textTransform:"uppercase",letterSpacing:"0.1em"}}>{t.recoNearby}</div>
-                        <button onClick={()=>setShowNearby(s=>!s)} style={{fontSize:11,color:COLORS.accent,background:"none",border:"none",cursor:"pointer",padding:0}}>
-                          {showNearby ? "▲ Masquer" : "▼ Afficher"}
-                        </button>
-                      </div>
-                      {showNearby&&(()=>{
-                        const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
-                        const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
-                        const nbLimit = prefs.nbrecos==="auto" ? 5 : Math.min(parseInt(prefs.nbrecos)||5, 5);
-                        const filtered = nearbyPlaces
-                          .filter(p => !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase()))
-                          .slice(0, nbLimit);
-                        return (
-                          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                            {filtered.map((p,i)=>(
-                              <div key={i} className="nearby-card">
-                                <div className="nearby-name">{TYPE_ICONS[recoType]} {p.name}
-                                  {p._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted,fontWeight:400}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
-                                </div>
-                                <div className="nearby-meta">
-                                  {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/> {p.rating}</span>}
-                                  {p.price&&<span className="badge price">{p.price}</span>}
-                                  {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
-                                </div>
-                                {p.address&&<div className="nearby-address">📍 {p.address} <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link">{t.recoMapsLink}</a></div>}
-                                <button className="add-to-carnet-btn" style={{margin:0,marginTop:4}} onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€"})}>{t.recoAddFav}</button>
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -3065,6 +3031,43 @@ RULES:
                   )}
                 </div>
               )}
+
+              {nearbyPlaces.length>0&&(()=>{
+                const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
+                const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
+                const filtered = nearbyPlaces.filter(p =>
+                  !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase())
+                );
+                if (filtered.length === 0) return null;
+                return (
+                  <div className="reco-block">
+                    <div className="reco-block-title">{t.recoNearby}<span>{t.recoNearbySub||"Triés par note et distance"}</span></div>
+                    <div className="memory-list">
+                      {filtered.map((p,i)=>(
+                        <div key={i} className="memory-card">
+                          <div className="memory-header">
+                            <div className="memory-name">{TYPE_ICONS[recoType]} {p.name}</div>
+                          </div>
+                          <div className="memory-meta">
+                            {p.cuisine&&<span className="badge type">{p.cuisine.toUpperCase()}</span>}
+                            {p.rating&&<span className="badge stars"><StarRating rating={p.rating} size={13} emptyColor={COLORS.border}/> {p.rating}</span>}
+                            {p.price&&<span className="badge price">{p.price}</span>}
+                          </div>
+                          {p.address&&(
+                            <div className="memory-location">
+                              📍 {p.address}
+                              {p._dist!=null&&<span style={{marginLeft:6,fontSize:10,color:COLORS.muted}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
+                              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+(p.address?", "+p.address:""))}`} target="_blank" rel="noopener noreferrer" className="maps-link" style={{marginLeft:8}}>{t.recoMapsLink}</a>
+                            </div>
+                          )}
+                          {p.openNow!==undefined&&p.openNow!==null&&<OpeningHoursWidget openNow={p.openNow} hours={p.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
+                          <button className="add-to-carnet-btn" onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}>{t.recoAddFav}</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
