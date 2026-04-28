@@ -2381,8 +2381,14 @@ function TravelAgent() {
         });
     });
 
-    // Only exclude places actually shown in heartMemories (coups de coeur)
-    const alreadyVisited = newHeartNames;
+    // Exclusion list: my own favorites (all) + friend favorites that appear in heartMemories
+    const heartFriendNames = [...newHeartNames].filter(name =>
+      !memories.some(m => m.name === name) // friend-only places shown in hearts
+    );
+    const alreadyVisited = new Set([
+      ...memories.map(m => m.name),
+      ...heartFriendNames,
+    ]);
 
     // Nearby Google Places — fetch FIRST, used both for display and as AI candidate list
     let nearbyForAI = [];
