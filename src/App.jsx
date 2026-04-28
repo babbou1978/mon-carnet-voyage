@@ -614,9 +614,8 @@ const getCSS = (COLORS) => `
     color: ${COLORS.accent};
     padding: 10px 12px; margin: 0 -12px;
     border-radius: 8px;
-    position: sticky; top: 0; z-index: 10;
+    position: sticky; top: 60px; z-index: 5;
     background: ${COLORS.bg};
-    backdrop-filter: blur(8px);
     border-bottom: 1px solid ${COLORS.border};
   }
   .reco-block.section-hearts .reco-block-title { color: #d4869b; }
