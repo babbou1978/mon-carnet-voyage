@@ -129,10 +129,10 @@ export default async function handler(req, res) {
       });
       const allPlaces = Array.from(seen.values());
 
-      // Sort by quality: rating × log(reviewCount)
+      // Sort by quality: rating prioritized, reviews capped at 1000 to avoid favoring tourist hotspots
       allPlaces.sort((a, b) => {
-        const sa = (a.rating||0) * Math.log10((a.userRatingCount||0)+1);
-        const sb = (b.rating||0) * Math.log10((b.userRatingCount||0)+1);
+        const sa = (a.rating||0) * Math.sqrt(Math.min(a.userRatingCount||0, 1000));
+        const sb = (b.rating||0) * Math.sqrt(Math.min(b.userRatingCount||0, 1000));
         return sb - sa;
       });
 
