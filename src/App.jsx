@@ -2411,6 +2411,21 @@ function TravelAgent() {
         };
       }).filter(p=>p.name);
 
+      // DEBUG: expose to F12 console via window.__outsy
+      if (typeof window !== "undefined") {
+        window.__outsy = window.__outsy || {};
+        window.__outsy.nearbyRaw = data;
+        window.__outsy.nearbyParsed = places;
+        window.__outsy.searchCenter = {lat: coords.lat, lng: coords.lng, radius: distance};
+        window.__outsy.nearbyTable = places.map(p => ({
+          name: p.name,
+          dist: p._dist!=null ? Math.round(p._dist)+"m" : "?",
+          rating: p.rating || "?",
+          reviews: p.userRatingCount || 0,
+          address: p.address,
+        }));
+      }
+
       // Sort by rating DESC, distance ASC for tie-breaking
       const sorted = [...places]
         .filter(p => !alreadyVisited.has(p.name))
