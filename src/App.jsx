@@ -547,7 +547,7 @@ const getCSS = (COLORS) => `
   .memory-location { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 6px; }
   .memory-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
   .memory-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: ${COLORS.accent}12; color: ${COLORS.accent}; }
-  .memory-tag.bad { background: #3a1a1a; color: #a06060; }
+  .memory-tag.bad { background: ${COLORS.accent}12; color: #a06060; }
   .memory-why { font-size: 12px; color: #b8ad98; line-height: 1.5; font-style: italic; margin-top: 4px; }
   .memory-dislike { font-size: 12px; color: #a06060; line-height: 1.4; margin-top: 4px; font-style: italic; }
   .memory-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
@@ -1629,13 +1629,16 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
         <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
-        {m.distanceKm!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600,marginLeft:8}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
+        <div style={{display:"flex",alignItems:"center",gap:6,marginLeft:8}}>
+          {m.distanceKm!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
+          {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS} t={t}/>}
+          {!isMine&&onSaveFriend&&<button onClick={()=>onSaveFriend(m)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
+        </div>
       </div>
       <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
         {displayRating>0&&<span className="badge stars"><StarRating rating={displayRating} size={11} emptyColor={COLORS.border}/></span>}
         {displayKids&&<span className="badge kids">👶</span>}
-        {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS} t={t}/>}
         {displayPrice&&<span className="badge price">{displayPrice}</span>}
       </div>
       {(m.address||m.city||m.country)&&<div className="memory-location">
@@ -1657,11 +1660,6 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           <button className="del-btn" onClick={()=>onDeleteRequest(m.id, m.name)}>✕</button>
         </div>}
       </div>
-      {!isMine&&onSaveFriend&&(
-        <button className="add-to-carnet-btn" style={{width:"100%",justifyContent:"center",marginTop:4}} onClick={()=>onSaveFriend(m)}>
-          {t.recoAddFav||"+ Add to my favorites"}
-        </button>
-      )}
     </div>
   );
 }
@@ -3099,7 +3097,7 @@ RULES:
                                     const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===reco.name.toLowerCase());
                                     return (
                                       <>
-                                        {friendsHave.length>0&&<span style={{fontSize:11,color:COLORS.accent,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}55`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>👥 {friendsHave.length}</span>}
+                                        {friendsHave.length>0&&<FriendsBadge friends={friendsHave.map(f=>f.friendName)} friendsData={friendsHave} onViewFriend={(name,fMem)=>{const mem=fMem||friendsHave.find(x=>x.friendName===name); if(mem)setFriendMemoryModal({memory:mem,friendName:name});}} onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} COLORS={COLORS} t={t}/>}
                                         {!inMine&&<button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
                                       </>
                                     );
@@ -3162,7 +3160,7 @@ RULES:
                                   const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase());
                                   return (
                                     <>
-                                      {friendsHave.length>0&&<span style={{fontSize:11,color:COLORS.accent,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}55`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>👥 {friendsHave.length}</span>}
+                                      {friendsHave.length>0&&<FriendsBadge friends={friendsHave.map(f=>f.friendName)} friendsData={friendsHave} onViewFriend={(name,fMem)=>{const mem=fMem||friendsHave.find(x=>x.friendName===name); if(mem)setFriendMemoryModal({memory:mem,friendName:name});}} onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} COLORS={COLORS} t={t}/>}
                                       {!inMine&&<button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>}
                                     </>
                                   );
