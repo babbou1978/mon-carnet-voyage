@@ -2484,16 +2484,25 @@ function TravelAgent() {
       const places = (data.places||[]).map(p=>{
         const plat = p.location?.latitude, plng = p.location?.longitude;
         const dist = plat && plng ? calcDistance(coords.lat, coords.lng, plat, plng) * 1000 : null;
-        // Pick the best 5-star review for display, or top review otherwise
+        // Find best review in user's language, fallback to any 5-star review or editorialSummary
         const reviews = p.reviews || [];
+        const userLang = prefs.language || "en";
+        const reviewInLang = reviews.find(r =>
+          r.text?.languageCode === userLang &&
+          r.rating >= 4 &&
+          r.text?.text?.length > 30 &&
+          r.text.text.length < 200
+        );
         const fiveStarReview = reviews.find(r => r.rating === 5 && r.text?.text?.length > 30 && r.text.text.length < 200);
-        const topReview = fiveStarReview || reviews.find(r => r.text?.text?.length > 30 && r.text.text.length < 200);
+        const topReview = reviewInLang || fiveStarReview || reviews.find(r => r.text?.text?.length > 30 && r.text.text.length < 200);
+        // Prefer review in user lang over editorial summary which is usually English
+        const summary = (reviewInLang?.text?.text) || (p.editorialSummary?.text?.languageCode === userLang ? p.editorialSummary.text : null);
         return {
           name: p.displayName?.text||"", address: p.formattedAddress||"",
           rating: p.rating, userRatingCount: p.userRatingCount||0,
           cuisine: p.cuisine || null,
-          editorialSummary: p.editorialSummary?.text || null,
-          topReview: topReview?.text?.text || null,
+          editorialSummary: summary,
+          topReview: !summary ? (topReview?.text?.text || null) : null,
           price: PRICE_MAP[p.priceLevel]||"",
           lat: plat, lng: plng, _dist: dist,
           openNow: p.currentOpeningHours?.openNow ?? p.regularOpeningHours?.openNow,
@@ -3085,7 +3094,16 @@ RULES:
                                   {reco._dist!=null&&!reco.outsideRadius&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <div className="ai-reco-rank">#{i+1}</div>
-                                  <button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>
+                                  {(()=>{
+                                    const inMine = memories.some(mm => mm.name.toLowerCase()===reco.name.toLowerCase());
+                                    const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===reco.name.toLowerCase());
+                                    return (
+                                      <>
+                                        {friendsHave.length>0&&<span style={{fontSize:11,color:COLORS.accent,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}55`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>👥 {friendsHave.length}</span>}
+                                        {!inMine&&<button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
+                                      </>
+                                    );
+                                  })()}
                                 </div>
                               </div>
                               <div className="ai-reco-meta">
@@ -3139,7 +3157,16 @@ RULES:
                               <div className="ai-reco-name">{TYPE_ICONS[recoType]} {p.name}</div>
                               <div style={{display:"flex",alignItems:"center",gap:6}}>
                                 {p._dist!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
-                                <button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>
+                                {(()=>{
+                                  const inMine = memories.some(mm => mm.name.toLowerCase()===p.name.toLowerCase());
+                                  const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase());
+                                  return (
+                                    <>
+                                      {friendsHave.length>0&&<span style={{fontSize:11,color:COLORS.accent,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}55`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>👥 {friendsHave.length}</span>}
+                                      {!inMine&&<button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>}
+                                    </>
+                                  );
+                                })()}
                               </div>
                             </div>
                             <div className="ai-reco-meta">
