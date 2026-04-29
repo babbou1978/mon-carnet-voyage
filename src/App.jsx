@@ -901,7 +901,7 @@ const MAP_STYLES = [
   {featureType:"poi",stylers:[{visibility:"off"}]},
 ];
 
-function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, themeKey, COLORS, t={} }) {
+function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, themeKey, COLORS, t={}, recoLimit }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const boundsRef = useRef(null);
@@ -910,13 +910,20 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
   const [fullscreen, setFullscreen] = useState(false);
   const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: false });
 
-  // ESC key to exit fullscreen
+  // Limit nearby markers based on recoLimit (5/10/auto -> 10)
+  const nearbyLimit = recoLimit === "auto" ? 10 : (parseInt(recoLimit) || 10);
+  const nearbyToShow = (nearbyPlaces || []).slice(0, nearbyLimit);
+
+  // ESC key: close popup first, then exit fullscreen
   useEffect(() => {
-    if (!fullscreen) return;
-    const handler = (e) => { if (e.key === "Escape") setFullscreen(false); };
+    const handler = (e) => {
+      if (e.key !== "Escape") return;
+      if (activePlace) { setActivePlace(null); return; }
+      if (fullscreen) setFullscreen(false);
+    };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [fullscreen]);
+  }, [fullscreen, activePlace]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -1000,8 +1007,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
         }
       });
 
-      // Nearby places - green, numbered (hidden by default)
-      (nearbyPlaces||[]).forEach((p, i) => {
+      // Nearby places - green, numbered, limited (hidden by default)
+      nearbyToShow.forEach((p, i) => {
         if (!p.lat || !p.lng) return;
         const pos = { lat: p.lat, lng: p.lng };
         const pinEl = new window.google.maps.marker.PinElement({ background:"#7a9d7a", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:String(i+1), scale:1.0 });
@@ -1024,7 +1031,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
   }, [
     JSON.stringify(recommendations?.map(r=>r.name)),
     JSON.stringify(heartMemories?.map(m=>m.id)),
-    JSON.stringify(nearbyPlaces?.map(p=>p.name)),
+    JSON.stringify(nearbyToShow?.map(p=>p.name)),
     userCoords?.lat,
     userCoords?.lng
   ]);
@@ -3051,7 +3058,7 @@ RULES:
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0||nearbyPlaces.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={nearbyPlaces} themeKey={themeKey} COLORS={COLORS} t={t}/>
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={nearbyPlaces} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
               )}
 
               {heartMemories.length>0&&(
