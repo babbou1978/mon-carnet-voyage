@@ -2518,13 +2518,13 @@ function TravelAgent() {
 
       // Sort by rating DESC, distance ASC for tie-breaking
       const sorted = [...places]
-        .filter(p => !alreadyVisited.has(p.name))
         .sort((a,b) => (b.rating||0)-(a.rating||0) || (a._dist||0)-(b._dist||0));
 
+      // For display: show ALL popular places. Display-time dedup with heartMemories/aiRecos handles overlap.
       setNearbyPlaces(sorted);
 
-      // For AI: all places excluding visited (used as candidate list)
-      nearbyForAI = places.filter(p => !alreadyVisited.has(p.name));
+      // For AI candidates: exclude visited places so AI proposes novel ones
+      nearbyForAI = sorted.filter(p => !alreadyVisited.has(p.name));
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
