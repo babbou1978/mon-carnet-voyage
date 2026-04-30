@@ -1593,7 +1593,41 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={} }) {
+// Unified card actions block: distance + FriendsBadge + Edit/Add button
+// Used in MemoryCard, AI cards, Nearby cards for consistent UX
+function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, COLORS, t={}, setFriendMemoryModal, addFriendToCarnet }) {
+  const distLabel = distance != null
+    ? (distance >= 1000 ? `${(distance/1000).toFixed(1)}km` : `${Math.round(distance)}m`)
+    : null;
+
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:6,marginLeft:8}}>
+      {distLabel && (
+        <span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>
+          {distLabel}
+        </span>
+      )}
+      {friendsHave && friendsHave.length > 0 && (
+        <FriendsBadge
+          friends={friendsHave.map(f=>f.friendName||f)}
+          friendsData={friendsHave}
+          onViewFriend={(name,fMem)=>{
+            const mem = fMem || friendsHave.find(x=>x.friendName===name);
+            if (mem && setFriendMemoryModal) setFriendMemoryModal({memory:mem,friendName:name});
+          }}
+          onSaveFriend={(fMem)=>addFriendToCarnet&&addFriendToCarnet(fMem)}
+          COLORS={COLORS}
+          t={t}
+        />
+      )}
+      {myMem
+        ? <button onClick={()=>onEdit(myMem)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>
+        : onAdd && <button onClick={onAdd} title={t.recoAddFav||"Add"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
+    </div>
+  );
+}
+
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[] }) {
   // Compute displayed values: own data if isMine, friend averages otherwise
   const friendsWithData = (m.friendsData||[]);
   const displayRating = (() => {
@@ -1629,13 +1663,17 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
         <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
-        <div style={{display:"flex",alignItems:"center",gap:6,marginLeft:8}}>
-          {m.distanceKm!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
-          {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS} t={t}/>}
-          {!isMine&&onSaveFriend&&<button onClick={()=>onSaveFriend(m)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
-          {isMine&&<button onClick={()=>onEdit(m)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>}
-          {isMine&&onDeleteRequest&&<button onClick={()=>onDeleteRequest(m.id, m.name)} title="Delete" style={{background:COLORS.card,border:`1px solid ${COLORS.dislike}66`,color:"#a06060",borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>}
-        </div>
+        <CardActions
+          distance={m.distanceKm!=null ? m.distanceKm*1000 : null}
+          friendsHave={m.friendsWhoHave?.length>0 ? (m.friendsData||m.friendsWhoHave) : null}
+          myMem={isMine ? m : null}
+          onEdit={onEdit}
+          onAdd={!isMine && onSaveFriend ? ()=>onSaveFriend(m) : null}
+          COLORS={COLORS}
+          t={t}
+          setFriendMemoryModal={setFriendMemoryModal}
+          addFriendToCarnet={addFriendToCarnet}
+        />
       </div>
       <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
         {m.cuisine&&<span className="badge">{m.cuisine}</span>}
@@ -1655,9 +1693,6 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
       {m.dislike&&<div className="memory-dislike">« {m.dislike} »</div>}
-      <div className="memory-footer">
-        <span className="memory-date">{formatDate(m.ts)}</span>
-      </div>
     </div>
   );
 }
@@ -2826,7 +2861,7 @@ RULES:
               <div className="memory-list" key={friendFilter}>
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
-                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}
               </div>
             </div>
@@ -3069,7 +3104,7 @@ RULES:
               {heartMemories.length>0&&(
                 <div className="reco-block section-hearts">
                   <div className="reco-block-title">{t.recoHearts}</div>
-                  <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }}
+                  <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}</div>
                 </div>
               )}
@@ -3087,21 +3122,19 @@ RULES:
                               <div className="ai-reco-top">
                                 <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
                                 <div style={{display:"flex",alignItems:"center",gap:8}}>
-                                  {reco._dist!=null&&!reco.outsideRadius&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <div className="ai-reco-rank">#{i+1}</div>
-                                  {(()=>{
-                                    const myMem = memories.find(mm => mm.name.toLowerCase()===reco.name.toLowerCase());
-                                    const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===reco.name.toLowerCase());
-                                    return (
-                                      <>
-                                        {friendsHave.length>0&&<FriendsBadge friends={friendsHave.map(f=>f.friendName)} friendsData={friendsHave} onViewFriend={(name,fMem)=>{const mem=fMem||friendsHave.find(x=>x.friendName===name); if(mem)setFriendMemoryModal({memory:mem,friendName:name});}} onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} COLORS={COLORS} t={t}/>}
-                                        {myMem
-                                          ? <button onClick={()=>setEditMemory(myMem)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>
-                                          : <button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
-                                      </>
-                                    );
-                                  })()}
+                                  <CardActions
+                                    distance={!reco.outsideRadius ? reco._dist : null}
+                                    friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===reco.name.toLowerCase())}
+                                    myMem={memories.find(mm => mm.name.toLowerCase()===reco.name.toLowerCase())}
+                                    onEdit={setEditMemory}
+                                    onAdd={()=>addRecoToCarnet(reco)}
+                                    COLORS={COLORS}
+                                    t={t}
+                                    setFriendMemoryModal={setFriendMemoryModal}
+                                    addFriendToCarnet={addFriendToCarnet}
+                                  />
                                 </div>
                               </div>
                               <div className="ai-reco-meta">
@@ -3153,20 +3186,18 @@ RULES:
                           <div className="ai-reco-header">
                             <div className="ai-reco-top">
                               <div className="ai-reco-name">{TYPE_ICONS[recoType]} {p.name}</div>
-                              <div style={{display:"flex",alignItems:"center",gap:6}}>
-                                {p._dist!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
-                                {(()=>{
-                                  const myMem = memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase());
-                                  const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase());
-                                  return (
-                                    <>
-                                      {friendsHave.length>0&&<FriendsBadge friends={friendsHave.map(f=>f.friendName)} friendsData={friendsHave} onViewFriend={(name,fMem)=>{const mem=fMem||friendsHave.find(x=>x.friendName===name); if(mem)setFriendMemoryModal({memory:mem,friendName:name});}} onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} COLORS={COLORS} t={t}/>}
-                                      {myMem
-                                        ? <button onClick={()=>setEditMemory(myMem)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>
-                                        : <button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>}
-                                    </>
-                                  );
-                                })()}
+                              <CardActions
+                                distance={p._dist}
+                                friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase())}
+                                myMem={memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase())}
+                                onEdit={setEditMemory}
+                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}
+                                COLORS={COLORS}
+                                t={t}
+                                setFriendMemoryModal={setFriendMemoryModal}
+                                addFriendToCarnet={addFriendToCarnet}
+                              />
+                            </div>
                               </div>
                             </div>
                             <div className="ai-reco-meta">
