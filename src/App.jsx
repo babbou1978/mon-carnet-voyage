@@ -495,7 +495,7 @@ const getCSS = (COLORS) => `
   .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag-pill { padding: 5px 10px; border-radius: 20px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: 1px solid ${COLORS.border}; background: ${COLORS.tag}; color: ${COLORS.muted}; }
   .tag-pill.selected-like { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
-  .tag-pill.selected-dislike { background: #3a1a1a; border-color: #8b3a3a44; color: #a06060; }
+  .tag-pill.selected-dislike { background: ${COLORS.dislikeBg}; border-color: ${COLORS.dislike}66; color: #a06060; }
   .autocomplete-wrapper { position: relative; }
   .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; z-index: 50; background: ${COLORS.card}; border: 1px solid ${COLORS.accent}44; border-radius: 8px; margin-top: 4px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
   .autocomplete-item { padding: 11px 14px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid ${COLORS.border}; }
@@ -2041,7 +2041,7 @@ function TravelAgent() {
       setDuplicateAlert({ existing: duplicate, newForm: form });
       return;
     }
-    const { isMine:_a, friendName:_b, distanceKm:_c, _lat, _lng, friendsData:_d, friendsWhoHave:_e, profiles:_f, user_id:_g, id:_h, ts:_ts, ...cleanForm } = form;
+    const { isMine:_a, friendName:_b, distanceKm:_c, _lat, _lng, friendsData:_d, friendsWhoHave:_e, profiles:_f, user_id:_g, id:_h, ts:_ts, openNow:_on, openingHours:_oh, googleRating:_gr, ...cleanForm } = form;
     const entry = { ...cleanForm, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); setFormKey(k=>k+1); }
@@ -2049,7 +2049,7 @@ function TravelAgent() {
 
   const handleUpdate = async (form) => {
     // Clean form - only send DB fields
-    const { isMine, friendName, distanceKm, _lat, _lng, friendsData, friendsWhoHave, ...cleanForm } = form;
+    const { isMine, friendName, distanceKm, _lat, _lng, friendsData, friendsWhoHave, openNow, openingHours, googleRating, cuisine: _cu, profiles, ...cleanForm } = form;
     const { error } = await supabase.from('memories').update(cleanForm).eq('id', editMemory.id).eq('user_id', userId);
     if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m)); setEditMemory(null); showToast(t.toastUpdated); }
     else { console.error('Update error:', error); showToast('❌ ' + error.message); }
