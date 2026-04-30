@@ -3198,8 +3198,6 @@ RULES:
                                 addFriendToCarnet={addFriendToCarnet}
                               />
                             </div>
-                              </div>
-                            </div>
                             <div className="ai-reco-meta">
                               {p.cuisine&&<span className="badge">{p.cuisine.toUpperCase()}</span>}
                               {p.rating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
