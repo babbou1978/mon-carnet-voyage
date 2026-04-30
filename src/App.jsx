@@ -1552,8 +1552,8 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
     if (open) { setOpen(false); return; }
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
-      // Find the parent memory-card for left alignment
-      let cardEl = badgeRef.current.closest(".memory-card");
+      // Find the parent card (memory-card or ai-reco-card) for left alignment
+      let cardEl = badgeRef.current.closest(".memory-card") || badgeRef.current.closest(".ai-reco-card");
       const cardLeft = cardEl ? cardEl.getBoundingClientRect().left : rect.left;
       setDropPos({ top: rect.bottom + 6, left: cardLeft + 12 });
     }
@@ -1633,6 +1633,8 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           {m.distanceKm!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{m.distanceKm>=1?(m.distanceKm).toFixed(1)+"km":Math.round(m.distanceKm*1000)+"m"}</span>}
           {(m.friendsWhoHave?.length>0)&&<FriendsBadge friends={m.friendsWhoHave} friendsData={m.friendsData||[]} onViewFriend={onViewFriend} onSaveFriend={onSaveFriend} COLORS={COLORS} t={t}/>}
           {!isMine&&onSaveFriend&&<button onClick={()=>onSaveFriend(m)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
+          {isMine&&<button onClick={()=>onEdit(m)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>}
+          {isMine&&onDeleteRequest&&<button onClick={()=>onDeleteRequest(m.id, m.name)} title="Delete" style={{background:COLORS.card,border:`1px solid ${COLORS.dislike}66`,color:"#a06060",borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>}
         </div>
       </div>
       <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
@@ -1655,10 +1657,6 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       {m.dislike&&<div className="memory-dislike">« {m.dislike} »</div>}
       <div className="memory-footer">
         <span className="memory-date">{formatDate(m.ts)}</span>
-        {isMine&&<div className="memory-actions">
-          <button className="edit-btn" onClick={()=>onEdit(m)}>{t.editBtn||"✏️ Edit"}</button>
-          <button className="del-btn" onClick={()=>onDeleteRequest(m.id, m.name)}>✕</button>
-        </div>}
       </div>
     </div>
   );
@@ -3093,12 +3091,14 @@ RULES:
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <div className="ai-reco-rank">#{i+1}</div>
                                   {(()=>{
-                                    const inMine = memories.some(mm => mm.name.toLowerCase()===reco.name.toLowerCase());
+                                    const myMem = memories.find(mm => mm.name.toLowerCase()===reco.name.toLowerCase());
                                     const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===reco.name.toLowerCase());
                                     return (
                                       <>
                                         {friendsHave.length>0&&<FriendsBadge friends={friendsHave.map(f=>f.friendName)} friendsData={friendsHave} onViewFriend={(name,fMem)=>{const mem=fMem||friendsHave.find(x=>x.friendName===name); if(mem)setFriendMemoryModal({memory:mem,friendName:name});}} onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} COLORS={COLORS} t={t}/>}
-                                        {!inMine&&<button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
+                                        {myMem
+                                          ? <button onClick={()=>setEditMemory(myMem)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>
+                                          : <button onClick={()=>addRecoToCarnet(reco)} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
                                       </>
                                     );
                                   })()}
@@ -3156,12 +3156,14 @@ RULES:
                               <div style={{display:"flex",alignItems:"center",gap:6}}>
                                 {p._dist!=null&&<span style={{fontSize:11,color:COLORS.muted,background:`${COLORS.accent}15`,border:`1px solid ${COLORS.accent}33`,borderRadius:20,padding:"2px 8px",whiteSpace:"nowrap",fontWeight:600}}>{p._dist>=1000?`${(p._dist/1000).toFixed(1)}km`:`${Math.round(p._dist)}m`}</span>}
                                 {(()=>{
-                                  const inMine = memories.some(mm => mm.name.toLowerCase()===p.name.toLowerCase());
+                                  const myMem = memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase());
                                   const friendsHave = friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase());
                                   return (
                                     <>
                                       {friendsHave.length>0&&<FriendsBadge friends={friendsHave.map(f=>f.friendName)} friendsData={friendsHave} onViewFriend={(name,fMem)=>{const mem=fMem||friendsHave.find(x=>x.friendName===name); if(mem)setFriendMemoryModal({memory:mem,friendName:name});}} onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} COLORS={COLORS} t={t}/>}
-                                      {!inMine&&<button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>}
+                                      {myMem
+                                        ? <button onClick={()=>setEditMemory(myMem)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>
+                                        : <button onClick={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})} title={t.recoAddFav} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>+</button>}
                                     </>
                                   );
                                 })()}
