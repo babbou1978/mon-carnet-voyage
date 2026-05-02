@@ -1986,33 +1986,48 @@ function TravelAgent() {
         if (dups.length > 0) setDuplicatesFound(dups);
       }
 
-      // Auto-enrich memories missing google_place_id/address/cuisine - once per day max
+      // Auto-enrich memories missing google_place_id/address/cuisine - one-time per place
       if (mems && mems.length > 0) {
-        const lastEnrich = localStorage.getItem("outsy_enriched");
-        const today = new Date().toDateString();
-        const toEnrich = mems.filter(m => !m.google_place_id || !m.address || !m.cuisine);
-        if (toEnrich.length > 0 && lastEnrich !== today) {
-          localStorage.setItem("outsy_enriched", today);
+        const triedSet = new Set(JSON.parse(localStorage.getItem("outsy_enrich_tried") || "[]"));
+        const toEnrich = mems.filter(m =>
+          (!m.google_place_id || !m.address || !m.cuisine) &&
+          m.google_place_id !== "NOT_FOUND" &&
+          !triedSet.has(`${m.id}`)
+        );
+        if (toEnrich.length > 0) {
           (async () => {
             try {
-              // Batch verify - up to 30 places at once
+              // Batch verify - up to 30 places at once. Build query with city/country for better matching.
               const batch = toEnrich.slice(0, 30);
               const r = await fetch('/api/places', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({
                   action: 'verify',
-                  places: batch.map(m => ({ name: m.name, address: m.address||m.city||'', googlePlaceId: m.google_place_id||'' })),
+                  places: batch.map(m => ({
+                    name: m.name,
+                    address: [m.address, m.city, m.country].filter(Boolean).join(', '),
+                    googlePlaceId: (m.google_place_id&&m.google_place_id!=="NOT_FOUND")?m.google_place_id:''
+                  })),
                   lang: pref?.language || 'en'
                 })
               });
               const data = await r.json();
               const verifyMap = {};
               (data.results||[]).forEach(v => { verifyMap[v.name.toLowerCase()] = v; });
+              const newlyTried = new Set(triedSet);
               for (const m of batch) {
                 const v = verifyMap[m.name.toLowerCase()];
-                if (!v) continue;
+                newlyTried.add(`${m.id}`); // mark as tried regardless of success
+                if (!v || !v.placeId) {
+                  // No result from Google - mark NOT_FOUND so we don't retry
+                  if (!m.google_place_id) {
+                    await supabase.from('memories').update({google_place_id:"NOT_FOUND"}).eq('id',m.id).eq('user_id',userId);
+                    setMemories(prev => prev.map(x => x.id===m.id ? {...x,google_place_id:"NOT_FOUND"} : x));
+                  }
+                  continue;
+                }
                 const updates = {};
-                if (!m.google_place_id && v.placeId) updates.google_place_id = v.placeId;
+                if (!m.google_place_id) updates.google_place_id = v.placeId;
                 if (!m.address && v.address) updates.address = v.address;
                 if (!m.cuisine && v.cuisine) updates.cuisine = v.cuisine;
                 if (Object.keys(updates).length > 0) {
@@ -2020,6 +2035,7 @@ function TravelAgent() {
                   setMemories(prev => prev.map(x => x.id===m.id ? {...x,...updates} : x));
                 }
               }
+              localStorage.setItem("outsy_enrich_tried", JSON.stringify([...newlyTried]));
             } catch(e) { console.error('Enrich error:', e); }
           })();
         }
@@ -2350,9 +2366,9 @@ function TravelAgent() {
         setHeartMemories(prev=>prev.map(m=>{
           const v = verifyMap[m.name.toLowerCase()];
           if (!v) return m;
-          // Build update payload for missing fields
+          // Build update payload for missing fields (treat NOT_FOUND as missing too)
           const updates = {};
-          if (v.placeId && !m.google_place_id) updates.google_place_id = v.placeId;
+          if (v.placeId && (!m.google_place_id || m.google_place_id==="NOT_FOUND")) updates.google_place_id = v.placeId;
           if (v.address && !m.address) updates.address = v.address;
           if (v.cuisine && !m.cuisine) updates.cuisine = v.cuisine;
           if (Object.keys(updates).length > 0 && m.user_id===userId) {
@@ -3336,30 +3352,62 @@ RULES:
             await supabase.from('memories').delete().in('id', toDelete).eq('user_id', userId);
             setMemories(prev => prev.filter(m => !toDelete.includes(m.id)));
           }
-          // Move to next group or close
           setDuplicatesFound(d => d.length > 1 ? d.slice(1) : null);
         };
         const handleSkip = () => setDuplicatesFound(d => d.length > 1 ? d.slice(1) : null);
+        // Compute which fields differ between the duplicates
+        const fields = ['rating','price','address','city','country','cuisine','type','kidsf','google_place_id'];
+        const diffFields = new Set();
+        fields.forEach(f => {
+          const values = currentGroup.map(m => m[f]||"");
+          if (new Set(values.map(v=>String(v))).size > 1) diffFields.add(f);
+        });
+        // Likes/dislikes differ?
+        const likeArrs = currentGroup.map(m => JSON.stringify((m.likeTags||[]).slice().sort()));
+        if (new Set(likeArrs).size > 1) diffFields.add('likeTags');
+        const dislikeArrs = currentGroup.map(m => JSON.stringify((m.dislikeTags||[]).slice().sort()));
+        if (new Set(dislikeArrs).size > 1) diffFields.add('dislikeTags');
+        // Why/dislike text differs?
+        if (new Set(currentGroup.map(m => m.why||"")).size > 1) diffFields.add('why');
+        if (new Set(currentGroup.map(m => m.dislike||"")).size > 1) diffFields.add('dislike');
+
+        const diffStyle = {color:COLORS.accent,fontWeight:700,background:`${COLORS.accent}15`,padding:"1px 5px",borderRadius:4};
+        const sameStyle = {color:COLORS.muted};
+
         return (
           <div className="alert-overlay">
-            <div className="alert-box" style={{maxWidth:520}}>
+            <div className="alert-box" style={{maxWidth:560}}>
               <div className="alert-title">⚠️ Doublons détectés</div>
               <div className="alert-text">
-                Vous avez {currentGroup.length} entrées pour <strong>"{currentGroup[0].name}"</strong>. Lequel voulez-vous garder ?
+                {currentGroup.length} entrées pour <strong>"{currentGroup[0].name}"</strong>. Les <span style={{color:COLORS.accent,fontWeight:700}}>champs en doré</span> diffèrent — choisissez la version à garder.
                 {duplicatesFound.length > 1 && <span style={{display:"block",fontSize:11,color:COLORS.muted,marginTop:6}}>({duplicatesFound.length - 1} autre{duplicatesFound.length > 2 ? "s" : ""} groupe{duplicatesFound.length > 2 ? "s" : ""} après celui-ci)</span>}
               </div>
-              <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:8,maxHeight:300,overflowY:"auto"}}>
+              <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8,maxHeight:380,overflowY:"auto"}}>
                 {currentGroup.map(m => (
                   <button key={m.id} onClick={()=>handleKeep(m.id)} style={{
-                    background:COLORS.card, border:`1px solid ${COLORS.border}`, borderRadius:10, padding:"10px 12px",
+                    background:COLORS.card, border:`1px solid ${COLORS.border}`, borderRadius:10, padding:"12px 14px",
                     textAlign:"left", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", color:COLORS.text
                   }}>
-                    <div style={{fontWeight:600,fontSize:13}}>{m.name}</div>
-                    <div style={{fontSize:11,color:COLORS.muted,marginTop:4}}>
-                      {m.rating}★ · {m.price||"—"} · {m.address||m.city||"sans adresse"} · {m.cuisine||m.type||"—"}
-                      {m.ts && <> · {new Date(m.ts).toLocaleDateString()}</>}
+                    <div style={{fontWeight:600,fontSize:13,marginBottom:6}}>{m.name}</div>
+                    <div style={{fontSize:11,display:"flex",flexWrap:"wrap",gap:6,alignItems:"center"}}>
+                      <span style={diffFields.has('rating')?diffStyle:sameStyle}>{m.rating||0}★</span>
+                      <span style={diffFields.has('price')?diffStyle:sameStyle}>{m.price||"—"}</span>
+                      {diffFields.has('cuisine') ? <span style={diffStyle}>{m.cuisine||"sans cuisine"}</span> : (m.cuisine && <span style={sameStyle}>{m.cuisine}</span>)}
+                      {diffFields.has('type') ? <span style={diffStyle}>{m.type||"—"}</span> : <span style={sameStyle}>{m.type||"—"}</span>}
+                      {m.kidsf && <span style={diffFields.has('kidsf')?diffStyle:sameStyle}>👶</span>}
                     </div>
-                    {(m.likeTags?.length>0)&&<div style={{fontSize:10,color:COLORS.accent,marginTop:3}}>👍 {m.likeTags.join(", ")}</div>}
+                    <div style={{fontSize:11,marginTop:5,...((diffFields.has('address')||diffFields.has('city')||diffFields.has('country'))?diffStyle:sameStyle)}}>
+                      📍 {m.address||"sans adresse"}{m.city?", "+m.city:""}{m.country?", "+m.country:""}
+                    </div>
+                    {diffFields.has('google_place_id') && (
+                      <div style={{fontSize:10,color:m.google_place_id?"#5a9e6a":"#d4869b",marginTop:4}}>
+                        {m.google_place_id ? "✓ Lié à Google" : "⚠ Pas lié à Google"}
+                      </div>
+                    )}
+                    {(m.likeTags?.length>0)&&<div style={{fontSize:10,marginTop:4,...(diffFields.has('likeTags')?diffStyle:{color:COLORS.accent})}}>👍 {m.likeTags.join(", ")}</div>}
+                    {(m.dislikeTags?.length>0)&&<div style={{fontSize:10,marginTop:3,color:"#d4869b",...(diffFields.has('dislikeTags')?{...diffStyle,color:"#d4869b",background:"rgba(212,134,155,0.15)"}:{})}}>👎 {m.dislikeTags.join(", ")}</div>}
+                    {m.why && <div style={{fontSize:11,marginTop:4,fontStyle:"italic",...(diffFields.has('why')?diffStyle:sameStyle)}}>« {m.why} »</div>}
+                    {m.ts && <div style={{fontSize:10,color:COLORS.muted,marginTop:5}}>Créé le {new Date(m.ts).toLocaleDateString()}</div>}
                   </button>
                 ))}
               </div>
