@@ -495,7 +495,7 @@ const getCSS = (COLORS) => `
   .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag-pill { padding: 5px 10px; border-radius: 20px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: 1px solid ${COLORS.border}; background: ${COLORS.tag}; color: ${COLORS.muted}; }
   .tag-pill.selected-like { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
-  .tag-pill.selected-dislike { background: ${COLORS.dislikeBg}; border-color: ${COLORS.dislike}66; color: #a06060; }
+  .tag-pill.selected-dislike { background: ${COLORS.dislikeBg}; border-color: ${COLORS.dislike}66; color: #d4869b; }
   .autocomplete-wrapper { position: relative; }
   .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; z-index: 50; background: ${COLORS.card}; border: 1px solid ${COLORS.accent}44; border-radius: 8px; margin-top: 4px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
   .autocomplete-item { padding: 11px 14px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid ${COLORS.border}; }
@@ -547,9 +547,9 @@ const getCSS = (COLORS) => `
   .memory-location { font-size: 12px; color: ${COLORS.muted}; margin-bottom: 6px; }
   .memory-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
   .memory-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: ${COLORS.accent}12; color: ${COLORS.accent}; }
-  .memory-tag.bad { background: ${COLORS.accent}12; color: #a06060; }
+  .memory-tag.bad { background: ${COLORS.dislikeBg}; color: #d4869b; }
   .memory-why { font-size: 12px; color: #b8ad98; line-height: 1.5; font-style: italic; margin-top: 4px; }
-  .memory-dislike { font-size: 12px; color: #a06060; line-height: 1.4; margin-top: 4px; font-style: italic; }
+  .memory-dislike { font-size: 12px; color: #d4869b; line-height: 1.4; margin-top: 4px; font-style: italic; }
   .memory-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
   .memory-date { font-size: 10px; color: ${COLORS.muted}; }
   .memory-actions { display: flex; gap: 4px; }
@@ -573,7 +573,7 @@ const getCSS = (COLORS) => `
   .prefs-section { display: flex; flex-direction: column; gap: 16px; }
   .prefs-card { background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
   .prefs-card-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: ${COLORS.accent}; }
-  .prefs-card-title.bad { color: #c07070; }
+  .prefs-card-title.bad { color: #d4869b; }
   .prefs-save-btn { background: none; border: 1px solid ${COLORS.accent}; color: ${COLORS.accent}; border-radius: 8px; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .prefs-save-btn:hover { background: ${COLORS.accent}22; }
   .prefs-saved { font-size: 11px; color: ${COLORS.accent}; text-align: center; }
@@ -588,7 +588,7 @@ const getCSS = (COLORS) => `
   .friend-action-btn { padding: 6px 12px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
   .friend-action-btn.add { background: ${COLORS.accent}; color: ${COLORS.bg}; }
   .friend-action-btn.accept { background: #2a4a2e; color: #7abf8a; }
-  .friend-action-btn.decline { background: ${COLORS.dislikeBg}; color: #a06060; margin-left: 4px; }
+  .friend-action-btn.decline { background: ${COLORS.dislikeBg}; color: #d4869b; margin-left: 4px; }
   .friend-action-btn.pending { background: ${COLORS.tag}; color: ${COLORS.muted}; cursor: default; }
   .friend-action-btn.view { background: none; border: 1px solid ${COLORS.accent}44; color: ${COLORS.accent}; }
   .friends-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: ${COLORS.accent}; }
@@ -654,7 +654,7 @@ const getCSS = (COLORS) => `
   .ai-reco-address { font-size: 12px; color: ${COLORS.muted}; }
   .ai-reco-why { font-size: 13px; color: #b8ad98; line-height: 1.5; font-style: italic; }
   .ai-reco-tip { font-size: 12px; color: ${COLORS.accent}; line-height: 1.4; }
-  .ai-reco-warning { font-size: 12px; color: #a06060; line-height: 1.4; }
+  .ai-reco-warning { font-size: 12px; color: #d4869b; line-height: 1.4; }
   .global-map-container { height: 240px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid ${COLORS.border}; position: relative; }
   .thinking { display: flex; gap: 5px; justify-content: center; padding: 20px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: ${COLORS.accent}; animation: bounce 1.2s infinite; }
@@ -1272,7 +1272,7 @@ const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexic
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
 
-function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate }) {
+function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate, onDelete }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
   const [confirmClose, setConfirmClose] = useState(false);
   const initialRef = useRef(JSON.stringify(initial||DEFAULT_FORM));
@@ -1317,9 +1317,10 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
         <div className="field"><label>{t?.addLikedSelect||"Select"}</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
         <div className="field"><label>{t?.addLikedPrecise||"Details"}</label><textarea placeholder="..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
         <div className="section-divider"><span>{t?.addDisliked||"Disliked"}</span></div>
-        <div className="field"><label style={{color:"#a06060"}}>{t?.addDislikedSelect||"Select"}</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
-        <div className="field"><label style={{color:"#a06060"}}>{t?.addDislikedPrecise||"Details"}</label><textarea placeholder="..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
-        <div style={{display:"flex",gap:8,marginTop:4}}>
+        <div className="field"><label style={{color:"#d4869b"}}>{t?.addDislikedSelect||"Select"}</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
+        <div className="field"><label style={{color:"#d4869b"}}>{t?.addDislikedPrecise||"Details"}</label><textarea placeholder="..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
+        <div style={{display:"flex",gap:8,marginTop:4,alignItems:"center"}}>
+          {isEdit&&onDelete&&<button onClick={onDelete} title={t?.deleteTitle||"Delete"} style={{background:COLORS.dislikeBg,border:`1px solid ${COLORS.dislike}66`,color:"#d4869b",borderRadius:"50%",width:38,height:38,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",flexShrink:0}}>🗑️</button>}
           {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>{t?.duplicateCancel||"Cancel"}</button>}
           <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>onSave(form)} disabled={!form.name.trim()}>{isEdit?(t?.addUpdate||"Update"):(t?.addSave||"Save")}</button>
         </div>
@@ -1543,9 +1544,14 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
 
   useEffect(() => {
     if (!open) return;
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    const clickHandler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const scrollHandler = () => setOpen(false);
+    document.addEventListener("mousedown", clickHandler);
+    window.addEventListener("scroll", scrollHandler, true);
+    return () => {
+      document.removeEventListener("mousedown", clickHandler);
+      window.removeEventListener("scroll", scrollHandler, true);
+    };
   }, [open]);
 
   const handleOpen = () => {
@@ -2086,7 +2092,12 @@ function TravelAgent() {
     // Clean form - only send DB fields
     const { isMine, friendName, distanceKm, _lat, _lng, friendsData, friendsWhoHave, openNow, openingHours, googleRating, cuisine: _cu, profiles, ...cleanForm } = form;
     const { error } = await supabase.from('memories').update(cleanForm).eq('id', editMemory.id).eq('user_id', userId);
-    if (!error) { setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m)); setEditMemory(null); showToast(t.toastUpdated); }
+    if (!error) {
+      setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m));
+      // Sync heartMemories so Reco view updates immediately
+      setHeartMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m));
+      setEditMemory(null); showToast(t.toastUpdated);
+    }
     else { console.error('Update error:', error); showToast('❌ ' + error.message); }
   };
 
@@ -3024,8 +3035,8 @@ RULES:
 
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">{t.profileDislikes}</div>
-                <div className="field"><label style={{color:"#a06060"}}>{t.profileDislikesSelect}</label><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
-                <div className="field"><label style={{color:"#a06060"}}>{t.profileDislikesPrecise}</label><textarea placeholder="..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
+                <div className="field"><label style={{color:"#d4869b"}}>{t.profileDislikesSelect}</label><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
+                <div className="field"><label style={{color:"#d4869b"}}>{t.profileDislikesPrecise}</label><textarea placeholder="..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileNotes}</div>
@@ -3228,7 +3239,7 @@ RULES:
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{t.editTitle} {editMemory.name}</div>
-            <MemoryForm initial={editMemory} COLORS={COLORS} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang}/>
+            <MemoryForm initial={editMemory} COLORS={COLORS} onSave={handleUpdate} onCancel={()=>setEditMemory(null)} isEdit={true} t={t} lang={lang} onDelete={()=>{setDeleteConfirm({id:editMemory.id,name:editMemory.name});setEditMemory(null);}}/>
           </div>
         </div>
       )}
