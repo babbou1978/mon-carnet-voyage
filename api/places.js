@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
     } else if (action === 'details') {
       const r = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=${userLang}`, {
-        headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'displayName,formattedAddress,addressComponents,priceLevel,types,rating,location' },
+        headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,rating,location' },
       });
       return res.status(200).json(await r.json());
 

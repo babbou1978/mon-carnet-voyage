@@ -837,7 +837,8 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       let type = "Restaurant";
       for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type=GOOGLE_TYPE_MAP[gt]; break; } }
       const price = PRICE_MAP[details.priceLevel]||"€€";
-      // Extract cuisine from Google types
+      // Extract cuisine from Google types (primary first, then secondary)
+      const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
       const cuisineKeywords = {
         italian:"Italian", japanese:"Japanese", chinese:"Chinese", french:"French",
         indian:"Indian", thai:"Thai", mexican:"Mexican", american:"American",
@@ -845,12 +846,21 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
         british:"British", korean:"Korean", vietnamese:"Vietnamese",
         turkish:"Turkish", lebanese:"Lebanese", moroccan:"Moroccan",
         sushi:"Sushi", pizza:"Pizza", burger:"Burger", steak:"Steakhouse",
-        seafood:"Seafood", vegetarian:"Vegetarian", bakery:"Bakery",
+        seafood:"Seafood", vegetarian:"Vegetarian", vegan:"Vegan", bakery:"Bakery",
         wine_bar:"Wine bar", cocktail:"Cocktail bar", cafe:"Café",
-        ramen:"Japanese", noodle:"Asian", brasserie:"Brasserie", bistro:"Bistro"
+        ramen:"Japanese", noodle:"Asian", brasserie:"Brasserie", bistro:"Bistro",
+        kosher:"Kosher", halal:"Halal", israeli:"Israeli", kebab:"Kebab",
+        tapas:"Tapas", barbecue:"Barbecue", bbq:"Barbecue", pasta:"Italian",
+        asian_fusion:"Asian Fusion", fast_food:"Fast Food", sandwich:"Sandwich",
+        dessert:"Dessert", ice_cream:"Ice Cream", breakfast:"Breakfast", brunch:"Brunch",
+        african:"African", ethiopian:"Ethiopian", peruvian:"Peruvian",
+        brazilian:"Brazilian", argentinian:"Argentinian", german:"German",
+        portuguese:"Portuguese", irish:"Irish", fusion:"Fusion", tex_mex:"Tex-Mex",
+        latin:"Latin", caribbean:"Caribbean", cajun:"Cajun", dim_sum:"Dim Sum",
+        pho:"Vietnamese", curry:"Curry", tacos:"Mexican"
       };
       let cuisine = "";
-      for (const gt of googleTypes) {
+      for (const gt of allTypes) {
         const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
         if (key) { cuisine = cuisineKeywords[key]; break; }
       }
