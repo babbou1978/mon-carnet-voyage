@@ -864,6 +864,18 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
         const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
         if (key) { cuisine = cuisineKeywords[key]; break; }
       }
+      // Fallback: use Google's localized display name (e.g. "Restaurant casher", "Restaurant tunisien")
+      if (!cuisine && details.primaryTypeDisplayName) {
+        const display = details.primaryTypeDisplayName?.text || details.primaryTypeDisplayName;
+        if (typeof display === 'string') {
+          const lower = display.toLowerCase().trim();
+          const generic = ['restaurant','bar','café','cafe','hotel','lodging','attraction','museum','food'];
+          if (!generic.includes(lower)) {
+            cuisine = display.replace(/^restaurant\s+/i,'').replace(/\s+restaurant$/i,'').trim();
+            cuisine = cuisine.charAt(0).toUpperCase() + cuisine.slice(1);
+          }
+        }
+      }
       const googlePlaceId = placeId || "";
       const place = { name: mainText, city, country, type, price, address: streetAddress, cuisine, googlePlaceId };
       setSelectedPlace(place); onPlaceSelected(place);

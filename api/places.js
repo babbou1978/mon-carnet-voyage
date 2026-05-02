@@ -7,10 +7,10 @@ export default async function handler(req, res) {
   const lngF = parseFloat(lng);
   const key = process.env.GOOGLE_PLACES_KEY;
 
-  const FIELD_MASK_VERIFY = 'places.displayName,places.formattedAddress,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.primaryType,places.priceLevel';
+  const FIELD_MASK_VERIFY = 'places.displayName,places.formattedAddress,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.primaryType,places.primaryTypeDisplayName,places.priceLevel';
   const FIELD_MASK_DETAILS_FULL = 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,rating,location,currentOpeningHours,regularOpeningHours,businessStatus';
 
-  const extractCuisine = (types, primaryType) => {
+  const extractCuisine = (types, primaryType, primaryTypeDisplayName) => {
     const cuisineTypes = [
       'italian','japanese','chinese','french','indian','thai','mexican',
       'american','greek','spanish','mediterranean','british','korean','vietnamese','turkish',
@@ -23,12 +23,29 @@ export default async function handler(req, res) {
     // Try primaryType first (most specific), then fall back to types array
     const allTypes = [primaryType, ...(types||[])].filter(Boolean);
     const found = allTypes.find(t => cuisineTypes.some(c => t.toLowerCase().includes(c)));
-    if (!found) return null;
-    // Strip "_restaurant" suffix and beautify
-    return found
-      .replace(/_restaurant$/i, '')
-      .replace(/_/g,' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+    if (found) {
+      return found
+        .replace(/_restaurant$/i, '')
+        .replace(/_/g,' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+    // Fallback: use Google's display name (localized) if it's not just "Restaurant"
+    // e.g. "Restaurant casher", "Restaurant tunisien", "Italian restaurant"
+    const display = primaryTypeDisplayName?.text || primaryTypeDisplayName;
+    if (display && typeof display === 'string') {
+      const lower = display.toLowerCase().trim();
+      // Skip generic ones
+      const generic = ['restaurant','bar','café','cafe','hotel','lodging','attraction','museum','food'];
+      if (!generic.includes(lower)) {
+        // Strip "Restaurant " prefix or " restaurant" suffix to get just the cuisine
+        const cleaned = display
+          .replace(/^restaurant\s+/i, '')
+          .replace(/\s+restaurant$/i, '')
+          .trim();
+        return cleaned.replace(/\b\w/g, c => c.toUpperCase());
+      }
+    }
+    return null;
   };
 
   const enrichFromPlace = (place, nameToVerify) => {
@@ -49,7 +66,7 @@ export default async function handler(req, res) {
       openNow: place?.currentOpeningHours?.openNow ?? place?.regularOpeningHours?.openNow ?? null,
       openingHours: place?.currentOpeningHours?.weekdayDescriptions || place?.regularOpeningHours?.weekdayDescriptions || null,
       googleRating: place?.rating || null,
-      cuisine: extractCuisine(place?.types, place?.primaryType)
+      cuisine: extractCuisine(place?.types, place?.primaryType, place?.primaryTypeDisplayName)
     };
   };
 
@@ -64,7 +81,7 @@ export default async function handler(req, res) {
 
     } else if (action === 'details') {
       const r = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=${userLang}`, {
-        headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,rating,location' },
+        headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,primaryTypeDisplayName,rating,location' },
       });
       return res.status(200).json(await r.json());
 
@@ -117,7 +134,7 @@ export default async function handler(req, res) {
         "Activité": ["museum"]
       };
       const types = typeGroups[type] || ["restaurant"];
-      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
+      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
 
       // Fetch all types in parallel
       const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
@@ -140,7 +157,7 @@ export default async function handler(req, res) {
         (resp.places||[]).forEach(p => {
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
-            p.cuisine = extractCuisine(p.types, p.primaryType);
+            p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
             seen.set(key, p);
           }
         });
