@@ -1908,6 +1908,9 @@ function TravelAgent() {
   const [editMemory, setEditMemory] = useState(null);
   const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [formKey, setFormKey] = useState(0);
+  useEffect(() => {
+    if (tab === "add" && formKey > 0) window.scrollTo({top:0, behavior:"smooth"});
+  }, [formKey]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [duplicatesFound, setDuplicatesFound] = useState(null);
   const [friendMemoryModal, setFriendMemoryModal] = useState(null);
