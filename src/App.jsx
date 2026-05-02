@@ -12,6 +12,16 @@ const getTypeIcon = (type) => {
   return TYPE_ICONS[first] || "🍽️";
 };
 const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Café", coffee_shop: "Café", tea_house: "Café", bakery: "Café", bar: "Bar", night_club: "Bar", wine_bar: "Bar", cocktail_bar: "Bar", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", historical_landmark: "Destination", national_park: "Destination", museum: "Activité", art_gallery: "Activité", park: "Activité", amusement_park: "Activité", performing_arts_theater: "Activité", food: "Restaurant" };
+
+const ONBOARD_TOUR = {
+  fr:{onboardWelcome:"Bienvenue sur Outsy AI !",onboardWelcomeSub:"Configurons votre profil en 30 secondes.",onboardNext:"Suivant →",onboardBack:"Retour",onboardPrefsTitle:"🎯 Vos préférences",onboardPrefsSub:"Sélectionnez ce que vous aimez (facultatif)",onboardFinish:"C'est parti ! 🚀",onboardDone:"✓ Profil créé !",tourRecoDesc:"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées.",tourFavDesc:"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note.",tourAddDesc:"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion.",tourFriendsDesc:"Partagez vos découvertes entre amis. Leurs favoris enrichissent vos recommandations.",tourProfileDesc:"Personnalisez vos préférences pour des recommandations sur mesure.",tourNext:"Suivant →",tourStart:"C'est parti ! 🎉",tourSkip:"Passer le tour"},
+  en:{onboardWelcome:"Welcome to Outsy AI!",onboardWelcomeSub:"Let's set up your profile in 30 seconds.",onboardNext:"Next →",onboardBack:"Back",onboardPrefsTitle:"🎯 Your preferences",onboardPrefsSub:"Select what you love (optional)",onboardFinish:"Let's go! 🚀",onboardDone:"✓ Profile created!",tourRecoDesc:"Find the best places around you. Google popular places + personalized AI recommendations.",tourFavDesc:"All your favorites, rated and detailed. Filter by type, price, rating.",tourAddDesc:"Save a place in seconds. Integrated Google search with autocomplete.",tourFriendsDesc:"Share your discoveries with friends. Their favorites enrich your recommendations.",tourProfileDesc:"Customize your preferences for tailored recommendations.",tourNext:"Next →",tourStart:"Let's go! 🎉",tourSkip:"Skip tour"},
+  es:{onboardWelcome:"¡Bienvenido a Outsy AI!",onboardWelcomeSub:"Configuremos tu perfil en 30 segundos.",onboardNext:"Siguiente →",onboardBack:"Volver",onboardPrefsTitle:"🎯 Tus preferencias",onboardPrefsSub:"Selecciona lo que te gusta (opcional)",onboardFinish:"¡Vamos! 🚀",onboardDone:"✓ ¡Perfil creado!",tourRecoDesc:"Encuentra los mejores lugares cerca de ti. Lugares populares + recomendaciones IA.",tourFavDesc:"Todos tus favoritos, valorados y detallados.",tourAddDesc:"Guarda un lugar en segundos con búsqueda Google integrada.",tourFriendsDesc:"Comparte tus descubrimientos con amigos.",tourProfileDesc:"Personaliza tus preferencias para recomendaciones a medida.",tourNext:"Siguiente →",tourStart:"¡Vamos! 🎉",tourSkip:"Saltar tour"},
+  de:{onboardWelcome:"Willkommen bei Outsy AI!",onboardWelcomeSub:"Richte dein Profil in 30 Sekunden ein.",onboardNext:"Weiter →",onboardBack:"Zurück",onboardPrefsTitle:"🎯 Deine Vorlieben",onboardPrefsSub:"Wähle aus, was du magst (optional)",onboardFinish:"Los geht's! 🚀",onboardDone:"✓ Profil erstellt!",tourRecoDesc:"Finde die besten Orte in deiner Nähe. Google + KI-Empfehlungen.",tourFavDesc:"Alle deine Favoriten, bewertet und detailliert.",tourAddDesc:"Speichere einen Ort in Sekunden mit Google-Suche.",tourFriendsDesc:"Teile deine Entdeckungen mit Freunden.",tourProfileDesc:"Passe deine Vorlieben für maßgeschneiderte Empfehlungen an.",tourNext:"Weiter →",tourStart:"Los geht's! 🎉",tourSkip:"Tour überspringen"},
+  it:{onboardWelcome:"Benvenuto su Outsy AI!",onboardWelcomeSub:"Configuriamo il tuo profilo in 30 secondi.",onboardNext:"Avanti →",onboardBack:"Indietro",onboardPrefsTitle:"🎯 Le tue preferenze",onboardPrefsSub:"Seleziona cosa ti piace (facoltativo)",onboardFinish:"Andiamo! 🚀",onboardDone:"✓ Profilo creato!",tourRecoDesc:"Trova i migliori posti vicino a te. Luoghi popolari + raccomandazioni IA.",tourFavDesc:"Tutti i tuoi preferiti, valutati e dettagliati.",tourAddDesc:"Salva un luogo in pochi secondi con ricerca Google.",tourFriendsDesc:"Condividi le tue scoperte con gli amici.",tourProfileDesc:"Personalizza le tue preferenze per raccomandazioni su misura.",tourNext:"Avanti →",tourStart:"Andiamo! 🎉",tourSkip:"Salta il tour"},
+  pt:{onboardWelcome:"Bem-vindo ao Outsy AI!",onboardWelcomeSub:"Vamos configurar o seu perfil em 30 segundos.",onboardNext:"Seguinte →",onboardBack:"Voltar",onboardPrefsTitle:"🎯 As suas preferências",onboardPrefsSub:"Selecione o que gosta (opcional)",onboardFinish:"Vamos! 🚀",onboardDone:"✓ Perfil criado!",tourRecoDesc:"Encontre os melhores lugares perto de si. Lugares populares + recomendações IA.",tourFavDesc:"Todos os seus favoritos, avaliados e detalhados.",tourAddDesc:"Guarde um lugar em segundos com pesquisa Google.",tourFriendsDesc:"Partilhe as suas descobertas com amigos.",tourProfileDesc:"Personalize as suas preferências para recomendações à medida.",tourNext:"Seguinte →",tourStart:"Vamos! 🎉",tourSkip:"Saltar tour"},
+  nl:{onboardWelcome:"Welkom bij Outsy AI!",onboardWelcomeSub:"Stel je profiel in in 30 seconden.",onboardNext:"Volgende →",onboardBack:"Terug",onboardPrefsTitle:"🎯 Jouw voorkeuren",onboardPrefsSub:"Selecteer wat je leuk vindt (optioneel)",onboardFinish:"Laten we gaan! 🚀",onboardDone:"✓ Profiel aangemaakt!",tourRecoDesc:"Vind de beste plekken bij jou in de buurt. Google + AI-aanbevelingen.",tourFavDesc:"Al je favorieten, beoordeeld en gedetailleerd.",tourAddDesc:"Sla een plek op in seconden met Google-zoeken.",tourFriendsDesc:"Deel je ontdekkingen met vrienden.",tourProfileDesc:"Pas je voorkeuren aan voor aanbevelingen op maat.",tourNext:"Volgende →",tourStart:"Laten we gaan! 🎉",tourSkip:"Tour overslaan"},
+};
 const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
 const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
@@ -470,7 +480,9 @@ const TRANSLATIONS = {
 };
 
 function useT(language) {
-  return TRANSLATIONS[language] || TRANSLATIONS["en"];
+  const base = TRANSLATIONS[language] || TRANSLATIONS["en"];
+  const tour = ONBOARD_TOUR[language] || ONBOARD_TOUR["en"];
+  return {...base, ...tour};
 }
 
 
@@ -1951,6 +1963,10 @@ function TravelAgent() {
   }, [formKey]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [duplicatesFound, setDuplicatesFound] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [showTour, setShowTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
   const [friendMemoryModal, setFriendMemoryModal] = useState(null);
   const [closedFavoritesAlert, setClosedFavoritesAlert] = useState([]); // [{id, name}] // {memory, friendName} // {id, name}
   const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
@@ -2148,6 +2164,13 @@ function TravelAgent() {
         if (closed) { const names = closed.map(p=>p.name); setClosedPlaces(names); closedPlacesRef.current = names; }
       } catch {}
       setLoading(false);
+
+      // Trigger onboarding for first-time users
+      if (!pref && !localStorage.getItem("outsy_onboarding_done")) {
+        setShowOnboarding(true);
+      } else if (!localStorage.getItem("outsy_tour_done")) {
+        setShowTour(true);
+      }
     };
     load();
   }, [session]);
@@ -3461,6 +3484,89 @@ RULES:
           </div>
         </div>
       )}
+      {/* Onboarding — first-time user setup */}
+      {showOnboarding&&(
+        <div className="alert-overlay" style={{zIndex:600}}>
+          <div className="alert-box" style={{maxWidth:440,padding:28}}>
+            {onboardingStep===0&&(<>
+              <div style={{textAlign:"center",marginBottom:16}}>
+                <div style={{fontSize:36,marginBottom:8}}>👋</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontStyle:"italic",color:COLORS.accent}}>{t.onboardWelcome||"Bienvenue sur Outsy AI !"}</div>
+                <div style={{fontSize:13,color:COLORS.muted,marginTop:8}}>{t.onboardWelcomeSub||"Configurons votre profil en 30 secondes."}</div>
+              </div>
+              <div style={{display:"flex",gap:10}}>
+                <div className="auth-field" style={{flex:1}}><label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.profileFirstName||"Prénom"}</label><input value={prefs.firstName||profile?.first_name||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))} style={{background:COLORS.bg,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%"}}/></div>
+                <div className="auth-field" style={{flex:1}}><label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.profileLastName||"Nom"}</label><input value={prefs.lastName||profile?.last_name||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))} style={{background:COLORS.bg,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%"}}/></div>
+              </div>
+              <div style={{marginTop:12}}>
+                <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500,display:"block",marginBottom:6}}>{t.profileLanguage||"🌍 Langue"}</label>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{LANGUAGES.map(l=><button key={l.code} onClick={()=>setPrefs(p=>({...p,language:l.code}))} style={{padding:"6px 12px",borderRadius:20,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${prefs.language===l.code?COLORS.accent:COLORS.border}`,background:prefs.language===l.code?`${COLORS.accent}22`:COLORS.card,color:prefs.language===l.code?COLORS.accent:COLORS.muted,fontWeight:prefs.language===l.code?600:400}}>{l.flag} {l.label}</button>)}</div>
+              </div>
+              <button className="save-btn" style={{marginTop:16,width:"100%"}} onClick={()=>setOnboardingStep(1)} disabled={!prefs.firstName?.trim()||!prefs.lastName?.trim()}>{t.onboardNext||"Suivant →"}</button>
+            </>)}
+
+            {onboardingStep===1&&(<>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,marginBottom:4}}>{t.onboardPrefsTitle||"🎯 Vos préférences"}</div>
+              <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{t.onboardPrefsSub||"Sélectionnez ce que vous aimez (facultatif)"}</div>
+              <div style={{marginBottom:12}}>
+                <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.accent,fontWeight:500,display:"block",marginBottom:6}}>{t.profileLikesSelect||"Ce que j'aime"}</label>
+                <TagPicker options={PREFS_LOVES_BY_LANG[prefs.language||"en"]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/>
+              </div>
+              <div>
+                <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:"#d4869b",fontWeight:500,display:"block",marginBottom:6}}>{t.profileDislikesSelect||"Ce que j'évite"}</label>
+                <TagPicker options={PREFS_HATES_BY_LANG[prefs.language||"en"]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/>
+              </div>
+              <div style={{display:"flex",gap:8,marginTop:16}}>
+                <button className="modal-btn secondary" onClick={()=>setOnboardingStep(0)}>← {t.onboardBack||"Retour"}</button>
+                <button className="save-btn" style={{flex:1,margin:0}} onClick={async()=>{
+                  const userId=session.user.id;
+                  await supabase.from('profiles').upsert({user_id:userId,first_name:prefs.firstName,last_name:prefs.lastName,email:session.user.email});
+                  await supabase.from('preferences').upsert({user_id:userId,...prefs});
+                  setProfile({user_id:userId,first_name:prefs.firstName,last_name:prefs.lastName,email:session.user.email});
+                  localStorage.setItem("outsy_onboarding_done","1");
+                  setShowOnboarding(false);
+                  setShowTour(true);
+                  showToast(t.onboardDone||"✓ Profil créé !");
+                }}>{t.onboardFinish||"C'est parti ! 🚀"}</button>
+              </div>
+            </>)}
+          </div>
+        </div>
+      )}
+
+      {/* App Tour — quick demo slides */}
+      {showTour&&(()=>{
+        const tourSlides = [
+          { icon: "🍽️", title: t.tourReco||"Reco", desc: t.tourRecoDesc||"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées." },
+          { icon: "❤️", title: t.tourFav||"Favoris", desc: t.tourFavDesc||"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note." },
+          { icon: "➕", title: t.tourAdd||"Ajouter", desc: t.tourAddDesc||"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion." },
+          { icon: "👥", title: t.tourFriends||"Amis", desc: t.tourFriendsDesc||"Partagez vos découvertes entre amis. Leurs favoris enrichissent vos recommandations." },
+          { icon: "🎯", title: t.tourProfile||"Profil", desc: t.tourProfileDesc||"Personnalisez vos préférences pour des recommandations sur mesure." },
+        ];
+        const slide = tourSlides[tourStep];
+        return (
+          <div className="alert-overlay" style={{zIndex:550}}>
+            <div className="alert-box" style={{maxWidth:400,padding:28,textAlign:"center"}}>
+              <div style={{fontSize:48,marginBottom:12}}>{slide.icon}</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontStyle:"italic",color:COLORS.accent,marginBottom:8}}>{slide.title}</div>
+              <div style={{fontSize:13,color:COLORS.muted,lineHeight:1.6,marginBottom:20}}>{slide.desc}</div>
+              {/* Progress dots */}
+              <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:16}}>
+                {tourSlides.map((_,i)=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:i===tourStep?COLORS.accent:`${COLORS.accent}33`,cursor:"pointer"}} onClick={()=>setTourStep(i)}/>)}
+              </div>
+              <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+                {tourStep>0&&<button className="modal-btn secondary" onClick={()=>setTourStep(s=>s-1)}>←</button>}
+                {tourStep<tourSlides.length-1
+                  ? <button className="save-btn" style={{margin:0,minWidth:120}} onClick={()=>setTourStep(s=>s+1)}>{t.tourNext||"Suivant →"}</button>
+                  : <button className="save-btn" style={{margin:0,minWidth:160}} onClick={()=>{localStorage.setItem("outsy_tour_done","1");setShowTour(false);}}>{t.tourStart||"C'est parti ! 🎉"}</button>
+                }
+              </div>
+              <button className="auth-link" style={{marginTop:10,fontSize:11,color:COLORS.muted}} onClick={()=>{localStorage.setItem("outsy_tour_done","1");setShowTour(false);}}>{t.tourSkip||"Passer le tour"}</button>
+            </div>
+          </div>
+        );
+      })()}
+
       {duplicatesFound&&duplicatesFound.length>0&&(()=>{
         const currentGroup = duplicatesFound[0];
         const handleKeep = async (keepId) => {

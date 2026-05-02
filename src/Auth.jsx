@@ -32,6 +32,41 @@ const AUTH_T = {
     resetSent: "✓ Link sent! Check your email.", backToLogin: "← Back",
     errorLogin: "Incorrect email or password.", errorSignup: "Error during registration.",
     errorName: "First and last name required.", welcome: "Welcome to Outsy AI!" },
+  es: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Iniciar sesión", signup: "Registrarse",
+    firstName: "Nombre", lastName: "Apellido", email: "Email", password: "Contraseña",
+    connect: "Iniciar sesión", create: "Crear cuenta",
+    forgot: "¿Olvidaste la contraseña?", resetTitle: "Restablecer", resetBtn: "Enviar enlace",
+    resetSent: "✓ ¡Enlace enviado! Revisa tu email.", backToLogin: "← Volver",
+    errorLogin: "Email o contraseña incorrectos.", errorSignup: "Error en el registro.",
+    errorName: "Nombre y apellido requeridos.", welcome: "¡Bienvenido a Outsy AI!" },
+  de: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Anmelden", signup: "Registrieren",
+    firstName: "Vorname", lastName: "Nachname", email: "Email", password: "Passwort",
+    connect: "Anmelden", create: "Konto erstellen",
+    forgot: "Passwort vergessen?", resetTitle: "Zurücksetzen", resetBtn: "Link senden",
+    resetSent: "✓ Link gesendet! Prüfe deine E-Mail.", backToLogin: "← Zurück",
+    errorLogin: "Falsche E-Mail oder Passwort.", errorSignup: "Fehler bei der Registrierung.",
+    errorName: "Vor- und Nachname erforderlich.", welcome: "Willkommen bei Outsy AI!" },
+  it: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Accedi", signup: "Registrati",
+    firstName: "Nome", lastName: "Cognome", email: "Email", password: "Password",
+    connect: "Accedi", create: "Crea account",
+    forgot: "Password dimenticata?", resetTitle: "Reimposta", resetBtn: "Invia link",
+    resetSent: "✓ Link inviato! Controlla la tua email.", backToLogin: "← Indietro",
+    errorLogin: "Email o password non corretti.", errorSignup: "Errore durante la registrazione.",
+    errorName: "Nome e cognome richiesti.", welcome: "Benvenuto su Outsy AI!" },
+  pt: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Entrar", signup: "Registar",
+    firstName: "Nome", lastName: "Apelido", email: "Email", password: "Palavra-passe",
+    connect: "Entrar", create: "Criar conta",
+    forgot: "Esqueceu a palavra-passe?", resetTitle: "Redefinir", resetBtn: "Enviar link",
+    resetSent: "✓ Link enviado! Verifique o email.", backToLogin: "← Voltar",
+    errorLogin: "Email ou palavra-passe incorretos.", errorSignup: "Erro no registo.",
+    errorName: "Nome e apelido obrigatórios.", welcome: "Bem-vindo ao Outsy AI!" },
+  nl: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Inloggen", signup: "Registreren",
+    firstName: "Voornaam", lastName: "Achternaam", email: "Email", password: "Wachtwoord",
+    connect: "Inloggen", create: "Account maken",
+    forgot: "Wachtwoord vergeten?", resetTitle: "Herstellen", resetBtn: "Link versturen",
+    resetSent: "✓ Link verstuurd! Controleer je email.", backToLogin: "← Terug",
+    errorLogin: "Onjuist email of wachtwoord.", errorSignup: "Fout bij registratie.",
+    errorName: "Voor- en achternaam vereist.", welcome: "Welkom bij Outsy AI!" },
 };
 
 const css = `
@@ -87,7 +122,7 @@ export default function Auth() {
       if (error) setError(at.errorLogin);
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
       if (error) { setError(error.message || at.errorSignup); }
       else {
         if (data.session && data.user) {
