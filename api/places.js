@@ -136,13 +136,13 @@ export default async function handler(req, res) {
       const types = typeGroups[type] || ["restaurant"];
       const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
 
-      // Fetch all types in parallel — use includedPrimaryTypes to filter by main role only
-      // (e.g. a hotel with a restaurant won't show as a Restaurant search result)
+      // Use includedTypes (broader) - matches both primary and secondary types.
+      // We'll filter out unwanted primary types (e.g. lodging when searching restaurants) below.
       const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
         body: JSON.stringify({
-          includedPrimaryTypes: [t],
+          includedTypes: [t],
           maxResultCount: 20,
           rankPreference: "POPULARITY",
           locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
@@ -152,10 +152,23 @@ export default async function handler(req, res) {
 
       const responses = await Promise.all(requests);
 
+      // Filter out primary types that don't fit the requested category
+      // (e.g. when searching Restaurants, exclude hotels themselves)
+      const excludePrimaryTypes = {
+        "Restaurant": ["lodging","hotel","gas_station","grocery_store","supermarket","bakery_chain","convenience_store","stadium","tourist_attraction","park"],
+        "Bar / Café": ["lodging","hotel","grocery_store","supermarket"],
+        "Hôtel": ["restaurant","bar","cafe"],
+        "Destination": [],
+        "Activité": []
+      };
+      const excluded = new Set(excludePrimaryTypes[type] || []);
+
       // Dedup by displayName, add cuisine extraction
       const seen = new Map();
       responses.forEach(resp => {
         (resp.places||[]).forEach(p => {
+          // Skip if primary type is in exclusion list
+          if (p.primaryType && excluded.has(p.primaryType)) return;
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
