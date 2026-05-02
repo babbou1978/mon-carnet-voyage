@@ -3063,15 +3063,17 @@ RULES:
 
               <div>
                 <div className="friends-title" style={{marginBottom:10}}>{t.friendsList} ({friends.length})</div>
-                {friends.length===0?<div className="empty-friends">{t.friendsNone}</div>:friends.map(f=>(
+                {friends.length===0?<div className="empty-friends">{t.friendsNone}</div>:friends.map(f=>{
+                  const friendName = [f.profile?.first_name, f.profile?.last_name].filter(Boolean).join(" ") || f.profile?.email || "Ami";
+                  return (
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                     <div className="friend-info">
-                      <div className="friend-name">{f.profile?.first_name} {f.profile?.last_name}</div>
+                      <div className="friend-name">{friendName}</div>
                       <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} {t.friendsHearts||"favorites"}</div>
                     </div>
                     <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>{t.friendsView}</button>
                   </div>
-                ))}
+                );})}
               </div>
 
               {pendingOut.length>0&&(
