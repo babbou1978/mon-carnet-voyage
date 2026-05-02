@@ -6,14 +6,22 @@ import Auth from "./Auth.jsx";
 const TYPES = ["Restaurant", "Bar", "Café", "Hôtel", "Activité", "Destination"];
 const PRICES = ["€", "€€", "€€€", "€€€€"];
 const TYPE_ICONS = { "Restaurant": "🍽️", "Bar": "🍷", "Café": "☕", "Hôtel": "🏨", "Activité": "🎯", "Destination": "🗺️" };
+const getTypeIcon = (type) => {
+  if (!type) return "🍽️";
+  const first = type.split(",")[0].trim();
+  return TYPE_ICONS[first] || "🍽️";
+};
 const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Café", coffee_shop: "Café", tea_house: "Café", bakery: "Café", bar: "Bar", night_club: "Bar", wine_bar: "Bar", cocktail_bar: "Bar", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", historical_landmark: "Destination", national_park: "Destination", museum: "Activité", art_gallery: "Activité", park: "Activité", amusement_park: "Activité", performing_arts_theater: "Activité", food: "Restaurant" };
 const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
 const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
 // Legacy compatibility: "Bar / Café" matches both "Bar" and "Café"
+// Support comma-separated multi-types: "Restaurant,Bar" matches both "Restaurant" and "Bar"
 const typeMatches = (memType, filterType) => {
   if (filterType === ALL) return true;
-  return memType === filterType;
+  if (!memType) return false;
+  const types = memType.split(",").map(t => t.trim());
+  return types.includes(filterType);
 };
 const DISTANCE_LABELS = ["100m", "500m", "1km", "2km", "5km", "10km"];
 
@@ -839,8 +847,12 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
       const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || details.formattedAddress || "";
       const googleTypes = details.types||[];
-      let type = "Restaurant";
-      for (const gt of googleTypes) { if (GOOGLE_TYPE_MAP[gt]) { type=GOOGLE_TYPE_MAP[gt]; break; } }
+      // Detect all matching types from Google's types (deduplicated, ordered)
+      const matchedTypes = new Set();
+      for (const gt of [details.primaryType, ...googleTypes].filter(Boolean)) {
+        if (GOOGLE_TYPE_MAP[gt]) matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
+      }
+      const type = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
       const price = PRICE_MAP[details.priceLevel]||"€€";
       // Extract cuisine from Google types (primary first, then secondary)
       const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
@@ -1315,9 +1327,23 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [form]); // eslint-disable-line
-  const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[form.type]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
-  const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[form.type]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
-  const handleTypeChange = (t) => setForm(f=>({...f,type:t,likeTags:[],dislikeTags:[]}));
+  const likesOptions = (LIKES_BY_TYPE_LANG[lang]||LIKES_BY_TYPE_LANG.en)[(form.type||"Restaurant").split(",")[0]]||(LIKES_BY_TYPE_LANG.en)["Restaurant"];
+  const dislikesOptions = (DISLIKES_BY_TYPE_LANG[lang]||DISLIKES_BY_TYPE_LANG.en)[(form.type||"Restaurant").split(",")[0]]||(DISLIKES_BY_TYPE_LANG.en)["Restaurant"];
+  const toggleType = (tp) => {
+    setForm(f => {
+      const current = (f.type||"Restaurant").split(",").map(t=>t.trim()).filter(Boolean);
+      const has = current.includes(tp);
+      let next;
+      if (has && current.length > 1) {
+        next = current.filter(t => t !== tp);
+      } else if (!has) {
+        next = [...current, tp];
+      } else {
+        return f; // can't remove last type
+      }
+      return {...f, type: next.join(",")};
+    });
+  };
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
     setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,cuisine:place.cuisine||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
@@ -1329,8 +1355,15 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
         :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} readOnly={prefilled&&!isEdit} style={prefilled&&!isEdit?{opacity:0.7,cursor:"default"}:{}}/></div>}
       {form.name && <>
         <div className="row-2">
-          <div className="field"><label>{t?.addType||"Type"}</label><select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>{TYPES.map(tp=><option key={tp} value={tp}>{(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</option>)}</select></div>
-          {(form.type==="Restaurant"||form.type==="Bar"||form.type==="Café")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
+          <div className="field"><label>{t?.addType||"Type"}</label>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+              {TYPES.map(tp=>{
+                const selected = (form.type||"").split(",").map(t=>t.trim()).includes(tp);
+                return <button key={tp} type="button" onClick={()=>toggleType(tp)} style={{padding:"5px 10px",borderRadius:20,fontSize:11,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${selected?COLORS.accent:COLORS.border}`,background:selected?`${COLORS.accent}22`:COLORS.tag,color:selected?COLORS.accent:COLORS.muted,fontWeight:selected?600:400}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>;
+              })}
+            </div>
+          </div>
+          {(form.type||"").split(",").some(t=>["Restaurant","Bar","Café"].includes(t.trim()))&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
           <div className="field"><label>{t?.addPrice||"Prix"}</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
         </div>
         <div className="field"><label>{t?.addAddress||"Address"}</label><input placeholder="22 Harcourt Street" value={form.address||""} onChange={e=>setForm(f=>({...f,address:e.target.value}))}/></div>
@@ -1695,7 +1728,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
   return (
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
-        <div className="memory-name">{TYPE_ICONS[m.type]} {m.name}</div>
+        <div className="memory-name">{getTypeIcon(m.type)} {m.name}</div>
         <CardActions
           distance={m.distanceKm!=null ? m.distanceKm*1000 : null}
           friendsHave={m.friendsWhoHave?.length>0 ? (m.friendsData||m.friendsWhoHave) : null}
@@ -3228,7 +3261,7 @@ RULES:
                           <div key={i} className="ai-reco-card">
                             <div className="ai-reco-header">
                               <div className="ai-reco-top">
-                                <div className="ai-reco-name">{TYPE_ICONS[reco.type||recoType]} {reco.name}</div>
+                                <div className="ai-reco-name">{getTypeIcon(reco.type||recoType)} {reco.name}</div>
                                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <div className="ai-reco-rank">#{i+1}</div>
@@ -3293,7 +3326,7 @@ RULES:
                         <div key={i} className="ai-reco-card">
                           <div className="ai-reco-header">
                             <div className="ai-reco-top">
-                              <div className="ai-reco-name">{TYPE_ICONS[recoType]} {p.name}</div>
+                              <div className="ai-reco-name">{getTypeIcon(recoType)} {p.name}</div>
                               <CardActions
                                 distance={p._dist}
                                 friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase())}
