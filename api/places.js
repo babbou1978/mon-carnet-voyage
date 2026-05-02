@@ -7,15 +7,28 @@ export default async function handler(req, res) {
   const lngF = parseFloat(lng);
   const key = process.env.GOOGLE_PLACES_KEY;
 
-  const FIELD_MASK_VERIFY = 'places.displayName,places.formattedAddress,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.priceLevel';
-  const FIELD_MASK_DETAILS_FULL = 'displayName,formattedAddress,addressComponents,priceLevel,types,rating,location,currentOpeningHours,regularOpeningHours,businessStatus';
+  const FIELD_MASK_VERIFY = 'places.displayName,places.formattedAddress,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.primaryType,places.priceLevel';
+  const FIELD_MASK_DETAILS_FULL = 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,rating,location,currentOpeningHours,regularOpeningHours,businessStatus';
 
-  const extractCuisine = (types) => {
-    const cuisineTypes = ['italian','japanese','chinese','french','indian','thai','mexican',
+  const extractCuisine = (types, primaryType) => {
+    const cuisineTypes = [
+      'italian','japanese','chinese','french','indian','thai','mexican',
       'american','greek','spanish','mediterranean','british','korean','vietnamese','turkish',
-      'lebanese','moroccan','sushi','pizza','burger','steakhouse','seafood','vegetarian'];
-    const t = (types||[]).find(t => cuisineTypes.some(c => t.toLowerCase().includes(c)));
-    return t ? t.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : null;
+      'lebanese','moroccan','sushi','pizza','burger','steakhouse','seafood','vegetarian','vegan',
+      'kosher','halal','israeli','kebab','ramen','pasta','tapas','barbecue','bbq','noodle',
+      'asian_fusion','fast_food','sandwich','bakery','dessert','ice_cream','breakfast','brunch',
+      'african','ethiopian','peruvian','brazilian','argentinian','german','portuguese','irish',
+      'fusion','tex_mex','latin','caribbean','cajun','dim_sum','pho','curry','tacos'
+    ];
+    // Try primaryType first (most specific), then fall back to types array
+    const allTypes = [primaryType, ...(types||[])].filter(Boolean);
+    const found = allTypes.find(t => cuisineTypes.some(c => t.toLowerCase().includes(c)));
+    if (!found) return null;
+    // Strip "_restaurant" suffix and beautify
+    return found
+      .replace(/_restaurant$/i, '')
+      .replace(/_/g,' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
   };
 
   const enrichFromPlace = (place, nameToVerify) => {
@@ -36,7 +49,7 @@ export default async function handler(req, res) {
       openNow: place?.currentOpeningHours?.openNow ?? place?.regularOpeningHours?.openNow ?? null,
       openingHours: place?.currentOpeningHours?.weekdayDescriptions || place?.regularOpeningHours?.weekdayDescriptions || null,
       googleRating: place?.rating || null,
-      cuisine: extractCuisine(place?.types)
+      cuisine: extractCuisine(place?.types, place?.primaryType)
     };
   };
 
@@ -104,7 +117,7 @@ export default async function handler(req, res) {
         "Activité": ["museum"]
       };
       const types = typeGroups[type] || ["restaurant"];
-      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
+      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
 
       // Fetch all types in parallel
       const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
@@ -127,7 +140,7 @@ export default async function handler(req, res) {
         (resp.places||[]).forEach(p => {
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
-            p.cuisine = extractCuisine(p.types);
+            p.cuisine = extractCuisine(p.types, p.primaryType);
             seen.set(key, p);
           }
         });
