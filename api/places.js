@@ -155,22 +155,13 @@ export default async function handler(req, res) {
 
       // Filter out primary types that don't fit the requested category
       // (e.g. when searching Restaurants, exclude hotels themselves)
-      const excludePrimaryTypes = {
-        "Restaurant": ["lodging","hotel","gas_station","grocery_store","supermarket","bakery_chain","convenience_store","stadium","tourist_attraction","park"],
-        "Bar": ["lodging","hotel","grocery_store","supermarket","restaurant","cafe","coffee_shop"],
-        "Café": ["lodging","hotel","grocery_store","supermarket","restaurant","bar","night_club"],
-        "Hôtel": ["restaurant","bar","cafe","coffee_shop"],
-        "Destination": [],
-        "Activité": []
-      };
-      const excluded = new Set(excludePrimaryTypes[type] || []);
+      // No primaryType exclusions needed - multi-type support handles overlap
+      // (e.g. a hotel with a restaurant will be typed "Hôtel,Restaurant")
 
       // Dedup by displayName, add cuisine extraction
       const seen = new Map();
       responses.forEach(resp => {
         (resp.places||[]).forEach(p => {
-          // Skip if primary type is in exclusion list
-          if (p.primaryType && excluded.has(p.primaryType)) return;
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
