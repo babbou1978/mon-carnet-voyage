@@ -128,10 +128,11 @@ export default async function handler(req, res) {
       // Multi-type for better coverage in dense areas (Marylebone has many sub-types)
       const typeGroups = {
         "Restaurant": ["restaurant", "seafood_restaurant", "italian_restaurant", "japanese_restaurant", "french_restaurant"],
-        "Bar / Café": ["bar", "cafe"],
+        "Bar": ["bar", "night_club", "wine_bar", "cocktail_bar"],
+        "Café": ["cafe", "coffee_shop", "bakery", "tea_house"],
         "Hôtel": ["lodging"],
-        "Destination": ["tourist_attraction"],
-        "Activité": ["museum"]
+        "Activité": ["museum", "art_gallery", "amusement_park", "performing_arts_theater"],
+        "Destination": ["tourist_attraction", "national_park", "historical_landmark"]
       };
       const types = typeGroups[type] || ["restaurant"];
       const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
@@ -156,8 +157,9 @@ export default async function handler(req, res) {
       // (e.g. when searching Restaurants, exclude hotels themselves)
       const excludePrimaryTypes = {
         "Restaurant": ["lodging","hotel","gas_station","grocery_store","supermarket","bakery_chain","convenience_store","stadium","tourist_attraction","park"],
-        "Bar / Café": ["lodging","hotel","grocery_store","supermarket"],
-        "Hôtel": ["restaurant","bar","cafe"],
+        "Bar": ["lodging","hotel","grocery_store","supermarket","restaurant","cafe","coffee_shop"],
+        "Café": ["lodging","hotel","grocery_store","supermarket","restaurant","bar","night_club"],
+        "Hôtel": ["restaurant","bar","cafe","coffee_shop"],
         "Destination": [],
         "Activité": []
       };
