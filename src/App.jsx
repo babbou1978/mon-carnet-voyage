@@ -2637,11 +2637,15 @@ function TravelAgent() {
 
     // AI Recos
     setAiLoading(true); setAiRecos([]);
-    const liked = memories.filter(m=>m.rating>=3).sort((a,b)=>b.rating-a.rating).slice(0,10)
+    // Prioritize favorites matching the search type (e.g. hotels for hotel search)
+    // Then add other types as profile context
+    const sameType = memories.filter(m=>m.rating>=3 && m.type===recoType).sort((a,b)=>b.rating-a.rating);
+    const otherType = memories.filter(m=>m.rating>=3 && m.type!==recoType).sort((a,b)=>b.rating-a.rating);
+    const liked = [...sameType.slice(0,7), ...otherType.slice(0,3)]
       .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
       .join("\n");
     const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5)
-      .map(m=>`- ${m.name} (${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
+      .map(m=>`- ${m.name} (${m.type}, ${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
       .join("\n");
 
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
@@ -2652,6 +2656,16 @@ function TravelAgent() {
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
 
+    // Type-specific guidance — tells the AI what to focus on for each category
+    const typeGuidance = {
+      "Restaurant": "Focus on cuisine quality, ambiance, food style, and dietary preferences. Match cuisines, atmospheres and price points the user has enjoyed.",
+      "Hôtel": "Focus on stay quality: comfort, location, character, amenities, room quality, service, and value. DO NOT focus on the hotel's restaurant. Match the user's preferences for hotel style (boutique, luxury, budget, design, family-friendly etc) inferred from their profile and other favorites.",
+      "Bar / Café": "Focus on atmosphere, drinks selection, and vibe. Match cocktail bars, wine bars, coffee shops, brunch spots etc. based on user style preferences.",
+      "Destination": "Focus on cultural, scenic or unique value of the place. Match the user's interests in landmarks, neighborhoods, parks, viewpoints.",
+      "Activité": "Focus on experience type, cultural depth, and accessibility. Match museums, galleries, tours, classes that fit the user's interests."
+    };
+    const guidance = typeGuidance[recoType] || typeGuidance["Restaurant"];
+
     // Build candidate list — numbered for AI to reference by index only
     const candidateList = nearbyForAI.length > 0
       ? nearbyForAI.map((p, i) =>
@@ -2659,7 +2673,10 @@ function TravelAgent() {
         ).join("\n")
       : null;
 
-    const prompt = `User profile:
+    const prompt = `User is searching for: ${recoType.toUpperCase()}
+${guidance}
+
+User profile:
 Likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"not specified"}
 Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"not specified"}
 Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
@@ -2674,21 +2691,21 @@ My disappointments (skip similar places):
 ${disliked||"None."}
 
 ${candidateList
-  ? `RESTAURANT LIST — ${nearbyForAI.length} places near the user:
+  ? `${recoType.toUpperCase()} LIST — ${nearbyForAI.length} places near the user:
 ${candidateList}
 
-Task: Pick the top ${nbRecosCount} from this list that best match the user profile.
-For each pick, set "idx" to the item number (e.g. idx: 3 for item 3) and "name" to the restaurant name as written in the list.`
+Task: Pick the top ${nbRecosCount} ${recoType.toLowerCase()}s from this list that best match the user profile based on the guidance above.
+For each pick, set "idx" to the item number (e.g. idx: 3 for item 3) and "name" to the place name as written in the list.`
   : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" within ${distLabel}.`
 }
 
 RULES:
-- "name" field = ONLY the arabic digit (e.g. "3" or "12") corresponding to the item number in the list above. Example: if you pick item 3, write "name": "3". Never write the restaurant name, never use roman numerals.
+- "name" field = ONLY the arabic digit (e.g. "3" or "12") corresponding to the item number in the list above. Example: if you pick item 3, write "name": "3". Never write the place name, never use roman numerals.
 - matchScore 0-100, rank DESC
 - Skip places similar to disappointments
 - Skip: ${excludeList||"none"}
-- 2-3 short matchReasons (max 8 words each)
-- "why": 1 sentence = "[Brief place description] — [personal reason citing a favorite, cuisine or preference by name]"
+- 2-3 short matchReasons (max 8 words each), focused on ${recoType}-relevant criteria (NOT food when searching hotels)
+- "why": 1 sentence = "[Brief place description focused on ${recoType}-relevant qualities] — [personal reason citing the user's favorites, preferences, or style by name]"
 - Write all text (why, tip, warning, matchReasons) in ${langLabel}`;
     try {
       const res = await fetch("/api/recommend", {
