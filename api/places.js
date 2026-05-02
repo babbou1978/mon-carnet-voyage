@@ -136,12 +136,13 @@ export default async function handler(req, res) {
       const types = typeGroups[type] || ["restaurant"];
       const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
 
-      // Fetch all types in parallel
+      // Fetch all types in parallel — use includedPrimaryTypes to filter by main role only
+      // (e.g. a hotel with a restaurant won't show as a Restaurant search result)
       const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
         body: JSON.stringify({
-          includedTypes: [t],
+          includedPrimaryTypes: [t],
           maxResultCount: 20,
           rankPreference: "POPULARITY",
           locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
