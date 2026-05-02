@@ -3234,7 +3234,7 @@ RULES:
                 </div>
               )}
 
-              {!aiLoading&&nearbyPlaces.length>0&&(()=>{
+              {nearbyPlaces.length>0&&(()=>{
                 const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
                 const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
                 const filtered = nearbyPlaces.filter(p =>
