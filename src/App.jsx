@@ -13,9 +13,7 @@ const ALL = "__ALL__"; // Internal constant for "all" filter - language independ
 // Legacy compatibility: "Bar / Café" matches both "Bar" and "Café"
 const typeMatches = (memType, filterType) => {
   if (filterType === ALL) return true;
-  if (memType === filterType) return true;
-  if (memType === "Bar / Café" && (filterType === "Bar" || filterType === "Café")) return true;
-  return false;
+  return memType === filterType;
 };
 const DISTANCE_LABELS = ["100m", "500m", "1km", "2km", "5km", "10km"];
 
@@ -2009,7 +2007,22 @@ function TravelAgent() {
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
       if (prof) setProfile(prof);
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
-      if (mems) setMemories(mems);
+      if (mems) {
+        // Auto-migrate legacy "Bar / Café" to "Bar" or "Café"
+        const cafeWords = ['café','cafe','coffee','bakery','tea','pâtisserie','patisserie','brunch','boulangerie'];
+        const toMigrate = mems.filter(m => m.type === "Bar / Café");
+        if (toMigrate.length > 0) {
+          for (const m of toMigrate) {
+            const nameLower = (m.name||"").toLowerCase();
+            const cuisineLower = (m.cuisine||"").toLowerCase();
+            const isCafe = cafeWords.some(w => nameLower.includes(w) || cuisineLower.includes(w));
+            const newType = isCafe ? "Café" : "Bar";
+            m.type = newType;
+            supabase.from('memories').update({type: newType}).eq('id', m.id).eq('user_id', userId);
+          }
+        }
+        setMemories(mems);
+      }
 
       // Detect duplicates by name (case-insensitive, trimmed)
       if (mems && mems.length > 0) {
