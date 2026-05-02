@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const lngF = parseFloat(lng);
   const key = process.env.GOOGLE_PLACES_KEY;
 
-  const FIELD_MASK_VERIFY = 'places.displayName,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.priceLevel';
+  const FIELD_MASK_VERIFY = 'places.displayName,places.formattedAddress,places.businessStatus,places.name,places.currentOpeningHours,places.regularOpeningHours,places.rating,places.types,places.priceLevel';
   const FIELD_MASK_DETAILS_FULL = 'displayName,formattedAddress,addressComponents,priceLevel,types,rating,location,currentOpeningHours,regularOpeningHours,businessStatus';
 
   const extractCuisine = (types) => {
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
       placeId: place?.name?.split('/')?.pop() || null,
       operational: !isPermClosed && !isTempClosed,
       businessStatus: isPermClosed ? 'CLOSED_PERMANENTLY' : isTempClosed ? 'CLOSED_TEMPORARILY' : 'OPERATIONAL',
+      address: place?.formattedAddress || null,
       openNow: place?.currentOpeningHours?.openNow ?? place?.regularOpeningHours?.openNow ?? null,
       openingHours: place?.currentOpeningHours?.weekdayDescriptions || place?.regularOpeningHours?.weekdayDescriptions || null,
       googleRating: place?.rating || null,

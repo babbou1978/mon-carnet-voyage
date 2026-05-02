@@ -1887,6 +1887,7 @@ function TravelAgent() {
   const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [formKey, setFormKey] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [duplicatesFound, setDuplicatesFound] = useState(null);
   const [friendMemoryModal, setFriendMemoryModal] = useState(null);
   const [closedFavoritesAlert, setClosedFavoritesAlert] = useState([]); // [{id, name}] // {memory, friendName} // {id, name}
   const [recoToAdd, setRecoToAdd] = useState(null); // pre-filled form from reco
@@ -1972,6 +1973,19 @@ function TravelAgent() {
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) setMemories(mems);
 
+      // Detect duplicates by name (case-insensitive, trimmed)
+      if (mems && mems.length > 0) {
+        const groups = new Map();
+        mems.forEach(m => {
+          const key = m.name?.toLowerCase().trim();
+          if (!key) return;
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(m);
+        });
+        const dups = [...groups.values()].filter(g => g.length > 1);
+        if (dups.length > 0) setDuplicatesFound(dups);
+      }
+
       // Auto-enrich memories missing google_place_id/address/cuisine - once per day max
       if (mems && mems.length > 0) {
         const lastEnrich = localStorage.getItem("outsy_enriched");
@@ -1980,42 +1994,33 @@ function TravelAgent() {
         if (toEnrich.length > 0 && lastEnrich !== today) {
           localStorage.setItem("outsy_enriched", today);
           (async () => {
-            for (const m of toEnrich.slice(0, 10)) { // max 10 per day
-              try {
-                const query = `${m.name}${m.city ? ', '+m.city : ''}${m.country ? ', '+m.country : ''}`;
-                const r = await fetch('/api/places', {
-                  method: 'POST', headers: {'Content-Type':'application/json'},
-                  body: JSON.stringify({ action: 'verify', places: [{name: m.name, address: m.address||''}] })
-                });
-                const data = await r.json();
-                const result = data.results?.[0];
-                if (!result) continue;
-                
-                // Get full details from Places API
-                const r2 = await fetch('/api/places', {
-                  method: 'POST', headers: {'Content-Type':'application/json'},
-                  body: JSON.stringify({ action: 'geocode', input: query })
-                });
-                const geoData = await r2.json();
-                
+            try {
+              // Batch verify - up to 30 places at once
+              const batch = toEnrich.slice(0, 30);
+              const r = await fetch('/api/places', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({
+                  action: 'verify',
+                  places: batch.map(m => ({ name: m.name, address: m.address||m.city||'', googlePlaceId: m.google_place_id||'' })),
+                  lang: pref?.language || 'en'
+                })
+              });
+              const data = await r.json();
+              const verifyMap = {};
+              (data.results||[]).forEach(v => { verifyMap[v.name.toLowerCase()] = v; });
+              for (const m of batch) {
+                const v = verifyMap[m.name.toLowerCase()];
+                if (!v) continue;
                 const updates = {};
-                if (!m.address && result.placeId) {
-                  // Extract address from geocode
-                  if (geoData.address && !m.address) updates.address = geoData.address.split(',')[0]?.trim() || '';
-                }
-                if (!m.city && geoData.address) {
-                  const parts = geoData.address.split(',').map(s=>s.trim());
-                  if (parts.length >= 2) updates.city = parts[parts.length-2] || '';
-                  if (parts.length >= 1) updates.country = parts[parts.length-1] || '';
-                }
-                if (!m.cuisine && result.cuisine) updates.cuisine = result.cuisine;
-                
+                if (!m.google_place_id && v.placeId) updates.google_place_id = v.placeId;
+                if (!m.address && v.address) updates.address = v.address;
+                if (!m.cuisine && v.cuisine) updates.cuisine = v.cuisine;
                 if (Object.keys(updates).length > 0) {
                   await supabase.from('memories').update(updates).eq('id', m.id).eq('user_id', userId);
                   setMemories(prev => prev.map(x => x.id===m.id ? {...x,...updates} : x));
                 }
-              } catch(e) { console.error('Enrich error:', m.name, e); }
-            }
+              }
+            } catch(e) { console.error('Enrich error:', e); }
           })();
         }
       }
@@ -2339,18 +2344,23 @@ function TravelAgent() {
           }).filter(Boolean);
           if (closedFavs.length > 0) setClosedFavoritesAlert(closedFavs);
         }
-        // Enrich heartMemories with real openNow + store placeId
+        // Enrich heartMemories with real openNow + store missing data (address, cuisine, place_id)
         const verifyMap = {};
         (verifyData.results||[]).forEach(r=>{ verifyMap[r.name.toLowerCase()] = r; });
         setHeartMemories(prev=>prev.map(m=>{
           const v = verifyMap[m.name.toLowerCase()];
           if (!v) return m;
-          if (v.placeId && !m.google_place_id && m.user_id===userId) {
-            supabase.from('memories').update({google_place_id:v.placeId}).eq('id',m.id).then(()=>{
-              setMemories(prev2=>prev2.map(x=>x.id===m.id?{...x,google_place_id:v.placeId}:x));
+          // Build update payload for missing fields
+          const updates = {};
+          if (v.placeId && !m.google_place_id) updates.google_place_id = v.placeId;
+          if (v.address && !m.address) updates.address = v.address;
+          if (v.cuisine && !m.cuisine) updates.cuisine = v.cuisine;
+          if (Object.keys(updates).length > 0 && m.user_id===userId) {
+            supabase.from('memories').update(updates).eq('id',m.id).then(()=>{
+              setMemories(prev2=>prev2.map(x=>x.id===m.id?{...x,...updates}:x));
             });
           }
-          return {...m, openNow:v.openNow??m.openNow, openingHours:v.openingHours||m.openingHours||null};
+          return {...m, ...updates, openNow:v.openNow??m.openNow, openingHours:v.openingHours||m.openingHours||null};
         }));
       } catch(e) { console.error("Verify favorites error:", e); }
     }
@@ -3249,8 +3259,15 @@ RULES:
           <div className="modal">
             <div className="modal-title">+ {recoToAdd.name}</div>
             <MemoryForm initial={recoToAdd} lang={lang} COLORS={COLORS} onSave={async(form)=>{
-              const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,...cleanF}=form;
-const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
+              // Check for duplicate first
+              const dup = memories.find(m => m.name.toLowerCase().trim()===form.name.toLowerCase().trim());
+              if (dup) {
+                setDuplicateAlert({ existing: dup, newForm: form });
+                setRecoToAdd(null);
+                return;
+              }
+              const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,openNow:_g,openingHours:_h,googleRating:_i,...cleanF}=form;
+              const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
               if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
               setRecoToAdd(null);
@@ -3311,6 +3328,48 @@ const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
           </div>
         </div>
       )}
+      {duplicatesFound&&duplicatesFound.length>0&&(()=>{
+        const currentGroup = duplicatesFound[0];
+        const handleKeep = async (keepId) => {
+          const toDelete = currentGroup.filter(m => m.id !== keepId).map(m => m.id);
+          if (toDelete.length > 0) {
+            await supabase.from('memories').delete().in('id', toDelete).eq('user_id', userId);
+            setMemories(prev => prev.filter(m => !toDelete.includes(m.id)));
+          }
+          // Move to next group or close
+          setDuplicatesFound(d => d.length > 1 ? d.slice(1) : null);
+        };
+        const handleSkip = () => setDuplicatesFound(d => d.length > 1 ? d.slice(1) : null);
+        return (
+          <div className="alert-overlay">
+            <div className="alert-box" style={{maxWidth:520}}>
+              <div className="alert-title">⚠️ Doublons détectés</div>
+              <div className="alert-text">
+                Vous avez {currentGroup.length} entrées pour <strong>"{currentGroup[0].name}"</strong>. Lequel voulez-vous garder ?
+                {duplicatesFound.length > 1 && <span style={{display:"block",fontSize:11,color:COLORS.muted,marginTop:6}}>({duplicatesFound.length - 1} autre{duplicatesFound.length > 2 ? "s" : ""} groupe{duplicatesFound.length > 2 ? "s" : ""} après celui-ci)</span>}
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:8,maxHeight:300,overflowY:"auto"}}>
+                {currentGroup.map(m => (
+                  <button key={m.id} onClick={()=>handleKeep(m.id)} style={{
+                    background:COLORS.card, border:`1px solid ${COLORS.border}`, borderRadius:10, padding:"10px 12px",
+                    textAlign:"left", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", color:COLORS.text
+                  }}>
+                    <div style={{fontWeight:600,fontSize:13}}>{m.name}</div>
+                    <div style={{fontSize:11,color:COLORS.muted,marginTop:4}}>
+                      {m.rating}★ · {m.price||"—"} · {m.address||m.city||"sans adresse"} · {m.cuisine||m.type||"—"}
+                      {m.ts && <> · {new Date(m.ts).toLocaleDateString()}</>}
+                    </div>
+                    {(m.likeTags?.length>0)&&<div style={{fontSize:10,color:COLORS.accent,marginTop:3}}>👍 {m.likeTags.join(", ")}</div>}
+                  </button>
+                ))}
+              </div>
+              <div className="alert-actions" style={{marginTop:8}}>
+                <button className="modal-btn secondary" onClick={handleSkip}>Décider plus tard</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       {deleteConfirm&&(
         <div className="alert-overlay">
           <div className="alert-box">
