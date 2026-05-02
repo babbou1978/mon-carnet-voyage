@@ -3555,10 +3555,10 @@ RULES:
                 {tourSlides.map((_,i)=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:i===tourStep?COLORS.accent:`${COLORS.accent}33`,cursor:"pointer"}} onClick={()=>setTourStep(i)}/>)}
               </div>
               <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-                {tourStep>0&&<button className="modal-btn secondary" onClick={()=>setTourStep(s=>s-1)}>←</button>}
+                <button className="modal-btn secondary" onClick={()=>setTourStep(s=>s-1)} style={{flex:1,visibility:tourStep>0?"visible":"hidden"}}>←</button>
                 {tourStep<tourSlides.length-1
-                  ? <button className="save-btn" style={{margin:0,minWidth:120}} onClick={()=>setTourStep(s=>s+1)}>{t.tourNext||"Suivant →"}</button>
-                  : <button className="save-btn" style={{margin:0,minWidth:160}} onClick={()=>{localStorage.setItem("outsy_tour_done","1");setShowTour(false);}}>{t.tourStart||"C'est parti ! 🎉"}</button>
+                  ? <button className="save-btn" style={{margin:0,flex:1}} onClick={()=>setTourStep(s=>s+1)}>{t.tourNext||"Suivant →"}</button>
+                  : <button className="save-btn" style={{margin:0,flex:1}} onClick={()=>{localStorage.setItem("outsy_tour_done","1");setShowTour(false);}}>{t.tourStart||"C'est parti ! 🎉"}</button>
                 }
               </div>
               <button className="auth-link" style={{marginTop:10,fontSize:11,color:COLORS.muted}} onClick={()=>{localStorage.setItem("outsy_tour_done","1");setShowTour(false);}}>{t.tourSkip||"Passer le tour"}</button>
