@@ -2038,7 +2038,18 @@ function TravelAgent() {
     const load = async () => {
       if (!localStorage.getItem(cacheKey)) setLoading(true);
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
-      if (prof) setProfile(prof);
+      if (prof) {
+        setProfile(prof);
+      } else {
+        // Auto-create profile on first login using auth metadata
+        const meta = session.user.user_metadata || {};
+        const email = session.user.email || "";
+        const firstName = meta.first_name || meta.firstName || email.split("@")[0] || "";
+        const lastName = meta.last_name || meta.lastName || "";
+        const newProfile = { user_id: userId, first_name: firstName, last_name: lastName, email };
+        await supabase.from('profiles').upsert(newProfile);
+        setProfile(newProfile);
+      }
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) {
         // Auto-migrate legacy "Bar / Café" to "Bar" or "Café"
