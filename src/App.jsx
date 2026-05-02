@@ -2005,6 +2005,8 @@ function TravelAgent() {
           !triedSet.has(`${m.id}`)
         );
         if (toEnrich.length > 0) {
+          // Fetch user lang first (don't rely on `pref` declared later)
+          const userLang = (prefs && prefs.language) || 'en';
           (async () => {
             try {
               // Batch verify - up to 30 places at once. Build query with city/country for better matching.
@@ -2018,7 +2020,7 @@ function TravelAgent() {
                     address: [m.address, m.city, m.country].filter(Boolean).join(', '),
                     googlePlaceId: (m.google_place_id&&m.google_place_id!=="NOT_FOUND")?m.google_place_id:''
                   })),
-                  lang: pref?.language || 'en'
+                  lang: userLang
                 })
               });
               const data = await r.json();
