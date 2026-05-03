@@ -2168,6 +2168,11 @@ function TravelAgent() {
       // Trigger onboarding for first-time users
       if (!pref && !localStorage.getItem("outsy_onboarding_done")) {
         setShowOnboarding(true);
+        // Pre-fill prefs from profile/auth metadata
+        const meta = session.user.user_metadata || {};
+        const fn = prof?.first_name || meta.first_name || "";
+        const ln = prof?.last_name || meta.last_name || "";
+        if (fn || ln) setPrefs(p => ({...p, firstName: p.firstName || fn, lastName: p.lastName || ln}));
       } else if (!localStorage.getItem("outsy_tour_done")) {
         setShowTour(true);
       }
