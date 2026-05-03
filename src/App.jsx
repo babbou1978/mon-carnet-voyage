@@ -2073,15 +2073,24 @@ function TravelAgent() {
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
       if (prof) {
         setProfile(prof);
+        // Sync profile name with auth metadata if they differ (e.g. after account recreation)
+        const meta = session.user.user_metadata || {};
+        if (meta.first_name && meta.first_name !== prof.first_name) {
+          const updated = {...prof, first_name: meta.first_name, last_name: meta.last_name || prof.last_name};
+          await supabase.from('profiles').update({first_name: updated.first_name, last_name: updated.last_name}).eq('user_id', userId);
+          setProfile(updated);
+        }
       } else {
-        // Auto-create profile on first login using auth metadata
+        // Auto-create profile on first login using auth metadata (source of truth from signup)
         const meta = session.user.user_metadata || {};
         const email = session.user.email || "";
-        const firstName = meta.first_name || meta.firstName || email.split("@")[0] || "";
-        const lastName = meta.last_name || meta.lastName || "";
+        const firstName = meta.first_name || email.split("@")[0] || "";
+        const lastName = meta.last_name || "";
         const newProfile = { user_id: userId, first_name: firstName, last_name: lastName, email };
         await supabase.from('profiles').upsert(newProfile);
         setProfile(newProfile);
+        // Also sync prefs name
+        setPrefs(p => ({...p, firstName, lastName}));
       }
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) {
@@ -2185,11 +2194,11 @@ function TravelAgent() {
       // Trigger onboarding for first-time users
       if (!pref && !localStorage.getItem("outsy_onboarding_done")) {
         setShowOnboarding(true);
-        // Pre-fill prefs from profile/auth metadata
+        // Pre-fill prefs from auth metadata (signup data = source of truth)
         const meta = session.user.user_metadata || {};
-        const fn = prof?.first_name || meta.first_name || "";
-        const ln = prof?.last_name || meta.last_name || "";
-        if (fn || ln) setPrefs(p => ({...p, firstName: p.firstName || fn, lastName: p.lastName || ln}));
+        const fn = meta.first_name || prof?.first_name || "";
+        const ln = meta.last_name || prof?.last_name || "";
+        setPrefs(p => ({...p, firstName: fn, lastName: ln}));
       } else if (!localStorage.getItem("outsy_tour_done")) {
         setShowTour(true);
       }

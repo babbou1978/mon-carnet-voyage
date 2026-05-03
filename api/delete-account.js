@@ -1,5 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -8,36 +6,58 @@ export default async function handler(req, res) {
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
   if (!serviceRoleKey) {
-    return res.status(500).json({ error: 'Server not configured for account deletion (missing service role key)' });
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY' });
   }
-
-  // Verify the access token belongs to this user (security check)
-  const userClient = createClient(supabaseUrl, process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY);
-  const { data: { user }, error: authError } = await userClient.auth.getUser(accessToken);
-  if (authError || !user || user.id !== userId) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  // Use admin client with service role key
-  const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false }
-  });
 
   try {
-    // Delete all user data in correct order (FK constraints)
-    await adminClient.from('closed_places').delete().eq('confirmed_by', userId);
-    await adminClient.from('memories').delete().eq('user_id', userId);
-    await adminClient.from('preferences').delete().eq('user_id', userId);
-    await adminClient.from('friendships').delete().or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
-    await adminClient.from('profiles').delete().eq('user_id', userId);
+    // Verify the access token belongs to this user
+    const authCheck = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'apikey': anonKey }
+    });
+    const authUser = await authCheck.json();
+    if (!authCheck.ok || authUser.id !== userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
-    // Delete auth user (requires service role)
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
-    if (deleteError) {
-      console.error('Delete user error:', deleteError);
-      return res.status(500).json({ error: deleteError.message });
+    // Helper to delete from a table using service role
+    const deleteFrom = async (table, column, value) => {
+      await fetch(`${supabaseUrl}/rest/v1/${table}?${column}=eq.${value}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': serviceRoleKey,
+          'Authorization': `Bearer ${serviceRoleKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        }
+      });
+    };
+
+    // Delete friendships (two columns)
+    await deleteFrom('friendships', 'requester_id', userId);
+    await deleteFrom('friendships', 'addressee_id', userId);
+
+    // Delete all user data in correct FK order
+    await deleteFrom('closed_places', 'confirmed_by', userId);
+    await deleteFrom('memories', 'user_id', userId);
+    await deleteFrom('preferences', 'user_id', userId);
+    await deleteFrom('profiles', 'user_id', userId);
+
+    // Delete auth user via Admin API
+    const deleteAuth = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': serviceRoleKey,
+        'Authorization': `Bearer ${serviceRoleKey}`,
+      }
+    });
+
+    if (!deleteAuth.ok) {
+      const err = await deleteAuth.text();
+      console.error('Delete auth user error:', err);
+      return res.status(500).json({ error: `Failed to delete auth user: ${err}` });
     }
 
     return res.status(200).json({ success: true });
