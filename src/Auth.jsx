@@ -162,14 +162,15 @@ export default function Auth() {
   // Auth page always in English for international audience
 
   // Detect return from email confirmation
+  // App.jsx cleans the hash before Auth mounts, so we read the sessionStorage flag instead
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes("type=signup") || hash.includes("type=email")) {
-      setSuccess(at.emailConfirmed || "✓ Email confirmed! You can now sign in.");
-      setMode("login");
-      // Clean the URL
-      window.history.replaceState(null, '', window.location.pathname);
-    }
+    try {
+      if (sessionStorage.getItem("outsy_email_confirmed")) {
+        setSuccess(at.emailConfirmed || "✓ Email confirmed! You can now sign in.");
+        setMode("login");
+        sessionStorage.removeItem("outsy_email_confirmed");
+      }
+    } catch {}
   }, []);
 
   const handle = async () => {

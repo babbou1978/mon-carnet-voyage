@@ -2019,11 +2019,21 @@ function TravelAgent() {
     if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
   }, [prefs.nbrecos]);
 
+  // Track email confirmation redirect to prevent auto-login race condition
+  const isConfirmRedirect = useRef(false);
+
   useEffect(() => {
+    // Check hash BEFORE Supabase processes it
+    const hash = window.location.hash;
+    if (hash.includes("type=signup") || hash.includes("type=email")) {
+      isConfirmRedirect.current = true;
+      // Signal Auth.jsx to show confirmation message (hash will be cleaned before Auth mounts)
+      try { sessionStorage.setItem("outsy_email_confirmed", "1"); } catch {}
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      // If this is an email confirmation redirect, sign out so user sees login page
-      const hash = window.location.hash;
-      if (hash.includes("type=signup") || hash.includes("type=email")) {
+      if (isConfirmRedirect.current) {
+        // Email confirmation redirect — sign out and don't set session
         supabase.auth.signOut();
         window.history.replaceState(null, '', window.location.pathname);
         return;
@@ -2031,10 +2041,12 @@ function TravelAgent() {
       setSession(session);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Don't auto-login on email confirmation
-      if (_event === "SIGNED_IN" && window.location.hash.includes("type=signup")) {
-        supabase.auth.signOut();
-        window.history.replaceState(null, '', window.location.pathname);
+      if (isConfirmRedirect.current) {
+        // Ignore all events until sign out completes
+        if (_event === "SIGNED_OUT") {
+          isConfirmRedirect.current = false;
+          setSession(null); // Show login page
+        }
         return;
       }
       setSession(session);
