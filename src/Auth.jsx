@@ -183,20 +183,6 @@ export default function Auth() {
       return;
     }
     if (mode === "login") {
-      // Check if the email exists in profiles before attempting sign-in
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('email', email.trim().toLowerCase())
-        .maybeSingle();
-
-      if (!existingProfile) {
-        // No profile found — email doesn't belong to any account
-        setError(at.errorNoAccount);
-        setLoading(false);
-        return;
-      }
-
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         console.log("Login error:", error.status, error.message);
@@ -204,8 +190,20 @@ export default function Auth() {
         if (msg.includes("not confirmed") || msg.includes("confirm")) {
           setError(at.errorNotConfirmed);
         } else {
-          // Email exists but auth failed → wrong password
-          setError(at.errorWrongPassword);
+          // Auth failed — check profiles to give a specific error message
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('email', email.trim().toLowerCase())
+            .maybeSingle();
+
+          if (existingProfile) {
+            // Profile exists → email is known → wrong password
+            setError(at.errorWrongPassword);
+          } else {
+            // No profile found → email unknown
+            setError(at.errorNoAccount);
+          }
         }
       }
     } else {
@@ -231,10 +229,11 @@ export default function Auth() {
         setError(at.errorDuplicate);
       }
       else {
-        if (data.session && data.user) {
-          await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
-          try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email }) }); } catch {}
-        } else if (data.user) {
+        if (data.user) {
+          // Always try to create profile (works if RLS allows, otherwise App.jsx handles it on first login)
+          try {
+            await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
+          } catch {}
           try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email, userId: data.user.id }) }); } catch {}
         }
         setSuccess(at.signupSuccess.replace("{name}", firstName));

@@ -2103,6 +2103,14 @@ function TravelAgent() {
         setProfile(newProfile);
         // Also sync prefs name
         setPrefs(p => ({...p, firstName, lastName}));
+
+        // New account detected — clear stale localStorage flags from any previous account
+        // This ensures onboarding + tour will trigger fresh
+        localStorage.removeItem("outsy_onboarding_done");
+        localStorage.removeItem("outsy_tour_done");
+        localStorage.removeItem("outsy_enrich_tried");
+        // Clear any old caches (different user IDs)
+        Object.keys(localStorage).filter(k => k.startsWith("outsy_cache_") && k !== cacheKey).forEach(k => localStorage.removeItem(k));
       }
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) {
@@ -2204,7 +2212,10 @@ function TravelAgent() {
       setLoading(false);
 
       // Trigger onboarding for first-time users
-      if (!pref && !localStorage.getItem("outsy_onboarding_done")) {
+      // No prefs in DB = new user → clear any stale localStorage flags from previous accounts
+      if (!pref) {
+        localStorage.removeItem("outsy_onboarding_done");
+        localStorage.removeItem("outsy_tour_done");
         setShowOnboarding(true);
         // Pre-fill prefs from auth metadata (signup data = source of truth)
         const meta = session.user.user_metadata || {};
