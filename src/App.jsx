@@ -3251,13 +3251,20 @@ RULES:
                 if (!window.confirm(t.deleteAccountConfirm2||"Êtes-vous vraiment sûr(e) ? Tous vos favoris, amis et préférences seront supprimés.")) return;
                 try {
                   const uid = session.user.id;
-                  await supabase.from('memories').delete().eq('user_id', uid);
-                  await supabase.from('preferences').delete().eq('user_id', uid);
-                  await supabase.from('friendships').delete().or(`requester_id.eq.${uid},addressee_id.eq.${uid}`);
-                  await supabase.from('profiles').delete().eq('user_id', uid);
-                  localStorage.clear();
-                  await supabase.auth.signOut();
-                  showToast(t.deleteAccountDone||"Compte supprimé.");
+                  const { data: { session: currentSession } } = await supabase.auth.getSession();
+                  const res = await fetch('/api/delete-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: uid, accessToken: currentSession.access_token })
+                  });
+                  const result = await res.json();
+                  if (result.success) {
+                    localStorage.clear();
+                    await supabase.auth.signOut();
+                    showToast(t.deleteAccountDone||"Compte supprimé.");
+                  } else {
+                    showToast("❌ " + (result.error || "Erreur"));
+                  }
                 } catch(e) { console.error(e); showToast("❌ Erreur"); }
               }}>
                 🗑️ {t.deleteAccount||"Supprimer mon compte"}
