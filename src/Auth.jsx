@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./supabase.js";
 
 // Change to "dark" to revert to dark theme
@@ -39,7 +39,11 @@ const AUTH_T = {
     errorPasswordShort: "Password must be at least 6 characters.",
     errorPasswordWeak: "Password must contain at least one lowercase, one uppercase letter and one digit.",
     errorEmail: "Invalid email address.",
-    errorName: "First and last name required.", welcome: "Welcome to Outsy AI!" },
+    errorName: "First and last name required.",
+    errorNotConfirmed: "Please confirm your email first. Check your inbox (and spam folder).",
+    signupSuccess: "Welcome {name}! 🎉  A confirmation email has been sent. Please check your inbox (and spam folder) then come back to sign in.",
+    emailConfirmed: "✓ Email confirmed! You can now sign in.",
+    welcome: "Welcome to Outsy AI!" },
   es: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Iniciar sesión", signup: "Registrarse",
     firstName: "Nombre", lastName: "Apellido", email: "Email", password: "Contraseña",
     connect: "Iniciar sesión", create: "Crear cuenta",
@@ -133,8 +137,19 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const browserLang = navigator.language?.slice(0, 2) || "en";
-  const at = AUTH_T[browserLang] || AUTH_T["en"];
+  const at = AUTH_T["en"];
+  // Auth page always in English for international audience
+
+  // Detect return from email confirmation
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes("type=signup") || hash.includes("type=email")) {
+      setSuccess(at.emailConfirmed || "✓ Email confirmed! You can now sign in.");
+      setMode("login");
+      // Clean the URL
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
 
   const handle = async () => {
     setLoading(true); setError(""); setSuccess("");
@@ -147,7 +162,15 @@ export default function Auth() {
     }
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setError(at.errorLogin);
+      if (error) {
+        console.log("Login error:", error.status, error.message);
+        const msg = error.message?.toLowerCase() || "";
+        if (msg.includes("not confirmed") || msg.includes("confirm")) {
+          setError(at.errorNotConfirmed);
+        } else {
+          setError(at.errorLogin);
+        }
+      }
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       if (password.length < 6) { setError(at.errorPasswordShort); setLoading(false); return; }
@@ -177,7 +200,8 @@ export default function Auth() {
         } else if (data.user) {
           try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email, userId: data.user.id }) }); } catch {}
         }
-        setSuccess(`${at.welcome} ${firstName}!`);
+        setSuccess(at.signupSuccess.replace("{name}", firstName));
+        setTimeout(() => setMode("login"), 3000);
       }
     }
     setLoading(false);
