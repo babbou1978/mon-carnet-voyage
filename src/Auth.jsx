@@ -139,10 +139,11 @@ export default function Auth() {
       if (password.length < 6) { setError(at.errorPasswordShort); setLoading(false); return; }
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
       if (error) {
+        console.log("Signup error:", error.status, error.message);
         const msg = error.message?.toLowerCase() || "";
-        if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("already been registered")) {
+        if (error.status === 422 || msg.includes("already") || msg.includes("exists") || msg.includes("registered") || msg.includes("unique")) {
           setError(at.errorDuplicate);
-        } else if (msg.includes("password")) {
+        } else if (msg.includes("password") || msg.includes("mot de passe")) {
           setError(at.errorPasswordShort);
         } else {
           setError(error.message || at.errorSignup);
