@@ -121,7 +121,7 @@ const TRANSLATIONS = {
     profileBudget: "Budget habituel", profileBudgetNone: "Non renseigné",
     profileDislikes: "🚫 Ce que j'évite", profileDislikesSelect: "Sélectionner", profileDislikesPrecise: "Préciser",
     profileNotes: "📝 Notes libres", profileNotesLabel: "Autres infos", profileSave: "Sauvegarder mon profil", profileSaved: "✓ Profil enregistré",
-    friendsRequests: "🔔 Demandes reçues", friendsSearch: "🔍 Ajouter un ami", friendsSearchPlaceholder: "Email de votre ami...",
+    friendsRequests: "🔔 Demandes reçues", friendsSearch: "🔍 Ajouter un ami", friendsSearchPlaceholder: "Prénom, nom ou email...",
     friendsSearchBtn: "Chercher", friendsList: "👥 Mes amis", friendsNone: "Aucun ami pour l'instant.",
     friendsPending: "⏳ En attente", friendsAlready: "Déjà ami", friendsSent: "Envoyée", friendsAdd: "+ Ajouter",
     friendsAccept: "✓", friendsView: "Voir ❤️", friendsHeartTitle: "❤️ Coups de cœur de",
@@ -176,7 +176,7 @@ const TRANSLATIONS = {
     profileBudget: "Presupuesto habitual", profileBudgetNone: "No especificado",
     profileDislikes: "🚫 Lo que evito", profileDislikesSelect: "Seleccionar", profileDislikesPrecise: "Añadir detalles",
     profileNotes: "📝 Notas libres", profileNotesLabel: "Otra info", profileSave: "Guardar perfil", profileSaved: "✓ Perfil guardado",
-    friendsRequests: "🔔 Solicitudes", friendsSearch: "🔍 Añadir amigo", friendsSearchPlaceholder: "Email de tu amigo...",
+    friendsRequests: "🔔 Solicitudes", friendsSearch: "🔍 Añadir amigo", friendsSearchPlaceholder: "Nombre o email...",
     friendsSearchBtn: "Buscar", friendsList: "👥 Mis amigos", friendsNone: "Sin amigos por ahora.",
     friendsPending: "⏳ Pendiente", friendsAlready: "Ya amigos", friendsSent: "Enviado", friendsAdd: "+ Añadir",
     friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
@@ -229,7 +229,7 @@ const TRANSLATIONS = {
     profileBudget: "Übliches Budget", profileBudgetNone: "Nicht angegeben",
     profileDislikes: "🚫 Was ich meide", profileDislikesSelect: "Auswählen", profileDislikesPrecise: "Details hinzufügen",
     profileNotes: "📝 Freie Notizen", profileNotesLabel: "Weitere Infos", profileSave: "Profil speichern", profileSaved: "✓ Profil gespeichert",
-    friendsRequests: "🔔 Anfragen", friendsSearch: "🔍 Freund hinzufügen", friendsSearchPlaceholder: "E-Mail deines Freundes...",
+    friendsRequests: "🔔 Anfragen", friendsSearch: "🔍 Freund hinzufügen", friendsSearchPlaceholder: "Name oder E-Mail...",
     friendsSearchBtn: "Suchen", friendsList: "👥 Meine Freunde", friendsNone: "Noch keine Freunde.",
     friendsPending: "⏳ Ausstehend", friendsAlready: "Bereits Freunde", friendsSent: "Gesendet", friendsAdd: "+ Hinzufügen",
     friendsAccept: "✓", friendsView: "Anzeigen ❤️", friendsHeartTitle: "❤️ Favoriten von",
@@ -282,7 +282,7 @@ const TRANSLATIONS = {
     profileBudget: "Budget abituale", profileBudgetNone: "Non specificato",
     profileDislikes: "🚫 Cosa evito", profileDislikesSelect: "Seleziona", profileDislikesPrecise: "Aggiungi dettagli",
     profileNotes: "📝 Note libere", profileNotesLabel: "Altre info", profileSave: "Salva profilo", profileSaved: "✓ Profilo salvato",
-    friendsRequests: "🔔 Richieste", friendsSearch: "🔍 Aggiungi amico", friendsSearchPlaceholder: "Email del tuo amico...",
+    friendsRequests: "🔔 Richieste", friendsSearch: "🔍 Aggiungi amico", friendsSearchPlaceholder: "Nome o email...",
     friendsSearchBtn: "Cerca", friendsList: "👥 I miei amici", friendsNone: "Nessun amico per ora.",
     friendsPending: "⏳ In attesa", friendsAlready: "Già amici", friendsSent: "Inviato", friendsAdd: "+ Aggiungi",
     friendsAccept: "✓", friendsView: "Vedi ❤️", friendsHeartTitle: "❤️ Preferiti di",
@@ -336,7 +336,7 @@ const TRANSLATIONS = {
     profileBudget: "Orçamento habitual", profileBudgetNone: "Não especificado",
     profileDislikes: "🚫 O que evito", profileDislikesSelect: "Selecionar", profileDislikesPrecise: "Adicionar detalhes",
     profileNotes: "📝 Notas livres", profileNotesLabel: "Outras informações", profileSave: "Guardar perfil", profileSaved: "✓ Perfil guardado",
-    friendsRequests: "🔔 Pedidos", friendsSearch: "🔍 Adicionar amigo", friendsSearchPlaceholder: "Email do seu amigo...",
+    friendsRequests: "🔔 Pedidos", friendsSearch: "🔍 Adicionar amigo", friendsSearchPlaceholder: "Nome ou email...",
     friendsSearchBtn: "Pesquisar", friendsList: "👥 Os meus amigos", friendsNone: "Sem amigos por enquanto.",
     friendsPending: "⏳ Pendente", friendsAlready: "Já amigos", friendsSent: "Enviado", friendsAdd: "+ Adicionar",
     friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
@@ -390,7 +390,7 @@ const TRANSLATIONS = {
     profileBudget: "Gebruikelijk budget", profileBudgetNone: "Niet opgegeven",
     profileDislikes: "🚫 Wat ik vermijd", profileDislikesSelect: "Selecteren", profileDislikesPrecise: "Details toevoegen",
     profileNotes: "📝 Vrije notities", profileNotesLabel: "Andere info", profileSave: "Profiel opslaan", profileSaved: "✓ Profiel opgeslagen",
-    friendsRequests: "🔔 Verzoeken", friendsSearch: "🔍 Vriend toevoegen", friendsSearchPlaceholder: "E-mail van je vriend...",
+    friendsRequests: "🔔 Verzoeken", friendsSearch: "🔍 Vriend toevoegen", friendsSearchPlaceholder: "Naam of e-mail...",
     friendsSearchBtn: "Zoeken", friendsList: "👥 Mijn vrienden", friendsNone: "Nog geen vrienden.",
     friendsPending: "⏳ In behandeling", friendsAlready: "Al vrienden", friendsSent: "Verzonden", friendsAdd: "+ Toevoegen",
     friendsAccept: "✓", friendsView: "Bekijk ❤️", friendsHeartTitle: "❤️ Favorieten van",
@@ -444,7 +444,7 @@ const TRANSLATIONS = {
     profileBudget: "Usual budget", profileBudgetNone: "Not specified",
     profileDislikes: "🚫 What I avoid", profileDislikesSelect: "Select", profileDislikesPrecise: "Add details",
     profileNotes: "📝 Free notes", profileNotesLabel: "Other info", profileSave: "Save my profile", profileSaved: "✓ Profile saved",
-    friendsRequests: "🔔 Friend requests", friendsSearch: "🔍 Add a friend", friendsSearchPlaceholder: "Your friend's email...",
+    friendsRequests: "🔔 Friend requests", friendsSearch: "🔍 Add a friend", friendsSearchPlaceholder: "Name or email...",
     friendsSearchBtn: "Search", friendsList: "👥 My friends", friendsNone: "No friends yet.",
     friendsPending: "⏳ Pending", friendsAlready: "Already friends", friendsSent: "Sent", friendsAdd: "+ Add",
     friendsAccept: "✓", friendsView: "View ❤️", friendsHeartTitle: "❤️ Favorites from",
@@ -2264,9 +2264,31 @@ function TravelAgent() {
 
   const searchFriends = async () => {
     if (!searchQuery.trim()) return;
-    const res = await fetch("/api/friends", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", userId, targetEmail: searchQuery }) });
-    const data = await res.json();
-    setSearchResults(data.users||[]);
+    const q = searchQuery.trim().toLowerCase();
+    // Search by email (exact or partial) OR by name
+    const isEmail = q.includes("@");
+    let results = [];
+    if (isEmail) {
+      // Email search via backend
+      const res = await fetch("/api/friends", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", userId, targetEmail: searchQuery }) });
+      const data = await res.json();
+      results = data.users || [];
+    } else {
+      // Name search via Supabase profiles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email')
+        .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`)
+        .neq('user_id', userId)
+        .limit(10);
+      results = (profiles || []).map(p => ({
+        user_id: p.user_id,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        email: p.email
+      }));
+    }
+    setSearchResults(results);
   };
 
   const sendFriendRequest = async (targetUserId) => {
@@ -2282,6 +2304,14 @@ function TravelAgent() {
   const declineFriend = async (friendshipId) => {
     await supabase.from('friendships').delete().eq('id', friendshipId);
     await loadFriends(userId);
+  };
+
+  const removeFriend = async (friend) => {
+    const friendName = [friend.profile?.first_name, friend.profile?.last_name].filter(Boolean).join(" ") || "cet ami";
+    if (!window.confirm(`${t.friendsRemoveConfirm || "Supprimer"} ${friendName} ?`)) return;
+    await supabase.from('friendships').delete().eq('id', friend.id);
+    await loadFriends(userId);
+    showToast(`✓ ${friendName} ${t.friendsRemoved || "supprimé"}`);
   };
 
   const viewFriendMemories = (friend) => {
@@ -3105,7 +3135,10 @@ RULES:
                       <div className="friend-name">{friendName}</div>
                       <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} {t.friendsHearts||"favorites"}</div>
                     </div>
-                    <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>{t.friendsView}</button>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                      <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>{t.friendsView}</button>
+                      <button onClick={()=>removeFriend(f)} title={t.friendsRemoveConfirm||"Supprimer"} style={{background:"none",border:`1px solid ${COLORS.dislike}44`,color:"#d4869b",borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
+                    </div>
                   </div>
                 );})}
               </div>
@@ -3212,6 +3245,22 @@ RULES:
               {prefsSaved&&<div className="prefs-saved">{t.profileSaved}</div>}
               <button className="prefs-save-btn" style={{borderColor:"#e06060",color:"#e06060",marginTop:4}} onClick={()=>setShowResetModal(true)}>
                 🔑 {t.resetPassword||"Reset password"}
+              </button>
+              <button style={{background:"none",border:"none",color:"#d4869b",fontSize:11,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",marginTop:16,padding:4,textDecoration:"underline"}} onClick={async()=>{
+                if (!window.confirm(t.deleteAccountConfirm||"⚠️ Supprimer définitivement votre compte et toutes vos données ? Cette action est irréversible.")) return;
+                if (!window.confirm(t.deleteAccountConfirm2||"Êtes-vous vraiment sûr(e) ? Tous vos favoris, amis et préférences seront supprimés.")) return;
+                try {
+                  const uid = session.user.id;
+                  await supabase.from('memories').delete().eq('user_id', uid);
+                  await supabase.from('preferences').delete().eq('user_id', uid);
+                  await supabase.from('friendships').delete().or(`requester_id.eq.${uid},addressee_id.eq.${uid}`);
+                  await supabase.from('profiles').delete().eq('user_id', uid);
+                  localStorage.clear();
+                  await supabase.auth.signOut();
+                  showToast(t.deleteAccountDone||"Compte supprimé.");
+                } catch(e) { console.error(e); showToast("❌ Erreur"); }
+              }}>
+                🗑️ {t.deleteAccount||"Supprimer mon compte"}
               </button>
             </div>
           )}
