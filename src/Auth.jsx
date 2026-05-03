@@ -164,35 +164,35 @@ export default function Auth() {
         <div className="auth-tagline" style={{lineHeight:1.8}}>{at.tagline.split("\n").map((l,i)=><div key={i}>{l}</div>)}</div>
         <div className="auth-card">
           {mode === "reset" ? (
-            <>
+            <form onSubmit={e=>{e.preventDefault();handle();}} style={{display:"flex",flexDirection:"column",gap:16}}>
               <div style={{fontFamily:"'Cormorant Garamond', serif", fontSize:20, color:COLORS.accent, fontStyle:"italic"}}>{at.resetTitle}</div>
-              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
+              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></div>
               {error && <div className="auth-error">{error}</div>}
               {success && <div className="auth-success">{success}</div>}
-              {!success && <button className="auth-btn" onClick={handle} disabled={loading || !email}>{loading ? "..." : at.resetBtn}</button>}
-              <button className="auth-link" onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.backToLogin}</button>
-            </>
+              {!success && <button type="submit" className="auth-btn" disabled={loading || !email}>{loading ? "..." : at.resetBtn}</button>}
+              <button type="button" className="auth-link" onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.backToLogin}</button>
+            </form>
           ) : (
-            <>
+            <form onSubmit={e=>{e.preventDefault();handle();}} autoComplete="on" style={{display:"flex",flexDirection:"column",gap:16}}>
               <div className="auth-tabs">
-                <button className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.login}</button>
-                <button className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
+                <button type="button" className={`auth-tab ${mode==="login"?"active":""}`} onClick={() => { setMode("login"); setError(""); setSuccess(""); }}>{at.login}</button>
+                <button type="button" className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
               </div>
               {mode === "signup" && (
                 <div className="auth-row">
-                  <div className="auth-field"><label>{at.firstName}</label><input placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
-                  <div className="auth-field"><label>{at.lastName}</label><input placeholder="Smith" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
+                  <div className="auth-field"><label>{at.firstName}</label><input placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} autoComplete="given-name" /></div>
+                  <div className="auth-field"><label>{at.lastName}</label><input placeholder="Smith" value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" /></div>
                 </div>
               )}
-              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
-              <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handle()} /></div>
+              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></div>
+              <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode==="login"?"current-password":"new-password"} /></div>
               {error && <div className="auth-error">{error}</div>}
               {success && <div className="auth-success">{success}</div>}
-              <button className="auth-btn" onClick={handle} disabled={loading || !email || !password}>
+              <button type="submit" className="auth-btn" disabled={loading || !email || !password}>
                 {loading ? "..." : mode === "login" ? at.connect : at.create}
               </button>
-              {mode === "login" && <button className="auth-link" onClick={() => { setMode("reset"); setError(""); setSuccess(""); }}>{at.forgot}</button>}
-            </>
+              {mode === "login" && <button type="button" className="auth-link" onClick={() => { setMode("reset"); setError(""); setSuccess(""); }}>{at.forgot}</button>}
+            </form>
           )}
         </div>
       </div>
