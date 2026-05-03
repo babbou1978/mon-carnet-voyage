@@ -23,7 +23,10 @@ const AUTH_T = {
     connect: "Se connecter", create: "Créer mon compte",
     forgot: "Mot de passe oublié ?", resetTitle: "Réinitialiser", resetBtn: "Envoyer le lien",
     resetSent: "✓ Lien envoyé ! Vérifiez votre email.", backToLogin: "← Retour",
-    errorLogin: "Email ou mot de passe incorrect.", errorSignup: "Erreur lors de l'inscription.",
+    errorLogin: "Email ou mot de passe incorrect.",
+    errorNoAccount: "Aucun compte associé à cette adresse email.",
+    errorWrongPassword: "Mot de passe incorrect.",
+    errorSignup: "Erreur lors de l'inscription.",
     errorDuplicate: "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.",
     errorPasswordShort: "Le mot de passe doit contenir au moins 6 caractères.",
     errorPasswordWeak: "Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre.",
@@ -34,7 +37,10 @@ const AUTH_T = {
     connect: "Sign in", create: "Create account",
     forgot: "Forgot password?", resetTitle: "Reset password", resetBtn: "Send reset link",
     resetSent: "✓ Link sent! Check your email.", backToLogin: "← Back",
-    errorLogin: "Incorrect email or password.", errorSignup: "Error during registration.",
+    errorLogin: "Incorrect email or password.",
+    errorNoAccount: "No account found for this email address.",
+    errorWrongPassword: "Incorrect password.",
+    errorSignup: "Error during registration.",
     errorDuplicate: "This email is already registered. Try signing in or use a different email address.",
     errorPasswordShort: "Password must be at least 6 characters.",
     errorPasswordWeak: "Password must contain at least one lowercase, one uppercase letter and one digit.",
@@ -49,7 +55,10 @@ const AUTH_T = {
     connect: "Iniciar sesión", create: "Crear cuenta",
     forgot: "¿Olvidaste la contraseña?", resetTitle: "Restablecer", resetBtn: "Enviar enlace",
     resetSent: "✓ ¡Enlace enviado! Revisa tu email.", backToLogin: "← Volver",
-    errorLogin: "Email o contraseña incorrectos.", errorSignup: "Error en el registro.",
+    errorLogin: "Email o contraseña incorrectos.",
+    errorNoAccount: "No se encontró ninguna cuenta con este email.",
+    errorWrongPassword: "Contraseña incorrecta.",
+    errorSignup: "Error en el registro.",
     errorDuplicate: "Este email ya está registrado. Intenta iniciar sesión o usa otra dirección.",
     errorPasswordShort: "La contraseña debe tener al menos 6 caracteres.",
     errorPasswordWeak: "La contraseña debe contener al menos una minúscula, una mayúscula y un número.",
@@ -60,7 +69,10 @@ const AUTH_T = {
     connect: "Anmelden", create: "Konto erstellen",
     forgot: "Passwort vergessen?", resetTitle: "Zurücksetzen", resetBtn: "Link senden",
     resetSent: "✓ Link gesendet! Prüfe deine E-Mail.", backToLogin: "← Zurück",
-    errorLogin: "Falsche E-Mail oder Passwort.", errorSignup: "Fehler bei der Registrierung.",
+    errorLogin: "Falsche E-Mail oder Passwort.",
+    errorNoAccount: "Kein Konto mit dieser E-Mail-Adresse gefunden.",
+    errorWrongPassword: "Falsches Passwort.",
+    errorSignup: "Fehler bei der Registrierung.",
     errorDuplicate: "Diese E-Mail ist bereits registriert. Versuche dich anzumelden oder verwende eine andere Adresse.",
     errorPasswordShort: "Das Passwort muss mindestens 6 Zeichen lang sein.",
     errorPasswordWeak: "Das Passwort muss mindestens einen Kleinbuchstaben, einen Großbuchstaben und eine Ziffer enthalten.",
@@ -71,7 +83,10 @@ const AUTH_T = {
     connect: "Accedi", create: "Crea account",
     forgot: "Password dimenticata?", resetTitle: "Reimposta", resetBtn: "Invia link",
     resetSent: "✓ Link inviato! Controlla la tua email.", backToLogin: "← Indietro",
-    errorLogin: "Email o password non corretti.", errorSignup: "Errore durante la registrazione.",
+    errorLogin: "Email o password non corretti.",
+    errorNoAccount: "Nessun account trovato per questo indirizzo email.",
+    errorWrongPassword: "Password non corretta.",
+    errorSignup: "Errore durante la registrazione.",
     errorDuplicate: "Questa email è già registrata. Prova ad accedere o usa un altro indirizzo.",
     errorPasswordShort: "La password deve contenere almeno 6 caratteri.",
     errorPasswordWeak: "La password deve contenere almeno una minuscola, una maiuscola e un numero.",
@@ -82,7 +97,10 @@ const AUTH_T = {
     connect: "Entrar", create: "Criar conta",
     forgot: "Esqueceu a palavra-passe?", resetTitle: "Redefinir", resetBtn: "Enviar link",
     resetSent: "✓ Link enviado! Verifique o email.", backToLogin: "← Voltar",
-    errorLogin: "Email ou palavra-passe incorretos.", errorSignup: "Erro no registo.",
+    errorLogin: "Email ou palavra-passe incorretos.",
+    errorNoAccount: "Nenhuma conta encontrada para este endereço de email.",
+    errorWrongPassword: "Palavra-passe incorreta.",
+    errorSignup: "Erro no registo.",
     errorDuplicate: "Este email já está registado. Tente entrar ou use outro endereço.",
     errorPasswordShort: "A palavra-passe deve ter pelo menos 6 caracteres.",
     errorPasswordWeak: "A palavra-passe deve conter pelo menos uma minúscula, uma maiúscula e um número.",
@@ -93,7 +111,10 @@ const AUTH_T = {
     connect: "Inloggen", create: "Account maken",
     forgot: "Wachtwoord vergeten?", resetTitle: "Herstellen", resetBtn: "Link versturen",
     resetSent: "✓ Link verstuurd! Controleer je email.", backToLogin: "← Terug",
-    errorLogin: "Onjuist email of wachtwoord.", errorSignup: "Fout bij registratie.",
+    errorLogin: "Onjuist email of wachtwoord.",
+    errorNoAccount: "Geen account gevonden voor dit e-mailadres.",
+    errorWrongPassword: "Onjuist wachtwoord.",
+    errorSignup: "Fout bij registratie.",
     errorDuplicate: "Dit email is al geregistreerd. Probeer in te loggen of gebruik een ander adres.",
     errorPasswordShort: "Het wachtwoord moet minimaal 6 tekens bevatten.",
     errorPasswordWeak: "Het wachtwoord moet minstens één kleine letter, één hoofdletter en één cijfer bevatten.",
@@ -161,6 +182,20 @@ export default function Auth() {
       return;
     }
     if (mode === "login") {
+      // Check if the email exists in profiles before attempting sign-in
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('email', email.trim().toLowerCase())
+        .maybeSingle();
+
+      if (!existingProfile) {
+        // No profile found — email doesn't belong to any account
+        setError(at.errorNoAccount);
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         console.log("Login error:", error.status, error.message);
@@ -168,7 +203,8 @@ export default function Auth() {
         if (msg.includes("not confirmed") || msg.includes("confirm")) {
           setError(at.errorNotConfirmed);
         } else {
-          setError(at.errorLogin);
+          // Email exists but auth failed → wrong password
+          setError(at.errorWrongPassword);
         }
       }
     } else {
