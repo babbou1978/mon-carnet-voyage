@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     await adminClient.from('preferences').delete().eq('user_id', userId);
     await adminClient.from('friendships').delete().or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
     await adminClient.from('profiles').delete().eq('user_id', userId);
+    await adminClient.from('closed_places').delete().eq('confirmed_by', userId);
 
     // Delete auth user (requires service role)
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
