@@ -2020,8 +2020,25 @@ function TravelAgent() {
   }, [prefs.nbrecos]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      // If this is an email confirmation redirect, sign out so user sees login page
+      const hash = window.location.hash;
+      if (hash.includes("type=signup") || hash.includes("type=email")) {
+        supabase.auth.signOut();
+        window.history.replaceState(null, '', window.location.pathname);
+        return;
+      }
+      setSession(session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Don't auto-login on email confirmation
+      if (_event === "SIGNED_IN" && window.location.hash.includes("type=signup")) {
+        supabase.auth.signOut();
+        window.history.replaceState(null, '', window.location.pathname);
+        return;
+      }
+      setSession(session);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -3195,6 +3212,12 @@ RULES:
                     {LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.label}</option>)}
                   </select>
                 </div>
+                <div className="field" style={{marginTop:8}}>
+                  <label>🎨 {t.profileTheme||"Theme"}</label>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["light","☀️ Light"],["dark","🌙 Dark"]].map(([k,label])=><button key={k} onClick={()=>{setPrefs(p=>({...p,theme:k}));setThemeKey(k);}} style={{flex:1,padding:"8px 12px",borderRadius:10,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${themeKey===k?COLORS.accent:COLORS.border}`,background:themeKey===k?`${COLORS.accent}22`:COLORS.card,color:themeKey===k?COLORS.accent:COLORS.muted,fontWeight:themeKey===k?600:400}}>{label}</button>)}
+                  </div>
+                </div>
               </div>
 
               <div className="prefs-card">
@@ -3555,15 +3578,16 @@ RULES:
         const inputStyle = {background:COLORS.bg,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%"};
 
         const finishOnboarding = async () => {
-          const userId = session.user.id;
-          await supabase.from('profiles').upsert({user_id:userId,first_name:prefs.firstName,last_name:prefs.lastName,email:session.user.email});
-          const { firstName, lastName, ...dbPrefs } = prefs;
-          await supabase.from('preferences').upsert({user_id:userId,...dbPrefs});
-          setProfile({user_id:userId,first_name:prefs.firstName,last_name:prefs.lastName,email:session.user.email});
+          // Transition instantly — DB calls happen in background
           localStorage.setItem("outsy_onboarding_done","1");
           setShowOnboarding(false);
           setShowTour(true);
-          showToast(ot.onboardDone||"✓ Profile created!");
+          // Background save
+          const userId = session.user.id;
+          const { firstName, lastName, ...dbPrefs } = prefs;
+          setProfile({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email});
+          supabase.from('profiles').upsert({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email});
+          supabase.from('preferences').upsert({user_id:userId,...dbPrefs});
         };
 
         return (
@@ -3588,6 +3612,12 @@ RULES:
                 <div>
                   <label style={labelStyle}>🌍 {t.profileLanguage||"Language"}</label>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{LANGUAGES.map(l=><button key={l.code} onClick={()=>setPrefs(p=>({...p,language:l.code}))} style={{padding:"6px 12px",borderRadius:20,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${prefs.language===l.code?COLORS.accent:COLORS.border}`,background:prefs.language===l.code?`${COLORS.accent}22`:COLORS.card,color:prefs.language===l.code?COLORS.accent:COLORS.muted,fontWeight:prefs.language===l.code?600:400}}>{l.flag} {l.label}</button>)}</div>
+                </div>
+                <div style={{marginTop:12}}>
+                  <label style={labelStyle}>🎨 {t.profileTheme||"Theme"}</label>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["light","☀️ Light"],["dark","🌙 Dark"]].map(([k,label])=><button key={k} onClick={()=>{setPrefs(p=>({...p,theme:k}));setThemeKey(k);}} style={{flex:1,padding:"8px 12px",borderRadius:20,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${themeKey===k?COLORS.accent:COLORS.border}`,background:themeKey===k?`${COLORS.accent}22`:COLORS.card,color:themeKey===k?COLORS.accent:COLORS.muted,fontWeight:themeKey===k?600:400}}>{label}</button>)}
+                  </div>
                 </div>
               </>)}
 
