@@ -26,6 +26,7 @@ const AUTH_T = {
     errorLogin: "Email ou mot de passe incorrect.", errorSignup: "Erreur lors de l'inscription.",
     errorDuplicate: "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.",
     errorPasswordShort: "Le mot de passe doit contenir au moins 6 caractères.",
+    errorPasswordWeak: "Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre.",
     errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
   en: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Sign in", signup: "Sign up",
     firstName: "First name", lastName: "Last name", email: "Email", password: "Password",
@@ -35,6 +36,7 @@ const AUTH_T = {
     errorLogin: "Incorrect email or password.", errorSignup: "Error during registration.",
     errorDuplicate: "This email is already registered. Try signing in or use a different email address.",
     errorPasswordShort: "Password must be at least 6 characters.",
+    errorPasswordWeak: "Password must contain at least one lowercase, one uppercase letter and one digit.",
     errorName: "First and last name required.", welcome: "Welcome to Outsy AI!" },
   es: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Iniciar sesión", signup: "Registrarse",
     firstName: "Nombre", lastName: "Apellido", email: "Email", password: "Contraseña",
@@ -44,6 +46,7 @@ const AUTH_T = {
     errorLogin: "Email o contraseña incorrectos.", errorSignup: "Error en el registro.",
     errorDuplicate: "Este email ya está registrado. Intenta iniciar sesión o usa otra dirección.",
     errorPasswordShort: "La contraseña debe tener al menos 6 caracteres.",
+    errorPasswordWeak: "La contraseña debe contener al menos una minúscula, una mayúscula y un número.",
     errorName: "Nombre y apellido requeridos.", welcome: "¡Bienvenido a Outsy AI!" },
   de: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Anmelden", signup: "Registrieren",
     firstName: "Vorname", lastName: "Nachname", email: "Email", password: "Passwort",
@@ -53,6 +56,7 @@ const AUTH_T = {
     errorLogin: "Falsche E-Mail oder Passwort.", errorSignup: "Fehler bei der Registrierung.",
     errorDuplicate: "Diese E-Mail ist bereits registriert. Versuche dich anzumelden oder verwende eine andere Adresse.",
     errorPasswordShort: "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    errorPasswordWeak: "Das Passwort muss mindestens einen Kleinbuchstaben, einen Großbuchstaben und eine Ziffer enthalten.",
     errorName: "Vor- und Nachname erforderlich.", welcome: "Willkommen bei Outsy AI!" },
   it: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Accedi", signup: "Registrati",
     firstName: "Nome", lastName: "Cognome", email: "Email", password: "Password",
@@ -62,6 +66,7 @@ const AUTH_T = {
     errorLogin: "Email o password non corretti.", errorSignup: "Errore durante la registrazione.",
     errorDuplicate: "Questa email è già registrata. Prova ad accedere o usa un altro indirizzo.",
     errorPasswordShort: "La password deve contenere almeno 6 caratteri.",
+    errorPasswordWeak: "La password deve contenere almeno una minuscola, una maiuscola e un numero.",
     errorName: "Nome e cognome richiesti.", welcome: "Benvenuto su Outsy AI!" },
   pt: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Entrar", signup: "Registar",
     firstName: "Nome", lastName: "Apelido", email: "Email", password: "Palavra-passe",
@@ -71,6 +76,7 @@ const AUTH_T = {
     errorLogin: "Email ou palavra-passe incorretos.", errorSignup: "Erro no registo.",
     errorDuplicate: "Este email já está registado. Tente entrar ou use outro endereço.",
     errorPasswordShort: "A palavra-passe deve ter pelo menos 6 caracteres.",
+    errorPasswordWeak: "A palavra-passe deve conter pelo menos uma minúscula, uma maiúscula e um número.",
     errorName: "Nome e apelido obrigatórios.", welcome: "Bem-vindo ao Outsy AI!" },
   nl: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Inloggen", signup: "Registreren",
     firstName: "Voornaam", lastName: "Achternaam", email: "Email", password: "Wachtwoord",
@@ -80,6 +86,7 @@ const AUTH_T = {
     errorLogin: "Onjuist email of wachtwoord.", errorSignup: "Fout bij registratie.",
     errorDuplicate: "Dit email is al geregistreerd. Probeer in te loggen of gebruik een ander adres.",
     errorPasswordShort: "Het wachtwoord moet minimaal 6 tekens bevatten.",
+    errorPasswordWeak: "Het wachtwoord moet minstens één kleine letter, één hoofdletter en één cijfer bevatten.",
     errorName: "Voor- en achternaam vereist.", welcome: "Welkom bij Outsy AI!" },
 };
 
@@ -137,14 +144,15 @@ export default function Auth() {
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       if (password.length < 6) { setError(at.errorPasswordShort); setLoading(false); return; }
+      if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) { setError(at.errorPasswordWeak); setLoading(false); return; }
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
       if (error) {
         console.log("Signup error:", error.status, error.message);
         const msg = error.message?.toLowerCase() || "";
-        if (error.status === 422 || msg.includes("already") || msg.includes("exists") || msg.includes("registered") || msg.includes("unique")) {
+        if (msg.includes("already") || msg.includes("exists") || msg.includes("registered") || msg.includes("unique")) {
           setError(at.errorDuplicate);
         } else if (msg.includes("password") || msg.includes("mot de passe")) {
-          setError(at.errorPasswordShort);
+          setError(at.errorPasswordWeak);
         } else {
           setError(error.message || at.errorSignup);
         }
