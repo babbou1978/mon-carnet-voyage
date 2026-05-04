@@ -19,29 +19,35 @@ const COLORS = THEMES[THEME];
 
 const AUTH_T = {
   fr: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Connexion", signup: "Inscription",
-    firstName: "Prénom", lastName: "Nom", email: "Email", password: "Mot de passe",
+    firstName: "Prénom", lastName: "Nom", username: "Pseudo", usernamePlaceholder: "@monpseudo", emailOrUsername: "Email ou @pseudo", email: "Email", password: "Mot de passe",
     connect: "Se connecter", create: "Créer mon compte",
     forgot: "Mot de passe oublié ?", resetTitle: "Réinitialiser", resetBtn: "Envoyer le lien",
     resetSent: "✓ Lien envoyé ! Vérifiez votre email.", backToLogin: "← Retour",
     errorLogin: "Email ou mot de passe incorrect.",
-    errorNoAccount: "Aucun compte associé à cette adresse email.",
+    errorNoAccount: "Aucun compte associé à cette adresse email ou ce pseudo.",
     errorWrongPassword: "Mot de passe incorrect.",
     errorSignup: "Erreur lors de l'inscription.",
     errorDuplicate: "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.",
+    errorUsernameTaken: "Ce pseudo est déjà pris.",
+    errorUsernameInvalid: "Pseudo invalide : 3-20 caractères, lettres, chiffres, _ ou . uniquement.",
+    errorUsernameRequired: "Le pseudo est requis.",
     errorPasswordShort: "Le mot de passe doit contenir au moins 6 caractères.",
     errorPasswordWeak: "Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre.",
     errorEmail: "Adresse email invalide.",
     errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
   en: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Sign in", signup: "Sign up",
-    firstName: "First name", lastName: "Last name", email: "Email", password: "Password",
+    firstName: "First name", lastName: "Last name", username: "Username", usernamePlaceholder: "@myusername", emailOrUsername: "Email or @username", email: "Email", password: "Password",
     connect: "Sign in", create: "Create account",
     forgot: "Forgot password?", resetTitle: "Reset password", resetBtn: "Send reset link",
     resetSent: "✓ Link sent! Check your email.", backToLogin: "← Back",
     errorLogin: "Incorrect email or password.",
-    errorNoAccount: "No account found for this email address.",
+    errorNoAccount: "No account found for this email or username.",
     errorWrongPassword: "Incorrect password.",
     errorSignup: "Error during registration.",
     errorDuplicate: "This email is already registered. Try signing in or use a different email address.",
+    errorUsernameTaken: "This username is already taken.",
+    errorUsernameInvalid: "Invalid username: 3-20 characters, letters, numbers, _ or . only.",
+    errorUsernameRequired: "Username is required.",
     errorPasswordShort: "Password must be at least 6 characters.",
     errorPasswordWeak: "Password must contain at least one lowercase, one uppercase letter and one digit.",
     errorEmail: "Invalid email address.",
@@ -51,71 +57,86 @@ const AUTH_T = {
     emailConfirmed: "✓ Email confirmed! You can now sign in.",
     welcome: "Welcome to Outsy AI!" },
   es: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Iniciar sesión", signup: "Registrarse",
-    firstName: "Nombre", lastName: "Apellido", email: "Email", password: "Contraseña",
+    firstName: "Nombre", lastName: "Apellido", username: "Usuario", usernamePlaceholder: "@miusuario", emailOrUsername: "Email o @usuario", email: "Email", password: "Contraseña",
     connect: "Iniciar sesión", create: "Crear cuenta",
     forgot: "¿Olvidaste la contraseña?", resetTitle: "Restablecer", resetBtn: "Enviar enlace",
     resetSent: "✓ ¡Enlace enviado! Revisa tu email.", backToLogin: "← Volver",
     errorLogin: "Email o contraseña incorrectos.",
-    errorNoAccount: "No se encontró ninguna cuenta con este email.",
+    errorNoAccount: "No se encontró ninguna cuenta con este email o usuario.",
     errorWrongPassword: "Contraseña incorrecta.",
     errorSignup: "Error en el registro.",
     errorDuplicate: "Este email ya está registrado. Intenta iniciar sesión o usa otra dirección.",
+    errorUsernameTaken: "Este usuario ya está en uso.",
+    errorUsernameInvalid: "Usuario inválido: 3-20 caracteres, letras, números, _ o . solamente.",
+    errorUsernameRequired: "El usuario es obligatorio.",
     errorPasswordShort: "La contraseña debe tener al menos 6 caracteres.",
     errorPasswordWeak: "La contraseña debe contener al menos una minúscula, una mayúscula y un número.",
     errorEmail: "Dirección de email inválida.",
     errorName: "Nombre y apellido requeridos.", welcome: "¡Bienvenido a Outsy AI!" },
   de: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Anmelden", signup: "Registrieren",
-    firstName: "Vorname", lastName: "Nachname", email: "Email", password: "Passwort",
+    firstName: "Vorname", lastName: "Nachname", username: "Benutzername", usernamePlaceholder: "@meinname", emailOrUsername: "Email oder @Benutzername", email: "Email", password: "Passwort",
     connect: "Anmelden", create: "Konto erstellen",
     forgot: "Passwort vergessen?", resetTitle: "Zurücksetzen", resetBtn: "Link senden",
     resetSent: "✓ Link gesendet! Prüfe deine E-Mail.", backToLogin: "← Zurück",
     errorLogin: "Falsche E-Mail oder Passwort.",
-    errorNoAccount: "Kein Konto mit dieser E-Mail-Adresse gefunden.",
+    errorNoAccount: "Kein Konto mit dieser E-Mail oder diesem Benutzernamen gefunden.",
     errorWrongPassword: "Falsches Passwort.",
     errorSignup: "Fehler bei der Registrierung.",
     errorDuplicate: "Diese E-Mail ist bereits registriert. Versuche dich anzumelden oder verwende eine andere Adresse.",
+    errorUsernameTaken: "Dieser Benutzername ist bereits vergeben.",
+    errorUsernameInvalid: "Ungültiger Name: 3-20 Zeichen, Buchstaben, Zahlen, _ oder . erlaubt.",
+    errorUsernameRequired: "Benutzername ist erforderlich.",
     errorPasswordShort: "Das Passwort muss mindestens 6 Zeichen lang sein.",
     errorPasswordWeak: "Das Passwort muss mindestens einen Kleinbuchstaben, einen Großbuchstaben und eine Ziffer enthalten.",
     errorEmail: "Ungültige E-Mail-Adresse.",
     errorName: "Vor- und Nachname erforderlich.", welcome: "Willkommen bei Outsy AI!" },
   it: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Accedi", signup: "Registrati",
-    firstName: "Nome", lastName: "Cognome", email: "Email", password: "Password",
+    firstName: "Nome", lastName: "Cognome", username: "Nome utente", usernamePlaceholder: "@mionomeutente", emailOrUsername: "Email o @nomeutente", email: "Email", password: "Password",
     connect: "Accedi", create: "Crea account",
     forgot: "Password dimenticata?", resetTitle: "Reimposta", resetBtn: "Invia link",
     resetSent: "✓ Link inviato! Controlla la tua email.", backToLogin: "← Indietro",
     errorLogin: "Email o password non corretti.",
-    errorNoAccount: "Nessun account trovato per questo indirizzo email.",
+    errorNoAccount: "Nessun account trovato per questo email o nome utente.",
     errorWrongPassword: "Password non corretta.",
     errorSignup: "Errore durante la registrazione.",
     errorDuplicate: "Questa email è già registrata. Prova ad accedere o usa un altro indirizzo.",
+    errorUsernameTaken: "Questo nome utente è già in uso.",
+    errorUsernameInvalid: "Nome utente non valido: 3-20 caratteri, lettere, numeri, _ o . ammessi.",
+    errorUsernameRequired: "Il nome utente è obbligatorio.",
     errorPasswordShort: "La password deve contenere almeno 6 caratteri.",
     errorPasswordWeak: "La password deve contenere almeno una minuscola, una maiuscola e un numero.",
     errorEmail: "Indirizzo email non valido.",
     errorName: "Nome e cognome richiesti.", welcome: "Benvenuto su Outsy AI!" },
   pt: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Entrar", signup: "Registar",
-    firstName: "Nome", lastName: "Apelido", email: "Email", password: "Palavra-passe",
+    firstName: "Nome", lastName: "Apelido", username: "Utilizador", usernamePlaceholder: "@meunome", emailOrUsername: "Email ou @utilizador", email: "Email", password: "Palavra-passe",
     connect: "Entrar", create: "Criar conta",
     forgot: "Esqueceu a palavra-passe?", resetTitle: "Redefinir", resetBtn: "Enviar link",
     resetSent: "✓ Link enviado! Verifique o email.", backToLogin: "← Voltar",
     errorLogin: "Email ou palavra-passe incorretos.",
-    errorNoAccount: "Nenhuma conta encontrada para este endereço de email.",
+    errorNoAccount: "Nenhuma conta encontrada para este email ou utilizador.",
     errorWrongPassword: "Palavra-passe incorreta.",
     errorSignup: "Erro no registo.",
     errorDuplicate: "Este email já está registado. Tente entrar ou use outro endereço.",
+    errorUsernameTaken: "Este utilizador já está em uso.",
+    errorUsernameInvalid: "Utilizador inválido: 3-20 caracteres, letras, números, _ ou . apenas.",
+    errorUsernameRequired: "O nome de utilizador é obrigatório.",
     errorPasswordShort: "A palavra-passe deve ter pelo menos 6 caracteres.",
     errorPasswordWeak: "A palavra-passe deve conter pelo menos uma minúscula, uma maiúscula e um número.",
     errorEmail: "Endereço de email inválido.",
     errorName: "Nome e apelido obrigatórios.", welcome: "Bem-vindo ao Outsy AI!" },
   nl: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Inloggen", signup: "Registreren",
-    firstName: "Voornaam", lastName: "Achternaam", email: "Email", password: "Wachtwoord",
+    firstName: "Voornaam", lastName: "Achternaam", username: "Gebruikersnaam", usernamePlaceholder: "@mijnnaam", emailOrUsername: "Email of @gebruikersnaam", email: "Email", password: "Wachtwoord",
     connect: "Inloggen", create: "Account maken",
     forgot: "Wachtwoord vergeten?", resetTitle: "Herstellen", resetBtn: "Link versturen",
     resetSent: "✓ Link verstuurd! Controleer je email.", backToLogin: "← Terug",
     errorLogin: "Onjuist email of wachtwoord.",
-    errorNoAccount: "Geen account gevonden voor dit e-mailadres.",
+    errorNoAccount: "Geen account gevonden voor dit e-mailadres of deze gebruikersnaam.",
     errorWrongPassword: "Onjuist wachtwoord.",
     errorSignup: "Fout bij registratie.",
     errorDuplicate: "Dit email is al geregistreerd. Probeer in te loggen of gebruik een ander adres.",
+    errorUsernameTaken: "Deze gebruikersnaam is al in gebruik.",
+    errorUsernameInvalid: "Ongeldige naam: 3-20 tekens, letters, cijfers, _ of . toegestaan.",
+    errorUsernameRequired: "Gebruikersnaam is verplicht.",
     errorPasswordShort: "Het wachtwoord moet minimaal 6 tekens bevatten.",
     errorPasswordWeak: "Het wachtwoord moet minstens één kleine letter, één hoofdletter en één cijfer bevatten.",
     errorEmail: "Ongeldig e-mailadres.",
@@ -154,6 +175,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -183,7 +205,26 @@ export default function Auth() {
       return;
     }
     if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      let loginEmail = email.trim();
+      // Detect if user entered a username instead of email
+      const isEmail = loginEmail.includes("@") && loginEmail.includes(".");
+      if (!isEmail) {
+        // Strip leading @ if present, treat as username lookup
+        const uname = loginEmail.replace(/^@/, "").toLowerCase();
+        const { data: profileByUsername } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', uname)
+          .maybeSingle();
+        if (!profileByUsername) {
+          setError(at.errorNoAccount);
+          setLoading(false);
+          return;
+        }
+        loginEmail = profileByUsername.email;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
       if (error) {
         console.log("Login error:", error.status, error.message);
         const msg = error.message?.toLowerCase() || "";
@@ -194,23 +235,27 @@ export default function Auth() {
           const { data: existingProfile } = await supabase
             .from('profiles')
             .select('user_id')
-            .eq('email', email.trim().toLowerCase())
+            .eq('email', loginEmail.trim().toLowerCase())
             .maybeSingle();
-
           if (existingProfile) {
-            // Profile exists → email is known → wrong password
             setError(at.errorWrongPassword);
           } else {
-            // No profile found → email unknown
             setError(at.errorNoAccount);
           }
         }
       }
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
+      // Validate username
+      const cleanUsername = username.trim().replace(/^@/, "").toLowerCase();
+      if (!cleanUsername) { setError(at.errorUsernameRequired); setLoading(false); return; }
+      if (!/^[a-z0-9_.]{3,20}$/.test(cleanUsername)) { setError(at.errorUsernameInvalid); setLoading(false); return; }
+      // Check username uniqueness
+      const { data: existing } = await supabase.from('profiles').select('user_id').eq('username', cleanUsername).maybeSingle();
+      if (existing) { setError(at.errorUsernameTaken); setLoading(false); return; }
       if (password.length < 6) { setError(at.errorPasswordShort); setLoading(false); return; }
       if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) { setError(at.errorPasswordWeak); setLoading(false); return; }
-      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName, username: cleanUsername } } });
       if (error) {
         console.log("Signup error:", error.status, error.message);
         const msg = error.message?.toLowerCase() || "";
@@ -232,7 +277,7 @@ export default function Auth() {
         if (data.user) {
           // Always try to create profile (works if RLS allows, otherwise App.jsx handles it on first login)
           try {
-            await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
+            await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName, username: cleanUsername });
           } catch {}
           try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email, userId: data.user.id }) }); } catch {}
         }
@@ -266,12 +311,15 @@ export default function Auth() {
                 <button type="button" className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
               </div>
               {mode === "signup" && (
+                <>
                 <div className="auth-row">
                   <div className="auth-field"><label>{at.firstName}</label><input placeholder={at.firstName} value={firstName} onChange={e => setFirstName(e.target.value)} autoComplete="given-name" /></div>
                   <div className="auth-field"><label>{at.lastName}</label><input placeholder={at.lastName} value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" /></div>
                 </div>
+                <div className="auth-field"><label>{at.username}</label><input placeholder={at.usernamePlaceholder} value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ""))} autoComplete="username" style={{fontFamily:"'DM Sans',monospace"}} /></div>
+                </>
               )}
-              <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></div>
+              <div className="auth-field"><label>{mode === "login" ? at.emailOrUsername : at.email}</label><input type={mode === "login" ? "text" : "email"} placeholder={mode === "login" ? "you@email.com or @username" : "you@email.com"} value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></div>
               <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode==="login"?"current-password":"new-password"} /></div>
               {error && <div className="auth-error">{error}</div>}
               {success && <div className="auth-success">{success}</div>}

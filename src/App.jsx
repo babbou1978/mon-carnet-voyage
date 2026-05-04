@@ -14,13 +14,13 @@ const getTypeIcon = (type) => {
 const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Café", coffee_shop: "Café", tea_house: "Café", bakery: "Café", bar: "Bar", night_club: "Bar", wine_bar: "Bar", cocktail_bar: "Bar", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", historical_landmark: "Destination", national_park: "Destination", museum: "Activité", art_gallery: "Activité", park: "Activité", amusement_park: "Activité", performing_arts_theater: "Activité", food: "Restaurant" };
 
 const ONBOARD_TOUR = {
-  fr:{onboardWelcome:"Bienvenue sur Outsy AI !",onboardWelcomeSub:"Configurons votre profil en 30 secondes.",onboardNext:"Suivant →",onboardBack:"Retour",onboardFinish:"C'est parti ! 🚀",onboardDone:"✓ Profil créé !",onboardSkip:"Passer et terminer",onboardCities:"Vos villes préférées",onboardCitiesSub:"Où allez-vous le plus souvent ? Ça aide notre IA. (optionnel)",onboardCitiesPlaceholder:"ex: Londres, Paris, New York, Tokyo...",onboardResultsSub:"Choisissez le nombre de résultats à afficher et votre budget habituel. (optionnel)",onboardLikesSub:"Sélectionnez ce qui compte pour vous (optionnel)",onboardDislikesSub:"Sélectionnez ce que vous préférez éviter (optionnel)",onboardNotesSub:"Autre chose qui aide nos recommandations ? Régime, allergies, style... (optionnel)",onboardNotesPlaceholder:"ex: Je suis végétarien, je préfère les endroits calmes, je voyage avec des enfants...",tourRecoDesc:"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées.",tourReco:"Recommandations",tourFav:"Favoris",tourAdd:"Ajouter",tourFriends:"Amis",tourProfile:"Profil",tourFavDesc:"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note.",tourAddDesc:"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion.",tourFriendsDesc:"Partagez vos découvertes entre amis. Leurs favoris enrichissent vos recommandations.",tourProfileDesc:"Personnalisez vos préférences pour des recommandations sur mesure.",tourNext:"Suivant →",tourStart:"C'est parti ! 🎉",tourSkip:"Passer le tour",onboardReady:"Vous êtes prêt(e) !",onboardReadySub:"Votre profil est configuré. Faisons un tour rapide de l'app, puis vous pourrez commencer à explorer !"},
-  en:{onboardWelcome:"Welcome to Outsy AI!",onboardWelcomeSub:"Let's set up your profile in 30 seconds.",onboardNext:"Next →",onboardBack:"Back",onboardFinish:"Let's go! 🚀",onboardDone:"✓ Profile created!",onboardSkip:"Skip & finish",onboardCities:"Your favorite cities",onboardCitiesSub:"Where do you go most often? This helps our AI. (optional)",onboardCitiesPlaceholder:"e.g. London, Paris, New York, Tokyo...",onboardResultsSub:"Choose how many results to display and your usual budget. (optional)",onboardLikesSub:"Select what matters to you (optional)",onboardDislikesSub:"Select what you prefer to skip (optional)",onboardNotesSub:"Anything else that helps us recommend better? Diet, allergies, style... (optional)",onboardNotesPlaceholder:"e.g. I'm vegetarian, I prefer quiet places, I travel with kids...",tourRecoDesc:"Find the best places around you. Google popular places + personalized AI recommendations.",tourReco:"Recommendations",tourFav:"Favorites",tourAdd:"Add",tourFriends:"Friends",tourProfile:"Profile",tourFavDesc:"All your favorites, rated and detailed. Filter by type, price, rating.",tourAddDesc:"Save a place in seconds. Integrated Google search with autocomplete.",tourFriendsDesc:"Share your discoveries with friends. Their favorites enrich your recommendations.",tourProfileDesc:"Customize your preferences for tailored recommendations.",tourNext:"Next →",tourStart:"Let's go! 🎉",tourSkip:"Skip tour",onboardReady:"You're all set!",onboardReadySub:"Your profile is ready. Let's take a quick tour of the app, then you can start exploring!"},
-  es:{onboardWelcome:"¡Bienvenido a Outsy AI!",onboardWelcomeSub:"Configuremos tu perfil en 30 segundos.",onboardNext:"Siguiente →",onboardBack:"Volver",onboardFinish:"¡Vamos! 🚀",onboardDone:"✓ ¡Perfil creado!",onboardSkip:"Saltar y terminar",onboardCities:"Tus ciudades favoritas",onboardCitiesSub:"¿A dónde vas más a menudo? (opcional)",onboardCitiesPlaceholder:"ej: Londres, París, Nueva York...",onboardResultsSub:"Elige cuántos resultados mostrar y tu presupuesto habitual. (opcional)",onboardLikesSub:"Selecciona lo que te importa (opcional)",onboardDislikesSub:"Selecciona lo que prefieres evitar (opcional)",onboardNotesSub:"¿Algo más para mejores recomendaciones? (opcional)",onboardNotesPlaceholder:"ej: Soy vegetariano, prefiero lugares tranquilos...",tourRecoDesc:"Encuentra los mejores lugares cerca de ti.",tourReco:"Recomendaciones",tourFav:"Favoritos",tourAdd:"Añadir",tourFriends:"Amigos",tourProfile:"Perfil",tourFavDesc:"Todos tus favoritos, valorados y detallados.",tourAddDesc:"Guarda un lugar en segundos.",tourFriendsDesc:"Comparte tus descubrimientos con amigos.",tourProfileDesc:"Personaliza tus preferencias.",tourNext:"Siguiente →",tourStart:"¡Vamos! 🎉",tourSkip:"Saltar tour",onboardReady:"¡Todo listo!",onboardReadySub:"Tu perfil está listo. Hagamos un tour rápido y podrás empezar a explorar."},
-  de:{onboardWelcome:"Willkommen bei Outsy AI!",onboardWelcomeSub:"Richte dein Profil in 30 Sekunden ein.",onboardNext:"Weiter →",onboardBack:"Zurück",onboardFinish:"Los geht's! 🚀",onboardDone:"✓ Profil erstellt!",onboardSkip:"Überspringen",onboardCities:"Deine Lieblingsstädte",onboardCitiesSub:"Wo bist du am häufigsten? (optional)",onboardCitiesPlaceholder:"z.B. London, Paris, New York...",onboardResultsSub:"Wähle die Anzahl der Ergebnisse und dein übliches Budget. (optional)",onboardLikesSub:"Was ist dir wichtig? (optional)",onboardDislikesSub:"Was meidest du lieber? (optional)",onboardNotesSub:"Sonstiges für bessere Empfehlungen? (optional)",onboardNotesPlaceholder:"z.B. Vegetarier, mag ruhige Orte...",tourRecoDesc:"Finde die besten Orte in deiner Nähe.",tourReco:"Empfehlungen",tourFav:"Favoriten",tourAdd:"Hinzufügen",tourFriends:"Freunde",tourProfile:"Profil",tourFavDesc:"Alle deine Favoriten, bewertet und detailliert.",tourAddDesc:"Speichere einen Ort in Sekunden.",tourFriendsDesc:"Teile deine Entdeckungen mit Freunden.",tourProfileDesc:"Passe deine Vorlieben an.",tourNext:"Weiter →",tourStart:"Los geht's! 🎉",tourSkip:"Tour überspringen",onboardReady:"Alles bereit!",onboardReadySub:"Dein Profil ist fertig. Lass uns einen kurzen Rundgang machen!"},
-  it:{onboardWelcome:"Benvenuto su Outsy AI!",onboardWelcomeSub:"Configuriamo il tuo profilo in 30 secondi.",onboardNext:"Avanti →",onboardBack:"Indietro",onboardFinish:"Andiamo! 🚀",onboardDone:"✓ Profilo creato!",onboardSkip:"Salta e termina",onboardCities:"Le tue città preferite",onboardCitiesSub:"Dove vai più spesso? (facoltativo)",onboardCitiesPlaceholder:"es: Londra, Parigi, New York...",onboardResultsSub:"Scegli quanti risultati mostrare e il tuo budget abituale. (facoltativo)",onboardLikesSub:"Cosa ti importa? (facoltativo)",onboardDislikesSub:"Cosa preferisci evitare? (facoltativo)",onboardNotesSub:"Qualcos'altro per raccomandazioni migliori? (facoltativo)",onboardNotesPlaceholder:"es: Vegetariano, preferisco posti tranquilli...",tourRecoDesc:"Trova i migliori posti vicino a te.",tourReco:"Raccomandazioni",tourFav:"Preferiti",tourAdd:"Aggiungi",tourFriends:"Amici",tourProfile:"Profilo",tourFavDesc:"Tutti i tuoi preferiti.",tourAddDesc:"Salva un luogo in pochi secondi.",tourFriendsDesc:"Condividi le tue scoperte con gli amici.",tourProfileDesc:"Personalizza le tue preferenze.",tourNext:"Avanti →",tourStart:"Andiamo! 🎉",tourSkip:"Salta il tour",onboardReady:"Tutto pronto!",onboardReadySub:"Il tuo profilo è pronto. Facciamo un tour rapido dell'app!"},
-  pt:{onboardWelcome:"Bem-vindo ao Outsy AI!",onboardWelcomeSub:"Vamos configurar o seu perfil em 30 segundos.",onboardNext:"Seguinte →",onboardBack:"Voltar",onboardFinish:"Vamos! 🚀",onboardDone:"✓ Perfil criado!",onboardSkip:"Saltar e terminar",onboardCities:"As suas cidades preferidas",onboardCitiesSub:"Onde vai mais vezes? (opcional)",onboardCitiesPlaceholder:"ex: Londres, Paris, Nova Iorque...",onboardResultsSub:"Escolha quantos resultados mostrar e o seu orçamento habitual. (opcional)",onboardLikesSub:"O que lhe importa? (opcional)",onboardDislikesSub:"O que prefere evitar? (opcional)",onboardNotesSub:"Mais alguma coisa? (opcional)",onboardNotesPlaceholder:"ex: Vegetariano, prefiro lugares calmos...",tourRecoDesc:"Encontre os melhores lugares perto de si.",tourReco:"Recomendações",tourFav:"Favoritos",tourAdd:"Adicionar",tourFriends:"Amigos",tourProfile:"Perfil",tourFavDesc:"Todos os seus favoritos.",tourAddDesc:"Guarde um lugar em segundos.",tourFriendsDesc:"Partilhe as suas descobertas.",tourProfileDesc:"Personalize as suas preferências.",tourNext:"Seguinte →",tourStart:"Vamos! 🎉",tourSkip:"Saltar tour",onboardReady:"Tudo pronto!",onboardReadySub:"O seu perfil está configurado. Vamos fazer um tour rápido!"},
-  nl:{onboardWelcome:"Welkom bij Outsy AI!",onboardWelcomeSub:"Stel je profiel in in 30 seconden.",onboardNext:"Volgende →",onboardBack:"Terug",onboardFinish:"Laten we gaan! 🚀",onboardDone:"✓ Profiel aangemaakt!",onboardSkip:"Overslaan",onboardCities:"Jouw favoriete steden",onboardCitiesSub:"Waar ga je het vaakst? (optioneel)",onboardCitiesPlaceholder:"bijv. Londen, Parijs, New York...",onboardResultsSub:"Kies hoeveel resultaten je wilt zien en je gebruikelijke budget. (optioneel)",onboardLikesSub:"Wat is belangrijk voor jou? (optioneel)",onboardDislikesSub:"Wat vermijd je liever? (optioneel)",onboardNotesSub:"Nog iets voor betere aanbevelingen? (optioneel)",onboardNotesPlaceholder:"bijv. Vegetariër, hou van rustige plekken...",tourRecoDesc:"Vind de beste plekken bij jou in de buurt.",tourReco:"Aanbevelingen",tourFav:"Favorieten",tourAdd:"Toevoegen",tourFriends:"Vrienden",tourProfile:"Profiel",tourFavDesc:"Al je favorieten.",tourAddDesc:"Sla een plek op in seconden.",tourFriendsDesc:"Deel je ontdekkingen met vrienden.",tourProfileDesc:"Pas je voorkeuren aan.",tourNext:"Volgende →",tourStart:"Laten we gaan! 🎉",tourSkip:"Tour overslaan",onboardReady:"Alles klaar!",onboardReadySub:"Je profiel is ingesteld. Laten we een snelle rondleiding doen!"},
+  fr:{onboardWelcome:"Bienvenue sur Outsy AI !",onboardWelcomeSub:"Configurons votre profil en 30 secondes.",onboardNext:"Suivant →",onboardBack:"Retour",onboardFinish:"C'est parti ! 🚀",onboardDone:"✓ Profil créé !",onboardSkip:"Passer et terminer",onboardCities:"Vos villes préférées",onboardCitiesSub:"Où allez-vous le plus souvent ? Ça aide notre IA. (optionnel)",onboardCitiesPlaceholder:"ex: Londres, Paris, New York, Tokyo...",onboardResultsSub:"Choisissez le nombre de résultats à afficher et votre budget habituel. (optionnel)",onboardLikesSub:"Sélectionnez ce qui compte pour vous (optionnel)",onboardDislikesSub:"Sélectionnez ce que vous préférez éviter (optionnel)",onboardNotesSub:"Autre chose qui aide nos recommandations ? Régime, allergies, style... (optionnel)",onboardNotesPlaceholder:"ex: Je suis végétarien, je préfère les endroits calmes, je voyage avec des enfants...",tourRecoDesc:"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées.",tourReco:"Recommandations",tourFav:"Favoris",tourAdd:"Ajouter",tourFriends:"Abonnements",tourProfile:"Profil",tourFavDesc:"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note.",tourAddDesc:"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion.",tourFriendsDesc:"Suivez des utilisateurs et découvrez leurs coups de cœur. Leurs favoris enrichissent vos recommandations.",tourProfileDesc:"Personnalisez vos préférences pour des recommandations sur mesure.",tourNext:"Suivant →",tourStart:"C'est parti ! 🎉",tourSkip:"Passer le tour",onboardReady:"Vous êtes prêt(e) !",onboardReadySub:"Votre profil est configuré. Faisons un tour rapide de l'app, puis vous pourrez commencer à explorer !"},
+  en:{onboardWelcome:"Welcome to Outsy AI!",onboardWelcomeSub:"Let's set up your profile in 30 seconds.",onboardNext:"Next →",onboardBack:"Back",onboardFinish:"Let's go! 🚀",onboardDone:"✓ Profile created!",onboardSkip:"Skip & finish",onboardCities:"Your favorite cities",onboardCitiesSub:"Where do you go most often? This helps our AI. (optional)",onboardCitiesPlaceholder:"e.g. London, Paris, New York, Tokyo...",onboardResultsSub:"Choose how many results to display and your usual budget. (optional)",onboardLikesSub:"Select what matters to you (optional)",onboardDislikesSub:"Select what you prefer to skip (optional)",onboardNotesSub:"Anything else that helps us recommend better? Diet, allergies, style... (optional)",onboardNotesPlaceholder:"e.g. I'm vegetarian, I prefer quiet places, I travel with kids...",tourRecoDesc:"Find the best places around you. Google popular places + personalized AI recommendations.",tourReco:"Recommendations",tourFav:"Favorites",tourAdd:"Add",tourFriends:"Following",tourProfile:"Profile",tourFavDesc:"All your favorites, rated and detailed. Filter by type, price, rating.",tourAddDesc:"Save a place in seconds. Integrated Google search with autocomplete.",tourFriendsDesc:"Follow users and discover their favorites. Their picks enrich your recommendations.",tourProfileDesc:"Customize your preferences for tailored recommendations.",tourNext:"Next →",tourStart:"Let's go! 🎉",tourSkip:"Skip tour",onboardReady:"You're all set!",onboardReadySub:"Your profile is ready. Let's take a quick tour of the app, then you can start exploring!"},
+  es:{onboardWelcome:"¡Bienvenido a Outsy AI!",onboardWelcomeSub:"Configuremos tu perfil en 30 segundos.",onboardNext:"Siguiente →",onboardBack:"Volver",onboardFinish:"¡Vamos! 🚀",onboardDone:"✓ ¡Perfil creado!",onboardSkip:"Saltar y terminar",onboardCities:"Tus ciudades favoritas",onboardCitiesSub:"¿A dónde vas más a menudo? (opcional)",onboardCitiesPlaceholder:"ej: Londres, París, Nueva York...",onboardResultsSub:"Elige cuántos resultados mostrar y tu presupuesto habitual. (opcional)",onboardLikesSub:"Selecciona lo que te importa (opcional)",onboardDislikesSub:"Selecciona lo que prefieres evitar (opcional)",onboardNotesSub:"¿Algo más para mejores recomendaciones? (opcional)",onboardNotesPlaceholder:"ej: Soy vegetariano, prefiero lugares tranquilos...",tourRecoDesc:"Encuentra los mejores lugares cerca de ti.",tourReco:"Recomendaciones",tourFav:"Favoritos",tourAdd:"Añadir",tourFriends:"Seguidos",tourProfile:"Perfil",tourFavDesc:"Todos tus favoritos, valorados y detallados.",tourAddDesc:"Guarda un lugar en segundos.",tourFriendsDesc:"Sigue a usuarios y descubre sus favoritos.",tourProfileDesc:"Personaliza tus preferencias.",tourNext:"Siguiente →",tourStart:"¡Vamos! 🎉",tourSkip:"Saltar tour",onboardReady:"¡Todo listo!",onboardReadySub:"Tu perfil está listo. Hagamos un tour rápido y podrás empezar a explorar."},
+  de:{onboardWelcome:"Willkommen bei Outsy AI!",onboardWelcomeSub:"Richte dein Profil in 30 Sekunden ein.",onboardNext:"Weiter →",onboardBack:"Zurück",onboardFinish:"Los geht's! 🚀",onboardDone:"✓ Profil erstellt!",onboardSkip:"Überspringen",onboardCities:"Deine Lieblingsstädte",onboardCitiesSub:"Wo bist du am häufigsten? (optional)",onboardCitiesPlaceholder:"z.B. London, Paris, New York...",onboardResultsSub:"Wähle die Anzahl der Ergebnisse und dein übliches Budget. (optional)",onboardLikesSub:"Was ist dir wichtig? (optional)",onboardDislikesSub:"Was meidest du lieber? (optional)",onboardNotesSub:"Sonstiges für bessere Empfehlungen? (optional)",onboardNotesPlaceholder:"z.B. Vegetarier, mag ruhige Orte...",tourRecoDesc:"Finde die besten Orte in deiner Nähe.",tourReco:"Empfehlungen",tourFav:"Favoriten",tourAdd:"Hinzufügen",tourFriends:"Folge ich",tourProfile:"Profil",tourFavDesc:"Alle deine Favoriten, bewertet und detailliert.",tourAddDesc:"Speichere einen Ort in Sekunden.",tourFriendsDesc:"Folge Nutzern und entdecke ihre Favoriten.",tourProfileDesc:"Passe deine Vorlieben an.",tourNext:"Weiter →",tourStart:"Los geht's! 🎉",tourSkip:"Tour überspringen",onboardReady:"Alles bereit!",onboardReadySub:"Dein Profil ist fertig. Lass uns einen kurzen Rundgang machen!"},
+  it:{onboardWelcome:"Benvenuto su Outsy AI!",onboardWelcomeSub:"Configuriamo il tuo profilo in 30 secondi.",onboardNext:"Avanti →",onboardBack:"Indietro",onboardFinish:"Andiamo! 🚀",onboardDone:"✓ Profilo creato!",onboardSkip:"Salta e termina",onboardCities:"Le tue città preferite",onboardCitiesSub:"Dove vai più spesso? (facoltativo)",onboardCitiesPlaceholder:"es: Londra, Parigi, New York...",onboardResultsSub:"Scegli quanti risultati mostrare e il tuo budget abituale. (facoltativo)",onboardLikesSub:"Cosa ti importa? (facoltativo)",onboardDislikesSub:"Cosa preferisci evitare? (facoltativo)",onboardNotesSub:"Qualcos'altro per raccomandazioni migliori? (facoltativo)",onboardNotesPlaceholder:"es: Vegetariano, preferisco posti tranquilli...",tourRecoDesc:"Trova i migliori posti vicino a te.",tourReco:"Raccomandazioni",tourFav:"Preferiti",tourAdd:"Aggiungi",tourFriends:"Seguiti",tourProfile:"Profilo",tourFavDesc:"Tutti i tuoi preferiti.",tourAddDesc:"Salva un luogo in pochi secondi.",tourFriendsDesc:"Segui utenti e scopri i loro preferiti.",tourProfileDesc:"Personalizza le tue preferenze.",tourNext:"Avanti →",tourStart:"Andiamo! 🎉",tourSkip:"Salta il tour",onboardReady:"Tutto pronto!",onboardReadySub:"Il tuo profilo è pronto. Facciamo un tour rapido dell'app!"},
+  pt:{onboardWelcome:"Bem-vindo ao Outsy AI!",onboardWelcomeSub:"Vamos configurar o seu perfil em 30 segundos.",onboardNext:"Seguinte →",onboardBack:"Voltar",onboardFinish:"Vamos! 🚀",onboardDone:"✓ Perfil criado!",onboardSkip:"Saltar e terminar",onboardCities:"As suas cidades preferidas",onboardCitiesSub:"Onde vai mais vezes? (opcional)",onboardCitiesPlaceholder:"ex: Londres, Paris, Nova Iorque...",onboardResultsSub:"Escolha quantos resultados mostrar e o seu orçamento habitual. (opcional)",onboardLikesSub:"O que lhe importa? (opcional)",onboardDislikesSub:"O que prefere evitar? (opcional)",onboardNotesSub:"Mais alguma coisa? (opcional)",onboardNotesPlaceholder:"ex: Vegetariano, prefiro lugares calmos...",tourRecoDesc:"Encontre os melhores lugares perto de si.",tourReco:"Recomendações",tourFav:"Favoritos",tourAdd:"Adicionar",tourFriends:"Seguidos",tourProfile:"Perfil",tourFavDesc:"Todos os seus favoritos.",tourAddDesc:"Guarde um lugar em segundos.",tourFriendsDesc:"Siga utilizadores e descubra os seus favoritos.",tourProfileDesc:"Personalize as suas preferências.",tourNext:"Seguinte →",tourStart:"Vamos! 🎉",tourSkip:"Saltar tour",onboardReady:"Tudo pronto!",onboardReadySub:"O seu perfil está configurado. Vamos fazer um tour rápido!"},
+  nl:{onboardWelcome:"Welkom bij Outsy AI!",onboardWelcomeSub:"Stel je profiel in in 30 seconden.",onboardNext:"Volgende →",onboardBack:"Terug",onboardFinish:"Laten we gaan! 🚀",onboardDone:"✓ Profiel aangemaakt!",onboardSkip:"Overslaan",onboardCities:"Jouw favoriete steden",onboardCitiesSub:"Waar ga je het vaakst? (optioneel)",onboardCitiesPlaceholder:"bijv. Londen, Parijs, New York...",onboardResultsSub:"Kies hoeveel resultaten je wilt zien en je gebruikelijke budget. (optioneel)",onboardLikesSub:"Wat is belangrijk voor jou? (optioneel)",onboardDislikesSub:"Wat vermijd je liever? (optioneel)",onboardNotesSub:"Nog iets voor betere aanbevelingen? (optioneel)",onboardNotesPlaceholder:"bijv. Vegetariër, hou van rustige plekken...",tourRecoDesc:"Vind de beste plekken bij jou in de buurt.",tourReco:"Aanbevelingen",tourFav:"Favorieten",tourAdd:"Toevoegen",tourFriends:"Volgend",tourProfile:"Profiel",tourFavDesc:"Al je favorieten.",tourAddDesc:"Sla een plek op in seconden.",tourFriendsDesc:"Volg gebruikers en ontdek hun favorieten.",tourProfileDesc:"Pas je voorkeuren aan.",tourNext:"Volgende →",tourStart:"Laten we gaan! 🎉",tourSkip:"Tour overslaan",onboardReady:"Alles klaar!",onboardReadySub:"Je profiel is ingesteld. Laten we een snelle rondleiding doen!"},
 };
 const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
@@ -121,17 +121,18 @@ const TRANSLATIONS = {
     profileBudget: "Budget habituel", profileBudgetNone: "Non renseigné",
     profileDislikes: "🚫 Ce que j'évite", profileDislikesSelect: "Sélectionner", profileDislikesPrecise: "Préciser",
     profileNotes: "📝 Notes libres", profileNotesLabel: "Autres infos", profileSave: "Sauvegarder mon profil", profileSaved: "✓ Profil enregistré",
-    friendsRequests: "🔔 Demandes reçues", friendsSearch: "🔍 Ajouter un ami", friendsSearchPlaceholder: "Prénom, nom ou email...",
-    friendsSearchBtn: "Chercher", friendsList: "👥 Mes amis", friendsNone: "Aucun ami pour l'instant.",
-    friendsPending: "⏳ En attente", friendsAlready: "Déjà ami", friendsSent: "Envoyée", friendsAdd: "+ Ajouter",
-    friendsAccept: "✓", friendsView: "Voir ❤️", friendsHeartTitle: "❤️ Coups de cœur de",
-    friendsNoHeart: "n'a pas encore de coups de cœur.",
-    friendsHearts: "coups de cœur",
+    followRequests: "🔔 Demandes de suivi", followSearch: "🔍 Rechercher un utilisateur", followSearchPlaceholder: "@pseudo...",
+    followSearchBtn: "Chercher", followingList: "Abonnements", followersList: "Abonnés", followNone: "Vous ne suivez personne.",
+    followPending: "⏳ En attente", followAlready: "Abonné", followSent: "Demande envoyée", followBtn: "Suivre", followBackBtn: "Suivre en retour",
+    followAccept: "✓ Accepter", followDecline: "✕", followView: "Voir ❤️", followHeartTitle: "❤️ Coups de cœur de",
+    followNoHeart: "n'a pas encore de coups de cœur.", followHearts: "coups de cœur",
+    followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
+    profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
     recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
-    recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & amis",
+    recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
     recoInCarnet: "Dans votre carnet", recoNearby: "🔥 Lieux populaires à proximité", recoNearbySub: "Triés par note et distance",
     recoAI: "✨ Outsy AI", recoAISub: "10 recommandations triées par affinité",
     recoAddFav: "+ Ajouter à mes coups de cœur", recoMapsLink: "Maps →",
@@ -179,16 +180,18 @@ const TRANSLATIONS = {
     profileBudget: "Presupuesto habitual", profileBudgetNone: "No especificado",
     profileDislikes: "🚫 Lo que evito", profileDislikesSelect: "Seleccionar", profileDislikesPrecise: "Añadir detalles",
     profileNotes: "📝 Notas libres", profileNotesLabel: "Otra info", profileSave: "Guardar perfil", profileSaved: "✓ Perfil guardado",
-    friendsRequests: "🔔 Solicitudes", friendsSearch: "🔍 Añadir amigo", friendsSearchPlaceholder: "Nombre o email...",
-    friendsSearchBtn: "Buscar", friendsList: "👥 Mis amigos", friendsNone: "Sin amigos por ahora.",
-    friendsPending: "⏳ Pendiente", friendsAlready: "Ya amigos", friendsSent: "Enviado", friendsAdd: "+ Añadir",
-    friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
-    friendsNoHeart: "aún no tiene favoritos.",
+    followRequests: "🔔 Solicitudes de seguimiento", followSearch: "🔍 Buscar usuario", followSearchPlaceholder: "@usuario...",
+    followSearchBtn: "Buscar", followingList: "Siguiendo", followersList: "Seguidores", followNone: "No sigues a nadie.",
+    followPending: "⏳ Pendiente", followAlready: "Siguiendo", followSent: "Enviado", followBtn: "Seguir", followBackBtn: "Seguir de vuelta",
+    followAccept: "✓ Aceptar", followDecline: "✕", followView: "Ver ❤️", followHeartTitle: "❤️ Favoritos de",
+    followNoHeart: "aún no tiene favoritos.", followHearts: "favoritos",
+    followUnfollow: "Dejar de seguir", followPrivate: "Cuenta privada", followPublic: "Cuenta pública",
+    profileUsername: "Usuario", profilePrivacy: "Privacidad",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
     recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
     recoGPS: "📍 Mi ubicación", recoManual: "✏️ Introducir", recoGPSLoading: "Obteniendo tu ubicación...",
-    recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y amigos",
+    recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y seguidos",
     recoInCarnet: "En tu colección", recoNearby: "🔥 Lugares populares cercanos", recoNearbySub: "Ordenados por valoración y distancia",
     recoAI: "✨ Outsy AI", recoAISub: "10 recomendaciones por afinidad",
     recoAddFav: "+ Añadir a favoritos", recoMapsLink: "Maps →",
@@ -198,7 +201,6 @@ const TRANSLATIONS = {
     deleteTitle: "Eliminar", deleteText: "se eliminará de tus favoritos.", deleteConfirm: "Eliminar",
     closedTitle: "⚠️ Establecimientos cerrados", closedText: "Estos establecimientos parecen cerrados permanentemente. ¿Eliminarlos de tus Favoritos?", closedKeep: "Conservar", closedRemove: "Eliminar", closedToast: "✓ Favoritos eliminados",
     friendSaveLabel: "Editar antes de guardar",
-    friendsHearts: "favoritos",
     cancel: "Cancelar",
     unsavedTitle: "Cambios sin guardar", unsavedText: "Tienes cambios sin guardar. ¿Salir sin guardar?", unsavedStay: "Seguir editando", unsavedLeave: "Salir", mapFavorites: "Favoritos", mapAIPicks: "Selección AI", mapClose: "✕ Cerrar", mapFullscreen: "⛶ Pantalla completa", mapTooltip: "Ver ficha",
     matchLabel: "% afinidad",
@@ -235,16 +237,18 @@ const TRANSLATIONS = {
     profileBudget: "Übliches Budget", profileBudgetNone: "Nicht angegeben",
     profileDislikes: "🚫 Was ich meide", profileDislikesSelect: "Auswählen", profileDislikesPrecise: "Details hinzufügen",
     profileNotes: "📝 Freie Notizen", profileNotesLabel: "Weitere Infos", profileSave: "Profil speichern", profileSaved: "✓ Profil gespeichert",
-    friendsRequests: "🔔 Anfragen", friendsSearch: "🔍 Freund hinzufügen", friendsSearchPlaceholder: "Name oder E-Mail...",
-    friendsSearchBtn: "Suchen", friendsList: "👥 Meine Freunde", friendsNone: "Noch keine Freunde.",
-    friendsPending: "⏳ Ausstehend", friendsAlready: "Bereits Freunde", friendsSent: "Gesendet", friendsAdd: "+ Hinzufügen",
-    friendsAccept: "✓", friendsView: "Anzeigen ❤️", friendsHeartTitle: "❤️ Favoriten von",
-    friendsNoHeart: "hat noch keine Favoriten.",
+    followRequests: "🔔 Follow-Anfragen", followSearch: "🔍 Benutzer suchen", followSearchPlaceholder: "@benutzername...",
+    followSearchBtn: "Suchen", followingList: "Folge ich", followersList: "Follower", followNone: "Du folgst niemandem.",
+    followPending: "⏳ Ausstehend", followAlready: "Folge ich", followSent: "Gesendet", followBtn: "Folgen", followBackBtn: "Zurückfolgen",
+    followAccept: "✓ Annehmen", followDecline: "✕", followView: "Anzeigen ❤️", followHeartTitle: "❤️ Favoriten von",
+    followNoHeart: "hat noch keine Favoriten.", followHearts: "Favoriten",
+    followUnfollow: "Entfolgen", followPrivate: "Privates Konto", followPublic: "Öffentliches Konto",
+    profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
     recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
     recoGPS: "📍 Mein Standort", recoManual: "✏️ Eingeben", recoGPSLoading: "Standort wird ermittelt...",
-    recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Freunde",
+    recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Gefolgte",
     recoInCarnet: "In deiner Sammlung", recoNearby: "🔥 Beliebte Orte in der Nähe", recoNearbySub: "Sortiert nach Bewertung und Entfernung",
     recoAI: "✨ Outsy AI", recoAISub: "10 Empfehlungen nach Übereinstimmung",
     recoAddFav: "+ Zu Favoriten hinzufügen", recoMapsLink: "Maps →",
@@ -254,7 +258,6 @@ const TRANSLATIONS = {
     deleteTitle: "Löschen", deleteText: "wird aus deinen Favoriten entfernt.", deleteConfirm: "Löschen",
     closedTitle: "⚠️ Geschlossene Orte", closedText: "Diese Orte scheinen dauerhaft geschlossen. Aus Favoriten entfernen?", closedKeep: "Behalten", closedRemove: "Entfernen", closedToast: "✓ Favoriten entfernt",
     friendSaveLabel: "Vor dem Speichern bearbeiten",
-    friendsHearts: "Favoriten",
     cancel: "Abbrechen",
     unsavedTitle: "Ungespeicherte Änderungen", unsavedText: "Du hast ungespeicherte Änderungen. Ohne Speichern verlassen?", unsavedStay: "Weiter bearbeiten", unsavedLeave: "Verlassen", mapFavorites: "Favoriten", mapAIPicks: "AI-Auswahl", mapClose: "✕ Schließen", mapFullscreen: "⛶ Vollbild", mapTooltip: "Details ansehen",
     matchLabel: "% Übereinstimmung",
@@ -291,16 +294,18 @@ const TRANSLATIONS = {
     profileBudget: "Budget abituale", profileBudgetNone: "Non specificato",
     profileDislikes: "🚫 Cosa evito", profileDislikesSelect: "Seleziona", profileDislikesPrecise: "Aggiungi dettagli",
     profileNotes: "📝 Note libere", profileNotesLabel: "Altre info", profileSave: "Salva profilo", profileSaved: "✓ Profilo salvato",
-    friendsRequests: "🔔 Richieste", friendsSearch: "🔍 Aggiungi amico", friendsSearchPlaceholder: "Nome o email...",
-    friendsSearchBtn: "Cerca", friendsList: "👥 I miei amici", friendsNone: "Nessun amico per ora.",
-    friendsPending: "⏳ In attesa", friendsAlready: "Già amici", friendsSent: "Inviato", friendsAdd: "+ Aggiungi",
-    friendsAccept: "✓", friendsView: "Vedi ❤️", friendsHeartTitle: "❤️ Preferiti di",
-    friendsNoHeart: "non ha ancora preferiti.",
+    followRequests: "🔔 Richieste di follow", followSearch: "🔍 Cerca utente", followSearchPlaceholder: "@nomeutente...",
+    followSearchBtn: "Cerca", followingList: "Seguiti", followersList: "Follower", followNone: "Non segui nessuno.",
+    followPending: "⏳ In attesa", followAlready: "Segui già", followSent: "Inviato", followBtn: "Segui", followBackBtn: "Segui anche",
+    followAccept: "✓ Accetta", followDecline: "✕", followView: "Vedi ❤️", followHeartTitle: "❤️ Preferiti di",
+    followNoHeart: "non ha ancora preferiti.", followHearts: "preferiti",
+    followUnfollow: "Smetti di seguire", followPrivate: "Account privato", followPublic: "Account pubblico",
+    profileUsername: "Nome utente", profilePrivacy: "Privacy",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
     recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
     recoGPS: "📍 La mia posizione", recoManual: "✏️ Inserisci", recoGPSLoading: "Recupero posizione...",
-    recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e amici",
+    recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e seguiti",
     recoInCarnet: "Nella tua collezione", recoNearby: "🔥 Posti popolari vicini", recoNearbySub: "Ordinati per valutazione e distanza",
     recoAI: "✨ Outsy AI", recoAISub: "10 raccomandazioni per affinità",
     recoAddFav: "+ Aggiungi ai preferiti", recoMapsLink: "Maps →",
@@ -310,8 +315,6 @@ const TRANSLATIONS = {
     deleteTitle: "Elimina", deleteText: "verrà rimosso dai tuoi preferiti.", deleteConfirm: "Elimina",
     closedTitle: "⚠️ Posti chiusi", closedText: "Questi posti sembrano chiusi definitivamente. Rimuoverli dai Preferiti?", closedKeep: "Tieni", closedRemove: "Rimuovi", closedToast: "✓ Preferiti rimossi",
     friendSaveLabel: "Modifica prima di salvare",
-    friendsHearts: "preferiti",
-    friendsNoHeart: "non ha ancora preferiti.",
     cancel: "Annulla",
     unsavedTitle: "Modifiche non salvate", unsavedText: "Hai modifiche non salvate. Uscire senza salvare?", unsavedStay: "Continua a modificare", unsavedLeave: "Esci", mapFavorites: "Preferiti", mapAIPicks: "Selezione AI", mapClose: "✕ Chiudi", mapFullscreen: "⛶ Schermo intero", mapTooltip: "Vedi scheda",
     matchLabel: "% affinità",
@@ -348,16 +351,18 @@ const TRANSLATIONS = {
     profileBudget: "Orçamento habitual", profileBudgetNone: "Não especificado",
     profileDislikes: "🚫 O que evito", profileDislikesSelect: "Selecionar", profileDislikesPrecise: "Adicionar detalhes",
     profileNotes: "📝 Notas livres", profileNotesLabel: "Outras informações", profileSave: "Guardar perfil", profileSaved: "✓ Perfil guardado",
-    friendsRequests: "🔔 Pedidos", friendsSearch: "🔍 Adicionar amigo", friendsSearchPlaceholder: "Nome ou email...",
-    friendsSearchBtn: "Pesquisar", friendsList: "👥 Os meus amigos", friendsNone: "Sem amigos por enquanto.",
-    friendsPending: "⏳ Pendente", friendsAlready: "Já amigos", friendsSent: "Enviado", friendsAdd: "+ Adicionar",
-    friendsAccept: "✓", friendsView: "Ver ❤️", friendsHeartTitle: "❤️ Favoritos de",
-    friendsNoHeart: "ainda não tem favoritos.",
+    followRequests: "🔔 Pedidos de seguir", followSearch: "🔍 Pesquisar utilizador", followSearchPlaceholder: "@utilizador...",
+    followSearchBtn: "Pesquisar", followingList: "A seguir", followersList: "Seguidores", followNone: "Não segue ninguém.",
+    followPending: "⏳ Pendente", followAlready: "A seguir", followSent: "Enviado", followBtn: "Seguir", followBackBtn: "Seguir de volta",
+    followAccept: "✓ Aceitar", followDecline: "✕", followView: "Ver ❤️", followHeartTitle: "❤️ Favoritos de",
+    followNoHeart: "ainda não tem favoritos.", followHearts: "favoritos",
+    followUnfollow: "Deixar de seguir", followPrivate: "Conta privada", followPublic: "Conta pública",
+    profileUsername: "Utilizador", profilePrivacy: "Privacidade",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
     recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
     recoGPS: "📍 A minha posição", recoManual: "✏️ Introduzir", recoGPSLoading: "A obter posição...",
-    recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e amigos",
+    recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e seguidos",
     recoInCarnet: "Na sua coleção", recoNearby: "🔥 Lugares populares perto", recoNearbySub: "Ordenados por avaliação e distância",
     recoAI: "✨ Outsy AI", recoAISub: "10 recomendações por afinidade",
     recoAddFav: "+ Adicionar aos favoritos", recoMapsLink: "Maps →",
@@ -367,8 +372,6 @@ const TRANSLATIONS = {
     deleteTitle: "Eliminar", deleteText: "será removido dos seus favoritos.", deleteConfirm: "Eliminar",
     closedTitle: "⚠️ Estabelecimentos fechados", closedText: "Estes estabelecimentos parecem fechados definitivamente. Removê-los dos Favoritos?", closedKeep: "Manter", closedRemove: "Remover", closedToast: "✓ Favoritos removidos",
     friendSaveLabel: "Editar antes de guardar",
-    friendsHearts: "favoritos",
-    friendsNoHeart: "ainda não tem favoritos.",
     cancel: "Cancelar",
     unsavedTitle: "Alterações não guardadas", unsavedText: "Tens alterações não guardadas. Sair sem guardar?", unsavedStay: "Continuar a editar", unsavedLeave: "Sair", mapFavorites: "Favoritos", mapAIPicks: "Seleção AI", mapClose: "✕ Fechar", mapFullscreen: "⛶ Ecrã inteiro", mapTooltip: "Ver ficha",
     matchLabel: "% afinidade",
@@ -405,16 +408,18 @@ const TRANSLATIONS = {
     profileBudget: "Gebruikelijk budget", profileBudgetNone: "Niet opgegeven",
     profileDislikes: "🚫 Wat ik vermijd", profileDislikesSelect: "Selecteren", profileDislikesPrecise: "Details toevoegen",
     profileNotes: "📝 Vrije notities", profileNotesLabel: "Andere info", profileSave: "Profiel opslaan", profileSaved: "✓ Profiel opgeslagen",
-    friendsRequests: "🔔 Verzoeken", friendsSearch: "🔍 Vriend toevoegen", friendsSearchPlaceholder: "Naam of e-mail...",
-    friendsSearchBtn: "Zoeken", friendsList: "👥 Mijn vrienden", friendsNone: "Nog geen vrienden.",
-    friendsPending: "⏳ In behandeling", friendsAlready: "Al vrienden", friendsSent: "Verzonden", friendsAdd: "+ Toevoegen",
-    friendsAccept: "✓", friendsView: "Bekijk ❤️", friendsHeartTitle: "❤️ Favorieten van",
-    friendsNoHeart: "heeft nog geen favorieten.",
+    followRequests: "🔔 Volgverzoeken", followSearch: "🔍 Gebruiker zoeken", followSearchPlaceholder: "@gebruikersnaam...",
+    followSearchBtn: "Zoeken", followingList: "Volgend", followersList: "Volgers", followNone: "Je volgt niemand.",
+    followPending: "⏳ In behandeling", followAlready: "Volgend", followSent: "Verzonden", followBtn: "Volgen", followBackBtn: "Terugvolgen",
+    followAccept: "✓ Accepteren", followDecline: "✕", followView: "Bekijk ❤️", followHeartTitle: "❤️ Favorieten van",
+    followNoHeart: "heeft nog geen favorieten.", followHearts: "favorieten",
+    followUnfollow: "Ontvolgen", followPrivate: "Privéaccount", followPublic: "Openbaar account",
+    profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
     recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
     recoGPS: "📍 Mijn locatie", recoManual: "✏️ Invoeren", recoGPSLoading: "Locatie ophalen...",
-    recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & vrienden",
+    recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & gevolgd",
     recoInCarnet: "In jouw collectie", recoNearby: "🔥 Populaire plekken in de buurt", recoNearbySub: "Gesorteerd op beoordeling en afstand",
     recoAI: "✨ Outsy AI", recoAISub: "10 aanbevelingen op basis van overeenkomst",
     recoAddFav: "+ Toevoegen aan favorieten", recoMapsLink: "Maps →",
@@ -424,8 +429,6 @@ const TRANSLATIONS = {
     deleteTitle: "Verwijderen", deleteText: "wordt verwijderd uit je favorieten.", deleteConfirm: "Verwijderen",
     closedTitle: "⚠️ Gesloten plekken", closedText: "Deze plekken lijken permanent gesloten. Verwijderen uit Favorieten?", closedKeep: "Bewaren", closedRemove: "Verwijderen", closedToast: "✓ Favorieten verwijderd",
     friendSaveLabel: "Bewerken voor opslaan",
-    friendsHearts: "favorieten",
-    friendsNoHeart: "heeft nog geen favorieten.",
     cancel: "Annuleren",
     unsavedTitle: "Niet-opgeslagen wijzigingen", unsavedText: "Je hebt niet-opgeslagen wijzigingen. Verlaten zonder opslaan?", unsavedStay: "Blijven bewerken", unsavedLeave: "Verlaten", mapFavorites: "Favorieten", mapAIPicks: "AI-keuze", mapClose: "✕ Sluiten", mapFullscreen: "⛶ Volledig scherm", mapTooltip: "Bekijk kaart",
     matchLabel: "% overeenkomst",
@@ -462,16 +465,18 @@ const TRANSLATIONS = {
     profileBudget: "Usual budget", profileBudgetNone: "Not specified",
     profileDislikes: "🚫 What I avoid", profileDislikesSelect: "Select", profileDislikesPrecise: "Add details",
     profileNotes: "📝 Free notes", profileNotesLabel: "Other info", profileSave: "Save my profile", profileSaved: "✓ Profile saved",
-    friendsRequests: "🔔 Friend requests", friendsSearch: "🔍 Add a friend", friendsSearchPlaceholder: "Name or email...",
-    friendsSearchBtn: "Search", friendsList: "👥 My friends", friendsNone: "No friends yet.",
-    friendsPending: "⏳ Pending", friendsAlready: "Already friends", friendsSent: "Sent", friendsAdd: "+ Add",
-    friendsAccept: "✓", friendsView: "View ❤️", friendsHeartTitle: "❤️ Favorites from",
-    friendsNoHeart: "has no favorites yet.",
+    followRequests: "🔔 Follow requests", followSearch: "🔍 Search users", followSearchPlaceholder: "@username...",
+    followSearchBtn: "Search", followingList: "Following", followersList: "Followers", followNone: "You're not following anyone.",
+    followPending: "⏳ Pending", followAlready: "Following", followSent: "Requested", followBtn: "Follow", followBackBtn: "Follow back",
+    followAccept: "✓ Accept", followDecline: "✕", followView: "View ❤️", followHeartTitle: "❤️ Favorites from",
+    followNoHeart: "has no favorites yet.", followHearts: "favorites",
+    followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
+    profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
     recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
-    recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & friends",
+    recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
     recoInCarnet: "In your collection", recoNearby: "🔥 Popular nearby places", recoNearbySub: "Sorted by rating and distance",
     recoAI: "✨ Outsy AI", recoAISub: "10 recommendations ranked by match",
     recoAddFav: "+ Add to my favorites", recoMapsLink: "Maps →",
@@ -481,8 +486,6 @@ const TRANSLATIONS = {
     deleteTitle: "Delete", deleteText: "will be removed from your favorites.", deleteConfirm: "Delete",
     closedTitle: "⚠️ Closed places", closedText: "These places appear to be permanently closed. Remove them from your Favorites?", closedKeep: "Keep", closedRemove: "Remove", closedToast: "✓ Favorites removed",
     friendSaveLabel: "Edit before saving",
-    friendsHearts: "favorites",
-    friendsNoHeart: "has no favorites yet.",
     cancel: "Cancel",
     unsavedTitle: "Unsaved changes", unsavedText: "You have unsaved changes. Leave without saving?", unsavedStay: "Keep editing", unsavedLeave: "Leave", mapFavorites: "Favorites", mapAIPicks: "AI picks", mapClose: "✕ Close", mapFullscreen: "⛶ Fullscreen", mapTooltip: "View details",
     matchLabel: "% match",
@@ -1342,7 +1345,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
 
 const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexican","Lebanese","Greek","Spanish","British","American","Mediterranean","Vietnamese","Korean","Turkish","Moroccan","Austrian","Belgian","Scandinavian","Peruvian","Argentine","Brazilian","Australian","Modern European","Fusion","Vegetarian","Seafood","Steakhouse","Sushi","Pizza","Burger","Bistro","Brasserie","Wine bar","Cocktail bar","Café","Bakery"];
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
-const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",language:"en",nbrecos:"10",preferredCities:[] };
+const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",username:"",is_private:false,language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate, onDelete }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -1963,7 +1966,8 @@ function TravelAgent() {
   const setTab = (t) => { scrollPositions.current[tab] = window.scrollY; scrollPositions.current._next = scrollPositions.current[t] ?? 0; _setTab(t); };
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
-  const [friends, setFriends] = useState([]);
+  const [friends, setFriends] = useState([]); // people I follow
+  const [followers, setFollowers] = useState([]); // people who follow me
   const [pendingIn, setPendingIn] = useState([]);
   const [pendingOut, setPendingOut] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -2095,7 +2099,7 @@ function TravelAgent() {
         const { profile: p, memories: m, prefs: pr } = JSON.parse(cached);
         if (p) setProfile(p);
         if (m) setMemories(m);
-        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr, firstName: p?.first_name || "", lastName: p?.last_name || "" }); if (pr.theme) setThemeKey(pr.theme); }
+        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr, firstName: p?.first_name || "", lastName: p?.last_name || "", username: p?.username || "", is_private: p?.is_private || false }); if (pr.theme) setThemeKey(pr.theme); }
         setLoading(false); // Show UI immediately with cached data
       }
     } catch {}
@@ -2122,7 +2126,8 @@ function TravelAgent() {
         const email = session.user.email || "";
         const firstName = meta.first_name || email.split("@")[0] || "";
         const lastName = meta.last_name || "";
-        const newProfile = { user_id: userId, first_name: firstName, last_name: lastName, email };
+        const uname = meta.username || "";
+        const newProfile = { user_id: userId, first_name: firstName, last_name: lastName, email, username: uname || null };
         const { error: upsertErr } = await supabase.from('profiles').upsert(newProfile);
         if (upsertErr) {
           // Retry once after a brief delay (auth token race condition)
@@ -2230,10 +2235,10 @@ function TravelAgent() {
         }
       }
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).maybeSingle();
-      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref, firstName: prof?.first_name || "", lastName: prof?.last_name || "" }); if(pref.theme) setThemeKey(pref.theme); }
+      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref, firstName: prof?.first_name || "", lastName: prof?.last_name || "", username: prof?.username || "", is_private: prof?.is_private || false }); if(pref.theme) setThemeKey(pref.theme); }
       // Save to cache
       try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
-      await loadFriends(userId);
+      await loadFollows(userId);
       // Load community-reported closed places
       try {
         const { data: closed } = await supabase.from('closed_places').select('name,place_id,address');
@@ -2253,7 +2258,7 @@ function TravelAgent() {
         const meta = session.user.user_metadata || {};
         const fn = meta.first_name || prof?.first_name || "";
         const ln = meta.last_name || prof?.last_name || "";
-        setPrefs({ ...DEFAULT_PREFS, firstName: fn, lastName: ln });
+        setPrefs({ ...DEFAULT_PREFS, firstName: fn, lastName: ln, username: meta.username || "" });
       } else if (!pref.tour_done && !localStorage.getItem("outsy_tour_done")) {
         // Tour not completed: neither in DB nor localStorage
         setShowTour(true);
@@ -2262,31 +2267,34 @@ function TravelAgent() {
     load();
   }, [session]);
 
-  const loadFriends = async (userId) => {
-    const { data: acceptedA } = await supabase.from('friendships').select('*, profiles!friendships_addressee_id_fkey(*)').eq('requester_id', userId).eq('status', 'accepted');
-    const { data: acceptedB } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'accepted');
-    const friendList = [
-      ...(acceptedA||[]).map(f=>({id:f.id,profile:f.profiles,friendUserId:f.addressee_id})),
-      ...(acceptedB||[]).map(f=>({id:f.id,profile:f.profiles,friendUserId:f.requester_id})),
-    ];
-    setFriends(friendList);
-    if (friendList.length>0) {
-      const friendIds = friendList.map(f=>f.friendUserId);
-      // Récupérer les mémoires sans jointure
-      const { data: fMems } = await supabase.from('memories').select('*').in('user_id', friendIds).order('ts', { ascending: false });
+  const loadFollows = async (userId) => {
+    // Following: people I follow (I am requester, they are addressee, status=accepted)
+    const { data: followingData } = await supabase.from('friendships').select('*, profiles!friendships_addressee_id_fkey(*)').eq('requester_id', userId).eq('status', 'accepted');
+    const followingList = (followingData||[]).map(f=>({id:f.id,profile:f.profiles,followedUserId:f.addressee_id}));
+    setFriends(followingList);
+
+    // Followers: people who follow me (they are requester, I am addressee, status=accepted)
+    const { data: followersData } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'accepted');
+    const followersList = (followersData||[]).map(f=>({id:f.id,profile:f.profiles,followerUserId:f.requester_id}));
+    setFollowers(followersList);
+
+    if (followingList.length>0) {
+      const followedIds = followingList.map(f=>f.followedUserId);
+      const { data: fMems } = await supabase.from('memories').select('*').in('user_id', followedIds).order('ts', { ascending: false });
       if (fMems) {
-        // Récupérer les profils séparément et fusionner
-        const { data: fProfiles } = await supabase.from('profiles').select('user_id, first_name, last_name').in('user_id', friendIds);
+        const { data: fProfiles } = await supabase.from('profiles').select('user_id, username').in('user_id', followedIds);
         const profileMap = {};
         (fProfiles||[]).forEach(p => { profileMap[p.user_id] = p; });
         setFriendMemories(fMems.map(m => {
           const p = profileMap[m.user_id];
-          return { ...m, friendName: p ? `${p.first_name} ${p.last_name}` : "Ami" };
+          return { ...m, friendName: p ? `@${p.username}` : "?" };
         }));
       }
     }
+    // Pending follow requests I received (for private accounts)
     const { data: inReqs } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'pending');
     setPendingIn(inReqs||[]);
+    // Pending follow requests I sent
     const { data: outReqs } = await supabase.from('friendships').select('*, profiles!friendships_addressee_id_fkey(*)').eq('requester_id', userId).eq('status', 'pending');
     setPendingOut(outReqs||[]);
   };
@@ -2344,67 +2352,69 @@ function TravelAgent() {
   };
 
   const savePrefs = async () => {
-    const { firstName, lastName, ...dbPrefs } = prefs;
+    const { firstName, lastName, username, is_private, ...dbPrefs } = prefs;
     await supabase.from('preferences').upsert({ ...dbPrefs, user_id: userId });
-    await supabase.from('profiles').upsert({ user_id: userId, first_name: prefs.firstName, last_name: prefs.lastName, email: session.user.email });
+    await supabase.from('profiles').upsert({ user_id: userId, first_name: firstName, last_name: lastName, email: session.user.email, username: username || null, is_private: is_private || false });
     setPrefsSaved(true); setTimeout(()=>setPrefsSaved(false), 2000);
   };
 
   const searchFriends = async () => {
     if (!searchQuery.trim()) return;
-    const q = searchQuery.trim().toLowerCase();
-    // Search by email (exact or partial) OR by name
-    const isEmail = q.includes("@");
+    const q = searchQuery.trim().toLowerCase().replace(/^@/, "");
+    if (!q) return;
+    // Search by username (primary) or email
+    const isEmail = q.includes("@") && q.includes(".");
     let results = [];
     if (isEmail) {
-      // Email search via backend
       const res = await fetch("/api/friends", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", userId, targetEmail: searchQuery }) });
       const data = await res.json();
       results = data.users || [];
     } else {
-      // Name search via Supabase profiles
+      // Username search
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, first_name, last_name, email')
-        .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`)
+        .select('user_id, username, is_private')
+        .ilike('username', `%${q}%`)
         .neq('user_id', userId)
         .limit(10);
       results = (profiles || []).map(p => ({
         user_id: p.user_id,
-        first_name: p.first_name,
-        last_name: p.last_name,
-        email: p.email
+        username: p.username,
+        is_private: p.is_private || false
       }));
     }
     setSearchResults(results);
   };
 
-  const sendFriendRequest = async (targetUserId) => {
-    await supabase.from('friendships').insert({ requester_id: userId, addressee_id: targetUserId, status: 'pending' });
-    showToast(t.toastFriend); setSearchResults([]); setSearchQuery(""); await loadFriends(userId);
+  const sendFollowRequest = async (targetUserId, isTargetPrivate) => {
+    const status = isTargetPrivate ? 'pending' : 'accepted';
+    await supabase.from('friendships').insert({ requester_id: userId, addressee_id: targetUserId, status });
+    showToast(isTargetPrivate ? (t.followSent||"Request sent") : (t.followAlready||"Following"));
+    setSearchResults([]); setSearchQuery(""); await loadFollows(userId);
   };
 
-  const acceptFriend = async (friendshipId) => {
+  const acceptFollowRequest = async (friendshipId) => {
     await supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId);
-    showToast(t.toastFriendAdded); await loadFriends(userId);
+    showToast("✓"); await loadFollows(userId);
   };
 
-  const declineFriend = async (friendshipId) => {
+  const declineFollowRequest = async (friendshipId) => {
     await supabase.from('friendships').delete().eq('id', friendshipId);
-    await loadFriends(userId);
+    await loadFollows(userId);
   };
 
-  const removeFriend = async (friend) => {
-    const friendName = [friend.profile?.first_name, friend.profile?.last_name].filter(Boolean).join(" ") || "cet ami";
-    if (!window.confirm(`${t.friendsRemoveConfirm || "Supprimer"} ${friendName} ?`)) return;
-    await supabase.from('friendships').delete().eq('id', friend.id);
-    await loadFriends(userId);
-    showToast(`✓ ${friendName} ${t.friendsRemoved || "supprimé"}`);
+  const unfollow = async (follow) => {
+    const name = follow.profile?.username ? `@${follow.profile.username}` : "?";
+    if (!window.confirm(`${t.followUnfollow||"Unfollow"} ${name} ?`)) return;
+    await supabase.from('friendships').delete().eq('id', follow.id);
+    await loadFollows(userId);
+    showToast(`✓ ${t.followUnfollow||"Unfollowed"}`);
   };
 
-  const viewFriendMemories = (friend) => {
-    const fMems = friendMemories.filter(m => m.user_id === friend.friendUserId);
-    setViewingFriend({ name: `${friend.profile?.first_name} ${friend.profile?.last_name}`, memories: fMems });
+  const viewFollowMemories = (follow) => {
+    const fMems = friendMemories.filter(m => m.user_id === follow.followedUserId);
+    const name = follow.profile?.username ? `@${follow.profile.username}` : "?";
+    setViewingFriend({ name, memories: fMems });
   };
 
   const logout = () => supabase.auth.signOut();
@@ -3165,11 +3175,11 @@ RULES:
               {viewingFriend && (
                 <div className="friend-panel">
                   <div className="friend-panel-header">
-                    <div className="friend-panel-title">{t.friendsHeartTitle} {viewingFriend.name}</div>
+                    <div className="friend-panel-title">{t.followHeartTitle} {viewingFriend.name}</div>
                     <button className="friend-panel-close" onClick={()=>setViewingFriend(null)}>✕</button>
                   </div>
                   {viewingFriend.memories.length===0?(
-                    <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} {t.friendsNoHeart}</div>
+                    <div style={{fontSize:13,color:COLORS.muted,textAlign:"center",padding:"20px 0"}}>{viewingFriend.name} {t.followNoHeart}</div>
                   ):(
                     <div className="memory-list">
                       {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} t={t} lang={lang} onEdit={()=>{}} onDelete={()=>{}}
@@ -3179,33 +3189,46 @@ RULES:
                 </div>
               )}
 
+              {/* Pending follow requests I received */}
               {pendingIn.length>0&&(
                 <div>
-                  <div className="friends-title" style={{marginBottom:10}}>{t.friendsRequests}</div>
-                  {pendingIn.map(f=>(
+                  <div className="friends-title" style={{marginBottom:10}}>{t.followRequests}</div>
+                  {pendingIn.map(f=>{
+                    const uname = f.profiles?.username ? `@${f.profiles.username}` : "?";
+                    return (
                     <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                      <div className="friend-info"><div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div><div className="friend-email">{f.profiles?.email}</div></div>
-                      <div><button className="friend-action-btn accept" onClick={()=>acceptFriend(f.id)}>{t.friendsAccept}</button><button className="friend-action-btn decline" onClick={()=>declineFriend(f.id)}>✕</button></div>
-                    </div>
-                  ))}
+                      <div className="friend-info"><div className="friend-name">{uname}</div></div>
+                      <div><button className="friend-action-btn accept" onClick={()=>acceptFollowRequest(f.id)}>{t.followAccept}</button><button className="friend-action-btn decline" onClick={()=>declineFollowRequest(f.id)}>✕</button></div>
+                    </div>);
+                  })}
                 </div>
               )}
 
+              {/* Search users by @username */}
               <div>
-                <div className="friends-title" style={{marginBottom:10}}>{t.friendsSearch}</div>
+                <div className="friends-title" style={{marginBottom:10}}>{t.followSearch}</div>
                 <div className="friend-search-row">
-                  <input className="friend-search-input" placeholder={t.friendsSearchPlaceholder} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()}/>
-                  <button className="friend-search-btn" onClick={searchFriends}>{t.friendsSearchBtn}</button>
+                  <input className="friend-search-input" placeholder={t.followSearchPlaceholder} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()}/>
+                  <button className="friend-search-btn" onClick={searchFriends}>{t.followSearchBtn}</button>
                 </div>
                 {searchResults.length>0&&(
                   <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:8}}>
                     {searchResults.map(u=>{
-                      const alreadyFriend=friends.some(f=>f.friendUserId===u.user_id);
+                      const alreadyFollowing=friends.some(f=>f.followedUserId===u.user_id);
                       const pendingSent=pendingOut.some(f=>f.addressee_id===u.user_id);
+                      const isFollowerNotFollowed = followers.some(f=>f.followerUserId===u.user_id) && !alreadyFollowing;
                       return (
                         <div key={u.user_id} className="friend-card">
-                          <div className="friend-info"><div className="friend-name">{u.first_name} {u.last_name}</div><div className="friend-email">{u.email}</div></div>
-                          {alreadyFriend?<span className="friend-action-btn pending">{t.friendsAlready}</span>:pendingSent?<span className="friend-action-btn pending">{t.friendsSent}</span>:<button className="friend-action-btn add" onClick={()=>sendFriendRequest(u.user_id)}>{t.friendsAdd}</button>}
+                          <div className="friend-info">
+                            <div className="friend-name">@{u.username}</div>
+                            {u.is_private && <div className="friend-email" style={{fontSize:10}}>🔒</div>}
+                          </div>
+                          {alreadyFollowing
+                            ?<span className="friend-action-btn pending">{t.followAlready}</span>
+                            :pendingSent
+                              ?<span className="friend-action-btn pending">{t.followSent}</span>
+                              :<button className="friend-action-btn add" onClick={()=>sendFollowRequest(u.user_id, u.is_private)}>{isFollowerNotFollowed ? t.followBackBtn : t.followBtn}</button>
+                          }
                         </div>
                       );
                     })}
@@ -3213,31 +3236,51 @@ RULES:
                 )}
               </div>
 
+              {/* Following list */}
               <div>
-                <div className="friends-title" style={{marginBottom:10}}>{t.friendsList} ({friends.length})</div>
-                {friends.length===0?<div className="empty-friends">{t.friendsNone}</div>:friends.map(f=>{
-                  const friendName = [f.profile?.first_name, f.profile?.last_name].filter(Boolean).join(" ") || f.profile?.email || "Ami";
+                <div className="friends-title" style={{marginBottom:10}}>{t.followingList} ({friends.length})</div>
+                {friends.length===0?<div className="empty-friends">{t.followNone}</div>:friends.map(f=>{
+                  const uname = f.profile?.username ? `@${f.profile.username}` : "?";
                   return (
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
                     <div className="friend-info">
-                      <div className="friend-name">{friendName}</div>
-                      <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.friendUserId).length} {t.friendsHearts||"favorites"}</div>
+                      <div className="friend-name">{uname}</div>
+                      <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.followedUserId).length} {t.followHearts||"favorites"}</div>
                     </div>
                     <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                      <button className="friend-action-btn view" onClick={()=>viewFriendMemories(f)}>{t.friendsView}</button>
-                      <button onClick={()=>removeFriend(f)} title={t.friendsRemoveConfirm||"Supprimer"} style={{background:"none",border:`1px solid ${COLORS.dislike}44`,color:"#d4869b",borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
+                      <button className="friend-action-btn view" onClick={()=>viewFollowMemories(f)}>{t.followView}</button>
+                      <button onClick={()=>unfollow(f)} title={t.followUnfollow} style={{background:"none",border:`1px solid ${COLORS.dislike}44`,color:"#d4869b",borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
                     </div>
                   </div>
                 );})}
               </div>
 
+              {/* Followers list */}
+              <div>
+                <div className="friends-title" style={{marginBottom:10}}>{t.followersList} ({followers.length})</div>
+                {followers.length>0&&followers.map(f=>{
+                  const uname = f.profile?.username ? `@${f.profile.username}` : "?";
+                  const iFollowBack = friends.some(fr=>fr.followedUserId===f.followerUserId);
+                  return (
+                  <div key={f.id} className="friend-card" style={{marginBottom:8}}>
+                    <div className="friend-info"><div className="friend-name">{uname}</div></div>
+                    {!iFollowBack && <button className="friend-action-btn add" onClick={()=>{
+                      const isPrivate = f.profile?.is_private || false;
+                      sendFollowRequest(f.followerUserId, isPrivate);
+                    }}>{t.followBackBtn}</button>}
+                    {iFollowBack && <span className="friend-action-btn pending" style={{opacity:0.6}}>{t.followAlready}</span>}
+                  </div>);
+                })}
+              </div>
+
+              {/* Pending requests I sent */}
               {pendingOut.length>0&&(
                 <div>
-                  <div className="friends-title" style={{marginBottom:10,fontSize:14}}>{t.friendsPending}</div>
+                  <div className="friends-title" style={{marginBottom:10,fontSize:14}}>{t.followPending}</div>
                   {pendingOut.map(f=>(
                     <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                      <div className="friend-info"><div className="friend-name">{f.profiles?.first_name} {f.profiles?.last_name}</div></div>
-                      <span className="friend-action-btn pending">{t.friendsSent||"Pending"}</span>
+                      <div className="friend-info"><div className="friend-name">@{f.profiles?.username||"?"}</div></div>
+                      <span className="friend-action-btn pending">{t.followSent||"Pending"}</span>
                     </div>
                   ))}
                 </div>
@@ -3252,6 +3295,24 @@ RULES:
                 <div className="row-2">
                   <div className="field"><label>{t.profileFirstName}</label><input placeholder={t.profileFirstName} value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
                   <div className="field"><label>{t.profileLastName}</label><input placeholder={t.profileLastName} value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
+                </div>
+                <div className="field" style={{marginTop:8}}>
+                  <label>{t.profileUsername||"Username"}</label>
+                  <input placeholder="@username" value={prefs.username ? `@${prefs.username}` : ""} onChange={e=>setPrefs(p=>({...p,username:e.target.value.replace(/[^a-zA-Z0-9_.]/g,"").toLowerCase()}))} style={{fontFamily:"'DM Sans',monospace"}}/>
+                </div>
+                <div className="field" style={{marginTop:8}}>
+                  <label>{t.profilePrivacy||"Privacy"}</label>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["public",t.followPublic||"Public","🌍"],["private",t.followPrivate||"Private","🔒"]].map(([val,label,icon])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,is_private:val==="private"}))}
+                        style={{flex:1,padding:"8px 12px",borderRadius:10,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",
+                          border:`1px solid ${(prefs.is_private?(val==="private"):(val==="public"))?COLORS.accent:COLORS.border}`,
+                          background:(prefs.is_private?(val==="private"):(val==="public"))?`${COLORS.accent}22`:COLORS.card,
+                          color:(prefs.is_private?(val==="private"):(val==="public"))?COLORS.accent:COLORS.muted,fontWeight:600}}>
+                        {icon} {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="prefs-card">
@@ -3643,12 +3704,11 @@ RULES:
           localStorage.setItem("outsy_onboarding_done","1");
           setShowOnboarding(false);
           setShowTour(true);
-          // Save profile and preferences to DB (awaited to prevent data loss)
           const userId = session.user.id;
-          const { firstName, lastName, ...dbPrefs } = prefs;
-          setProfile({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email});
+          const { firstName, lastName, username, is_private, ...dbPrefs } = prefs;
+          setProfile({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email,username:username||null,is_private:is_private||false});
           try {
-            await supabase.from('profiles').upsert({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email});
+            await supabase.from('profiles').upsert({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email,username:username||null,is_private:is_private||false});
             await supabase.from('preferences').upsert({user_id:userId,...dbPrefs,onboarding_done:true});
           } catch(e) { console.error("Onboarding save error:", e); }
         };
@@ -3774,7 +3834,7 @@ RULES:
           { icon: "🍽️", title: t.tourReco||"Reco", desc: t.tourRecoDesc||"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées." },
           { icon: "❤️", title: t.tourFav||"Favoris", desc: t.tourFavDesc||"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note." },
           { icon: "➕", title: t.tourAdd||"Ajouter", desc: t.tourAddDesc||"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion." },
-          { icon: "👥", title: t.tourFriends||"Amis", desc: t.tourFriendsDesc||"Partagez vos découvertes entre amis. Leurs favoris enrichissent vos recommandations." },
+          { icon: "👥", title: t.tourFriends||"Following", desc: t.tourFriendsDesc||"Follow users and discover their favorites." },
           { icon: "🎯", title: t.tourProfile||"Profil", desc: t.tourProfileDesc||"Personnalisez vos préférences pour des recommandations sur mesure." },
         ];
         const slide = tourSlides[tourStep];
