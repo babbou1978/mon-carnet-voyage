@@ -122,7 +122,7 @@ const TRANSLATIONS = {
     profileDislikes: "🚫 Ce que j'évite", profileDislikesSelect: "Sélectionner", profileDislikesPrecise: "Préciser",
     profileNotes: "📝 Notes libres", profileNotesLabel: "Autres infos", profileSave: "Sauvegarder mon profil", profileSaved: "✓ Profil enregistré",
     followRequests: "🔔 Demandes de suivi", followSearch: "🔍 Rechercher un utilisateur", followSearchPlaceholder: "@pseudo...",
-    followSearchBtn: "Chercher", followingList: "Abonnements", followersList: "Abonnés", followNone: "Vous ne suivez personne.",
+    followSearchBtn: "Chercher", followingList: "Suivis", followersList: "Followers", followNone: "Vous ne suivez personne.",
     followPending: "⏳ En attente", followAlready: "Abonné", followSent: "Demande envoyée", followBtn: "Suivre", followBackBtn: "Suivre en retour",
     followAccept: "✓ Accepter", followDecline: "✕", followView: "Voir ❤️", followHeartTitle: "❤️ Coups de cœur de",
     followNoHeart: "n'a pas encore de coups de cœur.", followHearts: "coups de cœur",
@@ -3192,50 +3192,71 @@ RULES:
                 </div>
               )}
 
+              {/* Stats bar */}
+              <div style={{display:"flex",alignItems:"center",gap:16,padding:"14px 16px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:12,marginBottom:12}}>
+                <div style={{width:48,height:48,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {prefs.avatar_url ? <img src={prefs.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:20}}>👤</span>}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",color:COLORS.accent}}>@{prefs.username||"..."}</div>
+                  <div style={{display:"flex",gap:16,marginTop:4}}>
+                    <span style={{fontSize:12,color:COLORS.muted}}><strong style={{color:COLORS.text}}>{friends.length}</strong> {t.followingList}</span>
+                    <span style={{fontSize:12,color:COLORS.muted}}><strong style={{color:COLORS.text}}>{followers.length}</strong> {t.followersList}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Pending follow requests I received */}
               {pendingIn.length>0&&(
-                <div>
-                  <div className="friends-title" style={{marginBottom:10}}>{t.followRequests}</div>
+                <div style={{marginBottom:8}}>
+                  <div className="friends-title" style={{marginBottom:6,fontSize:13}}>{t.followRequests} ({pendingIn.length})</div>
                   {pendingIn.map(f=>{
                     const uname = f.profiles?.username ? `@${f.profiles.username}` : "?";
                     return (
-                    <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                      <div className="friend-info"><div className="friend-name">{uname}</div></div>
-                      <div><button className="friend-action-btn accept" onClick={()=>acceptFollowRequest(f.id)}>{t.followAccept}</button><button className="friend-action-btn decline" onClick={()=>declineFollowRequest(f.id)}>✕</button></div>
+                    <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{width:24,height:24,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {f.profiles?.avatar_url ? <img src={f.profiles.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:11}}>👤</span>}
+                        </div>
+                        <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
+                      </div>
+                      <div style={{display:"flex",gap:4}}>
+                        <button className="friend-action-btn accept" style={{padding:"3px 10px",fontSize:11}} onClick={()=>acceptFollowRequest(f.id)}>{t.followAccept}</button>
+                        <button className="friend-action-btn decline" style={{padding:"3px 6px",fontSize:11}} onClick={()=>declineFollowRequest(f.id)}>✕</button>
+                      </div>
                     </div>);
                   })}
                 </div>
               )}
 
-              {/* Search users by @username */}
-              <div>
-                <div className="friends-title" style={{marginBottom:10}}>{t.followSearch}</div>
+              {/* Search users */}
+              <div style={{marginBottom:8}}>
                 <div className="friend-search-row">
                   <input className="friend-search-input" placeholder={t.followSearchPlaceholder} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchFriends()}/>
                   <button className="friend-search-btn" onClick={searchFriends}>{t.followSearchBtn}</button>
                 </div>
                 {searchResults.length>0&&(
-                  <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:8}}>
+                  <div style={{marginTop:6,display:"flex",flexDirection:"column",gap:4}}>
                     {searchResults.map(u=>{
                       const alreadyFollowing=friends.some(f=>f.followedUserId===u.user_id);
                       const pendingSent=pendingOut.some(f=>f.addressee_id===u.user_id);
                       const isFollowerNotFollowed = followers.some(f=>f.followerUserId===u.user_id) && !alreadyFollowing;
                       return (
-                        <div key={u.user_id} className="friend-card">
-                          <div className="friend-info" style={{display:"flex",alignItems:"center",gap:10}}>
-                            <div style={{width:32,height:32,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                              {u.avatar_url ? <img src={u.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:14}}>👤</span>}
+                        <div key={u.user_id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <div style={{width:28,height:28,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                              {u.avatar_url ? <img src={u.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:12}}>👤</span>}
                             </div>
                             <div>
-                              <div className="friend-name">{u.username ? `@${u.username}` : "?"}</div>
-                              <div className="friend-email">{[u.first_name,u.last_name].filter(Boolean).join(" ")}{u.is_private?" 🔒":""}</div>
+                              <div style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{u.username ? `@${u.username}` : "?"}{u.is_private?" 🔒":""}</div>
+                              <div style={{fontSize:11,color:COLORS.muted}}>{[u.first_name,u.last_name].filter(Boolean).join(" ")}</div>
                             </div>
                           </div>
                           {alreadyFollowing
-                            ?<span className="friend-action-btn pending">{t.followAlready}</span>
+                            ?<span className="friend-action-btn pending" style={{fontSize:11,padding:"3px 8px"}}>{t.followAlready}</span>
                             :pendingSent
-                              ?<span className="friend-action-btn pending">{t.followSent}</span>
-                              :<button className="friend-action-btn add" onClick={()=>sendFollowRequest(u.user_id, u.is_private)}>{isFollowerNotFollowed ? t.followBackBtn : t.followBtn}</button>
+                              ?<span className="friend-action-btn pending" style={{fontSize:11,padding:"3px 8px"}}>{t.followSent}</span>
+                              :<button className="friend-action-btn add" style={{fontSize:11,padding:"3px 10px"}} onClick={()=>sendFollowRequest(u.user_id, u.is_private)}>{isFollowerNotFollowed ? t.followBackBtn : t.followBtn}</button>
                           }
                         </div>
                       );
@@ -3245,48 +3266,48 @@ RULES:
               </div>
 
               {/* Following list */}
-              <div>
-                <div className="friends-title" style={{marginBottom:10}}>{t.followingList} ({friends.length})</div>
+              <div style={{marginBottom:8}}>
+                <div className="friends-title" style={{marginBottom:6,fontSize:13}}>{t.followingList} ({friends.length})</div>
                 {friends.length===0?<div className="empty-friends">{t.followNone}</div>:friends.map(f=>{
                   const uname = f.profile?.username ? `@${f.profile.username}` : "?";
                   return (
-                  <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                    <div className="friend-info" style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:32,height:32,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:14}}>👤</span>}
+                  <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <div style={{width:24,height:24,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:11}}>👤</span>}
                       </div>
                       <div>
-                        <div className="friend-name">{uname}</div>
-                        <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.followedUserId).length} {t.followHearts||"favorites"}</div>
+                        <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
+                        <span style={{fontSize:11,color:COLORS.muted,marginLeft:8}}>{friendMemories.filter(m=>m.user_id===f.followedUserId).length} ❤️</span>
                       </div>
                     </div>
-                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                      <button className="friend-action-btn view" onClick={()=>viewFollowMemories(f)}>{t.followView}</button>
-                      <button onClick={()=>unfollow(f)} title={t.followUnfollow} style={{background:"none",border:`1px solid ${COLORS.dislike}44`,color:"#d4869b",borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
+                    <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                      <button className="friend-action-btn view" style={{fontSize:11,padding:"3px 8px"}} onClick={()=>viewFollowMemories(f)}>{t.followView}</button>
+                      <button onClick={()=>unfollow(f)} title={t.followUnfollow} style={{background:"none",border:`1px solid ${COLORS.dislike}33`,color:"#d4869b",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:10,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>✕</button>
                     </div>
                   </div>
                 );})}
               </div>
 
               {/* Followers list */}
-              <div>
-                <div className="friends-title" style={{marginBottom:10}}>{t.followersList} ({followers.length})</div>
+              <div style={{marginBottom:8}}>
+                <div className="friends-title" style={{marginBottom:6,fontSize:13}}>{t.followersList} ({followers.length})</div>
                 {followers.length>0&&followers.map(f=>{
                   const uname = f.profile?.username ? `@${f.profile.username}` : "?";
                   const iFollowBack = friends.some(fr=>fr.followedUserId===f.followerUserId);
                   return (
-                  <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                    <div className="friend-info" style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:32,height:32,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:14}}>👤</span>}
+                  <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <div style={{width:24,height:24,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:11}}>👤</span>}
                       </div>
-                      <div className="friend-name">{uname}</div>
+                      <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
                     </div>
-                    {!iFollowBack && <button className="friend-action-btn add" onClick={()=>{
+                    {!iFollowBack && <button className="friend-action-btn add" style={{fontSize:11,padding:"3px 10px"}} onClick={()=>{
                       const isPrivate = f.profile?.is_private || false;
                       sendFollowRequest(f.followerUserId, isPrivate);
                     }}>{t.followBackBtn}</button>}
-                    {iFollowBack && <span className="friend-action-btn pending" style={{opacity:0.6}}>{t.followAlready}</span>}
+                    {iFollowBack && <span className="friend-action-btn pending" style={{opacity:0.5,fontSize:11,padding:"3px 8px"}}>{t.followAlready}</span>}
                   </div>);
                 })}
               </div>
@@ -3294,11 +3315,11 @@ RULES:
               {/* Pending requests I sent */}
               {pendingOut.length>0&&(
                 <div>
-                  <div className="friends-title" style={{marginBottom:10,fontSize:14}}>{t.followPending}</div>
+                  <div className="friends-title" style={{marginBottom:6,fontSize:13}}>{t.followPending} ({pendingOut.length})</div>
                   {pendingOut.map(f=>(
-                    <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                      <div className="friend-info"><div className="friend-name">@{f.profiles?.username||"?"}</div></div>
-                      <span className="friend-action-btn pending">{t.followSent||"Pending"}</span>
+                    <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
+                      <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>@{f.profiles?.username||"?"}</span>
+                      <span className="friend-action-btn pending" style={{fontSize:11,padding:"3px 8px"}}>{t.followSent||"Pending"}</span>
                     </div>
                   ))}
                 </div>
