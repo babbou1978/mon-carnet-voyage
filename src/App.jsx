@@ -2095,7 +2095,7 @@ function TravelAgent() {
         const { profile: p, memories: m, prefs: pr } = JSON.parse(cached);
         if (p) setProfile(p);
         if (m) setMemories(m);
-        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr }); if (pr.theme) setThemeKey(pr.theme); }
+        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr, firstName: p?.first_name || "", lastName: p?.last_name || "" }); if (pr.theme) setThemeKey(pr.theme); }
         setLoading(false); // Show UI immediately with cached data
       }
     } catch {}
@@ -2221,7 +2221,7 @@ function TravelAgent() {
         }
       }
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).maybeSingle();
-      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref }); if(pref.theme) setThemeKey(pref.theme); }
+      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref, firstName: prof?.first_name || "", lastName: prof?.last_name || "" }); if(pref.theme) setThemeKey(pref.theme); }
       // Save to cache
       try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
       await loadFriends(userId);
@@ -3239,8 +3239,8 @@ RULES:
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileIdentity}</div>
                 <div className="row-2">
-                  <div className="field"><label>{t.profileFirstName}</label><input placeholder="Brice" value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
-                  <div className="field"><label>{t.profileLastName}</label><input placeholder="Dupont" value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
+                  <div className="field"><label>{t.profileFirstName}</label><input placeholder={t.profileFirstName} value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
+                  <div className="field"><label>{t.profileLastName}</label><input placeholder={t.profileLastName} value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
                 </div>
               </div>
               <div className="prefs-card">
