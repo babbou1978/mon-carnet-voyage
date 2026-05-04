@@ -1968,6 +1968,7 @@ function TravelAgent() {
   const [friendMemories, setFriendMemories] = useState([]);
   const [friends, setFriends] = useState([]); // people I follow
   const [followers, setFollowers] = useState([]); // people who follow me
+  const [followCounts, setFollowCounts] = useState({}); // {userId: {following, followers}}
   const [pendingIn, setPendingIn] = useState([]);
   const [pendingOut, setPendingOut] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -2277,6 +2278,23 @@ function TravelAgent() {
     const { data: followersData } = await supabase.from('friendships').select('*, profiles!friendships_requester_id_fkey(*)').eq('addressee_id', userId).eq('status', 'accepted');
     const followersList = (followersData||[]).map(f=>({id:f.id,profile:f.profiles,followerUserId:f.requester_id}));
     setFollowers(followersList);
+
+    // Fetch follower/following counts for all related users
+    const allRelatedIds = [...new Set([
+      ...followingList.map(f=>f.followedUserId),
+      ...followersList.map(f=>f.followerUserId)
+    ])];
+    if (allRelatedIds.length > 0) {
+      const [{ data: asReq }, { data: asAddr }] = await Promise.all([
+        supabase.from('friendships').select('requester_id').in('requester_id', allRelatedIds).eq('status', 'accepted'),
+        supabase.from('friendships').select('addressee_id').in('addressee_id', allRelatedIds).eq('status', 'accepted'),
+      ]);
+      const counts = {};
+      allRelatedIds.forEach(id => { counts[id] = { following: 0, followers: 0 }; });
+      (asReq||[]).forEach(r => { if (counts[r.requester_id]) counts[r.requester_id].following++; });
+      (asAddr||[]).forEach(r => { if (counts[r.addressee_id]) counts[r.addressee_id].followers++; });
+      setFollowCounts(counts);
+    }
 
     if (followingList.length>0) {
       const followedIds = followingList.map(f=>f.followedUserId);
@@ -3270,15 +3288,18 @@ RULES:
                 <div className="friends-title" style={{marginBottom:6,fontSize:13}}>{t.followingList} ({friends.length})</div>
                 {friends.length===0?<div className="empty-friends">{t.followNone}</div>:friends.map(f=>{
                   const uname = f.profile?.username ? `@${f.profile.username}` : "?";
+                  const fc = followCounts[f.followedUserId] || {following:0,followers:0};
                   return (
                   <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
                       <div style={{width:24,height:24,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                         {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:11}}>👤</span>}
                       </div>
-                      <div>
-                        <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
-                        <span style={{fontSize:11,color:COLORS.muted,marginLeft:8}}>{friendMemories.filter(m=>m.user_id===f.followedUserId).length} ❤️</span>
+                      <div style={{minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                          <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
+                          <span style={{fontSize:10,color:COLORS.muted}}>{friendMemories.filter(m=>m.user_id===f.followedUserId).length} ❤️ · {fc.following} {t.followingList?.toLowerCase()} · {fc.followers} {t.followersList?.toLowerCase()}</span>
+                        </div>
                       </div>
                     </div>
                     <div style={{display:"flex",gap:4,alignItems:"center"}}>
@@ -3295,13 +3316,19 @@ RULES:
                 {followers.length>0&&followers.map(f=>{
                   const uname = f.profile?.username ? `@${f.profile.username}` : "?";
                   const iFollowBack = friends.some(fr=>fr.followedUserId===f.followerUserId);
+                  const fc = followCounts[f.followerUserId] || {following:0,followers:0};
                   return (
                   <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
                       <div style={{width:24,height:24,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                         {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:11}}>👤</span>}
                       </div>
-                      <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
+                      <div style={{minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                          <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
+                          <span style={{fontSize:10,color:COLORS.muted}}>{fc.following} {t.followingList?.toLowerCase()} · {fc.followers} {t.followersList?.toLowerCase()}</span>
+                        </div>
+                      </div>
                     </div>
                     {!iFollowBack && <button className="friend-action-btn add" style={{fontSize:11,padding:"3px 10px"}} onClick={()=>{
                       const isPrivate = f.profile?.is_private || false;
