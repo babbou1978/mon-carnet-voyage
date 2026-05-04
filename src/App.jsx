@@ -127,7 +127,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accepter", followDecline: "✕", followView: "Voir ❤️", followHeartTitle: "❤️ Coups de cœur de",
     followNoHeart: "n'a pas encore de coups de cœur.", followHearts: "coups de cœur",
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
-    profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
+    profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
     recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
@@ -186,7 +186,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Aceptar", followDecline: "✕", followView: "Ver ❤️", followHeartTitle: "❤️ Favoritos de",
     followNoHeart: "aún no tiene favoritos.", followHearts: "favoritos",
     followUnfollow: "Dejar de seguir", followPrivate: "Cuenta privada", followPublic: "Cuenta pública",
-    profileUsername: "Usuario", profilePrivacy: "Privacidad",
+    profilePhoto: "Foto", profileUsername: "Usuario", profilePrivacy: "Privacidad",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
     recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
@@ -243,7 +243,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Annehmen", followDecline: "✕", followView: "Anzeigen ❤️", followHeartTitle: "❤️ Favoriten von",
     followNoHeart: "hat noch keine Favoriten.", followHearts: "Favoriten",
     followUnfollow: "Entfolgen", followPrivate: "Privates Konto", followPublic: "Öffentliches Konto",
-    profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
+    profilePhoto: "Foto", profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
     recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
@@ -300,7 +300,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accetta", followDecline: "✕", followView: "Vedi ❤️", followHeartTitle: "❤️ Preferiti di",
     followNoHeart: "non ha ancora preferiti.", followHearts: "preferiti",
     followUnfollow: "Smetti di seguire", followPrivate: "Account privato", followPublic: "Account pubblico",
-    profileUsername: "Nome utente", profilePrivacy: "Privacy",
+    profilePhoto: "Foto", profileUsername: "Nome utente", profilePrivacy: "Privacy",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
     recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
@@ -357,7 +357,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Aceitar", followDecline: "✕", followView: "Ver ❤️", followHeartTitle: "❤️ Favoritos de",
     followNoHeart: "ainda não tem favoritos.", followHearts: "favoritos",
     followUnfollow: "Deixar de seguir", followPrivate: "Conta privada", followPublic: "Conta pública",
-    profileUsername: "Utilizador", profilePrivacy: "Privacidade",
+    profilePhoto: "Foto", profileUsername: "Utilizador", profilePrivacy: "Privacidade",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
     recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
@@ -414,7 +414,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accepteren", followDecline: "✕", followView: "Bekijk ❤️", followHeartTitle: "❤️ Favorieten van",
     followNoHeart: "heeft nog geen favorieten.", followHearts: "favorieten",
     followUnfollow: "Ontvolgen", followPrivate: "Privéaccount", followPublic: "Openbaar account",
-    profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
+    profilePhoto: "Foto", profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
     recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
@@ -471,7 +471,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accept", followDecline: "✕", followView: "View ❤️", followHeartTitle: "❤️ Favorites from",
     followNoHeart: "has no favorites yet.", followHearts: "favorites",
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
-    profileUsername: "Username", profilePrivacy: "Privacy",
+    profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
     recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
@@ -1345,7 +1345,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
 
 const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexican","Lebanese","Greek","Spanish","British","American","Mediterranean","Vietnamese","Korean","Turkish","Moroccan","Austrian","Belgian","Scandinavian","Peruvian","Argentine","Brazilian","Australian","Modern European","Fusion","Vegetarian","Seafood","Steakhouse","Sushi","Pizza","Burger","Bistro","Brasserie","Wine bar","Cocktail bar","Café","Bakery"];
 const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
-const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",username:"",is_private:false,language:"en",nbrecos:"10",preferredCities:[] };
+const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",username:"",is_private:false,avatar_url:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate, onDelete }) {
   const [form, setForm] = useState(initial||DEFAULT_FORM);
@@ -2099,7 +2099,7 @@ function TravelAgent() {
         const { profile: p, memories: m, prefs: pr } = JSON.parse(cached);
         if (p) setProfile(p);
         if (m) setMemories(m);
-        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr, firstName: p?.first_name || "", lastName: p?.last_name || "", username: p?.username || "", is_private: p?.is_private || false }); if (pr.theme) setThemeKey(pr.theme); }
+        if (pr) { setPrefs({ ...DEFAULT_PREFS, ...pr, firstName: p?.first_name || "", lastName: p?.last_name || "", username: p?.username || "", is_private: p?.is_private || false, avatar_url: p?.avatar_url || "" }); if (pr.theme) setThemeKey(pr.theme); }
         setLoading(false); // Show UI immediately with cached data
       }
     } catch {}
@@ -2235,7 +2235,7 @@ function TravelAgent() {
         }
       }
       const { data: pref } = await supabase.from('preferences').select('*').eq('user_id', userId).maybeSingle();
-      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref, firstName: prof?.first_name || "", lastName: prof?.last_name || "", username: prof?.username || "", is_private: prof?.is_private || false }); if(pref.theme) setThemeKey(pref.theme); }
+      if (pref) { setPrefs({ ...DEFAULT_PREFS, ...pref, firstName: prof?.first_name || "", lastName: prof?.last_name || "", username: prof?.username || "", is_private: prof?.is_private || false, avatar_url: prof?.avatar_url || "" }); if(pref.theme) setThemeKey(pref.theme); }
       // Save to cache
       try { localStorage.setItem(cacheKey, JSON.stringify({ profile: prof, memories: mems, prefs: pref })); } catch {}
       await loadFollows(userId);
@@ -2282,7 +2282,7 @@ function TravelAgent() {
       const followedIds = followingList.map(f=>f.followedUserId);
       const { data: fMems } = await supabase.from('memories').select('*').in('user_id', followedIds).order('ts', { ascending: false });
       if (fMems) {
-        const { data: fProfiles } = await supabase.from('profiles').select('user_id, username').in('user_id', followedIds);
+        const { data: fProfiles } = await supabase.from('profiles').select('user_id, username, avatar_url').in('user_id', followedIds);
         const profileMap = {};
         (fProfiles||[]).forEach(p => { profileMap[p.user_id] = p; });
         setFriendMemories(fMems.map(m => {
@@ -2352,9 +2352,9 @@ function TravelAgent() {
   };
 
   const savePrefs = async () => {
-    const { firstName, lastName, username, is_private, ...dbPrefs } = prefs;
+    const { firstName, lastName, username, is_private, avatar_url, ...dbPrefs } = prefs;
     await supabase.from('preferences').upsert({ ...dbPrefs, user_id: userId });
-    await supabase.from('profiles').upsert({ user_id: userId, first_name: firstName, last_name: lastName, email: session.user.email, username: username || null, is_private: is_private || false });
+    await supabase.from('profiles').upsert({ user_id: userId, first_name: firstName, last_name: lastName, email: session.user.email, username: username || null, is_private: is_private || false, avatar_url: avatar_url || null });
     setPrefsSaved(true); setTimeout(()=>setPrefsSaved(false), 2000);
   };
 
@@ -2370,17 +2370,20 @@ function TravelAgent() {
       const data = await res.json();
       results = data.users || [];
     } else {
-      // Username search
+      // Username or name search
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, username, is_private')
-        .ilike('username', `%${q}%`)
+        .select('user_id, username, first_name, last_name, is_private, avatar_url')
+        .or(`username.ilike.%${q}%,first_name.ilike.%${q}%,last_name.ilike.%${q}%`)
         .neq('user_id', userId)
         .limit(10);
       results = (profiles || []).map(p => ({
         user_id: p.user_id,
         username: p.username,
-        is_private: p.is_private || false
+        first_name: p.first_name,
+        last_name: p.last_name,
+        is_private: p.is_private || false,
+        avatar_url: p.avatar_url || ""
       }));
     }
     setSearchResults(results);
@@ -3219,9 +3222,14 @@ RULES:
                       const isFollowerNotFollowed = followers.some(f=>f.followerUserId===u.user_id) && !alreadyFollowing;
                       return (
                         <div key={u.user_id} className="friend-card">
-                          <div className="friend-info">
-                            <div className="friend-name">@{u.username}</div>
-                            {u.is_private && <div className="friend-email" style={{fontSize:10}}>🔒</div>}
+                          <div className="friend-info" style={{display:"flex",alignItems:"center",gap:10}}>
+                            <div style={{width:32,height:32,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                              {u.avatar_url ? <img src={u.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:14}}>👤</span>}
+                            </div>
+                            <div>
+                              <div className="friend-name">{u.username ? `@${u.username}` : "?"}</div>
+                              <div className="friend-email">{[u.first_name,u.last_name].filter(Boolean).join(" ")}{u.is_private?" 🔒":""}</div>
+                            </div>
                           </div>
                           {alreadyFollowing
                             ?<span className="friend-action-btn pending">{t.followAlready}</span>
@@ -3243,9 +3251,14 @@ RULES:
                   const uname = f.profile?.username ? `@${f.profile.username}` : "?";
                   return (
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                    <div className="friend-info">
-                      <div className="friend-name">{uname}</div>
-                      <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.followedUserId).length} {t.followHearts||"favorites"}</div>
+                    <div className="friend-info" style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{width:32,height:32,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:14}}>👤</span>}
+                      </div>
+                      <div>
+                        <div className="friend-name">{uname}</div>
+                        <div className="friend-email">{friendMemories.filter(m=>m.user_id===f.followedUserId).length} {t.followHearts||"favorites"}</div>
+                      </div>
                     </div>
                     <div style={{display:"flex",gap:6,alignItems:"center"}}>
                       <button className="friend-action-btn view" onClick={()=>viewFollowMemories(f)}>{t.followView}</button>
@@ -3263,7 +3276,12 @@ RULES:
                   const iFollowBack = friends.some(fr=>fr.followedUserId===f.followerUserId);
                   return (
                   <div key={f.id} className="friend-card" style={{marginBottom:8}}>
-                    <div className="friend-info"><div className="friend-name">{uname}</div></div>
+                    <div className="friend-info" style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{width:32,height:32,borderRadius:"50%",overflow:"hidden",background:`${COLORS.accent}11`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:14}}>👤</span>}
+                      </div>
+                      <div className="friend-name">{uname}</div>
+                    </div>
                     {!iFollowBack && <button className="friend-action-btn add" onClick={()=>{
                       const isPrivate = f.profile?.is_private || false;
                       sendFollowRequest(f.followerUserId, isPrivate);
@@ -3292,6 +3310,29 @@ RULES:
             <div className="prefs-section">
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileIdentity}</div>
+                {/* Avatar */}
+                <div style={{display:"flex",justifyContent:"center",marginBottom:12}}>
+                  <label style={{cursor:"pointer",position:"relative"}}>
+                    <div style={{width:72,height:72,borderRadius:"50%",border:`2px dashed ${COLORS.accent}66`,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:`${COLORS.accent}11`}}>
+                      {prefs.avatar_url
+                        ? <img src={prefs.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        : <span style={{fontSize:24,color:COLORS.accent}}>📷</span>}
+                    </div>
+                    <div style={{fontSize:10,color:COLORS.muted,textAlign:"center",marginTop:4}}>{t.profilePhoto||"Photo"}</div>
+                    <input type="file" accept="image/*" style={{display:"none"}} onChange={async(e)=>{
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const uid = session.user.id;
+                      const ext = file.name.split('.').pop();
+                      const path = `${uid}/avatar.${ext}`;
+                      try {
+                        await supabase.storage.from('avatars').upload(path, file, {upsert:true});
+                        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+                        if (urlData?.publicUrl) setPrefs(p=>({...p, avatar_url: urlData.publicUrl + '?t=' + Date.now()}));
+                      } catch(err) { console.error('Avatar upload error:', err); }
+                    }}/>
+                  </label>
+                </div>
                 <div className="row-2">
                   <div className="field"><label>{t.profileFirstName}</label><input placeholder={t.profileFirstName} value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))}/></div>
                   <div className="field"><label>{t.profileLastName}</label><input placeholder={t.profileLastName} value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))}/></div>
@@ -3705,10 +3746,10 @@ RULES:
           setShowOnboarding(false);
           setShowTour(true);
           const userId = session.user.id;
-          const { firstName, lastName, username, is_private, ...dbPrefs } = prefs;
-          setProfile({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email,username:username||null,is_private:is_private||false});
+          const { firstName, lastName, username, is_private, avatar_url, ...dbPrefs } = prefs;
+          setProfile({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email,username:username||null,is_private:is_private||false,avatar_url:avatar_url||null});
           try {
-            await supabase.from('profiles').upsert({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email,username:username||null,is_private:is_private||false});
+            await supabase.from('profiles').upsert({user_id:userId,first_name:firstName,last_name:lastName,email:session.user.email,username:username||null,is_private:is_private||false,avatar_url:avatar_url||null});
             await supabase.from('preferences').upsert({user_id:userId,...dbPrefs,onboarding_done:true});
           } catch(e) { console.error("Onboarding save error:", e); }
         };
@@ -3728,9 +3769,36 @@ RULES:
                   <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontStyle:"italic",color:COLORS.accent}}>{ot.onboardWelcome}</div>
                   <div style={{fontSize:13,color:COLORS.muted,marginTop:8}}>{ot.onboardWelcomeSub}</div>
                 </div>
-                <div style={{display:"flex",gap:10,marginBottom:12}}>
+                {/* Avatar upload */}
+                <div style={{display:"flex",justifyContent:"center",marginBottom:12}}>
+                  <label style={{cursor:"pointer",position:"relative"}}>
+                    <div style={{width:80,height:80,borderRadius:"50%",border:`2px dashed ${COLORS.accent}66`,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:`${COLORS.accent}11`}}>
+                      {prefs.avatar_url
+                        ? <img src={prefs.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        : <span style={{fontSize:28,color:COLORS.accent}}>📷</span>}
+                    </div>
+                    <div style={{fontSize:10,color:COLORS.muted,textAlign:"center",marginTop:4}}>{t.profilePhoto||"Photo"}</div>
+                    <input type="file" accept="image/*" style={{display:"none"}} onChange={async(e)=>{
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const uid = session.user.id;
+                      const ext = file.name.split('.').pop();
+                      const path = `${uid}/avatar.${ext}`;
+                      try {
+                        await supabase.storage.from('avatars').upload(path, file, {upsert:true});
+                        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+                        if (urlData?.publicUrl) setPrefs(p=>({...p, avatar_url: urlData.publicUrl + '?t=' + Date.now()}));
+                      } catch(err) { console.error('Avatar upload error:', err); }
+                    }}/>
+                  </label>
+                </div>
+                <div style={{display:"flex",gap:10,marginBottom:8}}>
                   <div style={{flex:1}}><label style={labelStyle}>{t.profileFirstName||"First name"}</label><input value={prefs.firstName||""} onChange={e=>setPrefs(p=>({...p,firstName:e.target.value}))} style={inputStyle}/></div>
                   <div style={{flex:1}}><label style={labelStyle}>{t.profileLastName||"Last name"}</label><input value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))} style={inputStyle}/></div>
+                </div>
+                <div style={{marginBottom:12}}>
+                  <label style={labelStyle}>{t.profileUsername||"Username"}</label>
+                  <input value={prefs.username ? `@${prefs.username}` : ""} placeholder="@username" onChange={e=>setPrefs(p=>({...p,username:e.target.value.replace(/[^a-zA-Z0-9_.@]/g,"").replace(/^@/,"").toLowerCase()}))} style={{...inputStyle,fontFamily:"'DM Sans',monospace"}}/>
                 </div>
                 <div>
                   <label style={labelStyle}>🌍 {t.profileLanguage||"Language"}</label>
@@ -3818,7 +3886,7 @@ RULES:
               <div style={{display:"flex",gap:8,marginTop:16}}>
                 <button className="modal-btn secondary" style={{flex:1,visibility:onboardingStep>0?"visible":"hidden"}} onClick={()=>setOnboardingStep(s=>s-1)}>← {ot.onboardBack||"Back"}</button>
                 {onboardingStep<totalSteps-1
-                  ? <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>setOnboardingStep(s=>s+1)} disabled={onboardingStep===0&&(!prefs.firstName?.trim()||!prefs.lastName?.trim())}>{ot.onboardNext||"Next →"}</button>
+                  ? <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>setOnboardingStep(s=>s+1)} disabled={onboardingStep===0&&(!prefs.firstName?.trim()||!prefs.lastName?.trim()||!prefs.username?.trim())}>{ot.onboardNext||"Next →"}</button>
                   : <button className="save-btn" style={{flex:1,margin:0}} onClick={finishOnboarding}>{ot.onboardFinish||"Let's go! 🚀"}</button>
                 }
               </div>

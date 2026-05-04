@@ -175,7 +175,6 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -246,16 +245,9 @@ export default function Auth() {
       }
     } else {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
-      // Validate username
-      const cleanUsername = username.trim().replace(/^@/, "").toLowerCase();
-      if (!cleanUsername) { setError(at.errorUsernameRequired); setLoading(false); return; }
-      if (!/^[a-z0-9_.]{3,20}$/.test(cleanUsername)) { setError(at.errorUsernameInvalid); setLoading(false); return; }
-      // Check username uniqueness
-      const { data: existing } = await supabase.from('profiles').select('user_id').eq('username', cleanUsername).maybeSingle();
-      if (existing) { setError(at.errorUsernameTaken); setLoading(false); return; }
       if (password.length < 6) { setError(at.errorPasswordShort); setLoading(false); return; }
       if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) { setError(at.errorPasswordWeak); setLoading(false); return; }
-      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName, username: cleanUsername } } });
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
       if (error) {
         console.log("Signup error:", error.status, error.message);
         const msg = error.message?.toLowerCase() || "";
@@ -277,7 +269,7 @@ export default function Auth() {
         if (data.user) {
           // Always try to create profile (works if RLS allows, otherwise App.jsx handles it on first login)
           try {
-            await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName, username: cleanUsername });
+            await supabase.from('profiles').upsert({ user_id: data.user.id, email, first_name: firstName, last_name: lastName });
           } catch {}
           try { await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, email, userId: data.user.id }) }); } catch {}
         }
@@ -311,13 +303,10 @@ export default function Auth() {
                 <button type="button" className={`auth-tab ${mode==="signup"?"active":""}`} onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}>{at.signup}</button>
               </div>
               {mode === "signup" && (
-                <>
                 <div className="auth-row">
                   <div className="auth-field"><label>{at.firstName}</label><input placeholder={at.firstName} value={firstName} onChange={e => setFirstName(e.target.value)} autoComplete="given-name" /></div>
                   <div className="auth-field"><label>{at.lastName}</label><input placeholder={at.lastName} value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" /></div>
                 </div>
-                <div className="auth-field"><label>{at.username}</label><input placeholder={at.usernamePlaceholder} value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ""))} autoComplete="username" style={{fontFamily:"'DM Sans',monospace"}} /></div>
-                </>
               )}
               <div className="auth-field"><label>{mode === "login" ? at.emailOrUsername : at.email}</label><input type={mode === "login" ? "text" : "email"} placeholder={mode === "login" ? "you@email.com or @username" : "you@email.com"} value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></div>
               <div className="auth-field"><label>{at.password}</label><input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode==="login"?"current-password":"new-password"} /></div>
