@@ -4,6 +4,6 @@
   "description": "Votre agent de voyage personnel",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0e0c",
-  "theme_color": "#0f0e0c"
+  "background_color": "#ffffff",
+  "theme_color": "#b8922a"
 }
