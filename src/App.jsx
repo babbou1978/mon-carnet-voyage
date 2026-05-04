@@ -2237,12 +2237,14 @@ function TravelAgent() {
       if (!pref) {
         localStorage.removeItem("outsy_onboarding_done");
         localStorage.removeItem("outsy_tour_done");
+        // Clear any stale cache for this user (in case Supabase reused the same user_id)
+        localStorage.removeItem(cacheKey);
         setShowOnboarding(true);
-        // Pre-fill prefs from auth metadata (signup data = source of truth)
+        // Pre-fill prefs from auth metadata — start from clean DEFAULT_PREFS (not spread from old state)
         const meta = session.user.user_metadata || {};
         const fn = meta.first_name || prof?.first_name || "";
         const ln = meta.last_name || prof?.last_name || "";
-        setPrefs(p => ({...p, firstName: fn, lastName: ln}));
+        setPrefs({ ...DEFAULT_PREFS, firstName: fn, lastName: ln });
       } else if (!pref.tour_done && !localStorage.getItem("outsy_tour_done")) {
         // Tour not completed: neither in DB nor localStorage
         setShowTour(true);
@@ -3337,8 +3339,11 @@ RULES:
                   const result = await res.json();
                   if (result.success) {
                     localStorage.clear();
+                    try { sessionStorage.clear(); } catch {}
                     await supabase.auth.signOut();
                     showToast(t.deleteAccountDone||"Compte supprimé.");
+                    // Force full page reload to clear all React state
+                    setTimeout(() => window.location.reload(), 500);
                   } else {
                     showToast("❌ " + (result.error || "Erreur"));
                   }
