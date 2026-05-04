@@ -3289,6 +3289,9 @@ RULES:
                 {friends.length===0?<div className="empty-friends">{t.followNone}</div>:friends.map(f=>{
                   const uname = f.profile?.username ? `@${f.profile.username}` : "?";
                   const fc = followCounts[f.followedUserId] || {following:0,followers:0};
+                  const userMems = friendMemories.filter(m=>m.user_id===f.followedUserId);
+                  const typeCounts = {};
+                  userMems.forEach(m=>(m.type||"Restaurant").split(",").forEach(tp=>{const k=tp.trim();typeCounts[k]=(typeCounts[k]||0)+1;}));
                   return (
                   <div key={f.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,marginBottom:4}}>
                     <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
@@ -3296,10 +3299,13 @@ RULES:
                         {f.profile?.avatar_url ? <img src={f.profile.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <span style={{fontSize:11}}>👤</span>}
                       </div>
                       <div style={{minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
                           <span style={{fontSize:13,fontWeight:500,color:COLORS.text}}>{uname}</span>
-                          <span style={{fontSize:10,color:COLORS.muted}}>{friendMemories.filter(m=>m.user_id===f.followedUserId).length} ❤️ · {fc.following} {t.followingList?.toLowerCase()} · {fc.followers} {t.followersList?.toLowerCase()}</span>
+                          <span style={{fontSize:10,color:COLORS.muted}}>{fc.following} {t.followingList?.toLowerCase()} · {fc.followers} {t.followersList?.toLowerCase()}</span>
                         </div>
+                        {userMems.length>0&&<div style={{display:"flex",gap:6,marginTop:2}}>
+                          {TYPES.map(tp=>typeCounts[tp]?<span key={tp} style={{fontSize:10,color:COLORS.muted}}>{TYPE_ICONS[tp]}{typeCounts[tp]}</span>:null)}
+                        </div>}
                       </div>
                     </div>
                     <div style={{display:"flex",gap:4,alignItems:"center"}}>
