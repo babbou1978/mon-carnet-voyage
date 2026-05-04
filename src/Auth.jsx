@@ -267,8 +267,8 @@ export default function Auth() {
               </div>
               {mode === "signup" && (
                 <div className="auth-row">
-                  <div className="auth-field"><label>{at.firstName}</label><input placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} autoComplete="given-name" /></div>
-                  <div className="auth-field"><label>{at.lastName}</label><input placeholder="Smith" value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" /></div>
+                  <div className="auth-field"><label>{at.firstName}</label><input placeholder={at.firstName} value={firstName} onChange={e => setFirstName(e.target.value)} autoComplete="given-name" /></div>
+                  <div className="auth-field"><label>{at.lastName}</label><input placeholder={at.lastName} value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" /></div>
                 </div>
               )}
               <div className="auth-field"><label>{at.email}</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></div>
