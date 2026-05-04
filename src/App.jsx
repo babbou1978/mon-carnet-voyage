@@ -2102,6 +2102,9 @@ function TravelAgent() {
 
     // Then refresh from Supabase in background
     const load = async () => {
+      // Force Supabase client to sync its internal auth state (prevents 401 race on first write)
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      if (!freshSession) return;
       if (!localStorage.getItem(cacheKey)) setLoading(true);
       const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
       if (prof) {
@@ -2120,7 +2123,13 @@ function TravelAgent() {
         const firstName = meta.first_name || email.split("@")[0] || "";
         const lastName = meta.last_name || "";
         const newProfile = { user_id: userId, first_name: firstName, last_name: lastName, email };
-        await supabase.from('profiles').upsert(newProfile);
+        const { error: upsertErr } = await supabase.from('profiles').upsert(newProfile);
+        if (upsertErr) {
+          // Retry once after a brief delay (auth token race condition)
+          console.warn('Profile upsert failed, retrying...', upsertErr.message);
+          await new Promise(r => setTimeout(r, 500));
+          await supabase.from('profiles').upsert(newProfile);
+        }
         setProfile(newProfile);
         // Also sync prefs name
         setPrefs(p => ({...p, firstName, lastName}));
