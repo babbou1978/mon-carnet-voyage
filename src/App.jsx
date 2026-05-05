@@ -11,30 +11,7 @@ const getTypeIcon = (type) => {
   const first = type.split(",")[0].trim();
   return TYPE_ICONS[first] || "🍽️";
 };
-const GOOGLE_TYPE_MAP = {
-  // Restaurants & food
-  restaurant:"Restaurant", food:"Restaurant", seafood_restaurant:"Restaurant", italian_restaurant:"Restaurant", french_restaurant:"Restaurant", japanese_restaurant:"Restaurant",
-  // Cafés
-  cafe:"Café", coffee_shop:"Café", tea_house:"Café", bakery:"Café",
-  // Bars
-  bar:"Bar", night_club:"Bar", wine_bar:"Bar", cocktail_bar:"Bar",
-  // Hôtels
-  lodging:"Hôtel", hotel:"Hôtel",
-  // Destinations (geographic only — cities, parks, landmarks)
-  national_park:"Destination", historical_landmark:"Destination",
-  // Activités (anything experiential — NOT tourist_attraction which is too broad)
-  museum:"Activité", art_gallery:"Activité", park:"Activité", amusement_park:"Activité",
-  performing_arts_theater:"Activité", tourist_attraction:"Activité", entertainment:"Activité",
-  miniature_golf_course:"Activité", golf_course:"Activité", bowling_alley:"Activité",
-  gym:"Activité", fitness_center:"Activité", spa:"Activité", zoo:"Activité", aquarium:"Aquarium",
-  stadium:"Activité", movie_theater:"Activité", library:"Activité", casino:"Activité",
-  ski_resort:"Activité", water_park:"Activité", campground:"Activité",
-  escape_room:"Activité", video_arcade:"Activité", laser_tag_center:"Activité",
-  trampoline_park:"Activité", theme_park:"Activité", karaoke:"Activité",
-  event_venue:"Activité", convention_center:"Activité", comedy_club:"Activité",
-  bowling:"Activité", sports_complex:"Activité", ice_skating_rink:"Activité",
-  climbing_gym:"Activité", paintball_center:"Activité", archery_range:"Activité",
-};
+const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Café", coffee_shop: "Café", tea_house: "Café", bakery: "Café", bar: "Bar", night_club: "Bar", wine_bar: "Bar", cocktail_bar: "Bar", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", historical_landmark: "Destination", national_park: "Destination", museum: "Activité", art_gallery: "Activité", park: "Activité", amusement_park: "Activité", performing_arts_theater: "Activité", miniature_golf_course: "Activité", golf_course: "Activité", bowling_alley: "Activité", gym: "Activité", spa: "Activité", zoo: "Activité", aquarium: "Activité", stadium: "Activité", movie_theater: "Activité", library: "Activité", casino: "Activité", ski_resort: "Activité", water_park: "Activité", campground: "Activité", food: "Restaurant" };
 
 const ONBOARD_TOUR = {
   fr:{onboardWelcome:"Bienvenue sur Outsy AI !",onboardWelcomeSub:"Configurons votre profil en 30 secondes.",onboardNext:"Suivant →",onboardBack:"Retour",onboardFinish:"C'est parti ! 🚀",onboardDone:"✓ Profil créé !",onboardSkip:"Passer et terminer",onboardCities:"Vos villes préférées",onboardCitiesSub:"Où allez-vous le plus souvent ? Ça aide notre IA. (optionnel)",onboardCitiesPlaceholder:"ex: Londres, Paris, New York, Tokyo...",onboardResultsSub:"Choisissez le nombre de résultats à afficher et votre budget habituel. (optionnel)",onboardLikesSub:"Sélectionnez ce qui compte pour vous (optionnel)",onboardDislikesSub:"Sélectionnez ce que vous préférez éviter (optionnel)",onboardNotesSub:"Autre chose qui aide nos recommandations ? Régime, allergies, style... (optionnel)",onboardNotesPlaceholder:"ex: Je suis végétarien, je préfère les endroits calmes, je voyage avec des enfants...",tourRecoDesc:"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées.",tourReco:"Recommandations",tourFav:"Favoris",tourAdd:"Ajouter",tourFriends:"Abonnements",tourProfile:"Profil",tourFavDesc:"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note.",tourAddDesc:"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion.",tourFriendsDesc:"Suivez des utilisateurs et découvrez leurs coups de cœur. Leurs favoris enrichissent vos recommandations.",tourProfileDesc:"Personnalisez vos préférences pour des recommandations sur mesure.",tourNext:"Suivant →",tourStart:"C'est parti ! 🎉",tourSkip:"Passer le tour",onboardReady:"Vous êtes prêt(e) !",onboardReadySub:"Votre profil est configuré. Faisons un tour rapide de l'app, puis vous pourrez commencer à explorer !"},
@@ -138,7 +115,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Prix", filterRating: "Note", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Amis", filterAll: "Tous", filterMine: "Mes lieux", filterFriendsOnly: "Amis",
     searchPlaces: "Chercher par nom, ville...",
-    nbRecosLabel: "Nombre de résultats (Favoris & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Nombre de résultats (Favoris & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Aucun coup de cœur encore", emptyFavoritesSub: "Commencez par ajouter un lieu",
     emptyResults: "Aucun résultat", emptyResultsSub: "Essayez d'autres filtres",
     profileIdentity: "👤 Mon identité", profileFirstName: "Prénom", profileLastName: "Nom",
@@ -199,7 +176,7 @@ const TRANSLATIONS = {
     filterType: "Tipo", filterPrice: "Precio", filterRating: "Nota", filterKids: "👶 Niños",
     filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Mis lugares", filterFriendsOnly: "Amigos",
     searchPlaces: "Buscar por nombre, ciudad...",
-    nbRecosLabel: "Número de resultados (Favoritos & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Número de resultados (Favoritos & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Aún sin favoritos", emptyFavoritesSub: "Empieza añadiendo un lugar",
     emptyResults: "Sin resultados", emptyResultsSub: "Prueba otros filtros",
     profileIdentity: "👤 Mi identidad", profileFirstName: "Nombre", profileLastName: "Apellido",
@@ -258,7 +235,7 @@ const TRANSLATIONS = {
     filterType: "Typ", filterPrice: "Preis", filterRating: "Bewertung", filterKids: "👶 Kinder",
     filterFriends: "👥 Freunde", filterAll: "Alle", filterMine: "Meine Orte", filterFriendsOnly: "Freunde",
     searchPlaces: "Nach Name, Stadt suchen...",
-    nbRecosLabel: "Anzahl Ergebnisse (Favoriten & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Anzahl Ergebnisse (Favoriten & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Noch keine Favoriten", emptyFavoritesSub: "Füge einen Ort hinzu",
     emptyResults: "Keine Ergebnisse", emptyResultsSub: "Versuche andere Filter",
     profileIdentity: "👤 Meine Identität", profileFirstName: "Vorname", profileLastName: "Nachname",
@@ -317,7 +294,7 @@ const TRANSLATIONS = {
     filterType: "Tipo", filterPrice: "Prezzo", filterRating: "Valutazione", filterKids: "👶 Bambini",
     filterFriends: "👥 Amici", filterAll: "Tutti", filterMine: "I miei posti", filterFriendsOnly: "Amici",
     searchPlaces: "Cerca per nome, città...",
-    nbRecosLabel: "Numero risultati (Preferiti & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Numero risultati (Preferiti & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Ancora nessun preferito", emptyFavoritesSub: "Inizia aggiungendo un posto",
     emptyResults: "Nessun risultato", emptyResultsSub: "Prova altri filtri",
     profileIdentity: "👤 La mia identità", profileFirstName: "Nome", profileLastName: "Cognome",
@@ -376,7 +353,7 @@ const TRANSLATIONS = {
     filterType: "Tipo", filterPrice: "Preço", filterRating: "Avaliação", filterKids: "👶 Crianças",
     filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Os meus lugares", filterFriendsOnly: "Amigos",
     searchPlaces: "Pesquisar por nome, cidade...",
-    nbRecosLabel: "Número de resultados (Favoritos & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Número de resultados (Favoritos & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Ainda sem favoritos", emptyFavoritesSub: "Comece por adicionar um lugar",
     emptyResults: "Sem resultados", emptyResultsSub: "Tente outros filtros",
     profileIdentity: "👤 Minha identidade", profileFirstName: "Nome", profileLastName: "Apelido",
@@ -435,7 +412,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Prijs", filterRating: "Beoordeling", filterKids: "👶 Kinderen",
     filterFriends: "👥 Vrienden", filterAll: "Alle", filterMine: "Mijn plekken", filterFriendsOnly: "Vrienden",
     searchPlaces: "Zoeken op naam, stad...",
-    nbRecosLabel: "Aantal resultaten (Favorieten & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Aantal resultaten (Favorieten & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "Nog geen favorieten", emptyFavoritesSub: "Begin met een plek toevoegen",
     emptyResults: "Geen resultaten", emptyResultsSub: "Probeer andere filters",
     profileIdentity: "👤 Mijn identiteit", profileFirstName: "Voornaam", profileLastName: "Achternaam",
@@ -494,7 +471,7 @@ const TRANSLATIONS = {
     filterType: "Type", filterPrice: "Price", filterRating: "Rating", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Friends", filterAll: "All", filterMine: "My places", filterFriendsOnly: "Friends",
     searchPlaces: "Search by name, city...",
-    nbRecosLabel: "Results limit (Favorites & AI)", nbRecos5: "5", nbRecos10: "10", nbRecos20: "20",
+    nbRecosLabel: "Results limit (Favorites & AI)", nbRecos5: "5", nbRecos10: "10", nbRecosAuto: "Auto",
     emptyFavorites: "No favorites yet", emptyFavoritesSub: "Start by adding a place",
     emptyResults: "No results", emptyResultsSub: "Try different filters",
     profileIdentity: "👤 My identity", profileFirstName: "First name", profileLastName: "Last name",
@@ -914,56 +891,22 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      
-      // Debug: log what Google returns so we can diagnose issues
-      console.log("Google details for", mainText, ":", JSON.stringify({
-        primaryType: details.primaryType,
-        types: details.types,
-        formattedAddress: details.formattedAddress,
-        components: components.map(c=>({types:c.types, long:c.longText})),
-        secondaryText
-      }));
-
-      // City extraction: try components, validate it's not a street name, fallback to secondaryText
-      const streetWords = /\b(road|street|avenue|lane|drive|way|place|court|square|boulevard|grove|close|crescent|terrace|rd|st|ave|blvd)\b/i;
-      let city = components.find(c=>c.types?.includes("locality"))?.longText
-        || components.find(c=>c.types?.includes("postal_town"))?.longText
-        || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText
-        || "";
-      // If city looks like a street name, clear it
-      if (streetWords.test(city)) city = "";
-      // Fallback: parse from secondaryText (e.g. "Tottenham Court Rd, London, UK" → "London")
-      if (!city && secondaryText) {
-        const parts = secondaryText.split(",").map(s=>s.trim());
-        // City is usually the second-to-last part (last = country)
-        if (parts.length >= 2) city = parts[parts.length - 2];
-        else if (parts.length === 1) city = parts[0];
-      }
-
+      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
-      
-      // Address: prefer formattedAddress (most complete), strip city/country from it
       const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
       const route = components.find(c=>c.types?.includes("route"))?.longText || "";
       const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
-      let streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ");
-      if (!streetAddress && details.formattedAddress) {
-        // Use formattedAddress but strip the place name, city and country parts
-        const faParts = details.formattedAddress.split(",").map(s=>s.trim());
-        // Take everything except last 1-2 parts (which are city/country)
-        streetAddress = faParts.slice(0, Math.max(1, faParts.length - 2)).join(", ");
-      }
-      
+      const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || details.formattedAddress || "";
       const googleTypes = details.types||[];
-      // Simple type detection via GOOGLE_TYPE_MAP
+      // Detect all matching types from Google's types (deduplicated, ordered)
       const matchedTypes = new Set();
-      const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
-      for (const gt of allTypes) {
+      for (const gt of [details.primaryType, ...googleTypes].filter(Boolean)) {
         if (GOOGLE_TYPE_MAP[gt]) matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
       }
-      const finalType = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
+      const type = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
       const price = PRICE_MAP[details.priceLevel]||"";
-      // Extract cuisine from Google types
+      // Extract cuisine from Google types (primary first, then secondary)
+      const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
       const cuisineKeywords = {
         italian:"Italian", japanese:"Japanese", chinese:"Chinese", french:"French",
         indian:"Indian", thai:"Thai", mexican:"Mexican", american:"American",
@@ -986,7 +929,7 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       };
       let cuisine = "";
       // Only extract cuisine for restaurant/bar/café types
-      const isActivityType = finalType.includes("Activité") || finalType.includes("Destination");
+      const isActivityType = type.includes("Activité") || type.includes("Destination");
       // Always try keyword-based cuisine extraction (works for "italian_restaurant" etc.)
       for (const gt of allTypes) {
         const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
@@ -1010,28 +953,29 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       // Extract activityType from Google's primaryTypeDisplayName for Activité/Destination
       let activityType = "";
       if (isActivityType) {
-        // Localized activity type labels
-        const activityLabels = {
-          fr: { museum:"Musée", art_gallery:"Galerie d'art", amusement_park:"Parc d'attractions", performing_arts_theater:"Théâtre", zoo:"Zoo", aquarium:"Aquarium", bowling_alley:"Bowling", gym:"Salle de sport", fitness_center:"Salle de sport", spa:"Spa", stadium:"Stade", national_park:"Parc national", park:"Parc", garden:"Jardin", historical_landmark:"Site historique", church:"Église", mosque:"Mosquée", library:"Bibliothèque", casino:"Casino", movie_theater:"Cinéma", night_club:"Boîte de nuit", shopping_mall:"Centre commercial", tourist_attraction:"Attraction touristique", campground:"Camping", ski_resort:"Station de ski", miniature_golf:"Mini Golf", golf_course:"Golf", bowling:"Bowling", escape_room:"Escape Game", karaoke:"Karaoké", water_park:"Parc aquatique", theme_park:"Parc à thème", trampoline_park:"Parc de trampolines", video_arcade:"Arcade", laser_tag:"Laser Game", climbing_gym:"Salle d'escalade", entertainment:"Divertissement", event_venue:"Salle événementielle" },
-          en: { museum:"Museum", art_gallery:"Art Gallery", amusement_park:"Amusement Park", performing_arts_theater:"Theater", zoo:"Zoo", aquarium:"Aquarium", bowling_alley:"Bowling", gym:"Gym", fitness_center:"Gym", spa:"Spa", stadium:"Stadium", national_park:"National Park", park:"Park", garden:"Garden", historical_landmark:"Historical Site", church:"Church", mosque:"Mosque", library:"Library", casino:"Casino", movie_theater:"Cinema", night_club:"Night Club", shopping_mall:"Shopping Mall", tourist_attraction:"Attraction", campground:"Campground", ski_resort:"Ski Resort", miniature_golf:"Mini Golf", golf_course:"Golf", bowling:"Bowling", escape_room:"Escape Room", karaoke:"Karaoke", water_park:"Water Park", theme_park:"Theme Park", trampoline_park:"Trampoline Park", video_arcade:"Arcade", laser_tag:"Laser Tag", climbing_gym:"Climbing Gym", entertainment:"Entertainment", event_venue:"Event Venue" },
-          es: { museum:"Museo", art_gallery:"Galería de Arte", amusement_park:"Parque de Atracciones", performing_arts_theater:"Teatro", zoo:"Zoo", aquarium:"Acuario", bowling_alley:"Bolera", gym:"Gimnasio", spa:"Spa", stadium:"Estadio", park:"Parque", escape_room:"Escape Room", movie_theater:"Cine", ski_resort:"Estación de Esquí", water_park:"Parque Acuático", entertainment:"Entretenimiento" },
-          de: { museum:"Museum", art_gallery:"Kunstgalerie", amusement_park:"Freizeitpark", performing_arts_theater:"Theater", zoo:"Zoo", aquarium:"Aquarium", bowling_alley:"Bowling", gym:"Fitnessstudio", spa:"Spa", stadium:"Stadion", park:"Park", escape_room:"Escape Room", movie_theater:"Kino", ski_resort:"Skiresort", water_park:"Wasserpark", entertainment:"Unterhaltung" },
-          it: { museum:"Museo", art_gallery:"Galleria d'Arte", amusement_park:"Parco Divertimenti", performing_arts_theater:"Teatro", zoo:"Zoo", aquarium:"Acquario", bowling_alley:"Bowling", gym:"Palestra", spa:"Spa", stadium:"Stadio", park:"Parco", escape_room:"Escape Room", movie_theater:"Cinema", entertainment:"Intrattenimento" },
-          pt: { museum:"Museu", art_gallery:"Galeria de Arte", amusement_park:"Parque de Diversões", performing_arts_theater:"Teatro", zoo:"Zoo", aquarium:"Aquário", bowling_alley:"Bowling", gym:"Ginásio", spa:"Spa", stadium:"Estádio", park:"Parque", escape_room:"Escape Room", movie_theater:"Cinema", entertainment:"Entretenimento" },
-          nl: { museum:"Museum", art_gallery:"Kunstgalerie", amusement_park:"Pretpark", performing_arts_theater:"Theater", zoo:"Dierentuin", aquarium:"Aquarium", bowling_alley:"Bowlingbaan", gym:"Sportschool", spa:"Spa", stadium:"Stadion", park:"Park", escape_room:"Escape Room", movie_theater:"Bioscoop", entertainment:"Entertainment" },
+        const activityKeywords = {
+          museum:"Museum", art_gallery:"Art Gallery", amusement_park:"Amusement Park",
+          performing_arts_theater:"Theater", zoo:"Zoo", aquarium:"Aquarium",
+          bowling_alley:"Bowling", gym:"Gym", spa:"Spa", stadium:"Stadium",
+          national_park:"National Park", park:"Park", garden:"Garden",
+          historical_landmark:"Historical Site", church:"Church", mosque:"Mosque",
+          synagogue:"Synagogue", temple:"Temple", library:"Library", casino:"Casino",
+          movie_theater:"Cinema", night_club:"Night Club", shopping_mall:"Shopping Mall",
+          tourist_attraction:"Tourist Attraction", campground:"Campground", ski_resort:"Ski Resort",
+          miniature_golf:"Mini Golf", golf_course:"Golf", bowling:"Bowling",
+          escape_room:"Escape Room", karaoke:"Karaoke", water_park:"Water Park",
+          theme_park:"Theme Park", trampoline_park:"Trampoline Park"
         };
-        const labels = activityLabels[lang] || activityLabels.en;
         for (const gt of allTypes) {
-          const key = Object.keys(labels).find(k=>gt.toLowerCase().includes(k));
-          if (key) { activityType = labels[key]; break; }
+          const key = Object.keys(activityKeywords).find(k=>gt.toLowerCase().includes(k));
+          if (key) { activityType = activityKeywords[key]; break; }
         }
-        // Fallback to Google's localized primaryTypeDisplayName (already in user's language)
         if (!activityType && details.primaryTypeDisplayName) {
           const display = details.primaryTypeDisplayName?.text || details.primaryTypeDisplayName;
           if (typeof display === 'string') activityType = display.charAt(0).toUpperCase() + display.slice(1);
         }
       }
-      const place = { name: mainText, city, country, type: finalType, price, priceSource, address: streetAddress, cuisine, activityType, googlePlaceId };
+      const place = { name: mainText, city, country, type, price, priceSource, address: streetAddress, cuisine, activityType, googlePlaceId };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
@@ -1086,8 +1030,8 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
   const [fullscreen, setFullscreen] = useState(false);
   const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: false });
 
-  // Limit nearby markers based on recoLimit (5/10/20)
-  const nearbyLimit = parseInt(recoLimit) || 10;
+  // Limit nearby markers based on recoLimit (5/10/auto -> 10)
+  const nearbyLimit = recoLimit === "auto" ? 10 : (parseInt(recoLimit) || 10);
   const nearbyToShow = (nearbyPlaces || []).slice(0, nearbyLimit);
 
   // ESC key: close popup first, then exit fullscreen
@@ -2718,7 +2662,7 @@ function TravelAgent() {
 
     const nbHearts = (() => {
       const val = nbRecosOverride ?? recoLimit;
-      return parseInt(val) || 10;
+      return val === "auto" ? 10 : parseInt(val) || 10;
     })();
     const allClosedNames = new Set([
       ...closedPlacesRef.current.map(n=>n.toLowerCase()),
@@ -2897,7 +2841,9 @@ function TravelAgent() {
       return getDisplayRating(b) - getDisplayRating(a);
     });
     // Preserve openNow status from previous state but NOT openingHours (force re-fetch for fresh data)
-    const nbHearts = parseInt(recoLimit) || 10;
+    const nbHearts = recoLimit === "auto"
+      ? Math.max(3, 10 - (aiRecos.length || 0))
+      : parseInt(recoLimit) || 10;
     const allClosedNames = new Set([
       ...closedPlacesRef.current.map(n=>n.toLowerCase()),
       ...tempClosedRef.current
@@ -3013,7 +2959,9 @@ function TravelAgent() {
 
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
 
-    const nbRecosCount = parseInt(recoLimit) || 10;
+    const nbRecosCount = recoLimit === "auto"
+      ? Math.max(3, 10 - heartMemories.length)
+      : parseInt(recoLimit) || 10;
     const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
 
@@ -3570,7 +3518,7 @@ RULES:
                 <div className="field">
                   <label>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:8}}>
-                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["20",t.nbRecos20||"20"]].map(([val,label])=>(
+                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
                         style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
@@ -3583,19 +3531,10 @@ RULES:
                 </div>
                 <div className="field">
                   <label>{t.profileBudget}</label>
-                  <div style={{display:"flex",gap:8}}>
-                    {[["","—"],...PRICES.map((p,i)=>[p,[t.priceCheap||"Bon marché",t.priceMid||"Intermédiaire",t.priceHigh||"Haut de gamme"][i]])].map(([val,label])=>(
-                      <button key={val} onClick={()=>setPrefs(p=>({...p,budget:val}))}
-                        style={{flex:1,padding:"8px 4px",background:(prefs.budget||"")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.budget||"")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.budget||"")===val?COLORS.accent:COLORS.muted,
-                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s",
-                          lineHeight:1.2,textAlign:"center"}}>
-                        <div style={{fontSize:12}}>{val||"—"}</div>
-                        <div style={{fontSize:9,fontWeight:400,opacity:0.7,marginTop:1}}>{label}</div>
-                      </button>
-                    ))}
-                  </div>
+                  <select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}>
+                    <option value="">{t.profileBudgetNone}</option>
+                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
+                  </select>
                 </div>
               </div>
               <div className="prefs-card">
@@ -3675,7 +3614,7 @@ RULES:
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
                   <div style={{display:"flex",gap:6,marginTop:6}}>
-                    {[["5","5"],["10","10"],["20","20"]].map(([val,label])=>(
+                    {[["5","5"],["10","10"],["auto","Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>{
                         nbRecosRef.current = val;
                         setRecoLimit(val);
@@ -4001,7 +3940,7 @@ RULES:
                 <div style={{marginBottom:14}}>
                   <label style={labelStyle}>{t.nbRecosLabel||"Results limit"}</label>
                   <div style={{display:"flex",gap:8}}>
-                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["20",t.nbRecos20||"20"]].map(([val,label])=>(
+                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["auto",t.nbRecosAuto||"Auto"]].map(([val,label])=>(
                       <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
                         style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
                           border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
@@ -4014,19 +3953,10 @@ RULES:
                 </div>
                 <div>
                   <label style={labelStyle}>{t.profileBudget||"Budget"}</label>
-                  <div style={{display:"flex",gap:8}}>
-                    {[["","—"],...PRICES.map((p,i)=>[p,[t.priceCheap||"Bon marché",t.priceMid||"Intermédiaire",t.priceHigh||"Haut de gamme"][i]])].map(([val,label])=>(
-                      <button key={val} onClick={()=>setPrefs(p=>({...p,budget:val}))}
-                        style={{flex:1,padding:"8px 4px",background:(prefs.budget||"")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.budget||"")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.budget||"")===val?COLORS.accent:COLORS.muted,
-                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s",
-                          lineHeight:1.2,textAlign:"center"}}>
-                        <div style={{fontSize:12}}>{val||"—"}</div>
-                        <div style={{fontSize:9,fontWeight:400,opacity:0.7,marginTop:1}}>{label}</div>
-                      </button>
-                    ))}
-                  </div>
+                  <select value={prefs.budget||""} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))} style={inputStyle}>
+                    <option value="">{t.profileBudgetNone||"Not specified"}</option>
+                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
+                  </select>
                 </div>
               </>)}
 
