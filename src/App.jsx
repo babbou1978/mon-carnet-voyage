@@ -4,7 +4,7 @@ import { supabase } from "./supabase.js";
 import Auth from "./Auth.jsx";
 
 const TYPES = ["Restaurant", "Bar", "Café", "Hôtel", "Activité", "Destination"];
-const PRICES = ["€", "€€", "€€€", "€€€€"];
+const PRICES = ["€", "€€", "€€€"];
 const TYPE_ICONS = { "Restaurant": "🍽️", "Bar": "🍷", "Café": "☕", "Hôtel": "🏨", "Activité": "🎯", "Destination": "🗺️" };
 const getTypeIcon = (type) => {
   if (!type) return "🍽️";
@@ -22,7 +22,8 @@ const ONBOARD_TOUR = {
   pt:{onboardWelcome:"Bem-vindo ao Outsy AI!",onboardWelcomeSub:"Vamos configurar o seu perfil em 30 segundos.",onboardNext:"Seguinte →",onboardBack:"Voltar",onboardFinish:"Vamos! 🚀",onboardDone:"✓ Perfil criado!",onboardSkip:"Saltar e terminar",onboardCities:"As suas cidades preferidas",onboardCitiesSub:"Onde vai mais vezes? (opcional)",onboardCitiesPlaceholder:"ex: Londres, Paris, Nova Iorque...",onboardResultsSub:"Escolha quantos resultados mostrar e o seu orçamento habitual. (opcional)",onboardLikesSub:"O que lhe importa? (opcional)",onboardDislikesSub:"O que prefere evitar? (opcional)",onboardNotesSub:"Mais alguma coisa? (opcional)",onboardNotesPlaceholder:"ex: Vegetariano, prefiro lugares calmos...",tourRecoDesc:"Encontre os melhores lugares perto de si.",tourReco:"Recomendações",tourFav:"Favoritos",tourAdd:"Adicionar",tourFriends:"Seguidos",tourProfile:"Perfil",tourFavDesc:"Todos os seus favoritos.",tourAddDesc:"Guarde um lugar em segundos.",tourFriendsDesc:"Siga utilizadores e descubra os seus favoritos.",tourProfileDesc:"Personalize as suas preferências.",tourNext:"Seguinte →",tourStart:"Vamos! 🎉",tourSkip:"Saltar tour",onboardReady:"Tudo pronto!",onboardReadySub:"O seu perfil está configurado. Vamos fazer um tour rápido!"},
   nl:{onboardWelcome:"Welkom bij Outsy AI!",onboardWelcomeSub:"Stel je profiel in in 30 seconden.",onboardNext:"Volgende →",onboardBack:"Terug",onboardFinish:"Laten we gaan! 🚀",onboardDone:"✓ Profiel aangemaakt!",onboardSkip:"Overslaan",onboardCities:"Jouw favoriete steden",onboardCitiesSub:"Waar ga je het vaakst? (optioneel)",onboardCitiesPlaceholder:"bijv. Londen, Parijs, New York...",onboardResultsSub:"Kies hoeveel resultaten je wilt zien en je gebruikelijke budget. (optioneel)",onboardLikesSub:"Wat is belangrijk voor jou? (optioneel)",onboardDislikesSub:"Wat vermijd je liever? (optioneel)",onboardNotesSub:"Nog iets voor betere aanbevelingen? (optioneel)",onboardNotesPlaceholder:"bijv. Vegetariër, hou van rustige plekken...",tourRecoDesc:"Vind de beste plekken bij jou in de buurt.",tourReco:"Aanbevelingen",tourFav:"Favorieten",tourAdd:"Toevoegen",tourFriends:"Volgend",tourProfile:"Profiel",tourFavDesc:"Al je favorieten.",tourAddDesc:"Sla een plek op in seconden.",tourFriendsDesc:"Volg gebruikers en ontdek hun favorieten.",tourProfileDesc:"Pas je voorkeuren aan.",tourNext:"Volgende →",tourStart:"Laten we gaan! 🎉",tourSkip:"Tour overslaan",onboardReady:"Alles klaar!",onboardReadySub:"Je profiel is ingesteld. Laten we een snelle rondleiding doen!"},
 };
-const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€€" };
+const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRICE_LEVEL_MODERATE: "€€", PRICE_LEVEL_EXPENSIVE: "€€€", PRICE_LEVEL_VERY_EXPENSIVE: "€€€" };
+const normalizePrice = (p) => p === "€€€€" ? "€€€" : p; // Migrate old 4-level to 3-level
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
 const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
 // Legacy compatibility: "Bar / Café" matches both "Bar" and "Café"
@@ -103,7 +104,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoris", tabAdd: "+ Ajouter", tabFriends: "👥 Amis", tabProfile: "Profil",
     logout: "Déconnexion",
-    addPlace: "Nom du lieu", addType: "Type", addPrice: "Prix", addCity: "Ville", addCountry: "Pays",
+    addPlace: "Nom du lieu", addType: "Type", addPrice: "Prix", addPriceManual: "manuel", addPriceNeeded: "à indiquer",
+    priceCheap: "Bon marché", priceMid: "Intermédiaire", priceHigh: "Haut de gamme",
+    addCity: "Ville", addCountry: "Pays",
     addRating: "Note globale", addKids: "👶 Kids friendly", addLiked: "Ce que j'ai aimé",
     addLikedSelect: "Sélectionner", addLikedPrecise: "Préciser", addDisliked: "Ce que j'ai moins aimé",
     addDislikedSelect: "Sélectionner", addDislikedPrecise: "Préciser",
@@ -162,7 +165,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Añadir", tabFriends: "👥 Amigos", tabProfile: "Perfil",
     logout: "Cerrar sesión",
-    addPlace: "Nombre del lugar", addType: "Tipo", addPrice: "Precio", addCity: "Ciudad", addCountry: "País",
+    addPlace: "Nombre del lugar", addType: "Tipo", addPrice: "Precio", addPriceManual: "manual", addPriceNeeded: "por indicar",
+    priceCheap: "Económico", priceMid: "Intermedio", priceHigh: "Alta gama",
+    addCity: "Ciudad", addCountry: "País",
     addRating: "Puntuación", addKids: "Apto para niños", addLiked: "Lo que me gustó",
     addLikedSelect: "Seleccionar", addLikedPrecise: "Añadir detalles", addDisliked: "Lo que no me gustó",
     addDislikedSelect: "Seleccionar", addDislikedPrecise: "Añadir detalles",
@@ -219,7 +224,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoriten", tabAdd: "+ Hinzufügen", tabFriends: "👥 Freunde", tabProfile: "Profil",
     logout: "Abmelden",
-    addPlace: "Ortsname", addType: "Typ", addPrice: "Preis", addCity: "Stadt", addCountry: "Land",
+    addPlace: "Ortsname", addType: "Typ", addPrice: "Preis", addPriceManual: "manuell", addPriceNeeded: "angeben",
+    priceCheap: "Günstig", priceMid: "Mittel", priceHigh: "Gehoben",
+    addCity: "Stadt", addCountry: "Land",
     addRating: "Gesamtbewertung", addKids: "Kinderfreundlich", addLiked: "Was mir gefiel",
     addLikedSelect: "Auswählen", addLikedPrecise: "Details hinzufügen", addDisliked: "Was mir nicht gefiel",
     addDislikedSelect: "Auswählen", addDislikedPrecise: "Details hinzufügen",
@@ -276,7 +283,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Preferiti", tabAdd: "+ Aggiungi", tabFriends: "👥 Amici", tabProfile: "Profilo",
     logout: "Disconnetti",
-    addPlace: "Nome del posto", addType: "Tipo", addPrice: "Prezzo", addCity: "Città", addCountry: "Paese",
+    addPlace: "Nome del posto", addType: "Tipo", addPrice: "Prezzo", addPriceManual: "manuale", addPriceNeeded: "da indicare",
+    priceCheap: "Economico", priceMid: "Medio", priceHigh: "Alta gamma",
+    addCity: "Città", addCountry: "Paese",
     addRating: "Valutazione", addKids: "Adatto ai bambini", addLiked: "Cosa mi è piaciuto",
     addLikedSelect: "Seleziona", addLikedPrecise: "Aggiungi dettagli", addDisliked: "Cosa non mi è piaciuto",
     addDislikedSelect: "Seleziona", addDislikedPrecise: "Aggiungi dettagli",
@@ -333,7 +342,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Adicionar", tabFriends: "👥 Amigos", tabProfile: "Perfil",
     logout: "Sair",
-    addPlace: "Nome do lugar", addType: "Tipo", addPrice: "Preço", addCity: "Cidade", addCountry: "País",
+    addPlace: "Nome do lugar", addType: "Tipo", addPrice: "Preço", addPriceManual: "manual", addPriceNeeded: "a indicar",
+    priceCheap: "Económico", priceMid: "Intermédio", priceHigh: "Topo de gama",
+    addCity: "Cidade", addCountry: "País",
     addRating: "Avaliação geral", addKids: "Adequado para crianças", addLiked: "O que gostei",
     addLikedSelect: "Selecionar", addLikedPrecise: "Adicionar detalhes", addDisliked: "O que não gostei",
     addDislikedSelect: "Selecionar", addDislikedPrecise: "Adicionar detalhes",
@@ -390,7 +401,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favorieten", tabAdd: "+ Toevoegen", tabFriends: "👥 Vrienden", tabProfile: "Profiel",
     logout: "Uitloggen",
-    addPlace: "Naam van de plek", addType: "Type", addPrice: "Prijs", addCity: "Stad", addCountry: "Land",
+    addPlace: "Naam van de plek", addType: "Type", addPrice: "Prijs", addPriceManual: "handmatig", addPriceNeeded: "aan te geven",
+    priceCheap: "Goedkoop", priceMid: "Gemiddeld", priceHigh: "Luxe",
+    addCity: "Stad", addCountry: "Land",
     addRating: "Algemene beoordeling", addKids: "Kindvriendelijk", addLiked: "Wat ik leuk vond",
     addLikedSelect: "Selecteren", addLikedPrecise: "Details toevoegen", addDisliked: "Wat ik niet leuk vond",
     addDislikedSelect: "Selecteren", addDislikedPrecise: "Details toevoegen",
@@ -447,7 +460,9 @@ const TRANSLATIONS = {
     appTagline: "Save & Share places you love. Discover more.",
     tabReco: "Reco ✨", tabFavorites: "❤️ Favorites", tabAdd: "+ Add", tabFriends: "👥 Friends", tabProfile: "Profile",
     logout: "Sign out",
-    addPlace: "Place name", addType: "Type", addPrice: "Price", addCity: "City", addCountry: "Country",
+    addPlace: "Place name", addType: "Type", addPrice: "Price", addPriceManual: "manual", addPriceNeeded: "to specify",
+    priceCheap: "Budget", priceMid: "Mid-range", priceHigh: "High-end",
+    addCity: "City", addCountry: "Country",
     addRating: "Overall rating", addKids: "👶 Kids friendly", addLiked: "What I liked",
     addLikedSelect: "Select", addLikedPrecise: "Add details", addDisliked: "What I didn't like",
     addDislikedSelect: "Select", addDislikedPrecise: "Add details",
@@ -555,7 +570,7 @@ const getCSS = (COLORS) => `
   .autocomplete-loading { padding: 11px 14px; font-size: 12px; color: ${COLORS.muted}; text-align: center; }
   .place-badge { font-size: 11px; color: ${COLORS.accent}; margin-top: 4px; }
   .price-selector { display: flex; gap: 8px; }
-  .price-btn { flex: 1; padding: 10px 4px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 500; text-align: center; white-space: nowrap; }
+  .price-btn { flex: 1; padding: 8px 4px; background: ${COLORS.card}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 600; text-align: center; white-space: nowrap; line-height: 1.2; }
   .price-btn.selected { background: ${COLORS.accent}22; border-color: ${COLORS.accent}; color: ${COLORS.accent}; }
   .star-row { display: flex; gap: 8px; align-items: center; }
   .star { font-size: 24px; cursor: pointer; transition: all 0.15s; color: ${COLORS.border}; user-select: none; }
@@ -889,7 +904,7 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
         if (GOOGLE_TYPE_MAP[gt]) matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
       }
       const type = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
-      const price = PRICE_MAP[details.priceLevel]||"€€";
+      const price = PRICE_MAP[details.priceLevel]||"";
       // Extract cuisine from Google types (primary first, then secondary)
       const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
       const cuisineKeywords = {
@@ -930,11 +945,12 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
         }
       }
       const googlePlaceId = placeId || "";
-      const place = { name: mainText, city, country, type, price, address: streetAddress, cuisine, googlePlaceId };
+      const priceSource = details.priceLevel ? "google" : "";
+      const place = { name: mainText, city, country, type, price, priceSource, address: streetAddress, cuisine, googlePlaceId };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
-      onPlaceSelected({ name: mainText, city: parts[0]?.trim()||"", country: parts[parts.length-1]?.trim()||"", type: "Restaurant", price: "€€" });
+      onPlaceSelected({ name: mainText, city: parts[0]?.trim()||"", country: parts[parts.length-1]?.trim()||"", type: "Restaurant", price: "" });
     }
   };
 
@@ -1344,7 +1360,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
 }
 
 const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexican","Lebanese","Greek","Spanish","British","American","Mediterranean","Vietnamese","Korean","Turkish","Moroccan","Austrian","Belgian","Scandinavian","Peruvian","Argentine","Brazilian","Australian","Modern European","Fusion","Vegetarian","Seafood","Steakhouse","Sushi","Pizza","Burger","Bistro","Brasserie","Wine bar","Cocktail bar","Café","Bakery"];
-const DEFAULT_FORM = { name:"",type:"Restaurant",price:"€€",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
+const DEFAULT_FORM = { name:"",type:"Restaurant",price:"",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",username:"",is_private:false,avatar_url:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate, onDelete }) {
@@ -1381,8 +1397,8 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
     });
   };
   const handlePlaceSelected = (place) => {
-    if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:"€€"})); return; }
-    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,cuisine:place.cuisine||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
+    if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:""})); return; }
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,priceSource:place.priceSource||"",cuisine:place.cuisine||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
     if (onDuplicate) onDuplicate(place.name);
   };
   return (
@@ -1400,7 +1416,25 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
             </div>
           </div>
           {(form.type||"").split(",").some(t=>["Restaurant","Bar","Café"].includes(t.trim()))&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
-          <div className="field"><label>{t?.addPrice||"Prix"}</label><div className="price-selector">{PRICES.map(p=><button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p}))}>{p}</button>)}</div></div>
+          <div className="field">
+            <label>{t?.addPrice||"Prix"}
+              {form.priceSource==="google"
+                ? <span style={{fontSize:10,color:"#4a9",marginLeft:6,fontWeight:400}}>✓ Google</span>
+                : form.price
+                  ? <span style={{fontSize:10,color:COLORS.muted,marginLeft:6,fontWeight:400}}>{t?.addPriceManual||"manuel"}</span>
+                  : <span style={{fontSize:10,color:"#d4869b",marginLeft:6,fontWeight:400}}>{t?.addPriceNeeded||"à indiquer"}</span>
+              }
+            </label>
+            <div className="price-selector">
+              {PRICES.map((p,i)=>{
+                const labels = [t?.priceCheap||"Bon marché", t?.priceMid||"Intermédiaire", t?.priceHigh||"Haut de gamme"];
+                return <button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p,priceSource:"manual"}))} title={labels[i]}>
+                  <div>{p}</div>
+                  <div style={{fontSize:9,fontWeight:400,marginTop:1,opacity:0.7}}>{labels[i]}</div>
+                </button>;
+              })}
+            </div>
+          </div>
         </div>
         <div className="field"><label>{t?.addAddress||"Address"}</label><input placeholder="22 Harcourt Street" value={form.address||""} onChange={e=>setForm(f=>({...f,address:e.target.value}))}/></div>
         <div className="row-2">
@@ -3042,7 +3076,7 @@ RULES:
     setRecoToAdd({
       name: reco.name,
       type: reco.type || recoType,
-      price: reco.price || "€€",
+      price: reco.price || "",
       city, country,
       address: streetAddress,
       cuisine: reco.cuisine || "",
@@ -3055,7 +3089,7 @@ RULES:
     setRecoToAdd({
       name: m.name,
       type: m.type || "Restaurant",
-      price: m.price || "€€",
+      price: m.price || "",
       city: m.city || "",
       country: m.country || "",
       address: m.address || "",
@@ -3671,7 +3705,7 @@ RULES:
                                 friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase())}
                                 myMem={memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase())}
                                 onEdit={setEditMemory}
-                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"€€",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}
+                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}
                                 COLORS={COLORS}
                                 t={t}
                                 setFriendMemoryModal={setFriendMemoryModal}
