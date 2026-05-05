@@ -914,51 +914,20 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      // For UK/London, postal_town is more reliable than locality (which can return neighborhoods)
-      const city = 
-        components.find(c=>c.types?.includes("postal_town"))?.longText ||
-        components.find(c=>c.types?.includes("locality"))?.longText ||
-        components.find(c=>c.types?.includes("sublocality_level_1"))?.longText ||
-        components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText ||
-        secondaryText.split(",").slice(-2,-1)[0]?.trim() || "";
-      const country = 
-        components.find(c=>c.types?.includes("country"))?.shortText ||
-        components.find(c=>c.types?.includes("country"))?.longText ||
-        secondaryText.split(",").pop()?.trim() || "";
+      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
+      const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
       const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
       const route = components.find(c=>c.types?.includes("route"))?.longText || "";
       const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
-      const streetAddress = [streetNumber, route].filter(Boolean).join(" ") ||
-        details.formattedAddress?.split(",")[0]?.trim() || "";
+      const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || details.formattedAddress || "";
       const googleTypes = details.types||[];
-      const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
-
-      // Type detection with priority: Activité > Bar > Café > Restaurant
-      // (an entertainment venue with a restaurant inside should be Activité, not Restaurant)
-      const ACTIVITY_SIGNALS = new Set([
-        "tourist_attraction","amusement_park","bowling_alley","escape_room","museum","art_gallery",
-        "zoo","aquarium","performing_arts_theater","movie_theater","casino","gym","spa",
-        "stadium","ski_resort","water_park","theme_park","trampoline_park","video_arcade",
-        "laser_tag_center","miniature_golf_course","golf_course","entertainment","event_venue",
-        "comedy_club","climbing_gym","ice_skating_rink","sports_complex","fitness_center","campground"
-      ]);
-      const hasActivitySignal = allTypes.some(t => ACTIVITY_SIGNALS.has(t));
-      
+      // Simple type detection via GOOGLE_TYPE_MAP (original logic that works)
       const matchedTypes = new Set();
-      // If activity signal found, add Activité first (wins priority)
-      if (hasActivitySignal) matchedTypes.add("Activité");
+      const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
       for (const gt of allTypes) {
-        if (GOOGLE_TYPE_MAP[gt] && GOOGLE_TYPE_MAP[gt] !== "Activité") {
-          matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
-        }
+        if (GOOGLE_TYPE_MAP[gt]) matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
       }
-      // If no match at all, default to Restaurant
-      const type = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
-      // But if we already have Activité AND Restaurant, keep both (e.g. Puttshack)
-      // If ONLY matched via restaurant but has activity signal, use Activité only
-      const finalType = (hasActivitySignal && matchedTypes.size === 1 && matchedTypes.has("Activité"))
-        ? "Activité"
-        : type;
+      const finalType = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
       const price = PRICE_MAP[details.priceLevel]||"";
       // Extract cuisine from Google types
       const cuisineKeywords = {
