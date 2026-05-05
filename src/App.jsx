@@ -111,7 +111,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Sélectionner", addLikedPrecise: "Préciser", addDisliked: "Ce que j'ai moins aimé",
     addDislikedSelect: "Sélectionner", addDislikedPrecise: "Préciser",
     addSave: "Enregistrer", addUpdate: "Sauvegarder",
-    addCuisine: "Cuisine",
+    addCuisine: "Cuisine", addActivityType: "Type d'activité", addActivityPlaceholder: "Ex: Musée, Parc, Spa, Spectacle...",
     filterType: "Type", filterPrice: "Prix", filterRating: "Note", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Amis", filterAll: "Tous", filterMine: "Mes lieux", filterFriendsOnly: "Amis",
     searchPlaces: "Chercher par nom, ville...",
@@ -172,7 +172,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Seleccionar", addLikedPrecise: "Añadir detalles", addDisliked: "Lo que no me gustó",
     addDislikedSelect: "Seleccionar", addDislikedPrecise: "Añadir detalles",
     addSave: "Guardar", addUpdate: "Actualizar",
-    addCuisine: "Cocina",
+    addCuisine: "Cocina", addActivityType: "Tipo de actividad", addActivityPlaceholder: "Ej: Museo, Parque, Spa, Espectáculo...",
     filterType: "Tipo", filterPrice: "Precio", filterRating: "Nota", filterKids: "👶 Niños",
     filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Mis lugares", filterFriendsOnly: "Amigos",
     searchPlaces: "Buscar por nombre, ciudad...",
@@ -231,7 +231,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Auswählen", addLikedPrecise: "Details hinzufügen", addDisliked: "Was mir nicht gefiel",
     addDislikedSelect: "Auswählen", addDislikedPrecise: "Details hinzufügen",
     addSave: "Speichern", addUpdate: "Aktualisieren",
-    addCuisine: "Küche",
+    addCuisine: "Küche", addActivityType: "Art der Aktivität", addActivityPlaceholder: "z.B. Museum, Park, Spa, Show...",
     filterType: "Typ", filterPrice: "Preis", filterRating: "Bewertung", filterKids: "👶 Kinder",
     filterFriends: "👥 Freunde", filterAll: "Alle", filterMine: "Meine Orte", filterFriendsOnly: "Freunde",
     searchPlaces: "Nach Name, Stadt suchen...",
@@ -290,7 +290,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Seleziona", addLikedPrecise: "Aggiungi dettagli", addDisliked: "Cosa non mi è piaciuto",
     addDislikedSelect: "Seleziona", addDislikedPrecise: "Aggiungi dettagli",
     addSave: "Salva", addUpdate: "Aggiorna",
-    addCuisine: "Cucina",
+    addCuisine: "Cucina", addActivityType: "Tipo di attività", addActivityPlaceholder: "Es: Museo, Parco, Spa, Spettacolo...",
     filterType: "Tipo", filterPrice: "Prezzo", filterRating: "Valutazione", filterKids: "👶 Bambini",
     filterFriends: "👥 Amici", filterAll: "Tutti", filterMine: "I miei posti", filterFriendsOnly: "Amici",
     searchPlaces: "Cerca per nome, città...",
@@ -349,7 +349,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Selecionar", addLikedPrecise: "Adicionar detalhes", addDisliked: "O que não gostei",
     addDislikedSelect: "Selecionar", addDislikedPrecise: "Adicionar detalhes",
     addSave: "Guardar", addUpdate: "Atualizar",
-    addCuisine: "Cozinha",
+    addCuisine: "Cozinha", addActivityType: "Tipo de atividade", addActivityPlaceholder: "Ex: Museu, Parque, Spa, Espetáculo...",
     filterType: "Tipo", filterPrice: "Preço", filterRating: "Avaliação", filterKids: "👶 Crianças",
     filterFriends: "👥 Amigos", filterAll: "Todos", filterMine: "Os meus lugares", filterFriendsOnly: "Amigos",
     searchPlaces: "Pesquisar por nome, cidade...",
@@ -408,7 +408,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Selecteren", addLikedPrecise: "Details toevoegen", addDisliked: "Wat ik niet leuk vond",
     addDislikedSelect: "Selecteren", addDislikedPrecise: "Details toevoegen",
     addSave: "Opslaan", addUpdate: "Bijwerken",
-    addCuisine: "Keuken",
+    addCuisine: "Keuken", addActivityType: "Type activiteit", addActivityPlaceholder: "Bijv. Museum, Park, Spa, Show...",
     filterType: "Type", filterPrice: "Prijs", filterRating: "Beoordeling", filterKids: "👶 Kinderen",
     filterFriends: "👥 Vrienden", filterAll: "Alle", filterMine: "Mijn plekken", filterFriendsOnly: "Vrienden",
     searchPlaces: "Zoeken op naam, stad...",
@@ -467,7 +467,7 @@ const TRANSLATIONS = {
     addLikedSelect: "Select", addLikedPrecise: "Add details", addDisliked: "What I didn't like",
     addDislikedSelect: "Select", addDislikedPrecise: "Add details",
     addSave: "Save", addUpdate: "Update",
-    addCuisine: "Cuisine",
+    addCuisine: "Cuisine", addActivityType: "Activity type", addActivityPlaceholder: "E.g. Museum, Park, Spa, Show...",
     filterType: "Type", filterPrice: "Price", filterRating: "Rating", filterKids: "👶 Kids friendly",
     filterFriends: "👥 Friends", filterAll: "All", filterMine: "My places", filterFriendsOnly: "Friends",
     searchPlaces: "Search by name, city...",
@@ -946,7 +946,29 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       }
       const googlePlaceId = placeId || "";
       const priceSource = details.priceLevel ? "google" : "";
-      const place = { name: mainText, city, country, type, price, priceSource, address: streetAddress, cuisine, googlePlaceId };
+      // Extract activityType from Google's primaryTypeDisplayName for Activité/Destination
+      let activityType = "";
+      if (type.includes("Activité") || type.includes("Destination")) {
+        const activityKeywords = {
+          museum:"Museum", art_gallery:"Art Gallery", amusement_park:"Amusement Park",
+          performing_arts_theater:"Theater", zoo:"Zoo", aquarium:"Aquarium",
+          bowling_alley:"Bowling", gym:"Gym", spa:"Spa", stadium:"Stadium",
+          national_park:"National Park", park:"Park", garden:"Garden",
+          historical_landmark:"Historical Site", church:"Church", mosque:"Mosque",
+          synagogue:"Synagogue", temple:"Temple", library:"Library", casino:"Casino",
+          movie_theater:"Cinema", night_club:"Night Club", shopping_mall:"Shopping Mall",
+          tourist_attraction:"Tourist Attraction", campground:"Campground", ski_resort:"Ski Resort"
+        };
+        for (const gt of allTypes) {
+          const key = Object.keys(activityKeywords).find(k=>gt.toLowerCase().includes(k));
+          if (key) { activityType = activityKeywords[key]; break; }
+        }
+        if (!activityType && details.primaryTypeDisplayName) {
+          const display = details.primaryTypeDisplayName?.text || details.primaryTypeDisplayName;
+          if (typeof display === 'string') activityType = display.charAt(0).toUpperCase() + display.slice(1);
+        }
+      }
+      const place = { name: mainText, city, country, type, price, priceSource, address: streetAddress, cuisine, activityType, googlePlaceId };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
@@ -1360,7 +1382,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
 }
 
 const CUISINES = ["French","Italian","Japanese","Chinese","Indian","Thai","Mexican","Lebanese","Greek","Spanish","British","American","Mediterranean","Vietnamese","Korean","Turkish","Moroccan","Austrian","Belgian","Scandinavian","Peruvian","Argentine","Brazilian","Australian","Modern European","Fusion","Vegetarian","Seafood","Steakhouse","Sushi","Pizza","Burger","Bistro","Brasserie","Wine bar","Cocktail bar","Café","Bakery"];
-const DEFAULT_FORM = { name:"",type:"Restaurant",price:"",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",address:"" };
+const DEFAULT_FORM = { name:"",type:"Restaurant",price:"",city:"",country:"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false,cuisine:"",activityType:"",address:"" };
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",username:"",is_private:false,avatar_url:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate, onDelete }) {
@@ -1398,7 +1420,7 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
   };
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:""})); return; }
-    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,priceSource:place.priceSource||"",cuisine:place.cuisine||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,priceSource:place.priceSource||"",cuisine:place.cuisine||"",activityType:place.activityType||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
     if (onDuplicate) onDuplicate(place.name);
   };
   return (
@@ -1415,25 +1437,26 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
               })}
             </div>
           </div>
-          {(form.type||"").split(",").some(t=>["Restaurant","Bar","Café"].includes(t.trim()))&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
-          <div className="field">
-            <label>{t?.addPrice||"Prix"}
-              {form.priceSource==="google"
-                ? <span style={{fontSize:10,color:"#4a9",marginLeft:6,fontWeight:400}}>✓ Google</span>
-                : form.price
-                  ? <span style={{fontSize:10,color:COLORS.muted,marginLeft:6,fontWeight:400}}>{t?.addPriceManual||"manuel"}</span>
-                  : <span style={{fontSize:10,color:"#d4869b",marginLeft:6,fontWeight:400}}>{t?.addPriceNeeded||"à indiquer"}</span>
-              }
-            </label>
-            <div className="price-selector">
-              {PRICES.map((p,i)=>{
-                const labels = [t?.priceCheap||"Bon marché", t?.priceMid||"Intermédiaire", t?.priceHigh||"Haut de gamme"];
-                return <button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p,priceSource:"manual"}))} title={labels[i]}>
-                  <div>{p}</div>
-                  <div style={{fontSize:9,fontWeight:400,marginTop:1,opacity:0.7}}>{labels[i]}</div>
-                </button>;
-              })}
-            </div>
+          {(form.type||"").split(",").some(t=>t.trim()==="Restaurant")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
+          {(form.type||"").split(",").some(t=>t.trim()==="Activité")&&(<div className="field"><label>{t?.addActivityType||"Type d'activité"}</label><input value={form.activityType||""} onChange={e=>setForm(f=>({...f,activityType:e.target.value}))} placeholder={t?.addActivityPlaceholder||"Ex: Musée, Parc, Spa, Spectacle..."}/></div>)}
+        </div>
+        <div className="field">
+          <label>{t?.addPrice||"Prix"}
+            {form.priceSource==="google"
+              ? <span style={{fontSize:10,color:"#4a9",marginLeft:6,fontWeight:400}}>✓ Google</span>
+              : form.price
+                ? <span style={{fontSize:10,color:COLORS.muted,marginLeft:6,fontWeight:400}}>{t?.addPriceManual||"manuel"}</span>
+                : <span style={{fontSize:10,color:"#d4869b",marginLeft:6,fontWeight:400}}>{t?.addPriceNeeded||"à indiquer"}</span>
+            }
+          </label>
+          <div className="price-selector">
+            {PRICES.map((p,i)=>{
+              const labels = [t?.priceCheap||"Bon marché", t?.priceMid||"Intermédiaire", t?.priceHigh||"Haut de gamme"];
+              return <button key={p} className={`price-btn ${form.price===p?"selected":""}`} onClick={()=>setForm(f=>({...f,price:p,priceSource:"manual"}))} title={labels[i]}>
+                <div>{p}</div>
+                <div style={{fontSize:9,fontWeight:400,marginTop:1,opacity:0.7}}>{labels[i]}</div>
+              </button>;
+            })}
           </div>
         </div>
         <div className="field"><label>{t?.addAddress||"Address"}</label><input placeholder="22 Harcourt Street" value={form.address||""} onChange={e=>setForm(f=>({...f,address:e.target.value}))}/></div>
