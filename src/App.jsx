@@ -914,22 +914,53 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
-      const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
+      // For UK/London, postal_town is more reliable than locality (which can return neighborhoods)
+      const city = 
+        components.find(c=>c.types?.includes("postal_town"))?.longText ||
+        components.find(c=>c.types?.includes("locality"))?.longText ||
+        components.find(c=>c.types?.includes("sublocality_level_1"))?.longText ||
+        components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText ||
+        secondaryText.split(",").slice(-2,-1)[0]?.trim() || "";
+      const country = 
+        components.find(c=>c.types?.includes("country"))?.shortText ||
+        components.find(c=>c.types?.includes("country"))?.longText ||
+        secondaryText.split(",").pop()?.trim() || "";
       const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
       const route = components.find(c=>c.types?.includes("route"))?.longText || "";
       const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
-      const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || details.formattedAddress || "";
+      const streetAddress = [streetNumber, route].filter(Boolean).join(" ") ||
+        details.formattedAddress?.split(",")[0]?.trim() || "";
       const googleTypes = details.types||[];
-      // Detect all matching types from Google's types (deduplicated, ordered)
-      const matchedTypes = new Set();
-      for (const gt of [details.primaryType, ...googleTypes].filter(Boolean)) {
-        if (GOOGLE_TYPE_MAP[gt]) matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
-      }
-      const type = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
-      const price = PRICE_MAP[details.priceLevel]||"";
-      // Extract cuisine from Google types (primary first, then secondary)
       const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
+
+      // Type detection with priority: Activité > Bar > Café > Restaurant
+      // (an entertainment venue with a restaurant inside should be Activité, not Restaurant)
+      const ACTIVITY_SIGNALS = new Set([
+        "tourist_attraction","amusement_park","bowling_alley","escape_room","museum","art_gallery",
+        "zoo","aquarium","performing_arts_theater","movie_theater","casino","gym","spa",
+        "stadium","ski_resort","water_park","theme_park","trampoline_park","video_arcade",
+        "laser_tag_center","miniature_golf_course","golf_course","entertainment","event_venue",
+        "comedy_club","climbing_gym","ice_skating_rink","sports_complex","fitness_center","campground"
+      ]);
+      const hasActivitySignal = allTypes.some(t => ACTIVITY_SIGNALS.has(t));
+      
+      const matchedTypes = new Set();
+      // If activity signal found, add Activité first (wins priority)
+      if (hasActivitySignal) matchedTypes.add("Activité");
+      for (const gt of allTypes) {
+        if (GOOGLE_TYPE_MAP[gt] && GOOGLE_TYPE_MAP[gt] !== "Activité") {
+          matchedTypes.add(GOOGLE_TYPE_MAP[gt]);
+        }
+      }
+      // If no match at all, default to Restaurant
+      const type = matchedTypes.size > 0 ? [...matchedTypes].join(",") : "Restaurant";
+      // But if we already have Activité AND Restaurant, keep both (e.g. Puttshack)
+      // If ONLY matched via restaurant but has activity signal, use Activité only
+      const finalType = (hasActivitySignal && matchedTypes.size === 1 && matchedTypes.has("Activité"))
+        ? "Activité"
+        : type;
+      const price = PRICE_MAP[details.priceLevel]||"";
+      // Extract cuisine from Google types
       const cuisineKeywords = {
         italian:"Italian", japanese:"Japanese", chinese:"Chinese", french:"French",
         indian:"Indian", thai:"Thai", mexican:"Mexican", american:"American",
@@ -952,7 +983,7 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       };
       let cuisine = "";
       // Only extract cuisine for restaurant/bar/café types
-      const isActivityType = type.includes("Activité") || type.includes("Destination");
+      const isActivityType = finalType.includes("Activité") || finalType.includes("Destination");
       // Always try keyword-based cuisine extraction (works for "italian_restaurant" etc.)
       for (const gt of allTypes) {
         const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
@@ -997,7 +1028,7 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
           if (typeof display === 'string') activityType = display.charAt(0).toUpperCase() + display.slice(1);
         }
       }
-      const place = { name: mainText, city, country, type, price, priceSource, address: streetAddress, cuisine, activityType, googlePlaceId };
+      const place = { name: mainText, city, country, type: finalType, price, priceSource, address: streetAddress, cuisine, activityType, googlePlaceId };
       setSelectedPlace(place); onPlaceSelected(place);
     } catch {
       const parts = secondaryText.split(",");
@@ -3549,10 +3580,19 @@ RULES:
                 </div>
                 <div className="field">
                   <label>{t.profileBudget}</label>
-                  <select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}>
-                    <option value="">{t.profileBudgetNone}</option>
-                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
-                  </select>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["","—"],...PRICES.map((p,i)=>[p,[t.priceCheap||"Bon marché",t.priceMid||"Intermédiaire",t.priceHigh||"Haut de gamme"][i]])].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,budget:val}))}
+                        style={{flex:1,padding:"8px 4px",background:(prefs.budget||"")===val?`${COLORS.accent}22`:COLORS.card,
+                          border:`1px solid ${(prefs.budget||"")===val?COLORS.accent:COLORS.border}`,
+                          borderRadius:8,color:(prefs.budget||"")===val?COLORS.accent:COLORS.muted,
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s",
+                          lineHeight:1.2,textAlign:"center"}}>
+                        <div style={{fontSize:12}}>{val||"—"}</div>
+                        <div style={{fontSize:9,fontWeight:400,opacity:0.7,marginTop:1}}>{label}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="prefs-card">
@@ -3971,10 +4011,19 @@ RULES:
                 </div>
                 <div>
                   <label style={labelStyle}>{t.profileBudget||"Budget"}</label>
-                  <select value={prefs.budget||""} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))} style={inputStyle}>
-                    <option value="">{t.profileBudgetNone||"Not specified"}</option>
-                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
-                  </select>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["","—"],...PRICES.map((p,i)=>[p,[t.priceCheap||"Bon marché",t.priceMid||"Intermédiaire",t.priceHigh||"Haut de gamme"][i]])].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,budget:val}))}
+                        style={{flex:1,padding:"8px 4px",background:(prefs.budget||"")===val?`${COLORS.accent}22`:COLORS.card,
+                          border:`1px solid ${(prefs.budget||"")===val?COLORS.accent:COLORS.border}`,
+                          borderRadius:8,color:(prefs.budget||"")===val?COLORS.accent:COLORS.muted,
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s",
+                          lineHeight:1.2,textAlign:"center"}}>
+                        <div style={{fontSize:12}}>{val||"—"}</div>
+                        <div style={{fontSize:9,fontWeight:400,opacity:0.7,marginTop:1}}>{label}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>)}
 
