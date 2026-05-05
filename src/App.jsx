@@ -2402,7 +2402,7 @@ function TravelAgent() {
       setDuplicateAlert({ existing: duplicate, newForm: form });
       return;
     }
-    const { isMine:_a, friendName:_b, distanceKm:_c, _lat, _lng, friendsData:_d, friendsWhoHave:_e, profiles:_f, user_id:_g, id:_h, ts:_ts, openNow:_on, openingHours:_oh, googleRating:_gr, ...cleanForm } = form;
+    const { isMine:_a, friendName:_b, distanceKm:_c, _lat, _lng, friendsData:_d, friendsWhoHave:_e, profiles:_f, user_id:_g, id:_h, ts:_ts, openNow:_on, openingHours:_oh, googleRating:_gr, activityType:_at, priceSource:_ps, ...cleanForm } = form;
     const entry = { ...cleanForm, id: Date.now(), ts: Date.now(), user_id: userId };
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) { setMemories(prev=>[entry,...prev]); showToast(t.toastSaved); setFormKey(k=>k+1); }
@@ -2410,7 +2410,7 @@ function TravelAgent() {
 
   const handleUpdate = async (form) => {
     // Clean form - only send DB fields
-    const { isMine, friendName, distanceKm, _lat, _lng, friendsData, friendsWhoHave, openNow, openingHours, googleRating, cuisine: _cu, profiles, ...cleanForm } = form;
+    const { isMine, friendName, distanceKm, _lat, _lng, friendsData, friendsWhoHave, openNow, openingHours, googleRating, cuisine: _cu, profiles, activityType: _at, priceSource: _ps, ...cleanForm } = form;
     const { error } = await supabase.from('memories').update(cleanForm).eq('id', editMemory.id).eq('user_id', userId);
     if (!error) {
       setMemories(prev=>prev.map(m=>m.id===editMemory.id?{...m,...cleanForm}:m));
@@ -2424,7 +2424,7 @@ function TravelAgent() {
   const handleDuplicateUpdate = async () => {
     const { newForm, existing } = duplicateAlert;
     const merged = { ...existing, ...newForm, id: existing.id, ts: existing.ts, user_id: userId };
-    const { isMine, friendName, distanceKm, _lat, _lng, profiles, friendsData, friendsWhoHave, ...updated } = merged;
+    const { isMine, friendName, distanceKm, _lat, _lng, profiles, friendsData, friendsWhoHave, activityType: _at, priceSource: _ps, ...updated } = merged;
     await supabase.from('memories').update(updated).eq('id', existing.id).eq('user_id', userId);
     setMemories(prev=>prev.map(m=>m.id===existing.id?updated:m));
     setDuplicateAlert(null); showToast(t.toastUpdated); setFormKey(k=>k+1);
@@ -3791,7 +3791,7 @@ RULES:
                 setRecoToAdd(null);
                 return;
               }
-              const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,openNow:_g,openingHours:_h,googleRating:_i,...cleanF}=form;
+              const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,openNow:_g,openingHours:_h,googleRating:_i,activityType:_j,priceSource:_k,...cleanF}=form;
               const entry={...cleanF,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
               if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
