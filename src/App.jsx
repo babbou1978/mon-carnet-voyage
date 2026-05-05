@@ -11,7 +11,7 @@ const getTypeIcon = (type) => {
   const first = type.split(",")[0].trim();
   return TYPE_ICONS[first] || "🍽️";
 };
-const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Café", coffee_shop: "Café", tea_house: "Café", bakery: "Café", bar: "Bar", night_club: "Bar", wine_bar: "Bar", cocktail_bar: "Bar", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", historical_landmark: "Destination", national_park: "Destination", museum: "Activité", art_gallery: "Activité", park: "Activité", amusement_park: "Activité", performing_arts_theater: "Activité", food: "Restaurant" };
+const GOOGLE_TYPE_MAP = { restaurant: "Restaurant", cafe: "Café", coffee_shop: "Café", tea_house: "Café", bakery: "Café", bar: "Bar", night_club: "Bar", wine_bar: "Bar", cocktail_bar: "Bar", lodging: "Hôtel", hotel: "Hôtel", tourist_attraction: "Destination", historical_landmark: "Destination", national_park: "Destination", museum: "Activité", art_gallery: "Activité", park: "Activité", amusement_park: "Activité", performing_arts_theater: "Activité", miniature_golf_course: "Activité", golf_course: "Activité", bowling_alley: "Activité", gym: "Activité", spa: "Activité", zoo: "Activité", aquarium: "Activité", stadium: "Activité", movie_theater: "Activité", library: "Activité", casino: "Activité", ski_resort: "Activité", water_park: "Activité", campground: "Activité", food: "Restaurant" };
 
 const ONBOARD_TOUR = {
   fr:{onboardWelcome:"Bienvenue sur Outsy AI !",onboardWelcomeSub:"Configurons votre profil en 30 secondes.",onboardNext:"Suivant →",onboardBack:"Retour",onboardFinish:"C'est parti ! 🚀",onboardDone:"✓ Profil créé !",onboardSkip:"Passer et terminer",onboardCities:"Vos villes préférées",onboardCitiesSub:"Où allez-vous le plus souvent ? Ça aide notre IA. (optionnel)",onboardCitiesPlaceholder:"ex: Londres, Paris, New York, Tokyo...",onboardResultsSub:"Choisissez le nombre de résultats à afficher et votre budget habituel. (optionnel)",onboardLikesSub:"Sélectionnez ce qui compte pour vous (optionnel)",onboardDislikesSub:"Sélectionnez ce que vous préférez éviter (optionnel)",onboardNotesSub:"Autre chose qui aide nos recommandations ? Régime, allergies, style... (optionnel)",onboardNotesPlaceholder:"ex: Je suis végétarien, je préfère les endroits calmes, je voyage avec des enfants...",tourRecoDesc:"Trouvez les meilleurs lieux autour de vous. Lieux populaires Google + recommandations IA personnalisées.",tourReco:"Recommandations",tourFav:"Favoris",tourAdd:"Ajouter",tourFriends:"Abonnements",tourProfile:"Profil",tourFavDesc:"Tous vos coups de cœur, notés et détaillés. Filtrez par type, prix, note.",tourAddDesc:"Enregistrez un lieu en quelques secondes. Recherche Google intégrée avec auto-complétion.",tourFriendsDesc:"Suivez des utilisateurs et découvrez leurs coups de cœur. Leurs favoris enrichissent vos recommandations.",tourProfileDesc:"Personnalisez vos préférences pour des recommandations sur mesure.",tourNext:"Suivant →",tourStart:"C'est parti ! 🎉",tourSkip:"Passer le tour",onboardReady:"Vous êtes prêt(e) !",onboardReadySub:"Votre profil est configuré. Faisons un tour rapide de l'app, puis vous pourrez commencer à explorer !"},
@@ -928,12 +928,16 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
         pho:"Vietnamese", curry:"Curry", tacos:"Mexican"
       };
       let cuisine = "";
+      // Only extract cuisine for restaurant/bar/café types
+      const isActivityType = type.includes("Activité") || type.includes("Destination");
+      // Always try keyword-based cuisine extraction (works for "italian_restaurant" etc.)
       for (const gt of allTypes) {
         const key = Object.keys(cuisineKeywords).find(k=>gt.toLowerCase().includes(k));
         if (key) { cuisine = cuisineKeywords[key]; break; }
       }
-      // Fallback: use Google's localized display name (e.g. "Restaurant casher", "Restaurant tunisien")
-      if (!cuisine && details.primaryTypeDisplayName) {
+      // Fallback to primaryTypeDisplayName ONLY if not an activity type
+      // (avoids "Miniature golf course" as cuisine)
+      if (!cuisine && !isActivityType && details.primaryTypeDisplayName) {
         const display = details.primaryTypeDisplayName?.text || details.primaryTypeDisplayName;
         if (typeof display === 'string') {
           const lower = display.toLowerCase().trim();
@@ -948,7 +952,7 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const priceSource = details.priceLevel ? "google" : "";
       // Extract activityType from Google's primaryTypeDisplayName for Activité/Destination
       let activityType = "";
-      if (type.includes("Activité") || type.includes("Destination")) {
+      if (isActivityType) {
         const activityKeywords = {
           museum:"Museum", art_gallery:"Art Gallery", amusement_park:"Amusement Park",
           performing_arts_theater:"Theater", zoo:"Zoo", aquarium:"Aquarium",
@@ -957,7 +961,10 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
           historical_landmark:"Historical Site", church:"Church", mosque:"Mosque",
           synagogue:"Synagogue", temple:"Temple", library:"Library", casino:"Casino",
           movie_theater:"Cinema", night_club:"Night Club", shopping_mall:"Shopping Mall",
-          tourist_attraction:"Tourist Attraction", campground:"Campground", ski_resort:"Ski Resort"
+          tourist_attraction:"Tourist Attraction", campground:"Campground", ski_resort:"Ski Resort",
+          miniature_golf:"Mini Golf", golf_course:"Golf", bowling:"Bowling",
+          escape_room:"Escape Room", karaoke:"Karaoke", water_park:"Water Park",
+          theme_park:"Theme Park", trampoline_park:"Trampoline Park"
         };
         for (const gt of allTypes) {
           const key = Object.keys(activityKeywords).find(k=>gt.toLowerCase().includes(k));
@@ -1428,18 +1435,20 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
       {(!isEdit&&!prefilled)?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch COLORS={COLORS} onPlaceSelected={handlePlaceSelected}/></div>
         :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} readOnly={prefilled&&!isEdit} style={prefilled&&!isEdit?{opacity:0.7,cursor:"default"}:{}}/></div>}
       {form.name && <>
-        <div className="row-2">
-          <div className="field"><label>{t?.addType||"Type"}</label>
-            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-              {TYPES.map(tp=>{
-                const selected = (form.type||"").split(",").map(t=>t.trim()).includes(tp);
-                return <button key={tp} type="button" onClick={()=>toggleType(tp)} style={{padding:"5px 10px",borderRadius:20,fontSize:11,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${selected?COLORS.accent:COLORS.border}`,background:selected?`${COLORS.accent}22`:COLORS.tag,color:selected?COLORS.accent:COLORS.muted,fontWeight:selected?600:400}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>;
-              })}
-            </div>
+        <div className="field"><label>{t?.addType||"Type"}</label>
+          <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+            {TYPES.map(tp=>{
+              const selected = (form.type||"").split(",").map(t=>t.trim()).includes(tp);
+              return <button key={tp} type="button" onClick={()=>toggleType(tp)} style={{padding:"5px 10px",borderRadius:20,fontSize:11,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",border:`1px solid ${selected?COLORS.accent:COLORS.border}`,background:selected?`${COLORS.accent}22`:COLORS.tag,color:selected?COLORS.accent:COLORS.muted,fontWeight:selected?600:400}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>;
+            })}
           </div>
-          {(form.type||"").split(",").some(t=>t.trim()==="Restaurant")&&(<div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>)}
-          {(form.type||"").split(",").some(t=>t.trim()==="Activité")&&(<div className="field"><label>{t?.addActivityType||"Type d'activité"}</label><input value={form.activityType||""} onChange={e=>setForm(f=>({...f,activityType:e.target.value}))} placeholder={t?.addActivityPlaceholder||"Ex: Musée, Parc, Spa, Spectacle..."}/></div>)}
         </div>
+        {(form.type||"").split(",").some(t=>t.trim()==="Restaurant")&&(
+          <div className="field"><label>{t?.addCuisine||"Cuisine"}</label><input value={form.cuisine||""} onChange={e=>setForm(f=>({...f,cuisine:e.target.value}))} placeholder="Ex: Italian, Japanese..."/></div>
+        )}
+        {(form.type||"").split(",").some(t=>t.trim()==="Activité")&&(
+          <div className="field"><label>{t?.addActivityType||"Type d'activité"}</label><input value={form.activityType||""} onChange={e=>setForm(f=>({...f,activityType:e.target.value}))} placeholder={t?.addActivityPlaceholder||"Ex: Musée, Parc, Spa, Spectacle..."}/></div>
+        )}
         <div className="field">
           <label>{t?.addPrice||"Prix"}
             {form.priceSource==="google"
