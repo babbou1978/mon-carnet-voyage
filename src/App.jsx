@@ -914,14 +914,48 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
+      
+      // Debug: log what Google returns so we can diagnose issues
+      console.log("Google details for", mainText, ":", JSON.stringify({
+        primaryType: details.primaryType,
+        types: details.types,
+        formattedAddress: details.formattedAddress,
+        components: components.map(c=>({types:c.types, long:c.longText})),
+        secondaryText
+      }));
+
+      // City extraction: try components, validate it's not a street name, fallback to secondaryText
+      const streetWords = /\b(road|street|avenue|lane|drive|way|place|court|square|boulevard|grove|close|crescent|terrace|rd|st|ave|blvd)\b/i;
+      let city = components.find(c=>c.types?.includes("locality"))?.longText
+        || components.find(c=>c.types?.includes("postal_town"))?.longText
+        || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText
+        || "";
+      // If city looks like a street name, clear it
+      if (streetWords.test(city)) city = "";
+      // Fallback: parse from secondaryText (e.g. "Tottenham Court Rd, London, UK" → "London")
+      if (!city && secondaryText) {
+        const parts = secondaryText.split(",").map(s=>s.trim());
+        // City is usually the second-to-last part (last = country)
+        if (parts.length >= 2) city = parts[parts.length - 2];
+        else if (parts.length === 1) city = parts[0];
+      }
+
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
+      
+      // Address: prefer formattedAddress (most complete), strip city/country from it
       const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
       const route = components.find(c=>c.types?.includes("route"))?.longText || "";
       const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
-      const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || details.formattedAddress || "";
+      let streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ");
+      if (!streetAddress && details.formattedAddress) {
+        // Use formattedAddress but strip the place name, city and country parts
+        const faParts = details.formattedAddress.split(",").map(s=>s.trim());
+        // Take everything except last 1-2 parts (which are city/country)
+        streetAddress = faParts.slice(0, Math.max(1, faParts.length - 2)).join(", ");
+      }
+      
       const googleTypes = details.types||[];
-      // Simple type detection via GOOGLE_TYPE_MAP (original logic that works)
+      // Simple type detection via GOOGLE_TYPE_MAP
       const matchedTypes = new Set();
       const allTypes = [details.primaryType, ...googleTypes].filter(Boolean);
       for (const gt of allTypes) {
