@@ -132,18 +132,13 @@ export default async function handler(req, res) {
         "Café": ["cafe", "coffee_shop", "bakery", "tea_house"],
         "Hôtel": ["lodging"],
         "Activité": [
-          // Classic
-          "museum", "art_gallery", "amusement_park", "performing_arts_theater", "zoo", "aquarium",
-          // Entertainment
-          "bowling_alley", "casino", "movie_theater", "karaoke", "video_arcade", "comedy_club",
-          // Sports & leisure
-          "gym", "spa", "fitness_center", "climbing_gym", "ice_skating_rink", "ski_resort",
-          "stadium", "sports_complex", "golf_course", "miniature_golf_course",
-          // Outdoor
-          "amusement_park", "theme_park", "water_park", "trampoline_park", "campground",
-          // Urban experiences
-          "escape_room", "tourist_attraction", "shopping_mall", "event_venue",
-          "laser_tag_center", "paintball_center", "archery_range"
+          "museum", "art_gallery", "amusement_park", "performing_arts_theater",
+          "bowling_alley", "movie_theater", "zoo", "aquarium", "casino",
+          "gym", "spa", "fitness_center", "stadium", "sports_complex",
+          "miniature_golf_course", "golf_course", "ski_resort",
+          "water_park", "theme_park", "trampoline_park",
+          "tourist_attraction", "video_arcade", "escape_room",
+          "event_venue", "karaoke"
         ],
         "Destination": ["tourist_attraction", "national_park", "historical_landmark"]
       };
