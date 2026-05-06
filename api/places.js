@@ -125,6 +125,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ results, debug: results.map(r=>({name:r.name,status:r.businessStatus})) });
 
     } else if (action === 'nearby') {
+      const mood = req.body.mood || "";
       // Multi-type for better coverage in dense areas (Marylebone has many sub-types)
       const typeGroups = {
         "Restaurant": ["restaurant", "seafood_restaurant", "italian_restaurant", "japanese_restaurant", "french_restaurant"],
@@ -189,6 +190,29 @@ export default async function handler(req, res) {
       }).then(r => r.json()).catch(() => ({places:[]})));
 
       const responses = await Promise.all(requests);
+
+      // If mood is specified, also run a Text Search to find mood-specific places
+      if (mood.trim()) {
+        const textSearchFieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
+        try {
+          const moodQuery = `${mood} ${type === "Restaurant" ? "restaurant" : type === "Bar" ? "bar" : type === "Café" ? "cafe" : type === "Hôtel" ? "hotel" : ""}`.trim();
+          const textRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': textSearchFieldMask },
+            body: JSON.stringify({
+              textQuery: moodQuery,
+              maxResultCount: 20,
+              locationBias: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
+              languageCode: userLang
+            }),
+          });
+          const textData = await textRes.json();
+          if (textData.places) {
+            responses.push(textData);
+            console.log('Mood text search:', JSON.stringify({ mood: moodQuery, results: textData.places?.length || 0 }));
+          }
+        } catch (e) { console.error('Mood text search error:', e); }
+      }
 
       // Dedup by displayName, add cuisine extraction
       const seen = new Map();
