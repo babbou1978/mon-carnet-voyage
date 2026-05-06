@@ -3537,10 +3537,19 @@ RULES:
                 </div>
                 <div className="field">
                   <label>{t.profileBudget}</label>
-                  <select value={prefs.budget} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))}>
-                    <option value="">{t.profileBudgetNone}</option>
-                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
-                  </select>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["",t.profileBudgetNone||"—"],...PRICES.map((p,i)=>[p,[t.priceCheap||"Bon marché",t.priceMid||"Intermédiaire",t.priceHigh||"Haut de gamme"][i]])].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,budget:val}))}
+                        style={{flex:1,padding:"8px 4px",background:(prefs.budget||"")===val?`${COLORS.accent}22`:COLORS.card,
+                          border:`1px solid ${(prefs.budget||"")===val?COLORS.accent:COLORS.border}`,
+                          borderRadius:8,color:(prefs.budget||"")===val?COLORS.accent:COLORS.muted,
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s",
+                          lineHeight:1.2,textAlign:"center"}}>
+                        <div style={{fontSize:13}}>{val||"—"}</div>
+                        <div style={{fontSize:9,fontWeight:400,opacity:0.7,marginTop:1}}>{label}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="prefs-card">
@@ -3959,10 +3968,19 @@ RULES:
                 </div>
                 <div>
                   <label style={labelStyle}>{t.profileBudget||"Budget"}</label>
-                  <select value={prefs.budget||""} onChange={e=>setPrefs(p=>({...p,budget:e.target.value}))} style={inputStyle}>
-                    <option value="">{t.profileBudgetNone||"Not specified"}</option>
-                    {PRICES.map(p=><option key={p} value={p}>{p}</option>)}
-                  </select>
+                  <div style={{display:"flex",gap:8}}>
+                    {[["",t.profileBudgetNone||"—"],...PRICES.map((p,i)=>[p,[t.priceCheap||"Bon marché",t.priceMid||"Intermédiaire",t.priceHigh||"Haut de gamme"][i]])].map(([val,label])=>(
+                      <button key={val} onClick={()=>setPrefs(p=>({...p,budget:val}))}
+                        style={{flex:1,padding:"8px 4px",background:(prefs.budget||"")===val?`${COLORS.accent}22`:COLORS.card,
+                          border:`1px solid ${(prefs.budget||"")===val?COLORS.accent:COLORS.border}`,
+                          borderRadius:8,color:(prefs.budget||"")===val?COLORS.accent:COLORS.muted,
+                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,transition:"all 0.2s",
+                          lineHeight:1.2,textAlign:"center"}}>
+                        <div style={{fontSize:13}}>{val||"—"}</div>
+                        <div style={{fontSize:9,fontWeight:400,opacity:0.7,marginTop:1}}>{label}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>)}
 
