@@ -133,14 +133,20 @@ export default async function handler(req, res) {
         "Hôtel": ["lodging"],
         "Activité": [
           // Cultural
-          "museum", "art_gallery",
+          "museum", "art_gallery", "botanical_garden",
           // Entertainment & games
           "amusement_park", "performing_arts_theater", "movie_theater",
           "bowling_alley", "miniature_golf_course", "video_arcade",
+          // Shows & music
+          "concert_hall", "comedy_club", "live_music_venue",
           // Animals
           "zoo", "aquarium",
           // Outdoor & parks
-          "theme_park", "water_park", "trampoline_park", "ski_resort",
+          "park", "playground", "theme_park", "water_park", 
+          "trampoline_park", "ski_resort", "hiking_area",
+          // Sports & leisure
+          "ice_skating_rink", "golf_course", "swimming_pool",
+          "marina", "dog_park", "skateboard_park",
           // Nightlife entertainment
           "casino", "karaoke"
         ],
