@@ -132,17 +132,40 @@ export default async function handler(req, res) {
         "Café": ["cafe", "coffee_shop", "bakery", "tea_house"],
         "Hôtel": ["lodging"],
         "Activité": [
-          "museum", "art_gallery", "amusement_park", "performing_arts_theater",
-          "bowling_alley", "movie_theater", "zoo", "aquarium", "casino",
-          "gym", "spa", "fitness_center", "stadium", "sports_complex",
-          "miniature_golf_course", "golf_course", "ski_resort",
-          "water_park", "theme_park", "trampoline_park",
-          "tourist_attraction", "video_arcade", "escape_room",
-          "event_venue", "karaoke"
+          // Cultural
+          "museum", "art_gallery",
+          // Entertainment & games
+          "amusement_park", "performing_arts_theater", "movie_theater",
+          "bowling_alley", "miniature_golf_course", "video_arcade",
+          // Animals
+          "zoo", "aquarium",
+          // Outdoor & parks
+          "theme_park", "water_park", "trampoline_park", "ski_resort",
+          // Nightlife entertainment
+          "casino", "karaoke"
         ],
         "Destination": ["tourist_attraction", "national_park", "historical_landmark"]
       };
       const types = typeGroups[type] || ["restaurant"];
+
+      // Blacklist: primaryTypes that should never appear in Activité results
+      // (Google sometimes returns unrelated nearby businesses)
+      const ACTIVITY_BLACKLIST = new Set([
+        "restaurant","bar","cafe","coffee_shop","bakery",
+        "lodging","hotel","motel","hostel",
+        "hair_salon","beauty_salon","massage","nail_salon",
+        "gym","fitness_center","sports_complex","stadium",
+        "travel_agency","real_estate_agency","insurance_agency",
+        "school","university","preschool","primary_school","secondary_school",
+        "dentist","doctor","pharmacy","hospital","physiotherapist",
+        "car_repair","car_dealer","car_wash","gas_station",
+        "clothing_store","grocery_store","supermarket","convenience_store",
+        "bank","atm","post_office","laundry","dry_cleaning",
+        "accounting","lawyer","locksmith","plumber","electrician",
+        "church","mosque","synagogue","hindu_temple",
+        "parking","transit_station","bus_station","train_station",
+        "moving_company","storage","funeral_home","cemetery"
+      ]);
       const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
 
       // Use includedTypes (broader) - matches both primary and secondary types.
@@ -161,15 +184,12 @@ export default async function handler(req, res) {
 
       const responses = await Promise.all(requests);
 
-      // Filter out primary types that don't fit the requested category
-      // (e.g. when searching Restaurants, exclude hotels themselves)
-      // No primaryType exclusions needed - multi-type support handles overlap
-      // (e.g. a hotel with a restaurant will be typed "Hôtel,Restaurant")
-
       // Dedup by displayName, add cuisine extraction
       const seen = new Map();
       responses.forEach(resp => {
         (resp.places||[]).forEach(p => {
+          // For Activité: filter out places whose primaryType is in the blacklist
+          if (type === "Activité" && ACTIVITY_BLACKLIST && p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)) return;
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
@@ -187,7 +207,8 @@ export default async function handler(req, res) {
       });
 
       console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types }));
-      console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})), top5: allPlaces.slice(0,5).map(p=>p.displayName?.text) }));
+      const filteredCount = type === "Activité" ? responses.reduce((n,r) => n + (r.places||[]).filter(p => p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)).length, 0) : 0;
+      console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, filtered: filteredCount, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})), top5: allPlaces.slice(0,5).map(p=>({name:p.displayName?.text, primaryType:p.primaryType})) }));
 
       return res.status(200).json({ places: allPlaces });
     }
