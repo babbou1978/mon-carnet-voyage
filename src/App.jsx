@@ -3968,8 +3968,8 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
         };
 
         return (
-          <div className="alert-overlay" style={{zIndex:600}}>
-            <div className="alert-box" style={{maxWidth:440,padding:28}}>
+          <div className="alert-overlay" style={{zIndex:600,overflowY:"auto",padding:"20px 10px",alignItems:"flex-start"}}>
+            <div className="alert-box" style={{maxWidth:440,padding:28,maxHeight:"none",margin:"auto",width:"100%"}}>
               {/* Progress dots */}
               <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:20}}>
                 {Array.from({length:totalSteps}).map((_,i)=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:i===onboardingStep?COLORS.accent:`${COLORS.accent}33`}}/>)}
