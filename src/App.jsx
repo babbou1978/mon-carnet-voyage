@@ -102,7 +102,7 @@ const LANGUAGES = [
 const TRANSLATIONS = {
   fr: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Favoris", tabAdd: "+ Ajouter", tabFriends: "👥 Amis", tabPins: "Pins", tabProfile: "Profil", pinsDesc: "Lieux à essayer. Ils seront recommandés si pertinents.", pinsEmpty: "Aucun pin. Utilisez 📌 sur les recommandations.", pinSaved: "Épinglé !", pinAlready: "Déjà épinglé", pinAlreadyFav: "Déjà dans vos favoris", pinToFav: "Visité", pinNotePrompt: "Ajouter une note (optionnel) :", pinBtn: "Épingler",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Favoris", tabAdd: "+ Ajouter", tabFriends: "👥 Amis", tabPins: "Pins", tabProfile: "Profil", pinsDesc: "Lieux à essayer. Ils seront recommandés si pertinents.", pinsEmpty: "Aucun pin. Utilisez 📌 sur les recommandations.", pinSaved: "Épinglé !", pinAlready: "Déjà épinglé", pinAlreadyFav: "Déjà dans vos favoris", pinToFav: "Visité", pinNotePrompt: "Ajouter une note (optionnel) :", pinBtn: "Épingler", pinsRecoSub: "Lieux que vous souhaitez essayer", pinNotePlaceholder: "Ex: pour les enfants, idée de date...",
     logout: "Déconnexion",
     addPlace: "Nom du lieu", addType: "Type", addPrice: "Prix", addPriceManual: "manuel", addPriceNeeded: "à indiquer",
     priceCheap: "Bon marché", priceMid: "Intermédiaire", priceHigh: "Haut de gamme",
@@ -163,7 +163,7 @@ const TRANSLATIONS = {
   },
   es: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Añadir", tabFriends: "👥 Amigos", tabPins: "Pins", tabProfile: "Perfil", pinsDesc: "Lugares por probar. Se recomendarán si son relevantes.", pinsEmpty: "Sin pins. Usa 📌 en las recomendaciones.", pinSaved: "¡Fijado!", pinAlready: "Ya fijado", pinAlreadyFav: "Ya en favoritos", pinToFav: "Visitado", pinNotePrompt: "Añadir nota (opcional):", pinBtn: "Fijar",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Favoritos", tabAdd: "+ Añadir", tabFriends: "👥 Amigos", tabPins: "Pins", tabProfile: "Perfil", pinsDesc: "Lugares por probar. Se recomendarán si son relevantes.", pinsEmpty: "Sin pins. Usa 📌 en las recomendaciones.", pinSaved: "¡Fijado!", pinAlready: "Ya fijado", pinAlreadyFav: "Ya en favoritos", pinToFav: "Visitado", pinNotePrompt: "Añadir nota (opcional):", pinBtn: "Fijar", pinsRecoSub: "Lugares que quieres probar", pinNotePlaceholder: "Ej: para los niños, idea de cita...",
     logout: "Cerrar sesión",
     addPlace: "Nombre del lugar", addType: "Tipo", addPrice: "Precio", addPriceManual: "manual", addPriceNeeded: "por indicar",
     priceCheap: "Económico", priceMid: "Intermedio", priceHigh: "Alta gama",
@@ -222,7 +222,7 @@ const TRANSLATIONS = {
   },
   de: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Favoriten", tabAdd: "+ Hinzufügen", tabFriends: "👥 Freunde", tabPins: "Pins", tabProfile: "Profil", pinsDesc: "Orte zum Ausprobieren. Werden empfohlen wenn relevant.", pinsEmpty: "Keine Pins. Nutze 📌 bei Empfehlungen.", pinSaved: "Gepinnt!", pinAlready: "Bereits gepinnt", pinAlreadyFav: "Bereits in Favoriten", pinToFav: "Besucht", pinNotePrompt: "Notiz hinzufügen (optional):", pinBtn: "Pinnen",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Favoriten", tabAdd: "+ Hinzufügen", tabFriends: "👥 Freunde", tabPins: "Pins", tabProfile: "Profil", pinsDesc: "Orte zum Ausprobieren. Werden empfohlen wenn relevant.", pinsEmpty: "Keine Pins. Nutze 📌 bei Empfehlungen.", pinSaved: "Gepinnt!", pinAlready: "Bereits gepinnt", pinAlreadyFav: "Bereits in Favoriten", pinToFav: "Besucht", pinNotePrompt: "Notiz hinzufügen (optional):", pinBtn: "Pinnen", pinsRecoSub: "Orte die du ausprobieren möchtest", pinNotePlaceholder: "z.B. für die Kinder, Date-Idee...",
     logout: "Abmelden",
     addPlace: "Ortsname", addType: "Typ", addPrice: "Preis", addPriceManual: "manuell", addPriceNeeded: "angeben",
     priceCheap: "Günstig", priceMid: "Mittel", priceHigh: "Gehoben",
@@ -281,7 +281,7 @@ const TRANSLATIONS = {
   },
   it: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Preferiti", tabAdd: "+ Aggiungi", tabFriends: "👥 Amici", tabPins: "Pins", tabProfile: "Profilo", pinsDesc: "Luoghi da provare. Saranno raccomandati se pertinenti.", pinsEmpty: "Nessun pin. Usa 📌 sui suggerimenti.", pinSaved: "Appuntato!", pinAlready: "Già appuntato", pinAlreadyFav: "Già nei preferiti", pinToFav: "Visitato", pinNotePrompt: "Aggiungi nota (opzionale):", pinBtn: "Appuntare",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Preferiti", tabAdd: "+ Aggiungi", tabFriends: "👥 Amici", tabPins: "Pins", tabProfile: "Profilo", pinsDesc: "Luoghi da provare. Saranno raccomandati se pertinenti.", pinsEmpty: "Nessun pin. Usa 📌 sui suggerimenti.", pinSaved: "Appuntato!", pinAlready: "Già appuntato", pinAlreadyFav: "Già nei preferiti", pinToFav: "Visitato", pinNotePrompt: "Aggiungi nota (opzionale):", pinBtn: "Appuntare", pinsRecoSub: "Luoghi che vuoi provare", pinNotePlaceholder: "Es: per i bambini, idea per un appuntamento...",
     logout: "Disconnetti",
     addPlace: "Nome del posto", addType: "Tipo", addPrice: "Prezzo", addPriceManual: "manuale", addPriceNeeded: "da indicare",
     priceCheap: "Economico", priceMid: "Medio", priceHigh: "Alta gamma",
@@ -340,7 +340,7 @@ const TRANSLATIONS = {
   },
   pt: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Favoritos", tabAdd: "+ Adicionar", tabFriends: "👥 Amigos", tabPins: "Pins", tabProfile: "Perfil", pinsDesc: "Lugares para experimentar. Serão recomendados se relevantes.", pinsEmpty: "Sem pins. Use 📌 nas recomendações.", pinSaved: "Fixado!", pinAlready: "Já fixado", pinAlreadyFav: "Já nos favoritos", pinToFav: "Visitado", pinNotePrompt: "Adicionar nota (opcional):", pinBtn: "Fixar",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Favoritos", tabAdd: "+ Adicionar", tabFriends: "👥 Amigos", tabPins: "Pins", tabProfile: "Perfil", pinsDesc: "Lugares para experimentar. Serão recomendados se relevantes.", pinsEmpty: "Sem pins. Use 📌 nas recomendações.", pinSaved: "Fixado!", pinAlready: "Já fixado", pinAlreadyFav: "Já nos favoritos", pinToFav: "Visitado", pinNotePrompt: "Adicionar nota (opcional):", pinBtn: "Fixar", pinsRecoSub: "Lugares que quer experimentar", pinNotePlaceholder: "Ex: para as crianças, ideia de encontro...",
     logout: "Sair",
     addPlace: "Nome do lugar", addType: "Tipo", addPrice: "Preço", addPriceManual: "manual", addPriceNeeded: "a indicar",
     priceCheap: "Económico", priceMid: "Intermédio", priceHigh: "Topo de gama",
@@ -399,7 +399,7 @@ const TRANSLATIONS = {
   },
   nl: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Favorieten", tabAdd: "+ Toevoegen", tabFriends: "👥 Vrienden", tabPins: "Pins", tabProfile: "Profiel", pinsDesc: "Plekken om te proberen. Worden aanbevolen indien relevant.", pinsEmpty: "Geen pins. Gebruik 📌 bij aanbevelingen.", pinSaved: "Gepind!", pinAlready: "Al gepind", pinAlreadyFav: "Al in favorieten", pinToFav: "Bezocht", pinNotePrompt: "Notitie toevoegen (optioneel):", pinBtn: "Pinnen",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Favorieten", tabAdd: "+ Toevoegen", tabFriends: "👥 Vrienden", tabPins: "Pins", tabProfile: "Profiel", pinsDesc: "Plekken om te proberen. Worden aanbevolen indien relevant.", pinsEmpty: "Geen pins. Gebruik 📌 bij aanbevelingen.", pinSaved: "Gepind!", pinAlready: "Al gepind", pinAlreadyFav: "Al in favorieten", pinToFav: "Bezocht", pinNotePrompt: "Notitie toevoegen (optioneel):", pinBtn: "Pinnen", pinsRecoSub: "Plekken die je wilt proberen", pinNotePlaceholder: "Bijv. voor de kinderen, date-idee...",
     logout: "Uitloggen",
     addPlace: "Naam van de plek", addType: "Type", addPrice: "Prijs", addPriceManual: "handmatig", addPriceNeeded: "aan te geven",
     priceCheap: "Goedkoop", priceMid: "Gemiddeld", priceHigh: "Luxe",
@@ -458,7 +458,7 @@ const TRANSLATIONS = {
   },
   en: {
     appTagline: "Save & Share places you love. Discover more.",
-    tabReco: "Reco ✨", tabFavorites: "❤️ Favorites", tabAdd: "+ Add", tabFriends: "👥 Friends", tabPins: "Pins", tabProfile: "Profile", pinsDesc: "Places to try. They'll be recommended when relevant.", pinsEmpty: "No pins yet. Use 📌 on recommendations.", pinSaved: "Pinned!", pinAlready: "Already pinned", pinAlreadyFav: "Already in favorites", pinToFav: "Visited", pinNotePrompt: "Add a note (optional):", pinBtn: "Pin",
+    tabReco: "✨ Reco", tabFavorites: "❤️ Favorites", tabAdd: "+ Add", tabFriends: "👥 Friends", tabPins: "Pins", tabProfile: "Profile", pinsDesc: "Places to try. They'll be recommended when relevant.", pinsEmpty: "No pins yet. Use 📌 on recommendations.", pinSaved: "Pinned!", pinAlready: "Already pinned", pinAlreadyFav: "Already in favorites", pinToFav: "Visited", pinNotePrompt: "Add a note (optional):", pinBtn: "Pin", pinsRecoSub: "Places you want to try", pinNotePlaceholder: "E.g. for the kids, date night idea...",
     logout: "Sign out",
     addPlace: "Place name", addType: "Type", addPrice: "Price", addPriceManual: "manual", addPriceNeeded: "to specify",
     priceCheap: "Budget", priceMid: "Mid-range", priceHigh: "High-end",
@@ -682,6 +682,8 @@ const getCSS = (COLORS) => `
   .reco-block.section-hearts .memory-card { border-color: #d4869b55; }
   .reco-block.section-ai .ai-reco-card { border-color: ${COLORS.accent}55; }
   .reco-block.section-nearby .ai-reco-card { border-color: #7a9d7a55; }
+  .reco-block.section-pins .reco-block-title { color: #6b8cce; border-bottom-color: #6b8cce33; }
+  .reco-block.section-pins .memory-card { border-color: #6b8cce55; }
   .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
@@ -1810,7 +1812,7 @@ function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, onPin, COLOR
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[] }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, onPin, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[] }) {
   // Compute displayed values: own data if isMine, friend averages otherwise
   const friendsWithData = (m.friendsData||[]);
   const displayRating = (() => {
@@ -1852,6 +1854,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
           myMem={isMine ? m : null}
           onEdit={onEdit}
           onAdd={!isMine && onSaveFriend ? ()=>onSaveFriend(m) : null}
+          onPin={!isMine && onPin ? ()=>onPin(m) : null}
           COLORS={COLORS}
           t={t}
           setFriendMemoryModal={setFriendMemoryModal}
@@ -2580,14 +2583,13 @@ function TravelAgent() {
     setViewingFriend({ name, memories: fMems });
   };
 
-  const pinPlace = async (place) => {
-    // Check if already pinned
+  const [pinModal, setPinModal] = useState(null); // {place, note}
+
+  const pinPlace = async (place, note="") => {
     const existing = pins.find(p => p.name?.toLowerCase() === place.name?.toLowerCase());
     if (existing) { showToast("📌 " + (t.pinAlready||"Already pinned")); return; }
-    // Also check favorites
     const inFavs = memories.find(m => m.name?.toLowerCase() === place.name?.toLowerCase());
     if (inFavs) { showToast("❤️ " + (t.pinAlreadyFav||"Already in favorites")); return; }
-    const note = window.prompt(t.pinNotePrompt||"Add a note (optional):", "");
     const entry = {
       id: Date.now(), ts: Date.now(), user_id: userId, is_pin: true,
       name: place.name, type: place.type || recoType, price: place.price || "",
@@ -2600,6 +2602,14 @@ function TravelAgent() {
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) { setPins(prev=>[entry,...prev]); showToast("📌 " + (t.pinSaved||"Pinned!")); }
     else { console.error("Pin error:", error); showToast("❌ " + error.message); }
+  };
+
+  const openPinModal = (place) => {
+    const existing = pins.find(p => p.name?.toLowerCase() === place.name?.toLowerCase());
+    if (existing) { showToast("📌 " + (t.pinAlready||"Already pinned")); return; }
+    const inFavs = memories.find(m => m.name?.toLowerCase() === place.name?.toLowerCase());
+    if (inFavs) { showToast("❤️ " + (t.pinAlreadyFav||"Already in favorites")); return; }
+    setPinModal({ place, note: "" });
   };
 
   const logout = () => supabase.auth.signOut();
@@ -3394,7 +3404,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 {filteredMemories.length===0?(
                   <div className="empty"><div className="empty-icon">❤️</div><div className="empty-text">{memories.length===0?t.emptyFavorites:t.emptyResults}</div><div className="empty-sub">{memories.length===0?t.emptyFavoritesSub:t.emptyResultsSub}</div></div>
                 ):filteredMemories.map(m=><MemoryCard key={`mem-${m.name.toLowerCase().replace(/\s+/g,"-")}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
-                  onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}
+                  onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} onPin={(m)=>openPinModal({name:m.name,type:m.type,price:m.price,city:m.city,country:m.country,address:m.address,cuisine:m.cuisine,activityType:m.activity_type,google_place_id:m.google_place_id})}/>)}
               </div>
             </div>
           )}
@@ -3403,7 +3413,13 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
           {!loading && tab === "pins" && (
             <div className="memories-section">
               <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,marginBottom:12}}>📌 {t.tabPins||"Pins"}</div>
-              <div style={{fontSize:12,color:COLORS.muted,marginBottom:16}}>{t.pinsDesc||"Places you want to try. They'll be recommended when relevant."}</div>
+              <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{t.pinsDesc||"Places you want to try. They'll be recommended when relevant."}</div>
+              <div style={{marginBottom:16}}>
+                <PlaceSearch COLORS={COLORS} onPlaceSelected={(place)=>{
+                  if (!place) return;
+                  openPinModal({name:place.name,type:place.type||"Restaurant",price:place.price||"",city:place.city||"",country:place.country||"",address:place.address||"",cuisine:place.cuisine||"",activityType:place.activityType||"",google_place_id:place.googlePlaceId||""});
+                }}/>
+              </div>
               {pins.length===0?(
                 <div style={{textAlign:"center",color:COLORS.muted,padding:"40px 0",fontSize:13}}>{t.pinsEmpty||"No pins yet. Use the 📌 button on recommendations to pin places for later."}</div>
               ):(
@@ -3411,7 +3427,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   {pins.map(pin=>(
                     <div key={pin.id} className="memory-card" style={{position:"relative"}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                        <div>
+                        <div style={{flex:1,minWidth:0}}>
                           <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
                           <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>
                             {pin.type} {pin.price&&`· ${pin.price}`} {pin.city&&`· ${pin.city}`}
@@ -3421,17 +3437,17 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                           {pin.activity_type&&<div style={{fontSize:11,color:COLORS.accent,marginTop:2}}>{pin.activity_type}</div>}
                           {pin.pin_note&&<div style={{fontSize:12,color:COLORS.text,marginTop:6,fontStyle:"italic"}}>💬 {pin.pin_note}</div>}
                         </div>
-                        <div style={{display:"flex",gap:6,flexShrink:0}}>
+                        <div style={{display:"flex",gap:6,flexShrink:0,alignItems:"center"}}>
                           <button onClick={()=>{
-                            // Convert pin to favorite (open add form pre-filled)
                             setRecoToAdd({name:pin.name,type:pin.type||"Restaurant",price:pin.price||"",city:pin.city||"",country:pin.country||"",address:pin.address||"",cuisine:pin.cuisine||"",activityType:pin.activity_type||"",google_place_id:pin.google_place_id||"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false});
+                            setPrevTab("pins");
                             setTab("add");
-                          }} title={t.pinToFav||"Add to favorites"} style={{background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}33`,borderRadius:8,padding:"4px 8px",cursor:"pointer",fontSize:11,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.pinToFav||"Visited"}</button>
+                          }} title={t.recoAddFav||"Add"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>
                           <button onClick={async()=>{
                             await supabase.from('memories').delete().eq('id',pin.id).eq('user_id',userId);
                             setPins(prev=>prev.filter(p=>p.id!==pin.id));
                             showToast("✓");
-                          }} title={t.delete} style={{background:"none",border:`1px solid ${COLORS.dislike}33`,borderRadius:8,padding:"4px 8px",cursor:"pointer",fontSize:11,color:"#d4869b"}}>✕</button>
+                          }} title={t.delete} style={{background:"none",border:`1px solid ${COLORS.dislike}33`,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:12,color:"#d4869b",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>✕</button>
                         </div>
                       </div>
                     </div>
@@ -3454,7 +3470,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   ):(
                     <div className="memory-list">
                       {viewingFriend.memories.map(m=><MemoryCard key={m.id} m={m} isMine={false} COLORS={COLORS} t={t} lang={lang} onEdit={()=>{}} onDelete={()=>{}}
-                        onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}
+                        onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} onPin={(m)=>openPinModal({name:m.name,type:m.type,price:m.price,city:m.city,country:m.country,address:m.address,cuisine:m.cuisine,activityType:m.activity_type,google_place_id:m.google_place_id})}/>)}
                     </div>
                   )}
                 </div>
@@ -3858,7 +3874,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 <div className="reco-block section-hearts">
                   <div className="reco-block-title">{t.recoHearts}</div>
                   <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
-                  onSaveFriend={(fMem)=>addFriendToCarnet(fMem)}/>)}</div>
+                  onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} onPin={(m)=>openPinModal({name:m.name,type:m.type,price:m.price,city:m.city,country:m.country,address:m.address,cuisine:m.cuisine,activityType:m.activity_type,google_place_id:m.google_place_id})}/>)}</div>
                 </div>
               )}
 
@@ -3883,7 +3899,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                                     myMem={memories.find(mm => mm.name.toLowerCase()===reco.name.toLowerCase())}
                                     onEdit={setEditMemory}
                                     onAdd={()=>addRecoToCarnet(reco)}
-                                    onPin={()=>pinPlace({name:reco.name,type:reco.type||recoType,price:reco.price,city:reco.city,country:reco.country,address:reco.address,cuisine:reco.cuisine,activityType:reco.activityType,google_place_id:reco.google_place_id})}
+                                    onPin={()=>openPinModal({name:reco.name,type:reco.type||recoType,price:reco.price,city:reco.city,country:reco.country,address:reco.address,cuisine:reco.cuisine,activityType:reco.activityType,google_place_id:reco.google_place_id})}
                                     COLORS={COLORS}
                                     t={t}
                                     setFriendMemoryModal={setFriendMemoryModal}
@@ -3946,7 +3962,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                                 myMem={memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase())}
                                 onEdit={setEditMemory}
                                 onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,googleRating:p.rating,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",google_place_id:p.id||""})}
-                                onPin={()=>pinPlace({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",id:p.id||""})}
+                                onPin={()=>openPinModal({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",id:p.id||""})}
                                 COLORS={COLORS}
                                 t={t}
                                 setFriendMemoryModal={setFriendMemoryModal}
@@ -3979,6 +3995,35 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   </div>
                 );
               })()}
+
+              {/* Pins in Reco */}
+              {pins.filter(p=>typeMatches(p.type, recoType)).length>0&&(
+                <div className="reco-block section-pins">
+                  <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({pins.filter(p=>typeMatches(p.type, recoType)).length})</div>
+                  <div style={{fontSize:11,color:COLORS.muted,marginBottom:10}}>{t.pinsRecoSub||"Places you want to try"}</div>
+                  <div className="memory-list">
+                    {pins.filter(p=>typeMatches(p.type, recoType)).map(pin=>(
+                      <div key={pin.id} className="memory-card" style={{borderLeft:`3px solid #6b8cce`}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
+                            <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>
+                              {pin.city&&pin.city}{pin.price&&` · ${pin.price}`}
+                            </div>
+                            {pin.pin_note&&<div style={{fontSize:11,color:"#6b8cce",marginTop:2,fontStyle:"italic"}}>💬 {pin.pin_note}</div>}
+                          </div>
+                          <div style={{display:"flex",gap:4,flexShrink:0}}>
+                            <button onClick={()=>{
+                              setRecoToAdd({name:pin.name,type:pin.type||"Restaurant",price:pin.price||"",city:pin.city||"",country:pin.country||"",address:pin.address||"",cuisine:pin.cuisine||"",activityType:pin.activity_type||"",google_place_id:pin.google_place_id||"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false});
+                              setPrevTab("reco");
+                            }} title={t.recoAddFav||"Add"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -4008,9 +4053,15 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               const {isMine:_a,friendName:_b,distanceKm:_c,_lat,_lng,profiles:_d,friendsData:_e,friendsWhoHave:_f,openNow:_g,openingHours:_h,googleRating:_i,activityType,priceSource:_k,...cleanF}=form;
               const entry={...cleanF,activity_type:activityType||null,id:Date.now(),ts:Date.now(),user_id:userId};
               const {error}=await supabase.from('memories').insert(entry);
-              if(!error){setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);}
+              if(!error){
+                setMemories(prev=>[entry,...prev]);showToast(t.toastAdded);
+                // Auto-remove matching pin
+                const matchingPin = pins.find(p => p.name.toLowerCase() === form.name.toLowerCase());
+                if (matchingPin) { await supabase.from('memories').delete().eq('id', matchingPin.id).eq('user_id', userId); setPins(prev => prev.filter(p => p.id !== matchingPin.id)); }
+              }
               setRecoToAdd(null);
-            }} onCancel={()=>setRecoToAdd(null)} isEdit={false} prefilled={true} t={t}/>
+              if (prevTab && prevTab !== "add") { setTab(prevTab); setPrevTab("reco"); }
+            }} onCancel={()=>{setRecoToAdd(null); if (prevTab && prevTab !== "add") { setTab(prevTab); setPrevTab("reco"); }}} isEdit={false} prefilled={true} t={t}/>
           </div>
         </div>
       )}
@@ -4368,6 +4419,20 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               <button className="modal-btn primary" style={{background:"#e06060",border:"none"}} onClick={()=>{deleteMemory(deleteConfirm.id);setDeleteConfirm(null);}}>
                 {t.deleteConfirm||"Delete"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Pin note modal */}
+      {pinModal&&(
+        <div className="alert-overlay" style={{zIndex:600}}>
+          <div className="alert-box" style={{maxWidth:380,padding:24}}>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",color:COLORS.accent,marginBottom:4}}>📌 {pinModal.place.name}</div>
+            <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{t.pinNotePrompt||"Add a note (optional):"}</div>
+            <input value={pinModal.note} onChange={e=>setPinModal(p=>({...p,note:e.target.value}))} placeholder={t.pinNotePlaceholder||"Ex: for the kids, date night idea..."} autoFocus style={{background:COLORS.bg,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",marginBottom:16}}/>
+            <div style={{display:"flex",gap:8}}>
+              <button className="modal-btn secondary" style={{flex:1}} onClick={()=>setPinModal(null)}>{t.cancel||"Cancel"}</button>
+              <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>{pinPlace(pinModal.place,pinModal.note);setPinModal(null);}}>📌 {t.pinBtn||"Pin"}</button>
             </div>
           </div>
         </div>
