@@ -2131,6 +2131,7 @@ function TravelAgent() {
   const [recoLimit, setRecoLimit] = useState(prefs.nbrecos || "10");
   const [recoMood, setRecoMood] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [pinModal, setPinModal] = useState(null);
 
   // Shared mood matching function — used for Popular display, Map, and AI pre-filter
   const MOOD_SYNONYMS = {
@@ -2582,8 +2583,6 @@ function TravelAgent() {
     const name = follow.profile?.username ? `@${follow.profile.username}` : "?";
     setViewingFriend({ name, memories: fMems });
   };
-
-  const [pinModal, setPinModal] = useState(null); // {place, note}
 
   const pinPlace = async (place, note="") => {
     const existing = pins.find(p => p.name?.toLowerCase() === place.name?.toLowerCase());
