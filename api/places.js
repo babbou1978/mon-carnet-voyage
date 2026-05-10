@@ -202,7 +202,7 @@ export default async function handler(req, res) {
             body: JSON.stringify({
               textQuery: moodQuery,
               maxResultCount: 20,
-              locationBias: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
+              locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
               languageCode: userLang
             }),
           });
@@ -218,8 +218,14 @@ export default async function handler(req, res) {
       const seen = new Map();
       responses.forEach(resp => {
         (resp.places||[]).forEach(p => {
+          // Skip closed places
+          if (p.businessStatus === 'CLOSED_PERMANENTLY' || p.businessStatus === 'CLOSED_TEMPORARILY') return;
           // For Activité: filter out places whose primaryType is in the blacklist
           if (type === "Activité" && ACTIVITY_BLACKLIST && p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)) return;
+          // Cross-type filtering: exclude restaurants from Bar results and vice versa
+          if (type === "Bar" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType.includes("_restaurant"))) return;
+          if (type === "Restaurant" && p.primaryType && (p.primaryType === "bar" || p.primaryType === "night_club")) return;
+          if (type === "Café" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType === "bar")) return;
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);

@@ -1038,7 +1038,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
   const markersRef = useRef({ hearts: [], ai: [], nearby: [] });
   const [activePlace, setActivePlace] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
-  const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: false });
+  const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: true });
 
   // Limit nearby markers based on recoLimit (5/10/20)
   const nearbyLimit = parseInt(recoLimit) || 10;
@@ -1137,14 +1137,15 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
         }
       });
 
-      // Nearby places - green, numbered, limited (hidden by default)
+      // Nearby places - green, numbered, visible by default (same as hearts & AI)
       nearbyToShow.forEach((p, i) => {
         if (!p.lat || !p.lng) return;
         const pos = { lat: p.lat, lng: p.lng };
         const pinEl = new window.google.maps.marker.PinElement({ background:"#7a9d7a", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:String(i+1), scale:1.0 });
-        const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map:null, title:p.name, content:pinEl });
+        const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:p.name, content:pinEl });
         marker.addListener("gmp-click", () => setActivePlace({ ...p, markerType: "nearby", idx: i+1 }));
         markersRef.current.nearby.push(marker);
+        bounds.extend(pos);
       });
 
       if (total === 0 && !bounds.isEmpty()) map.fitBounds(bounds);
@@ -3116,11 +3117,13 @@ RULES:
     const streetAddress = addrParts.slice(0, addrParts.length-2).join(", ") || reco.address || "";
     setRecoToAdd({
       name: reco.name,
-      type: reco.type || recoType,
+      type: recoType,
       price: reco.price || "",
       city, country,
       address: streetAddress,
       cuisine: reco.cuisine || "",
+      activityType: reco.activityType || "",
+      google_place_id: reco.google_place_id || reco.googlePlaceId || "",
       rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false
     });
   };
@@ -3135,6 +3138,8 @@ RULES:
       country: m.country || "",
       address: m.address || "",
       cuisine: m.cuisine || "",
+      activityType: m.activity_type || m.activityType || "",
+      google_place_id: m.google_place_id || "",
       rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false
     });
   };
@@ -3759,8 +3764,7 @@ RULES:
                                 friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase())}
                                 myMem={memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase())}
                                 onEdit={setEditMemory}
-                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,googleRating:p.rating})}
-                                COLORS={COLORS}
+                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,googleRating:p.rating,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",google_place_id:p.id||""})}                                COLORS={COLORS}
                                 t={t}
                                 setFriendMemoryModal={setFriendMemoryModal}
                                 addFriendToCarnet={addFriendToCarnet}
