@@ -674,8 +674,8 @@ const getCSS = (COLORS) => `
   .reco-block-title {
     font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic;
     color: ${COLORS.accent};
-    padding: 10px 12px; margin: 0 -12px;
-    position: sticky; top: 130px; z-index: 5;
+    padding: 10px 0; margin: 0;
+    position: sticky; top: 132px; z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
   }
@@ -686,7 +686,7 @@ const getCSS = (COLORS) => `
   .reco-block.section-nearby .ai-reco-card { border-color: #7a9d7a55; }
   .reco-block.section-pins .reco-block-title { color: #6b8cce; border-bottom-color: #6b8cce33; }
   .reco-block.section-pins .memory-card { border-color: #6b8cce55; }
-  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: 135px; }
+  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: 136px; }
   .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
@@ -3913,8 +3913,8 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
-              <div id="reco-settings" className="reco-location-card">
-                <div className="reco-location-title">{t.recoLocation}</div>
+              <div id="reco-settings" className="reco-block-title">{t.recoLocation}</div>
+              <div className="reco-location-card">
                 <div className="location-row">
                   <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
                   <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);recoCoordsRef.current=null;localStorage.removeItem("outsy_recoCoords");}}>{t.recoManual}</button>
