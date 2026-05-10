@@ -1,0 +1,1 @@
+const fs=require("fs");let c=fs.readFileSync("src/App.jsx","utf8");c=c.split("[newlyClosed.map](http://newlyClosed.map)").join("newlyClosed.map");c=c.split("[r.name](http://r.name)").join("r.name");c=c.split("[x.name](http://x.name)").join("x.name");fs.writeFileSync("src/App.jsx",c);console.log("lines:",c.split("\n").length);
