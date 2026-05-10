@@ -2212,7 +2212,7 @@ function TravelAgent() {
       if (p.lat && p.lng) {
         const R = 6371, dLat = (recoCoords.lat - p.lat) * Math.PI/180, dLng = (recoCoords.lng - p.lng) * Math.PI/180;
         const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) <= 50;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) <= (distance / 1000);
       }
       if (p.city && loc) {
         const pc = p.city.toLowerCase(), sc = loc.split(",")[0].trim();
