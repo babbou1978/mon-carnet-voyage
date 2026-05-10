@@ -1080,7 +1080,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
       // User position - purple
       if (userCoords?.lat) {
         bounds.extend({ lat: userCoords.lat, lng: userCoords.lng });
-        const pin = new window.google.maps.marker.PinElement({ background:"#8b5cf6", borderColor:"#ffffff", glyphColor:"#ffffff", glyphText:"📍", scale:1.0 });
+        const pin = new window.google.maps.marker.PinElement({ background:"#8b5cf6", borderColor:"#ffffff", glyphColor:"#ffffff", scale:1.0 });
         new window.google.maps.marker.AdvancedMarkerElement({ position:{lat:userCoords.lat,lng:userCoords.lng}, map, zIndex:100, content:pin });
       }
 
@@ -1151,22 +1151,23 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
       });
 
       // Pins — blue markers
-      markersRef.current.pins.forEach(m => m.map = null);
+      if (markersRef.current.pins) markersRef.current.pins.forEach(m => m.map = null);
       markersRef.current.pins = [];
-      (pins||[]).forEach((p, i) => {
-        if (!p.address && !p.city) return; // skip pins without location
-        // Use geocoded location if available, otherwise skip (can't show without coords)
-        // For pins, we'll just add them if they have lat/lng from Google place data
-        const lat = p.lat || p.location?.latitude;
-        const lng = p.lng || p.location?.longitude;
-        if (!lat || !lng) return;
-        const pos = { lat, lng };
-        const pinEl = new window.google.maps.marker.PinElement({ background:"#6b8cce", borderColor:"#fff", glyphColor:"#fff", glyphText:String(i+1), scale:0.9 });
-        const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:p.name, content:pinEl });
-        marker.addListener("gmp-click", () => setActivePlace({ ...p, markerType: "pin" }));
-        markersRef.current.pins.push(marker);
-        bounds.extend(pos);
-      });
+      if (pins && pins.length > 0) {
+        pins.forEach((p, i) => {
+          const lat = p.lat || p.location?.latitude;
+          const lng = p.lng || p.location?.longitude;
+          if (!lat || !lng) return;
+          const pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
+          try {
+            const pinEl = new window.google.maps.marker.PinElement({ background:"#6b8cce", borderColor:"#fff", glyphColor:"#fff", glyphText:String(i+1), scale:0.9 });
+            const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:p.name, content:pinEl });
+            marker.addListener("gmp-click", () => setActivePlace({ ...p, markerType: "pin" }));
+            markersRef.current.pins.push(marker);
+            bounds.extend(pos);
+          } catch(e) { console.warn("Pin marker error:", e); }
+        });
+      }
 
       if (total === 0 && !bounds.isEmpty()) map.fitBounds(bounds);
     };
