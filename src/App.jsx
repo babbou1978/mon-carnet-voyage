@@ -2317,17 +2317,28 @@ function TravelAgent() {
         const loadedPins = mems.filter(m => m.is_pin);
         setPins(loadedPins);
         
-        // Backfill lat/lng for pins missing coordinates (uses Google Place details)
-        const pinsToGeocode = loadedPins.filter(p => !p.lat && !p.lng && p.google_place_id);
+        // Backfill lat/lng for pins missing coordinates
+        const pinsToGeocode = loadedPins.filter(p => !p.lat && !p.lng && (p.google_place_id || p.address || p.city));
         if (pinsToGeocode.length > 0) {
           Promise.all(pinsToGeocode.map(async pin => {
             try {
-              const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "details", placeId: pin.google_place_id }) });
-              const details = await res.json();
-              if (details.location) {
-                const lat = details.location.latitude;
-                const lng = details.location.longitude;
+              let lat, lng;
+              if (pin.google_place_id) {
+                // Use Place Details (most accurate)
+                const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ action: "details", placeId: pin.google_place_id }) });
+                const details = await res.json();
+                if (details.location) { lat = details.location.latitude; lng = details.location.longitude; }
+              }
+              if (!lat && (pin.address || pin.city)) {
+                // Fallback: geocode by address
+                const query = pin.name + ", " + (pin.address || [pin.city, pin.country].filter(Boolean).join(", "));
+                const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ action: "geocode", input: query }) });
+                const geo = await res.json();
+                if (geo.lat) { lat = geo.lat; lng = geo.lng; }
+              }
+              if (lat && lng) {
                 await supabase.from('memories').update({ lat, lng }).eq('id', pin.id).eq('user_id', userId);
                 return { ...pin, lat, lng };
               }
