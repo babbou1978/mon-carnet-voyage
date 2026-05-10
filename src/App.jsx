@@ -1033,14 +1033,14 @@ const MAP_STYLES = [
   {featureType:"poi",stylers:[{visibility:"off"}]},
 ];
 
-function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, themeKey, COLORS, t={}, recoLimit }) {
+function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, pins=[], themeKey, COLORS, t={}, recoLimit }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const boundsRef = useRef(null);
-  const markersRef = useRef({ hearts: [], ai: [], nearby: [] });
+  const markersRef = useRef({ hearts: [], ai: [], nearby: [], pins: [] });
   const [activePlace, setActivePlace] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
-  const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: true });
+  const [visible, setVisible] = useState({ hearts: true, ai: true, nearby: true, pins: true });
 
   // Limit nearby markers based on recoLimit (5/10/20)
   const nearbyLimit = parseInt(recoLimit) || 10;
@@ -1150,6 +1150,24 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
         bounds.extend(pos);
       });
 
+      // Pins — blue markers
+      markersRef.current.pins.forEach(m => m.map = null);
+      markersRef.current.pins = [];
+      (pins||[]).forEach((p, i) => {
+        if (!p.address && !p.city) return; // skip pins without location
+        // Use geocoded location if available, otherwise skip (can't show without coords)
+        // For pins, we'll just add them if they have lat/lng from Google place data
+        const lat = p.lat || p.location?.latitude;
+        const lng = p.lng || p.location?.longitude;
+        if (!lat || !lng) return;
+        const pos = { lat, lng };
+        const pinEl = new window.google.maps.marker.PinElement({ background:"#6b8cce", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:"📌", scale:0.9 });
+        const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:p.name, content:pinEl });
+        marker.addListener("gmp-click", () => setActivePlace({ ...p, markerType: "pin" }));
+        markersRef.current.pins.push(marker);
+        bounds.extend(pos);
+      });
+
       if (total === 0 && !bounds.isEmpty()) map.fitBounds(bounds);
     };
 
@@ -1165,6 +1183,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
     JSON.stringify(recommendations?.map(r=>r.name)),
     JSON.stringify(heartMemories?.map(m=>m.id)),
     JSON.stringify(nearbyToShow?.map(p=>p.name)),
+    JSON.stringify(pins?.map(p=>p.id)),
     userCoords?.lat,
     userCoords?.lng
   ]);
@@ -1185,7 +1204,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
     Object.entries(visible).forEach(([layer, isVisible]) => {
       markersRef.current[layer]?.forEach(m => { m.map = isVisible ? mapInstance.current : null; });
     });
-  }, [visible.hearts, visible.ai, visible.nearby]);
+  }, [visible.hearts, visible.ai, visible.nearby, visible.pins]);
 
   // Refit bounds when toggling fullscreen
   useEffect(() => {
@@ -1227,6 +1246,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, t
         {(heartMemories||[]).length > 0 && <button onClick={()=>toggleLayer("hearts")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.hearts?1:0.45}}>🔴 {t.mapFavorites||"Favorites"}</button>}
         {(recommendations||[]).length > 0 && <button onClick={()=>toggleLayer("ai")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.ai?1:0.45}}>🟡 {t.mapAIPicks||"AI"}</button>}
         {(nearbyPlaces||[]).length > 0 && <button onClick={()=>toggleLayer("nearby")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.nearby?1:0.45}}>🟢 {t.mapNearby||"Popular"}</button>}
+        {(pins||[]).length > 0 && <button onClick={()=>toggleLayer("pins")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.pins?1:0.45}}>🔵 Pins</button>}
       </div>
 
       {/* Place popup on click */}
@@ -1744,9 +1764,10 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
   return (
     <div ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
       <span ref={badgeRef} onClick={handleOpen}
-        style={{fontSize:10,color:COLORS.accent,background:`${COLORS.accent}18`,border:`1px solid ${COLORS.accent}44`,borderRadius:20,
-          padding:"3px 7px",fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none",letterSpacing:"0.06em"}}>
-        👥 {friends.length}
+        style={{fontSize:10,color:COLORS.accent,background:`${COLORS.accent}18`,border:`1px solid ${COLORS.accent}44`,borderRadius:"50%",
+          width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",
+          fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none",fontWeight:600}}>
+        {friends.length}
       </span>
       {open&&(
         <div style={{position:"fixed",top:dropPos.top,left:dropPos.left,background:COLORS.card,border:`1px solid ${COLORS.border}`,
@@ -1754,15 +1775,13 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
           {friends.map((fname,i)=>{
             const fMem = friendsData.find(m=>m.friendName===fname);
             return (
-              <div key={i} style={{padding:"8px 12px",borderBottom:i<friends.length-1?`1px solid ${COLORS.border}44`:"none"}}>
+              <div key={i} style={{padding:"6px 12px",borderBottom:i<friends.length-1?`1px solid ${COLORS.border}44`:"none"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                  <span style={{fontSize:12,color:COLORS.text,fontWeight:500,flexShrink:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>👤 {fname}</span>
-                  <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
-                    {fMem?.rating>0&&<StarRating rating={fMem.rating} size={10} emptyColor={COLORS.border}/>}
-                    {fMem?.kidsf&&<span className="badge kids" style={{fontSize:9}}>👶</span>}
-                    {fMem?.price&&<span className="badge price" style={{fontSize:9,whiteSpace:"nowrap"}}>{fMem.price}</span>}
+                  <span style={{fontSize:12,color:COLORS.text,fontWeight:500,flexShrink:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fname}</span>
+                  <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
+                    {fMem?.rating>0&&<span style={{fontSize:11,color:COLORS.muted}}>{fMem.rating}/5</span>}
                     {onViewFriend&&<span onClick={()=>{setOpen(false);onViewFriend(fname,fMem);}}
-                      style={{fontSize:14,color:COLORS.accent,cursor:"pointer",marginLeft:2,flexShrink:0}} title={t?.mapTooltip||"View details"}>→</span>}
+                      style={{fontSize:13,color:COLORS.accent,cursor:"pointer"}} title={t?.mapTooltip||"View"}>→</span>}
                   </div>
                 </div>
               </div>
@@ -3866,7 +3885,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} pins={pins.filter(p=>typeMatches(p.type, recoType))} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
               )}
 
               {heartMemories.length>0&&(
@@ -3995,11 +4014,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 );
               })()}
 
-              {/* Pins in Reco */}
-              {pins.filter(p=>typeMatches(p.type, recoType)).length>0&&(
+              {/* Pins in Reco — only show after a search */}
+              {heartsLoaded&&pins.filter(p=>typeMatches(p.type, recoType)).length>0&&(
                 <div className="reco-block section-pins">
                   <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({pins.filter(p=>typeMatches(p.type, recoType)).length})</div>
-                  <div style={{fontSize:11,color:COLORS.muted,marginBottom:10}}>{t.pinsRecoSub||"Places you want to try"}</div>
                   <div className="memory-list">
                     {pins.filter(p=>typeMatches(p.type, recoType)).map(pin=>(
                       <div key={pin.id} className="memory-card" style={{borderLeft:`3px solid #6b8cce`}}>
