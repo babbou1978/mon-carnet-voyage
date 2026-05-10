@@ -130,7 +130,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accepter", followDecline: "✕", followView: "Voir ❤️", followHeartTitle: "❤️ Coups de cœur de",
     followNoHeart: "n'a pas encore de coups de cœur.", followHearts: "coups de cœur",
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
-    profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
+    errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
     recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: romantique, rooftop, brunch entre amis...", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
@@ -191,7 +191,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Aceptar", followDecline: "✕", followView: "Ver ❤️", followHeartTitle: "❤️ Favoritos de",
     followNoHeart: "aún no tiene favoritos.", followHearts: "favoritos",
     followUnfollow: "Dejar de seguir", followPrivate: "Cuenta privada", followPublic: "Cuenta pública",
-    profilePhoto: "Foto", profileUsername: "Usuario", profilePrivacy: "Privacidad",
+    errorUsernameRequired: "El usuario es obligatorio.", errorUsernameTaken: "Este usuario ya está en uso.", errorUsernameInvalid: "3-20 caracteres, letras, números, _ o . solamente.", profilePhoto: "Foto", profileUsername: "Usuario", profilePrivacy: "Privacidad",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
     recoMood: "Mood / preferencia", recoMoodPlaceholder: "Ej: romántico, terraza, brunch con amigos...", recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
@@ -250,7 +250,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Annehmen", followDecline: "✕", followView: "Anzeigen ❤️", followHeartTitle: "❤️ Favoriten von",
     followNoHeart: "hat noch keine Favoriten.", followHearts: "Favoriten",
     followUnfollow: "Entfolgen", followPrivate: "Privates Konto", followPublic: "Öffentliches Konto",
-    profilePhoto: "Foto", profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
+    errorUsernameRequired: "Benutzername ist erforderlich.", errorUsernameTaken: "Dieser Benutzername ist bereits vergeben.", errorUsernameInvalid: "3-20 Zeichen, Buchstaben, Zahlen, _ oder . erlaubt.", profilePhoto: "Foto", profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
     recoMood: "Mood / Stimmung", recoMoodPlaceholder: "z.B. romantisch, Dachterrasse, Brunch mit Freunden...", recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
@@ -309,7 +309,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accetta", followDecline: "✕", followView: "Vedi ❤️", followHeartTitle: "❤️ Preferiti di",
     followNoHeart: "non ha ancora preferiti.", followHearts: "preferiti",
     followUnfollow: "Smetti di seguire", followPrivate: "Account privato", followPublic: "Account pubblico",
-    profilePhoto: "Foto", profileUsername: "Nome utente", profilePrivacy: "Privacy",
+    errorUsernameRequired: "Il nome utente è obbligatorio.", errorUsernameTaken: "Questo nome utente è già in uso.", errorUsernameInvalid: "3-20 caratteri, lettere, numeri, _ o . ammessi.", profilePhoto: "Foto", profileUsername: "Nome utente", profilePrivacy: "Privacy",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
     recoMood: "Mood / desiderio", recoMoodPlaceholder: "Es: romantico, rooftop, brunch con amici...", recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
@@ -368,7 +368,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Aceitar", followDecline: "✕", followView: "Ver ❤️", followHeartTitle: "❤️ Favoritos de",
     followNoHeart: "ainda não tem favoritos.", followHearts: "favoritos",
     followUnfollow: "Deixar de seguir", followPrivate: "Conta privada", followPublic: "Conta pública",
-    profilePhoto: "Foto", profileUsername: "Utilizador", profilePrivacy: "Privacidade",
+    errorUsernameRequired: "O nome de utilizador é obrigatório.", errorUsernameTaken: "Este utilizador já está em uso.", errorUsernameInvalid: "3-20 caracteres, letras, números, _ ou . apenas.", profilePhoto: "Foto", profileUsername: "Utilizador", profilePrivacy: "Privacidade",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
     recoMood: "Mood / desejo", recoMoodPlaceholder: "Ex: romântico, terraço, brunch com amigos...", recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
@@ -427,7 +427,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accepteren", followDecline: "✕", followView: "Bekijk ❤️", followHeartTitle: "❤️ Favorieten van",
     followNoHeart: "heeft nog geen favorieten.", followHearts: "favorieten",
     followUnfollow: "Ontvolgen", followPrivate: "Privéaccount", followPublic: "Openbaar account",
-    profilePhoto: "Foto", profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
+    errorUsernameRequired: "Gebruikersnaam is verplicht.", errorUsernameTaken: "Deze gebruikersnaam is al in gebruik.", errorUsernameInvalid: "3-20 tekens, letters, cijfers, _ of . toegestaan.", profilePhoto: "Foto", profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
     recoMood: "Mood / stemming", recoMoodPlaceholder: "Bijv. romantisch, dakterras, brunch met vrienden...", recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
@@ -486,7 +486,7 @@ const TRANSLATIONS = {
     followAccept: "✓ Accept", followDecline: "✕", followView: "View ❤️", followHeartTitle: "❤️ Favorites from",
     followNoHeart: "has no favorites yet.", followHearts: "favorites",
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
-    profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
+    errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
     recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. romantic, rooftop, kids birthday, brunch with friends...", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
@@ -2119,6 +2119,7 @@ function TravelAgent() {
   const nbRecosRef = useRef(prefs.nbrecos || "10");
   const [recoLimit, setRecoLimit] = useState(prefs.nbrecos || "10");
   const [recoMood, setRecoMood] = useState("");
+  const [usernameError, setUsernameError] = useState("");
 
   // Shared mood matching function — used for Popular display, Map, and AI pre-filter
   const MOOD_SYNONYMS = {
@@ -2489,6 +2490,12 @@ function TravelAgent() {
 
   const savePrefs = async () => {
     const { firstName, lastName, username, is_private, avatar_url, ...dbPrefs } = prefs;
+    // Validate username if changed
+    if (username) {
+      if (!/^[a-z0-9_.]{3,20}$/.test(username)) { showToast("❌ " + (t.errorUsernameInvalid||"Invalid username")); return; }
+      const { data: existing } = await supabase.from('profiles').select('user_id').eq('username', username).neq('user_id', userId).maybeSingle();
+      if (existing) { showToast("❌ " + (t.errorUsernameTaken||"Username already taken")); return; }
+    }
     await supabase.from('preferences').upsert({ ...dbPrefs, user_id: userId });
     await supabase.from('profiles').upsert({ user_id: userId, first_name: firstName, last_name: lastName, email: session.user.email, username: username || null, is_private: is_private || false, avatar_url: avatar_url || null });
     setPrefsSaved(true); setTimeout(()=>setPrefsSaved(false), 2000);
@@ -4010,8 +4017,9 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   <div style={{flex:1}}><label style={labelStyle}>{t.profileLastName||"Last name"}</label><input value={prefs.lastName||""} onChange={e=>setPrefs(p=>({...p,lastName:e.target.value}))} style={inputStyle}/></div>
                 </div>
                 <div style={{marginBottom:12}}>
-                  <label style={labelStyle}>{t.profileUsername||"Username"}</label>
-                  <input value={prefs.username ? `@${prefs.username}` : ""} placeholder="@username" onChange={e=>setPrefs(p=>({...p,username:e.target.value.replace(/[^a-zA-Z0-9_.@]/g,"").replace(/^@/,"").toLowerCase()}))} style={{...inputStyle,fontFamily:"'DM Sans',monospace"}}/>
+                  <label style={labelStyle}>{t.profileUsername||"Username"} <span style={{color:"#d4869b"}}>*</span></label>
+                  <input value={prefs.username ? `@${prefs.username}` : ""} placeholder="@username" onChange={e=>{setUsernameError("");setPrefs(p=>({...p,username:e.target.value.replace(/[^a-zA-Z0-9_.@]/g,"").replace(/^@/,"").toLowerCase()}));}} style={{...inputStyle,fontFamily:"'DM Sans',monospace",borderColor:usernameError?"#d4869b":undefined}}/>
+                  {usernameError&&<div style={{color:"#d4869b",fontSize:11,marginTop:4}}>{usernameError}</div>}
                 </div>
                 <div>
                   <label style={labelStyle}>🌍 {t.profileLanguage||"Language"}</label>
@@ -4108,7 +4116,18 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               <div style={{display:"flex",gap:8,marginTop:16}}>
                 <button className="modal-btn secondary" style={{flex:1,visibility:onboardingStep>0?"visible":"hidden"}} onClick={()=>setOnboardingStep(s=>s-1)}>← {ot.onboardBack||"Back"}</button>
                 {onboardingStep<totalSteps-1
-                  ? <button className="save-btn" style={{flex:1,margin:0}} onClick={()=>setOnboardingStep(s=>s+1)} disabled={onboardingStep===0&&(!prefs.firstName?.trim()||!prefs.lastName?.trim()||!prefs.username?.trim())}>{ot.onboardNext||"Next →"}</button>
+                  ? <button className="save-btn" style={{flex:1,margin:0}} onClick={async()=>{
+                    if (onboardingStep===0) {
+                      if (!prefs.firstName?.trim()||!prefs.lastName?.trim()) return;
+                      const uname = (prefs.username||"").trim();
+                      if (!uname) { setUsernameError(t.errorUsernameRequired||"Username is required."); return; }
+                      if (!/^[a-z0-9_.]{3,20}$/.test(uname)) { setUsernameError(t.errorUsernameInvalid||"3-20 characters, letters, numbers, _ or . only."); return; }
+                      const { data: existing } = await supabase.from('profiles').select('user_id').eq('username', uname).neq('user_id', session.user.id).maybeSingle();
+                      if (existing) { setUsernameError(t.errorUsernameTaken||"This username is already taken."); return; }
+                      setUsernameError("");
+                    }
+                    setOnboardingStep(s=>s+1);
+                  }} disabled={onboardingStep===0&&(!prefs.firstName?.trim()||!prefs.lastName?.trim()||!prefs.username?.trim())}>{ot.onboardNext||"Next →"}</button>
                   : <button className="save-btn" style={{flex:1,margin:0}} onClick={finishOnboarding}>{ot.onboardFinish||"Let's go! 🚀"}</button>
                 }
               </div>
