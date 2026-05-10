@@ -2202,6 +2202,25 @@ function TravelAgent() {
       friendsData: friendMatches
     };
   });
+
+  // Pins filtered by type + proximity — single source for Map + Reco
+  const recoPins = (() => {
+    const typed = enrichedPins.filter(p => typeMatches(p.type, recoType));
+    if (!recoCoords?.lat) return typed;
+    const loc = (locMode === "gps" ? gpsLocation : freeLocation || "").toLowerCase();
+    return typed.filter(p => {
+      if (p.lat && p.lng) {
+        const R = 6371, dLat = (recoCoords.lat - p.lat) * Math.PI/180, dLng = (recoCoords.lng - p.lng) * Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) <= 50;
+      }
+      if (p.city && loc) {
+        const pc = p.city.toLowerCase(), sc = loc.split(",")[0].trim();
+        if (pc.length > 2 && sc.length > 2 && !pc.includes(sc) && !sc.includes(pc)) return false;
+      }
+      return true;
+    });
+  })();
   useEffect(() => {
     if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
   }, [prefs.nbrecos]);
@@ -3942,7 +3961,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} pins={pins.filter(p=>typeMatches(p.type, recoType))} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} pins={recoPins} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
               )}
 
               {heartMemories.length>0&&(
@@ -4071,31 +4090,9 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 );
               })()}
 
-              {/* Pins in Reco — only show after a search, filtered by type and proximity */}
-              {heartsLoaded&&(()=>{
-                const typedPins = enrichedPins.filter(p=>typeMatches(p.type, recoType));
-                if (typedPins.length === 0) return null;
-                // Filter by proximity: lat/lng distance or city name match
-                const locationStr = (locationLabel||"").toLowerCase();
-                const relevantPins = typedPins.filter(p => {
-                  if (p.lat && p.lng && recoCoords?.lat) {
-                    const R = 6371; const dLat = (recoCoords.lat - p.lat) * Math.PI/180;
-                    const dLng = (recoCoords.lng - p.lng) * Math.PI/180;
-                    const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-                    const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                    return km <= 50;
-                  }
-                  // No coords: only exclude if city is clearly in a different place
-                  if (p.city && locationStr) {
-                    const pinCity = p.city.toLowerCase();
-                    const searchCity = locationStr.split(",")[0].toLowerCase().trim();
-                    if (pinCity.length > 2 && searchCity.length > 2 && !pinCity.includes(searchCity) && !searchCity.includes(pinCity)) return false;
-                  }
-                  return true; // include by default
-                });
-                if (relevantPins.length === 0) return null;
-                // Compute distance for each pin
-                const pinsWithDist = relevantPins.map(p => {
+              {/* Pins in Reco — only show after a search */}
+              {heartsLoaded&&recoPins.length>0&&(()=>{
+                const pinsWithDist = recoPins.map(p => {
                   if (p.lat && p.lng && recoCoords?.lat) {
                     const R = 6371; const dLat = (recoCoords.lat - p.lat) * Math.PI/180;
                     const dLng = (recoCoords.lng - p.lng) * Math.PI/180;
