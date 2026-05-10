@@ -176,36 +176,18 @@ export default async function handler(req, res) {
       const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.goodForChildren,places.goodForGroups,places.servesVegetarianFood,places.allowsDogs,places.menuForChildren,places.reservable,places.servesBrunch,places.servesLunch,places.servesDinner,places.dineIn,places.takeout,places.delivery';
 
       // Use includedTypes (broader) - matches both primary and secondary types.
-      // Double strategy: POPULARITY for best-rated + DISTANCE for nearby gems
-      const requests = [];
-      types.forEach((t, idx) => {
-        // POPULARITY pass for all types
-        requests.push(fetch('https://places.googleapis.com/v1/places:searchNearby', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
-          body: JSON.stringify({
-            includedTypes: [t],
-            maxResultCount: 20,
-            rankPreference: "POPULARITY",
-            locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
-            languageCode: userLang
-          }),
-        }).then(r => r.json()).catch(() => ({places:[]})));
-        // DISTANCE pass for primary type only (to catch nearby gems missed by POPULARITY)
-        if (idx === 0) {
-          requests.push(fetch('https://places.googleapis.com/v1/places:searchNearby', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
-            body: JSON.stringify({
-              includedTypes: [t],
-              maxResultCount: 10,
-              rankPreference: "DISTANCE",
-              locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
-              languageCode: userLang
-            }),
-          }).then(r => r.json()).catch(() => ({places:[]})));
-        }
-      });
+      // We'll filter out unwanted primary types (e.g. lodging when searching restaurants) below.
+      const requests = types.map(t => fetch('https://places.googleapis.com/v1/places:searchNearby', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
+        body: JSON.stringify({
+          includedTypes: [t],
+          maxResultCount: 20,
+          rankPreference: "POPULARITY",
+          locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
+          languageCode: userLang
+        }),
+      }).then(r => r.json()).catch(() => ({places:[]})));
 
       const responses = await Promise.all(requests);
 
@@ -281,9 +263,9 @@ export default async function handler(req, res) {
         return sb - sa;
       });
 
-      console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types, requestCount: responses.length }));
+      console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types }));
       const filteredCount = type === "Activité" ? responses.reduce((n,r) => n + (r.places||[]).filter(p => p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)).length, 0) : 0;
-      console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, filtered: filteredCount, totalRaw: responses.reduce((n,r) => n + (r.places||[]).length, 0), top5: allPlaces.slice(0,5).map(p=>({name:p.displayName?.text, rating:p.rating})) }));
+      console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, filtered: filteredCount, perType: responses.map((r,i)=>({type:types[i], count:r.places?.length||0})), top5: allPlaces.slice(0,5).map(p=>({name:p.displayName?.text, primaryType:p.primaryType})) }));
 
       return res.status(200).json({ places: allPlaces });
     }
