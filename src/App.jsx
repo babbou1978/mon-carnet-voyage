@@ -2990,12 +2990,13 @@ function TravelAgent() {
     };
     const guidance = typeGuidance[recoType] || typeGuidance["Restaurant"];
 
-    // Build candidate list — numbered, with type info for AI to match properly
+    // Build candidate list — numbered, with type info and features for AI to match properly
     const candidateList = nearbyForAI.length > 0
       ? nearbyForAI.map((p, i) => {
           const placeType = p.primaryTypeDisplayName?.text || p.primaryType || "";
           const desc = p.editorialSummary ? ` | "${p.editorialSummary}"` : "";
-          return `${i+1}. ${p.name} | type: ${placeType} | Google: ${p.rating||"?"}★ (${p.userRatingCount||0} avis) | ${p.price||"?"}${desc}`;
+          const feats = (p.features||[]).length > 0 ? ` | features: ${p.features.join(", ")}` : "";
+          return `${i+1}. ${p.name} | type: ${placeType} | Google: ${p.rating||"?"}★ (${p.userRatingCount||0} avis) | ${p.price||"?"}${feats}${desc}`;
         }).join("\n")
       : null;
 
@@ -3008,7 +3009,13 @@ Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"
 Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
 Kids friendly required: ${recoKids?"yes":"no"}
 Other notes: ${prefs.notes||"none"}
-${recoMood ? `\n🎯 MOOD / CURRENT VIBE (HARD FILTER — this is a REQUIREMENT, not a preference): ${recoMood}\nONLY recommend places that MATCH this mood. If the mood is "rooftop", exclude ANY indoor/underground/basement place. If the mood is "speakeasy", exclude open-air/rooftop bars. Mood mismatch = automatic exclusion, regardless of rating.` : ""}
+${recoMood ? `\n🎯 MOOD / CURRENT VIBE (HARD FILTER — this is a REQUIREMENT, not a preference): ${recoMood}
+ONLY recommend places that MATCH this mood. Use the "features" field in the candidate list to verify.
+- "rooftop" mood → ONLY places with "rooftop" or "outdoor seating/terrace" in features. If neither feature is present, the place does NOT qualify.
+- "speakeasy" mood → ONLY hidden/underground bars.
+- "kids" mood → ONLY places with "kids friendly" or "kids menu" in features.
+- "live music" mood → ONLY places with "live music" in features.
+Mood mismatch = automatic exclusion, regardless of rating. If fewer than ${nbRecosCount} places match, return only the ones that match — NEVER pad with non-matching places.` : ""}
 Preferred language: ${langLabel}
 
 My top favorites (reference by name in "why" field):
@@ -3784,6 +3791,11 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                               {p.rating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
                             </div>
+                            {(p.features||[]).length>0&&(
+                              <div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:2}}>
+                                {p.features.map((f,fi)=><span key={fi} style={{fontSize:9,padding:"2px 6px",borderRadius:10,background:`${COLORS.accent}11`,color:COLORS.accent,border:`1px solid ${COLORS.accent}22`,fontFamily:"'DM Sans',sans-serif"}}>{f}</span>)}
+                              </div>
+                            )}
                             {p.address&&(
                               <div className="ai-reco-address">
                                 📍 {p.address}

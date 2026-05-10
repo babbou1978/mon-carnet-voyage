@@ -173,7 +173,7 @@ export default async function handler(req, res) {
         "parking","transit_station","bus_station","train_station",
         "moving_company","storage","funeral_home","cemetery"
       ]);
-      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
+      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.goodForChildren,places.goodForGroups,places.servesVegetarianFood,places.allowsDogs,places.menuForChildren,places.reservable,places.servesBrunch,places.servesLunch,places.servesDinner,places.dineIn,places.takeout,places.delivery';
 
       // Use includedTypes (broader) - matches both primary and secondary types.
       // We'll filter out unwanted primary types (e.g. lodging when searching restaurants) below.
@@ -193,7 +193,7 @@ export default async function handler(req, res) {
 
       // If mood is specified, also run a Text Search to find mood-specific places
       if (mood.trim()) {
-        const textSearchFieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews';
+        const textSearchFieldMask = fieldMask;
         try {
           const moodQuery = `${mood} ${type === "Restaurant" ? "restaurant" : type === "Bar" ? "bar" : type === "Café" ? "cafe" : type === "Hôtel" ? "hotel" : ""}`.trim();
           const textRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
@@ -229,6 +229,27 @@ export default async function handler(req, res) {
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
+            // Build features summary from Google attributes
+            const feats = [];
+            if (p.outdoorSeating) feats.push("outdoor seating/terrace");
+            if (p.liveMusic) feats.push("live music");
+            if (p.servesCocktails) feats.push("cocktails");
+            if (p.goodForChildren) feats.push("kids friendly");
+            if (p.goodForGroups) feats.push("good for groups");
+            if (p.servesVegetarianFood) feats.push("vegetarian options");
+            if (p.allowsDogs) feats.push("dog friendly");
+            if (p.menuForChildren) feats.push("kids menu");
+            if (p.reservable) feats.push("reservable");
+            if (p.servesBrunch) feats.push("brunch");
+            p.features = feats;
+            // Also scan reviews/editorial for rooftop keyword
+            const allText = [
+              p.editorialSummary,
+              ...(p.reviews||[]).map(r => r.text?.text || "")
+            ].join(" ").toLowerCase();
+            if (allText.includes("rooftop") || allText.includes("roof terrace") || allText.includes("toit-terrasse") || allText.includes("toit terrasse")) {
+              p.features.push("rooftop");
+            }
             seen.set(key, p);
           }
         });
