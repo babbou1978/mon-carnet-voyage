@@ -3450,13 +3450,6 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                         <div style={{flex:1,minWidth:0}}>
                           <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
-                          <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>
-                            {pin.type} {pin.price&&`· ${pin.price}`} {pin.city&&`· ${pin.city}`}
-                          </div>
-                          {pin.address&&<div style={{fontSize:11,color:COLORS.muted}}>📍 {pin.address}</div>}
-                          {pin.cuisine&&<div style={{fontSize:11,color:COLORS.accent,marginTop:2}}>{pin.cuisine}</div>}
-                          {pin.activity_type&&<div style={{fontSize:11,color:COLORS.accent,marginTop:2}}>{pin.activity_type}</div>}
-                          {pin.pin_note&&<div style={{fontSize:12,color:COLORS.text,marginTop:6,fontStyle:"italic"}}>💬 {pin.pin_note}</div>}
                         </div>
                         <div style={{display:"flex",gap:6,flexShrink:0,alignItems:"center"}}>
                           <button onClick={()=>{
@@ -3471,6 +3464,18 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                           }} title={t.delete} style={{background:"none",border:`1px solid ${COLORS.dislike}33`,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:12,color:"#d4869b",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>✕</button>
                         </div>
                       </div>
+                      <div className="memory-meta" style={{marginBottom:6,justifyContent:"flex-start",flexWrap:"wrap",gap:5,marginTop:6}}>
+                        {pin.cuisine&&<span className="badge">{pin.cuisine}</span>}
+                        {pin.activity_type&&<span className="badge">{pin.activity_type}</span>}
+                        {pin.price&&<span className="badge price">{pin.price}</span>}
+                      </div>
+                      {(pin.address||pin.city)&&<div className="memory-location">
+                        📍 {pin.address||[pin.city,pin.country].filter(Boolean).join(", ")}
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pin.name+", "+(pin.address||[pin.city,pin.country].filter(Boolean).join(", ")))}`}
+                          target="_blank" rel="noopener noreferrer"
+                          style={{color:COLORS.accent,fontSize:12,marginLeft:6,textDecoration:"none"}}>Maps →</a>
+                      </div>}
+                      {pin.pin_note&&<div style={{fontSize:12,color:"#6b8cce",marginTop:4,fontStyle:"italic"}}>💬 {pin.pin_note}</div>}
                     </div>
                   ))}
                 </div>
@@ -4017,20 +4022,35 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 );
               })()}
 
-              {/* Pins in Reco — only show after a search */}
-              {heartsLoaded&&pins.filter(p=>typeMatches(p.type, recoType)).length>0&&(
+              {/* Pins in Reco — only show after a search, filtered by type and proximity */}
+              {heartsLoaded&&(()=>{
+                const typedPins = pins.filter(p=>typeMatches(p.type, recoType));
+                if (typedPins.length === 0) return null;
+                // Filter by proximity: lat/lng distance or city name match
+                const locationStr = (locationLabel||"").toLowerCase();
+                const relevantPins = typedPins.filter(p => {
+                  // If pin has coordinates + we have search coords, check distance
+                  if (p.lat && p.lng && recoCoords?.lat) {
+                    const R = 6371; const dLat = (recoCoords.lat - p.lat) * Math.PI/180;
+                    const dLng = (recoCoords.lng - p.lng) * Math.PI/180;
+                    const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+                    const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    return km <= 50; // within 50km
+                  }
+                  // Fallback: match city name
+                  if (p.city && locationStr) return locationStr.includes(p.city.toLowerCase()) || p.city.toLowerCase().includes(locationStr.split(",")[0]);
+                  return false;
+                });
+                if (relevantPins.length === 0) return null;
+                return (
                 <div className="reco-block section-pins">
-                  <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({pins.filter(p=>typeMatches(p.type, recoType)).length})</div>
+                  <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({relevantPins.length})</div>
                   <div className="memory-list">
-                    {pins.filter(p=>typeMatches(p.type, recoType)).map(pin=>(
+                    {relevantPins.map(pin=>(
                       <div key={pin.id} className="memory-card" style={{borderLeft:`3px solid #6b8cce`}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                           <div style={{flex:1,minWidth:0}}>
                             <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
-                            <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>
-                              {pin.city&&pin.city}{pin.price&&` · ${pin.price}`}
-                            </div>
-                            {pin.pin_note&&<div style={{fontSize:11,color:"#6b8cce",marginTop:2,fontStyle:"italic"}}>💬 {pin.pin_note}</div>}
                           </div>
                           <div style={{display:"flex",gap:4,flexShrink:0}}>
                             <button onClick={()=>{
@@ -4039,11 +4059,24 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                             }} title={t.recoAddFav||"Add"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>
                           </div>
                         </div>
+                        <div className="memory-meta" style={{marginTop:4,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
+                          {pin.cuisine&&<span className="badge">{pin.cuisine}</span>}
+                          {pin.activity_type&&<span className="badge">{pin.activity_type}</span>}
+                          {pin.price&&<span className="badge price">{pin.price}</span>}
+                        </div>
+                        {(pin.address||pin.city)&&<div className="memory-location">
+                          📍 {pin.address||[pin.city,pin.country].filter(Boolean).join(", ")}
+                          <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pin.name+", "+(pin.address||[pin.city,pin.country].filter(Boolean).join(", ")))}`}
+                            target="_blank" rel="noopener noreferrer"
+                            style={{color:COLORS.accent,fontSize:12,marginLeft:6,textDecoration:"none"}}>Maps →</a>
+                        </div>}
+                        {pin.pin_note&&<div style={{fontSize:11,color:"#6b8cce",marginTop:2,fontStyle:"italic"}}>💬 {pin.pin_note}</div>}
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>
