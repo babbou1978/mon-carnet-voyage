@@ -2314,7 +2314,29 @@ function TravelAgent() {
           }
         }
         setMemories(mems.filter(m => !m.is_pin));
-        setPins(mems.filter(m => m.is_pin));
+        const loadedPins = mems.filter(m => m.is_pin);
+        setPins(loadedPins);
+        
+        // Backfill lat/lng for pins missing coordinates (uses Google Place details)
+        const pinsToGeocode = loadedPins.filter(p => !p.lat && !p.lng && p.google_place_id);
+        if (pinsToGeocode.length > 0) {
+          Promise.all(pinsToGeocode.map(async pin => {
+            try {
+              const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "details", placeId: pin.google_place_id }) });
+              const details = await res.json();
+              if (details.location) {
+                const lat = details.location.latitude;
+                const lng = details.location.longitude;
+                await supabase.from('memories').update({ lat, lng }).eq('id', pin.id).eq('user_id', userId);
+                return { ...pin, lat, lng };
+              }
+            } catch(e) { console.warn("Pin geocode error:", pin.name, e); }
+            return pin;
+          })).then(updated => {
+            setPins(prev => prev.map(p => updated.find(u => u.id === p.id) || p));
+          });
+        }
       }
 
       // Detect duplicates by name (case-insensitive, trimmed)
@@ -4029,17 +4051,20 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 // Filter by proximity: lat/lng distance or city name match
                 const locationStr = (locationLabel||"").toLowerCase();
                 const relevantPins = typedPins.filter(p => {
-                  // If pin has coordinates + we have search coords, check distance
                   if (p.lat && p.lng && recoCoords?.lat) {
                     const R = 6371; const dLat = (recoCoords.lat - p.lat) * Math.PI/180;
                     const dLng = (recoCoords.lng - p.lng) * Math.PI/180;
                     const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
                     const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                    return km <= 50; // within 50km
+                    return km <= 50;
                   }
-                  // Fallback: match city name
-                  if (p.city && locationStr) return locationStr.includes(p.city.toLowerCase()) || p.city.toLowerCase().includes(locationStr.split(",")[0]);
-                  return false;
+                  // No coords: only exclude if city is clearly in a different place
+                  if (p.city && locationStr) {
+                    const pinCity = p.city.toLowerCase();
+                    const searchCity = locationStr.split(",")[0].toLowerCase().trim();
+                    if (pinCity.length > 2 && searchCity.length > 2 && !pinCity.includes(searchCity) && !searchCity.includes(pinCity)) return false;
+                  }
+                  return true; // include by default
                 });
                 if (relevantPins.length === 0) return null;
                 return (
