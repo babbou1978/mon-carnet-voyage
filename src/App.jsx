@@ -684,7 +684,7 @@ const getCSS = (COLORS) => `
   .reco-block.section-nearby .ai-reco-card { border-color: #7a9d7a55; }
   .reco-block.section-pins .reco-block-title { color: #6b8cce; border-bottom-color: #6b8cce33; }
   .reco-block.section-pins .memory-card { border-color: #6b8cce55; }
-  #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: 46px; }
+  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: 160px; }
   .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
@@ -3902,17 +3902,18 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
-              {/* Sticky sub-nav for jumping to sections */}
+              {/* Sticky sub-nav for Reco sections */}
               {heartsLoaded&&(heartMemories.length>0||recoPins.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
-                <div style={{position:"sticky",top:0,zIndex:50,background:COLORS.bg,padding:"8px 0 6px",borderBottom:`1px solid ${COLORS.border}33`,display:"flex",gap:6,justifyContent:"center",flexWrap:"wrap"}}>
-                  {heartMemories.length>0&&<button onClick={()=>document.getElementById("reco-hearts")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:10,padding:"4px 10px",borderRadius:20,border:`1px solid #d4869b44`,background:"#d4869b11",color:"#d4869b",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>❤️ {t.recoHearts?.replace(/❤️\s?/,"")||"Coups de cœur"} ({heartMemories.length})</button>}
-                  {recoPins.length>0&&<button onClick={()=>document.getElementById("reco-pins")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:10,padding:"4px 10px",borderRadius:20,border:`1px solid #6b8cce44`,background:"#6b8cce11",color:"#6b8cce",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>📌 Pins ({recoPins.length})</button>}
-                  {aiRecos.length>0&&<button onClick={()=>document.getElementById("reco-ai")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:10,padding:"4px 10px",borderRadius:20,border:`1px solid ${COLORS.accent}44`,background:`${COLORS.accent}11`,color:COLORS.accent,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>✨ AI ({aiRecos.length})</button>}
-                  {moodFilteredNearby.length>0&&<button onClick={()=>document.getElementById("reco-popular")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:10,padding:"4px 10px",borderRadius:20,border:`1px solid #7a9d7a44`,background:"#7a9d7a11",color:"#7a9d7a",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>🔥 Popular ({moodFilteredNearby.length})</button>}
+                <div style={{position:"sticky",top:121,zIndex:5,background:COLORS.bg,padding:"6px 0",borderBottom:`1px solid ${COLORS.border}`,display:"flex",gap:4,justifyContent:"center",flexWrap:"wrap"}}>
+                  <button onClick={()=>document.getElementById("reco-settings")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:9,padding:"4px 8px",borderRadius:6,border:`1px solid ${COLORS.border}`,background:COLORS.card,color:COLORS.muted,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500,letterSpacing:"0.05em",textTransform:"uppercase"}}>📍</button>
+                  {heartMemories.length>0&&<button onClick={()=>document.getElementById("reco-hearts")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:9,padding:"4px 8px",borderRadius:6,border:`1px solid #d4869b44`,background:"#d4869b11",color:"#d4869b",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase"}}>❤️ {heartMemories.length}</button>}
+                  {recoPins.length>0&&<button onClick={()=>document.getElementById("reco-pins")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:9,padding:"4px 8px",borderRadius:6,border:`1px solid #6b8cce44`,background:"#6b8cce11",color:"#6b8cce",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase"}}>📌 {recoPins.length}</button>}
+                  {(aiRecos.length>0||aiLoading)&&<button onClick={()=>document.getElementById("reco-ai")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:9,padding:"4px 8px",borderRadius:6,border:`1px solid ${COLORS.accent}44`,background:`${COLORS.accent}11`,color:COLORS.accent,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase"}}>✨ {aiLoading?"...":aiRecos.length}</button>}
+                  {moodFilteredNearby.length>0&&<button onClick={()=>document.getElementById("reco-popular")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{fontSize:9,padding:"4px 8px",borderRadius:6,border:`1px solid #7a9d7a44`,background:"#7a9d7a11",color:"#7a9d7a",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase"}}>🔥 {moodFilteredNearby.length}</button>}
                 </div>
               )}
 
-              <div className="reco-location-card">
+              <div id="reco-settings" className="reco-location-card">
                 <div className="reco-location-title">{t.recoLocation}</div>
                 <div className="location-row">
                   <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
