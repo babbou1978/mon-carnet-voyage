@@ -2191,6 +2191,17 @@ function TravelAgent() {
   const moodFilteredNearby = recoMood
     ? nearbyPlaces.filter(p => placeMatchesMood(p, recoMood))
     : nearbyPlaces;
+
+  // Enrich pins with friend data (same as heartMemories enrichment)
+  const enrichedPins = pins.map(pin => {
+    const key = pin.name?.toLowerCase().trim();
+    const friendMatches = friendMemories.filter(fm => fm.name?.toLowerCase().trim() === key);
+    return {
+      ...pin,
+      friendsWhoHave: friendMatches.map(fm => fm.friendName).filter(Boolean),
+      friendsData: friendMatches
+    };
+  });
   useEffect(() => {
     if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
   }, [prefs.nbrecos]);
@@ -3474,17 +3485,22 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   openPinModal({name:place.name,type:place.type||"Restaurant",price:place.price||"",city:place.city||"",country:place.country||"",address:place.address||"",cuisine:place.cuisine||"",activityType:place.activityType||"",google_place_id:place.googlePlaceId||""});
                 }}/>
               </div>
-              {pins.length===0?(
+              {enrichedPins.length===0?(
                 <div style={{textAlign:"center",color:COLORS.muted,padding:"40px 0",fontSize:13}}>{t.pinsEmpty||"No pins yet. Use the 📌 button on recommendations to pin places for later."}</div>
               ):(
                 <div className="memory-list">
-                  {pins.map(pin=>(
+                  {enrichedPins.map(pin=>(
                     <div key={pin.id} className="memory-card" style={{position:"relative"}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                         <div style={{flex:1,minWidth:0}}>
                           <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
                         </div>
                         <div style={{display:"flex",gap:6,flexShrink:0,alignItems:"center"}}>
+                          {pin.friendsWhoHave?.length>0&&(
+                            <FriendsBadge friends={pin.friendsWhoHave} friendsData={pin.friendsData}
+                              onViewFriend={(name,fMem)=>{if(fMem)setFriendMemoryModal({memory:fMem,friendName:name});}}
+                              COLORS={COLORS} t={t}/>
+                          )}
                           <button onClick={()=>{
                             setRecoToAdd({name:pin.name,type:pin.type||"Restaurant",price:pin.price||"",city:pin.city||"",country:pin.country||"",address:pin.address||"",cuisine:pin.cuisine||"",activityType:pin.activity_type||"",google_place_id:pin.google_place_id||"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false});
                             setPrevTab("pins");
@@ -4057,7 +4073,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
 
               {/* Pins in Reco — only show after a search, filtered by type and proximity */}
               {heartsLoaded&&(()=>{
-                const typedPins = pins.filter(p=>typeMatches(p.type, recoType));
+                const typedPins = enrichedPins.filter(p=>typeMatches(p.type, recoType));
                 if (typedPins.length === 0) return null;
                 // Filter by proximity: lat/lng distance or city name match
                 const locationStr = (locationLabel||"").toLowerCase();
@@ -4078,22 +4094,40 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   return true; // include by default
                 });
                 if (relevantPins.length === 0) return null;
+                // Compute distance for each pin
+                const pinsWithDist = relevantPins.map(p => {
+                  if (p.lat && p.lng && recoCoords?.lat) {
+                    const R = 6371; const dLat = (recoCoords.lat - p.lat) * Math.PI/180;
+                    const dLng = (recoCoords.lng - p.lng) * Math.PI/180;
+                    const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+                    const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    return { ...p, _dist: km * 1000 };
+                  }
+                  return p;
+                });
                 return (
                 <div className="reco-block section-pins">
-                  <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({relevantPins.length})</div>
+                  <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({pinsWithDist.length})</div>
                   <div className="memory-list">
-                    {relevantPins.map(pin=>(
+                    {pinsWithDist.map(pin=>(
                       <div key={pin.id} className="memory-card" style={{borderLeft:`3px solid #6b8cce`}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                           <div style={{flex:1,minWidth:0}}>
                             <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
                           </div>
-                          <div style={{display:"flex",gap:4,flexShrink:0}}>
-                            <button onClick={()=>{
+                          <CardActions
+                            distance={pin._dist}
+                            friendsHave={pin.friendsWhoHave?.length>0 ? pin.friendsData : null}
+                            myMem={null}
+                            onEdit={()=>{}}
+                            onAdd={()=>{
                               setRecoToAdd({name:pin.name,type:pin.type||"Restaurant",price:pin.price||"",city:pin.city||"",country:pin.country||"",address:pin.address||"",cuisine:pin.cuisine||"",activityType:pin.activity_type||"",google_place_id:pin.google_place_id||"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false});
                               setPrevTab("reco");
-                            }} title={t.recoAddFav||"Add"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>
-                          </div>
+                            }}
+                            COLORS={COLORS} t={t}
+                            setFriendMemoryModal={setFriendMemoryModal}
+                            addFriendToCarnet={addFriendToCarnet}
+                          />
                         </div>
                         <div className="memory-meta" style={{marginTop:4,justifyContent:"flex-start",flexWrap:"wrap",gap:5}}>
                           {pin.cuisine&&<span className="badge">{pin.cuisine}</span>}
