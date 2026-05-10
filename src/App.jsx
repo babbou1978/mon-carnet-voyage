@@ -2119,6 +2119,45 @@ function TravelAgent() {
   const nbRecosRef = useRef(prefs.nbrecos || "10");
   const [recoLimit, setRecoLimit] = useState(prefs.nbrecos || "10");
   const [recoMood, setRecoMood] = useState("");
+
+  // Shared mood matching function — used for Popular display, Map, and AI pre-filter
+  const MOOD_SYNONYMS = {
+    rooftop:["rooftop","outdoor seating","terrace","terrasse","toit","roof","roof terrace","toit-terrasse"],
+    terrasse:["rooftop","outdoor seating","terrace","terrasse","toit","roof","outdoor","patio"],
+    enfants:["kids friendly","kids menu","children","family","famille"],
+    kids:["kids friendly","kids menu","children","family"],
+    famille:["kids friendly","children","good for groups","family"],
+    family:["kids friendly","children","good for groups","family"],
+    romantic:["romantic","outdoor seating","terrace","cocktails","intimate","cozy"],
+    romantique:["romantic","outdoor seating","terrace","cocktails","intimate","cozy"],
+    music:["live music","musique","jazz","concert"],musique:["live music","musique","jazz","concert"],
+    cocktail:["cocktails","cocktail"],cocktails:["cocktails","cocktail"],
+    brunch:["brunch"],vegan:["vegetarian","vegan"],vegetarian:["vegetarian","vegan"],
+    chien:["dog friendly","dogs"],dog:["dog friendly","dogs"],
+    speakeasy:["speakeasy","hidden","secret","underground","souterrain"],
+  };
+  const placeMatchesMood = (p, mood) => {
+    if (!mood) return true;
+    const moodWords = mood.toLowerCase().split(/[\s,]+/).filter(w=>w.length>2);
+    if (moodWords.length === 0) return true;
+    // Build searchable text from all available data
+    const name = (p.name||p.displayName?.text||"").toLowerCase();
+    const feats = (p.features||[]).join(" ").toLowerCase();
+    const desc = (p.editorialSummary||"").toLowerCase();
+    const review = (p.topReview||"").toLowerCase();
+    const allReviews = (p.reviews||[]).map(r=>(r.text?.text||"").toLowerCase()).join(" ");
+    const allText = `${name} ${feats} ${desc} ${review} ${allReviews}`;
+    return moodWords.some(kw => {
+      const syns = MOOD_SYNONYMS[kw];
+      if (syns) return syns.some(s => allText.includes(s));
+      return allText.includes(kw);
+    });
+  };
+
+  // Mood-filtered nearby places — single source of truth for map + list
+  const moodFilteredNearby = recoMood
+    ? nearbyPlaces.filter(p => placeMatchesMood(p, recoMood))
+    : nearbyPlaces;
   useEffect(() => {
     if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
   }, [prefs.nbrecos]);
@@ -2951,27 +2990,7 @@ function TravelAgent() {
       
       // Pre-filter by mood: if mood is set, only send mood-matching candidates to AI
       if (recoMood) {
-        const moodLower = recoMood.toLowerCase();
-        const moodWords = moodLower.split(/[\s,]+/).filter(w=>w.length>2);
-        const MOOD_SYN = {
-          rooftop:["rooftop","outdoor seating","terrace","terrasse","toit","roof"],
-          terrasse:["rooftop","outdoor seating","terrace","terrasse","roof","outdoor"],
-          kids:["kids friendly","kids menu","children"],enfants:["kids friendly","kids menu","children"],
-          famille:["kids friendly","children","good for groups"],family:["kids friendly","children","good for groups"],
-          music:["live music"],musique:["live music"],
-          cocktail:["cocktails"],cocktails:["cocktails"],
-          brunch:["brunch"],romantic:["outdoor seating","terrace","cocktails"],romantique:["outdoor seating","terrace","cocktails"],
-        };
-        const moodFiltered = nearbyForAI.filter(p => {
-          const feats = (p.features||[]).join(" ").toLowerCase();
-          const desc = (p.editorialSummary||"").toLowerCase();
-          const all = feats + " " + desc;
-          return moodWords.some(kw => {
-            const syns = MOOD_SYN[kw];
-            if (syns) return syns.some(s => all.includes(s));
-            return all.includes(kw);
-          });
-        });
+        const moodFiltered = nearbyForAI.filter(p => placeMatchesMood(p, recoMood));
         // Only use filtered list if it has enough results, otherwise fall back to full list
         if (moodFiltered.length >= 3) nearbyForAI = moodFiltered;
       }
@@ -3713,8 +3732,8 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 </div>
               </div>
 
-              {(heartMemories.length>0||aiRecos.length>0||nearbyPlaces.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={nearbyPlaces} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
+              {(heartMemories.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
               )}
 
               {heartMemories.length>0&&(
@@ -3786,48 +3805,11 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 </div>
               )}
 
-              {nearbyPlaces.length>0&&(()=>{
+              {moodFilteredNearby.length>0&&(()=>{
                 const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
                 const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
-                
-                // Mood-based filtering: if mood is set, only show places that match
-                const moodKeywords = recoMood ? recoMood.toLowerCase().split(/[\s,]+/).filter(w=>w.length>2) : [];
-                const MOOD_SYNONYMS = {
-                  rooftop: ["rooftop","outdoor seating","terrace","terrasse","toit","roof"],
-                  terrasse: ["rooftop","outdoor seating","terrace","terrasse","toit","roof","outdoor"],
-                  enfants: ["kids friendly","kids menu","good for children","children"],
-                  kids: ["kids friendly","kids menu","good for children","children"],
-                  famille: ["kids friendly","kids menu","good for children","children","good for groups"],
-                  family: ["kids friendly","kids menu","good for children","children","good for groups"],
-                  romantic: ["reservable","outdoor seating","terrace","cocktails"],
-                  romantique: ["reservable","outdoor seating","terrace","cocktails"],
-                  musique: ["live music"],
-                  music: ["live music"],
-                  brunch: ["brunch","serves brunch"],
-                  cocktail: ["cocktails","serves cocktails"],
-                  cocktails: ["cocktails","serves cocktails"],
-                  vegan: ["vegetarian options","vegetarian"],
-                  vegetarian: ["vegetarian options","vegetarian"],
-                  chien: ["dog friendly"],
-                  dog: ["dog friendly"],
-                };
-                
-                const matchesMood = (p) => {
-                  if (moodKeywords.length === 0) return true;
-                  const feats = (p.features||[]).join(" ").toLowerCase();
-                  const desc = (p.editorialSummary||"").toLowerCase() + " " + (p.topReview||"").toLowerCase();
-                  const allText = feats + " " + desc;
-                  return moodKeywords.some(kw => {
-                    // Check synonyms first
-                    const synonyms = MOOD_SYNONYMS[kw];
-                    if (synonyms) return synonyms.some(s => allText.includes(s));
-                    // Direct keyword match
-                    return allText.includes(kw);
-                  });
-                };
-                
-                const filtered = nearbyPlaces.filter(p =>
-                  !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase()) && matchesMood(p)
+                const filtered = moodFilteredNearby.filter(p =>
+                  !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase())
                 );
                 if (filtered.length === 0) return null;
                 return (
