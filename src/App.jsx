@@ -2958,13 +2958,19 @@ function TravelAgent() {
     setAiLoading(true); setAiRecos([]);
     // Prioritize favorites matching the search type (e.g. hotels for hotel search)
     // Then add other types as profile context
-    const sameType = memories.filter(m=>m.rating>=3 && m.type===recoType).sort((a,b)=>b.rating-a.rating);
-    const otherType = memories.filter(m=>m.rating>=3 && m.type!==recoType).sort((a,b)=>b.rating-a.rating);
+    const sameType = memories.filter(m=>m.rating>=3 && typeMatches(m.type, recoType)).sort((a,b)=>b.rating-a.rating);
+    const otherType = memories.filter(m=>m.rating>=3 && !typeMatches(m.type, recoType)).sort((a,b)=>b.rating-a.rating);
     const liked = [...sameType.slice(0,7), ...otherType.slice(0,3)]
-      .map(m=>`- ${m.name} (${m.type}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`)
+      .map(m=>{
+        const subType = m.activity_type || m.cuisine || "";
+        return `- ${m.name} (${m.type}${subType?` / ${subType}`:""}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`;
+      })
       .join("\n");
     const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5)
-      .map(m=>`- ${m.name} (${m.type}, ${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`)
+      .map(m=>{
+        const subType = m.activity_type || m.cuisine || "";
+        return `- ${m.name} (${m.type}${subType?` / ${subType}`:""}, ${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`;
+      })
       .join("\n");
 
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
@@ -2976,19 +2982,21 @@ function TravelAgent() {
     // Type-specific guidance — tells the AI what to focus on for each category
     const typeGuidance = {
       "Restaurant": "Focus on cuisine quality, ambiance, food style, and dietary preferences. Match cuisines, atmospheres and price points the user has enjoyed.",
-      "Bar": "Focus on atmosphere, cocktail/wine/beer selection, music, vibe and nightlife. Match the user's preferences for bar style (cocktail bar, pub, wine bar, rooftop, speakeasy etc).",
+      "Bar": "Focus on atmosphere, cocktail/wine/beer selection, music, vibe and setting. Match the user's bar style preferences. IMPORTANT: if the user specified a mood (e.g. rooftop, speakeasy, live music), ONLY recommend bars that strictly match that setting. A rooftop request means ONLY open-air rooftop bars. An underground/speakeasy request means ONLY hidden/secret bars.",
       "Café": "Focus on coffee quality, pastries, brunch options, ambiance, and work-friendliness. Match cozy spots, specialty coffee, patisseries, tea rooms based on user style.",
       "Hôtel": "Focus on stay quality: comfort, location, character, amenities, room quality, service, and value. DO NOT focus on the hotel's restaurant. Match the user's preferences for hotel style (boutique, luxury, budget, design, family-friendly etc) inferred from their profile and other favorites.",
       "Destination": "Focus on cultural, scenic or unique value of the place. Match the user's interests in landmarks, neighborhoods, parks, viewpoints.",
-      "Activité": "Focus on experience type, cultural depth, and accessibility. Match museums, galleries, tours, classes that fit the user's interests."
+      "Activité": "Focus on the EXPERIENCE TYPE, not just cultural value. Activities include: escape games, VR experiences, mini golf, bowling, trampoline parks, theme parks, water parks, arcades, go-karts, laser tag, cooking classes, boat tours, shows, concerts, zoos, aquariums, AND museums/galleries. CRITICAL: analyze the user's favorite activity TYPES (check their activity_type field) and recommend SIMILAR experiences. If user loves escape games, recommend other immersive/game experiences — NOT museums. Only compare a recommendation to a favorite of the SAME activity sub-type."
     };
     const guidance = typeGuidance[recoType] || typeGuidance["Restaurant"];
 
-    // Build candidate list — numbered for AI to reference by index only
+    // Build candidate list — numbered, with type info for AI to match properly
     const candidateList = nearbyForAI.length > 0
-      ? nearbyForAI.map((p, i) =>
-          `${i+1}. ${p.name} | Google: ${p.rating||"?"}★ (${p.userRatingCount||0} avis) | ${p.price||"?"}`
-        ).join("\n")
+      ? nearbyForAI.map((p, i) => {
+          const placeType = p.primaryTypeDisplayName?.text || p.primaryType || "";
+          const desc = p.editorialSummary ? ` | "${p.editorialSummary}"` : "";
+          return `${i+1}. ${p.name} | type: ${placeType} | Google: ${p.rating||"?"}★ (${p.userRatingCount||0} avis) | ${p.price||"?"}${desc}`;
+        }).join("\n")
       : null;
 
     const prompt = `User is searching for: ${recoType.toUpperCase()}
@@ -3000,7 +3008,7 @@ Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"
 Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
 Kids friendly required: ${recoKids?"yes":"no"}
 Other notes: ${prefs.notes||"none"}
-${recoMood ? `\n🎯 MOOD / CURRENT VIBE (IMPORTANT — prioritize this): ${recoMood}` : ""}
+${recoMood ? `\n🎯 MOOD / CURRENT VIBE (HARD FILTER — this is a REQUIREMENT, not a preference): ${recoMood}\nONLY recommend places that MATCH this mood. If the mood is "rooftop", exclude ANY indoor/underground/basement place. If the mood is "speakeasy", exclude open-air/rooftop bars. Mood mismatch = automatic exclusion, regardless of rating.` : ""}
 Preferred language: ${langLabel}
 
 My top favorites (reference by name in "why" field):
@@ -3024,8 +3032,9 @@ RULES:
 - Skip places similar to disappointments
 - Skip: ${excludeList||"none"}
 - 2-3 short matchReasons (max 8 words each), focused on ${recoType}-relevant criteria (NOT food when searching hotels)
-- "why": 1 sentence = "[Brief place description focused on ${recoType}-relevant qualities] — [personal reason citing the user's favorites, preferences, or style by name]"
-- Write all text (why, tip, warning, matchReasons) in ${langLabel}`;
+- "why": 1 sentence = "[Brief place description focused on ${recoType}-relevant qualities] — [personal reason citing the user's favorites of the SAME sub-type/style by name]". CRITICAL: only compare to favorites that are genuinely similar. An escape game should reference other games/experiences, NOT museums. A rooftop bar should reference other outdoor/rooftop places, NOT underground bars.
+- Write all text (why, tip, warning, matchReasons) in ${langLabel}
+${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", DO NOT include it. matchScore=0 for mood mismatches.` : ""}`;
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
