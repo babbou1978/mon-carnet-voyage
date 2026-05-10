@@ -1077,10 +1077,10 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
       let total = 0, done = 0;
       const checkFit = () => { done++; if (done >= total && !bounds.isEmpty()) map.fitBounds(bounds); };
 
-      // User position - blue
+      // User position - purple
       if (userCoords?.lat) {
         bounds.extend({ lat: userCoords.lat, lng: userCoords.lng });
-        const pin = new window.google.maps.marker.PinElement({ background:"#4a90d9", borderColor:"#ffffff", glyphColor:"#ffffff", scale:1.0 });
+        const pin = new window.google.maps.marker.PinElement({ background:"#8b5cf6", borderColor:"#ffffff", glyphColor:"#ffffff", glyphText:"📍", scale:1.0 });
         new window.google.maps.marker.AdvancedMarkerElement({ position:{lat:userCoords.lat,lng:userCoords.lng}, map, zIndex:100, content:pin });
       }
 
@@ -1161,7 +1161,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
         const lng = p.lng || p.location?.longitude;
         if (!lat || !lng) return;
         const pos = { lat, lng };
-        const pinEl = new window.google.maps.marker.PinElement({ background:"#6b8cce", borderColor:"#0f0e0c", glyphColor:"#fff", glyphText:"📌", scale:0.9 });
+        const pinEl = new window.google.maps.marker.PinElement({ background:"#6b8cce", borderColor:"#fff", glyphColor:"#fff", glyphText:String(i+1), scale:0.9 });
         const marker = new window.google.maps.marker.AdvancedMarkerElement({ position:pos, map, title:p.name, content:pinEl });
         marker.addListener("gmp-click", () => setActivePlace({ ...p, markerType: "pin" }));
         markersRef.current.pins.push(marker);
@@ -1193,7 +1193,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
     setVisible(v => {
       const newVal = !v[layer];
       const map = mapInstance.current;
-      markersRef.current[layer].forEach(m => { m.map = newVal ? map : null; });
+      markersRef.current[layer]?.forEach(m => { m.map = newVal ? map : null; });
       return { ...v, [layer]: newVal };
     });
   };
@@ -1242,7 +1242,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
 
       {/* Clickable legend — bottom left, away from controls */}
       <div style={{ position:"absolute", bottom:8, left:8, display:"flex", gap:5, flexWrap:"wrap", zIndex:1, maxWidth:"calc(100% - 16px)" }}>
-        {userCoords?.lat && <span style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`}}>🔵 {t.mapYou||"You"}</span>}
+        {userCoords?.lat && <span style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`}}>🟣 {t.mapYou||"You"}</span>}
         {(heartMemories||[]).length > 0 && <button onClick={()=>toggleLayer("hearts")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.hearts?1:0.45}}>🔴 {t.mapFavorites||"Favorites"}</button>}
         {(recommendations||[]).length > 0 && <button onClick={()=>toggleLayer("ai")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.ai?1:0.45}}>🟡 {t.mapAIPicks||"AI"}</button>}
         {(nearbyPlaces||[]).length > 0 && <button onClick={()=>toggleLayer("nearby")} style={{fontSize:11,color:COLORS.text,background:`${COLORS.card}ee`,padding:"3px 8px",borderRadius:20,border:`1px solid ${COLORS.border}`,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",opacity:visible.nearby?1:0.45}}>🟢 {t.mapNearby||"Popular"}</button>}
@@ -2615,7 +2615,9 @@ function TravelAgent() {
       address: place.address || "", cuisine: place.cuisine || "",
       activity_type: place.activityType || place.activity_type || "",
       google_place_id: place.google_place_id || place.googlePlaceId || place.id || "",
-      pin_note: note || "", rating: 0
+      pin_note: note || "", rating: 0,
+      lat: place.lat || place.location?.latitude || null,
+      lng: place.lng || place.location?.longitude || null
     };
     const { error } = await supabase.from('memories').insert(entry);
     if (!error) { setPins(prev=>[entry,...prev]); showToast("📌 " + (t.pinSaved||"Pinned!")); }
@@ -3917,7 +3919,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                                     myMem={memories.find(mm => mm.name.toLowerCase()===reco.name.toLowerCase())}
                                     onEdit={setEditMemory}
                                     onAdd={()=>addRecoToCarnet(reco)}
-                                    onPin={()=>openPinModal({name:reco.name,type:reco.type||recoType,price:reco.price,city:reco.city,country:reco.country,address:reco.address,cuisine:reco.cuisine,activityType:reco.activityType,google_place_id:reco.google_place_id})}
+                                    onPin={()=>openPinModal({name:reco.name,type:reco.type||recoType,price:reco.price,city:reco.city,country:reco.country,address:reco.address,cuisine:reco.cuisine,activityType:reco.activityType,google_place_id:reco.google_place_id,lat:reco.lat,lng:reco.lng})}
                                     COLORS={COLORS}
                                     t={t}
                                     setFriendMemoryModal={setFriendMemoryModal}
@@ -3980,7 +3982,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                                 myMem={memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase())}
                                 onEdit={setEditMemory}
                                 onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,googleRating:p.rating,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",google_place_id:p.id||""})}
-                                onPin={()=>openPinModal({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",id:p.id||""})}
+                                onPin={()=>openPinModal({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",id:p.id||"",lat:p.location?.latitude||p.lat,lng:p.location?.longitude||p.lng})}
                                 COLORS={COLORS}
                                 t={t}
                                 setFriendMemoryModal={setFriendMemoryModal}
