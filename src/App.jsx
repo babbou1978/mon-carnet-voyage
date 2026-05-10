@@ -2948,6 +2948,33 @@ function TravelAgent() {
 
       // For AI candidates: exclude visited places so AI proposes novel ones
       nearbyForAI = sorted.filter(p => !alreadyVisited.has(p.name));
+      
+      // Pre-filter by mood: if mood is set, only send mood-matching candidates to AI
+      if (recoMood) {
+        const moodLower = recoMood.toLowerCase();
+        const moodWords = moodLower.split(/[\s,]+/).filter(w=>w.length>2);
+        const MOOD_SYN = {
+          rooftop:["rooftop","outdoor seating","terrace","terrasse","toit","roof"],
+          terrasse:["rooftop","outdoor seating","terrace","terrasse","roof","outdoor"],
+          kids:["kids friendly","kids menu","children"],enfants:["kids friendly","kids menu","children"],
+          famille:["kids friendly","children","good for groups"],family:["kids friendly","children","good for groups"],
+          music:["live music"],musique:["live music"],
+          cocktail:["cocktails"],cocktails:["cocktails"],
+          brunch:["brunch"],romantic:["outdoor seating","terrace","cocktails"],romantique:["outdoor seating","terrace","cocktails"],
+        };
+        const moodFiltered = nearbyForAI.filter(p => {
+          const feats = (p.features||[]).join(" ").toLowerCase();
+          const desc = (p.editorialSummary||"").toLowerCase();
+          const all = feats + " " + desc;
+          return moodWords.some(kw => {
+            const syns = MOOD_SYN[kw];
+            if (syns) return syns.some(s => all.includes(s));
+            return all.includes(kw);
+          });
+        });
+        // Only use filtered list if it has enough results, otherwise fall back to full list
+        if (moodFiltered.length >= 3) nearbyForAI = moodFiltered;
+      }
     } catch { setNearbyPlaces([]); }
     setHeartLoading(false);
 
@@ -3762,13 +3789,50 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               {nearbyPlaces.length>0&&(()=>{
                 const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
                 const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
+                
+                // Mood-based filtering: if mood is set, only show places that match
+                const moodKeywords = recoMood ? recoMood.toLowerCase().split(/[\s,]+/).filter(w=>w.length>2) : [];
+                const MOOD_SYNONYMS = {
+                  rooftop: ["rooftop","outdoor seating","terrace","terrasse","toit","roof"],
+                  terrasse: ["rooftop","outdoor seating","terrace","terrasse","toit","roof","outdoor"],
+                  enfants: ["kids friendly","kids menu","good for children","children"],
+                  kids: ["kids friendly","kids menu","good for children","children"],
+                  famille: ["kids friendly","kids menu","good for children","children","good for groups"],
+                  family: ["kids friendly","kids menu","good for children","children","good for groups"],
+                  romantic: ["reservable","outdoor seating","terrace","cocktails"],
+                  romantique: ["reservable","outdoor seating","terrace","cocktails"],
+                  musique: ["live music"],
+                  music: ["live music"],
+                  brunch: ["brunch","serves brunch"],
+                  cocktail: ["cocktails","serves cocktails"],
+                  cocktails: ["cocktails","serves cocktails"],
+                  vegan: ["vegetarian options","vegetarian"],
+                  vegetarian: ["vegetarian options","vegetarian"],
+                  chien: ["dog friendly"],
+                  dog: ["dog friendly"],
+                };
+                
+                const matchesMood = (p) => {
+                  if (moodKeywords.length === 0) return true;
+                  const feats = (p.features||[]).join(" ").toLowerCase();
+                  const desc = (p.editorialSummary||"").toLowerCase() + " " + (p.topReview||"").toLowerCase();
+                  const allText = feats + " " + desc;
+                  return moodKeywords.some(kw => {
+                    // Check synonyms first
+                    const synonyms = MOOD_SYNONYMS[kw];
+                    if (synonyms) return synonyms.some(s => allText.includes(s));
+                    // Direct keyword match
+                    return allText.includes(kw);
+                  });
+                };
+                
                 const filtered = nearbyPlaces.filter(p =>
-                  !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase())
+                  !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase()) && matchesMood(p)
                 );
                 if (filtered.length === 0) return null;
                 return (
                   <div className="reco-block section-nearby">
-                    <div className="reco-block-title">{t.recoNearby}</div>
+                    <div className="reco-block-title">{t.recoNearby}{recoMood ? ` · ${recoMood}` : ""} ({filtered.length})</div>
                     <div className="ai-reco-list">
                       {filtered.map((p,i)=>(
                         <div key={i} className="ai-reco-card">
