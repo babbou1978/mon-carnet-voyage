@@ -548,7 +548,7 @@ const getCSS = (COLORS) => `
   .tabs { display: flex; background: ${COLORS.card}; border-radius: 8px; padding: 3px; border: 1px solid ${COLORS.border}; }
   .tab { flex: 1; padding: 6px 2px; font-size: 9px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; background: none; border: none; color: ${COLORS.muted}; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-weight: 500; }
   .tab.active { background: ${COLORS.accent}; color: ${COLORS.bg}; }
-  .reco-subnav { display: flex; gap: 4px; justify-content: center; margin-top: 8px; padding-bottom: 2px; }
+  .reco-subnav { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
   .reco-subnav button { font-size: 9px; padding: 3px 8px; border-radius: 6px; border: 1px solid ${COLORS.border}; background: ${COLORS.card}; color: ${COLORS.muted}; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; letter-spacing: 0.05em; }
   .content { flex: 1; padding: 20px 24px; }
   .form-section { display: flex; flex-direction: column; gap: 14px; }
@@ -675,7 +675,7 @@ const getCSS = (COLORS) => `
     font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic;
     color: ${COLORS.accent};
     padding: 10px 12px; margin: 0 -12px;
-    position: sticky; top: 155px; z-index: 5;
+    position: sticky; top: 130px; z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
   }
@@ -686,7 +686,7 @@ const getCSS = (COLORS) => `
   .reco-block.section-nearby .ai-reco-card { border-color: #7a9d7a55; }
   .reco-block.section-pins .reco-block-title { color: #6b8cce; border-bottom-color: #6b8cce33; }
   .reco-block.section-pins .memory-card { border-color: #6b8cce55; }
-  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: 190px; }
+  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: 135px; }
   .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
