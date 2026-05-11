@@ -1835,7 +1835,7 @@ function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, onPin, COLOR
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, onPin, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[] }) {
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, onPin, onOpen, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[] }) {
   // Compute displayed values: own data if isMine, friend averages otherwise
   const friendsWithData = (m.friendsData||[]);
   const displayRating = (() => {
@@ -1870,7 +1870,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
   return (
     <div className={`memory-card ${!isMine?"friend-memory-card":""}`}>
       <div className="memory-top">
-        <div className="memory-name">{getTypeIcon(m.type)} {m.name}</div>
+        <div className="memory-name" onClick={onOpen} style={{cursor:onOpen?"pointer":"default"}}>{getTypeIcon(m.type)} {m.name}</div>
         <CardActions
           distance={m.distanceKm!=null ? m.distanceKm*1000 : null}
           friendsHave={m.friendsWhoHave?.length>0 ? (m.friendsData||m.friendsWhoHave) : null}
@@ -2044,6 +2044,266 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty, COLORS=TH
   );
 }
 
+// ─── PlaceSheet: Full place details overlay with photos, actions, reviews ───
+function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin }) {
+  const [details, setDetails] = useState(null);
+  const [photoIdx, setPhotoIdx] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const sheetRef = useRef(null);
+  const touchStart = useRef(null);
+
+  // Fetch full details when place changes
+  useEffect(() => {
+    setLoading(true); setDetails(null); setPhotoIdx(0);
+    const pid = place.google_place_id || place.id;
+    if (!pid || pid === "NOT_FOUND") { setLoading(false); return; }
+    fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "details", placeId: pid, lang: t._lang || "en" })
+    }).then(r => r.json()).then(d => { setDetails(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [place.google_place_id, place.id, place.name]);
+
+  // ESC to close
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowLeft" && index > 0) onNavigate(index - 1); if (e.key === "ArrowRight" && index < list.length - 1) onNavigate(index + 1); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [index, list.length]);
+
+  // Swipe handling
+  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (!touchStart.current) return;
+    const diff = touchStart.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 60) {
+      if (diff > 0 && index < list.length - 1) onNavigate(index + 1);
+      if (diff < 0 && index > 0) onNavigate(index - 1);
+    }
+    touchStart.current = null;
+  };
+
+  const d = details || {};
+  const photos = d.photoUrls || [];
+  const name = d.displayName?.text || place.name;
+  const address = d.formattedAddress || place.address || "";
+  const rating = d.rating || place.rating;
+  const reviewCount = d.userRatingCount || place.userRatingCount || 0;
+  const price = place.price || (d.priceLevel ? "€".repeat(["","PRICE_LEVEL_FREE","PRICE_LEVEL_INEXPENSIVE","PRICE_LEVEL_MODERATE","PRICE_LEVEL_EXPENSIVE","PRICE_LEVEL_VERY_EXPENSIVE"].indexOf(d.priceLevel)) : "");
+  const cuisine = place.cuisine || "";
+  const phone = d.internationalPhoneNumber || d.nationalPhoneNumber;
+  const website = d.websiteUri;
+  const mapsUrl = d.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ", " + address)}`;
+  const hours = d.currentOpeningHours?.weekdayDescriptions || d.regularOpeningHours?.weekdayDescriptions;
+  const editorial = d.editorialSummary?.text || place.editorialSummary;
+  const reviews = (d.reviews || []).slice(0, 3);
+  const isOpen = d.currentOpeningHours?.openNow ?? d.regularOpeningHours?.openNow;
+
+  // Features
+  const feats = [];
+  if (d.outdoorSeating) feats.push("Terrace");
+  if (d.liveMusic) feats.push("Live music");
+  if (d.servesCocktails) feats.push("Cocktails");
+  if (d.goodForChildren) feats.push("Kids friendly");
+  if (d.goodForGroups) feats.push("Groups");
+  if (d.servesVegetarianFood) feats.push("Vegetarian");
+  if (d.allowsDogs) feats.push("Dog friendly");
+  if (d.reservable) feats.push("Reservable");
+  if (d.servesBrunch) feats.push("Brunch");
+
+  // Friends who have this place
+  const friendsHere = friendMemories.filter(fm => fm.name?.toLowerCase() === name?.toLowerCase());
+  const myMem = memories.find(m => m.name?.toLowerCase() === name?.toLowerCase());
+  const myPin = pins.find(p => p.name?.toLowerCase() === name?.toLowerCase());
+  const typeIcon = TYPE_ICONS[place.type?.split(",")[0]?.trim()] || "📍";
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",zIndex:500,display:"flex",flexDirection:"column",overflow:"hidden"}}
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+
+      {/* Top bar */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",flexShrink:0}}>
+        <div style={{color:"#fff9",fontSize:12,fontFamily:"'DM Sans',sans-serif"}}>
+          {list.length > 1 && `${index + 1} / ${list.length}`}
+        </div>
+        <div style={{display:"flex",gap:12}}>
+          {list.length > 1 && <>
+            <button onClick={() => index > 0 && onNavigate(index - 1)} disabled={index === 0}
+              style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===0?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+            <button onClick={() => index < list.length - 1 && onNavigate(index + 1)} disabled={index === list.length - 1}
+              style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===list.length-1?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+          </>}
+          <button onClick={onClose} style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+        </div>
+      </div>
+
+      {/* Scrollable content */}
+      <div ref={sheetRef} style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
+        {/* Photo gallery */}
+        {photos.length > 0 ? (
+          <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000"}}>
+            <img src={photos[photoIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}
+              onError={(e) => { e.target.style.display = "none"; }}/>
+            {photos.length > 1 && (
+              <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5}}>
+                {photos.map((_, i) => (
+                  <button key={i} onClick={() => setPhotoIdx(i)}
+                    style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.2s"}}/>
+                ))}
+              </div>
+            )}
+            {photos.length > 1 && photoIdx > 0 && <button onClick={() => setPhotoIdx(i => i - 1)} style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>‹</button>}
+            {photos.length > 1 && photoIdx < photos.length - 1 && <button onClick={() => setPhotoIdx(i => i + 1)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>›</button>}
+          </div>
+        ) : (
+          <div style={{height:120,background:COLORS.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:0.3}}>{typeIcon}</div>
+        )}
+
+        {/* Content card */}
+        <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
+
+          {/* Loading */}
+          {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
+
+          {/* Name + type */}
+          <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
+            {typeIcon} {name}
+          </div>
+
+          {/* Badges row */}
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8,alignItems:"center"}}>
+            {cuisine && <span style={{fontSize:10,padding:"3px 8px",borderRadius:6,background:`${COLORS.accent}15`,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.05em"}}>{cuisine}</span>}
+            {rating && <span style={{fontSize:12,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif"}}>{"★".repeat(Math.round(rating))} {rating}</span>}
+            {reviewCount > 0 && <span style={{fontSize:11,color:COLORS.muted}}>({reviewCount})</span>}
+            {price && <span style={{fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif"}}>{price}</span>}
+          </div>
+
+          {/* Open/Closed */}
+          {isOpen !== undefined && (
+            <div style={{marginTop:8,fontSize:12,fontFamily:"'DM Sans',sans-serif",color:isOpen?"#5a9a5a":"#d4869b"}}>
+              {isOpen ? "● " + (t.placeOpen || "Open") : "● " + (t.placeClosed || "Closed")}
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div style={{display:"flex",gap:8,marginTop:16,flexWrap:"wrap"}}>
+            {phone && <a href={`tel:${phone}`} style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
+              <span style={{fontSize:18}}>📞</span>{t.placeCall||"Call"}
+            </a>}
+            {website && <a href={website} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
+              <span style={{fontSize:18}}>🌐</span>{t.placeWebsite||"Website"}
+            </a>}
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
+              <span style={{fontSize:18}}>🗺️</span>{t.placeDirections||"Directions"}
+            </a>
+            {d.reservable && website && <a href={website} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,textDecoration:"none",color:COLORS.accent,fontSize:10,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>
+              <span style={{fontSize:18}}>📅</span>{t.placeReserve||"Reserve"}
+            </a>}
+          </div>
+
+          {/* Features */}
+          {feats.length > 0 && (
+            <div style={{display:"flex",gap:5,flexWrap:"wrap",marginTop:14}}>
+              {feats.map((f, i) => <span key={i} style={{fontSize:10,padding:"3px 8px",borderRadius:10,background:`${COLORS.accent}11`,color:COLORS.accent,border:`1px solid ${COLORS.accent}22`,fontFamily:"'DM Sans',sans-serif"}}>✓ {f}</span>)}
+            </div>
+          )}
+
+          {/* Address */}
+          {address && (
+            <div style={{marginTop:14,fontSize:13,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif"}}>
+              📍 {address}
+            </div>
+          )}
+
+          {/* Opening hours */}
+          {hours && (
+            <details style={{marginTop:14}}>
+              <summary style={{fontSize:12,color:COLORS.accent,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>
+                🕐 {t.placeHours||"Opening hours"}
+              </summary>
+              <div style={{marginTop:6,fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",lineHeight:1.8}}>
+                {hours.map((h, i) => <div key={i}>{h}</div>)}
+              </div>
+            </details>
+          )}
+
+          {/* Editorial summary */}
+          {editorial && (
+            <div style={{marginTop:16,padding:14,background:COLORS.card,borderRadius:10,border:`1px solid ${COLORS.border}`}}>
+              <div style={{fontSize:13,fontStyle:"italic",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",lineHeight:1.5}}>
+                « {editorial} »
+              </div>
+            </div>
+          )}
+
+          {/* Friends who have it */}
+          {friendsHere.length > 0 && (
+            <div style={{marginTop:16}}>
+              <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:8}}>
+                👥 {t.placeFriends||"Friends who've been here"}
+              </div>
+              {friendsHere.map((fm, i) => (
+                <div key={i} style={{padding:"8px 12px",background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`,marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span style={{fontSize:13,color:COLORS.text,fontFamily:"'DM Sans',sans-serif"}}>{fm.friendName || "Friend"}</span>
+                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                    {fm.rating > 0 && <span style={{fontSize:12,color:COLORS.accent}}>{"★".repeat(fm.rating)} {fm.rating}/5</span>}
+                    {fm.price && <span style={{fontSize:11,color:COLORS.muted}}>{fm.price}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* My status */}
+          {myMem && (
+            <div style={{marginTop:16,padding:12,background:`${COLORS.accent}08`,borderRadius:10,border:`1px solid ${COLORS.accent}33`}}>
+              <div style={{fontSize:11,textTransform:"uppercase",color:COLORS.accent,fontWeight:600,marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.placeMyReview||"My review"}</div>
+              <div style={{fontSize:13,color:COLORS.text}}>{"★".repeat(myMem.rating||0)} {myMem.rating}/5</div>
+              {myMem.why && <div style={{fontSize:12,color:COLORS.muted,marginTop:4}}>{myMem.why}</div>}
+            </div>
+          )}
+          {myPin && !myMem && (
+            <div style={{marginTop:16,padding:12,background:"#6b8cce08",borderRadius:10,border:"1px solid #6b8cce33"}}>
+              <div style={{fontSize:11,textTransform:"uppercase",color:"#6b8cce",fontWeight:600,marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>📌 {t.placePinned||"Pinned"}</div>
+              {myPin.pin_note && <div style={{fontSize:12,color:COLORS.muted,fontStyle:"italic"}}>{myPin.pin_note}</div>}
+            </div>
+          )}
+
+          {/* Reviews */}
+          {reviews.length > 0 && (
+            <div style={{marginTop:16}}>
+              <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:8}}>
+                💬 {t.placeReviews||"Reviews"}
+              </div>
+              {reviews.map((rv, i) => (
+                <div key={i} style={{padding:12,background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`,marginBottom:8}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                    <span style={{fontSize:12,fontWeight:600,color:COLORS.text}}>{rv.authorAttribution?.displayName||"Anonymous"}</span>
+                    {rv.rating && <span style={{fontSize:11,color:COLORS.accent}}>{"★".repeat(rv.rating)}</span>}
+                  </div>
+                  <div style={{fontSize:12,color:COLORS.muted,lineHeight:1.5}}>{(rv.text?.text||"").slice(0, 200)}{(rv.text?.text||"").length > 200 ? "..." : ""}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom action bar */}
+      <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"12px 20px",background:`${COLORS.bg}ee`,borderTop:`1px solid ${COLORS.border}`,display:"flex",gap:8,backdropFilter:"blur(10px)"}}>
+        {!myMem && !myPin && onPin && <button onClick={() => { onPin(place); }}
+          style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+          📌 {t.pinBtn||"Pin"}
+        </button>}
+        {!myMem && onAdd && <button onClick={() => { onAdd(place); onClose(); }}
+          style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+          + {t.recoAddFav||"Add to favorites"}
+        </button>}
+        {myMem && <div style={{flex:1,textAlign:"center",padding:12,color:COLORS.accent,fontSize:13,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.placeInFavs||"In your favorites"}</div>}
+      </div>
+    </div>
+  );
+}
+
 function TravelAgent() {
   const [session, setSession] = useState(undefined);
   const [themeKey, setThemeKey] = useState(() => {
@@ -2155,6 +2415,7 @@ function TravelAgent() {
   const [recoMood, setRecoMood] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [pinModal, setPinModal] = useState(null);
+  const [placeSheet, setPlaceSheet] = useState(null); // {place, list, index}
 
   // Shared mood matching function — used for Popular display, Map, and AI pre-filter
   const MOOD_SYNONYMS = {
@@ -2697,6 +2958,11 @@ function TravelAgent() {
     const inFavs = memories.find(m => m.name?.toLowerCase() === place.name?.toLowerCase());
     if (inFavs) { showToast("❤️ " + (t.pinAlreadyFav||"Already in favorites")); return; }
     setPinModal({ place, note: "" });
+  };
+
+  const openPlaceSheet = (place, list) => {
+    const idx = list.findIndex(p => (p.name||"").toLowerCase() === (place.name||"").toLowerCase());
+    setPlaceSheet({ list, index: idx >= 0 ? idx : 0 });
   };
 
   const logout = () => supabase.auth.signOut();
@@ -3525,7 +3791,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                     <div key={pin.id} className="memory-card" style={{position:"relative"}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                         <div style={{flex:1,minWidth:0}}>
-                          <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
+                          <div className="memory-name" onClick={()=>openPlaceSheet(pin,enrichedPins)} style={{cursor:"pointer"}}>{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
                         </div>
                         <div style={{display:"flex",gap:6,flexShrink:0,alignItems:"center"}}>
                           {pin.friendsWhoHave?.length>0&&(
@@ -3982,7 +4248,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               {heartMemories.length>0&&(
                 <div id="reco-hearts" className="reco-block section-hearts">
                   <div className="reco-block-title">{t.recoHearts}</div>
-                  <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
+                  <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} onOpen={()=>openPlaceSheet(m,heartMemories)} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} onPin={(m)=>openPinModal({name:m.name,type:m.type,price:m.price,city:m.city,country:m.country,address:m.address,cuisine:m.cuisine,activityType:m.activity_type,google_place_id:m.google_place_id})}/>)}</div>
                 </div>
               )}
@@ -4007,7 +4273,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                       <div key={pin.id} className="memory-card" style={{borderLeft:`3px solid #6b8cce`}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                           <div style={{flex:1,minWidth:0}}>
-                            <div className="memory-name">{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
+                            <div className="memory-name" onClick={()=>openPlaceSheet(pin,pinsWithDist)} style={{cursor:"pointer"}}>{TYPE_ICONS[pin.type?.split(",")[0]?.trim()]||"📍"} {pin.name}</div>
                           </div>
                           <CardActions
                             distance={pin._dist}
@@ -4053,7 +4319,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                           <div key={i} className="ai-reco-card">
                             <div className="ai-reco-header">
                               <div className="ai-reco-top">
-                                <div className="ai-reco-name">{getTypeIcon(reco.type||recoType)} {reco.name}</div>
+                                <div className="ai-reco-name" onClick={()=>openPlaceSheet(reco, aiRecos)} style={{cursor:"pointer"}}>{getTypeIcon(reco.type||recoType)} {reco.name}</div>
                                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                                   {reco.outsideRadius&&reco._dist&&<span style={{fontSize:9,color:"#b89a2a",background:"rgba(184,154,42,0.12)",border:"1px solid rgba(184,154,42,0.3)",borderRadius:20,padding:"2px 7px",whiteSpace:"nowrap"}}>⚠️ {reco._dist>=1000?`${(reco._dist/1000).toFixed(1)}km`:`${Math.round(reco._dist)}m`}</span>}
                                   <div className="ai-reco-rank">#{i+1}</div>
@@ -4120,7 +4386,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                         <div key={i} className="ai-reco-card">
                           <div className="ai-reco-header">
                             <div className="ai-reco-top">
-                              <div className="ai-reco-name">{getTypeIcon(recoType)} {p.name}</div>
+                              <div className="ai-reco-name" onClick={()=>openPlaceSheet(p, filtered)} style={{cursor:"pointer"}}>{getTypeIcon(recoType)} {p.name}</div>
                               <CardActions
                                 distance={p._dist}
                                 friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase())}
@@ -4560,6 +4826,26 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
         </div>
       )}
       {/* Pin note modal */}
+      {/* Place Sheet */}
+      {placeSheet&&(
+        <PlaceSheet
+          place={placeSheet.list[placeSheet.index]}
+          list={placeSheet.list}
+          index={placeSheet.index}
+          onClose={()=>setPlaceSheet(null)}
+          onNavigate={(i)=>setPlaceSheet(prev=>({...prev,index:i}))}
+          COLORS={COLORS} t={{...t, _lang: lang}}
+          friendMemories={friendMemories}
+          memories={memories}
+          pins={pins}
+          onAdd={(p)=>{
+            setRecoToAdd({name:p.name,type:p.type||recoType,price:p.price||"",city:p.city||"",country:p.country||"",address:p.address||p.formattedAddress||"",cuisine:p.cuisine||"",activityType:p.activityType||p.activity_type||"",google_place_id:p.google_place_id||p.id||"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false});
+            setPlaceSheet(null);
+          }}
+          onPin={(p)=>{openPinModal({name:p.name,type:p.type||recoType,price:p.price||"",address:p.address||p.formattedAddress||"",cuisine:p.cuisine||"",activityType:p.activityType||p.activity_type||"",google_place_id:p.google_place_id||p.id||""}); setPlaceSheet(null);}}
+        />
+      )}
+
       {pinModal&&(
         <div className="alert-overlay" style={{zIndex:600}}>
           <div className="alert-box" style={{maxWidth:380,padding:24}}>
