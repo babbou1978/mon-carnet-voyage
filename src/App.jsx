@@ -3913,7 +3913,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
-              <div id="reco-settings" style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,padding:"4px 0",borderBottom:`1px solid ${COLORS.border}`}}>{t.recoLocation}</div>
+              <div id="reco-settings" className="reco-block-title">{t.recoLocation}</div>
               <div className="reco-location-card">
                 <div className="location-row">
                   <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
