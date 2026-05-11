@@ -2050,7 +2050,8 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const [photoIdx, setPhotoIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const sheetRef = useRef(null);
-  const touchStart = useRef(null);
+  const touchStartCard = useRef(null);
+  const touchStartPhoto = useRef(null);
 
   // Fetch full details when place changes
   useEffect(() => {
@@ -2063,23 +2064,37 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       .catch(() => setLoading(false));
   }, [place.google_place_id, place.id, place.name]);
 
-  // ESC to close
+  // ESC / arrows to close/navigate
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowLeft" && index > 0) onNavigate(index - 1); if (e.key === "ArrowRight" && index < list.length - 1) onNavigate(index + 1); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [index, list.length]);
 
-  // Swipe handling
-  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
-  const onTouchEnd = (e) => {
-    if (!touchStart.current) return;
-    const diff = touchStart.current - e.changedTouches[0].clientX;
+  // Swipe on PHOTOS → navigate photos
+  const onPhotoTouchStart = (e) => { touchStartPhoto.current = e.touches[0].clientX; };
+  const onPhotoTouchEnd = (e) => {
+    if (!touchStartPhoto.current) return;
+    const diff = touchStartPhoto.current - e.changedTouches[0].clientX;
+    const photos = (details?.photoUrls || []);
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && photoIdx < photos.length - 1) setPhotoIdx(i => i + 1);
+      if (diff < 0 && photoIdx > 0) setPhotoIdx(i => i - 1);
+    }
+    touchStartPhoto.current = null;
+    e.stopPropagation();
+  };
+
+  // Swipe on CONTENT → navigate cards
+  const onCardTouchStart = (e) => { touchStartCard.current = e.touches[0].clientX; };
+  const onCardTouchEnd = (e) => {
+    if (!touchStartCard.current) return;
+    const diff = touchStartCard.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 60) {
       if (diff > 0 && index < list.length - 1) onNavigate(index + 1);
       if (diff < 0 && index > 0) onNavigate(index - 1);
     }
-    touchStart.current = null;
+    touchStartCard.current = null;
   };
 
   const d = details || {};
@@ -2117,8 +2132,9 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const typeIcon = TYPE_ICONS[place.type?.split(",")[0]?.trim()] || "📍";
 
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",zIndex:500,display:"flex",flexDirection:"column",overflow:"hidden"}}
-      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:500,display:"flex",justifyContent:"center"}}
+      onClick={(e)=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{width:"100%",maxWidth:480,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
 
       {/* Top bar */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",flexShrink:0}}>
@@ -2137,10 +2153,12 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       </div>
 
       {/* Scrollable content */}
-      <div ref={sheetRef} style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
-        {/* Photo gallery */}
+      <div ref={sheetRef} style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}
+        onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
+        {/* Photo gallery — swipe here navigates photos */}
         {photos.length > 0 ? (
-          <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000"}}>
+          <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000"}}
+            onTouchStart={onPhotoTouchStart} onTouchEnd={onPhotoTouchEnd}>
             <img src={photos[photoIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}
               onError={(e) => { e.target.style.display = "none"; }}/>
             {photos.length > 1 && (
@@ -2299,6 +2317,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
           + {t.recoAddFav||"Add to favorites"}
         </button>}
         {myMem && <div style={{flex:1,textAlign:"center",padding:12,color:COLORS.accent,fontSize:13,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.placeInFavs||"In your favorites"}</div>}
+      </div>
       </div>
     </div>
   );
