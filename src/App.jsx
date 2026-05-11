@@ -675,7 +675,7 @@ const getCSS = (COLORS) => `
     font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic;
     color: ${COLORS.accent};
     padding: 8px 24px; margin: 0 -24px;
-    position: sticky; top: var(--header-h, 126px); z-index: 5;
+    position: sticky; top: var(--header-h, 140px); z-index: 5;
     background: ${COLORS.bg};
     border-bottom: 1px solid ${COLORS.border};
   }
@@ -686,7 +686,7 @@ const getCSS = (COLORS) => `
   .reco-block.section-nearby .ai-reco-card { border-color: #7a9d7a55; }
   .reco-block.section-pins .reco-block-title { color: #6b8cce; border-bottom-color: #6b8cce33; }
   .reco-block.section-pins .memory-card { border-color: #6b8cce55; }
-  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: var(--header-h, 130px); }
+  #reco-settings, #reco-hearts, #reco-pins, #reco-ai, #reco-popular { scroll-margin-top: var(--header-h, 140px); }
   .reco-block-title span { font-size: 12px; font-style: normal; color: ${COLORS.muted}; font-family: 'DM Sans', sans-serif; margin-left: 8px; }
   .location-row { display: flex; gap: 8px; }
   .loc-btn { padding: 10px 14px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.muted}; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
@@ -2071,7 +2071,7 @@ function TravelAgent() {
   const [pins, setPins] = useState([]);
   const scrollPositions = useRef({});
   const headerRef = useRef(null);
-  const [headerH, setHeaderH] = useState(120);
+  const [headerH, setHeaderH] = useState(140);
   useLayoutEffect(() => {
     const pos = scrollPositions.current._next ?? null;
     if (pos !== null) { window.scrollTo({top: pos, behavior:"instant"}); scrollPositions.current._next = null; }
@@ -2081,7 +2081,10 @@ function TravelAgent() {
   // Measure header height dynamically for sticky positioning
   useEffect(() => {
     if (!headerRef.current) return;
-    const ro = new ResizeObserver(() => setHeaderH(headerRef.current?.offsetHeight || 120));
+    const ro = new ResizeObserver(() => {
+      const h = headerRef.current?.getBoundingClientRect().height;
+      if (h) setHeaderH(Math.ceil(h) + 2);
+    });
     ro.observe(headerRef.current);
     return () => ro.disconnect();
   }, []);
