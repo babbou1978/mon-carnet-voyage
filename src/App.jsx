@@ -2081,7 +2081,7 @@ function TravelAgent() {
   // Measure header height dynamically for sticky positioning
   useEffect(() => {
     if (!headerRef.current) return;
-    const ro = new ResizeObserver(([entry]) => setHeaderH(entry.contentRect.height + 1));
+    const ro = new ResizeObserver(() => setHeaderH(headerRef.current?.offsetHeight || 120));
     ro.observe(headerRef.current);
     return () => ro.disconnect();
   }, []);
