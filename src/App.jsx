@@ -3913,6 +3913,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
 
           {!loading && tab === "reco" && (
             <div className="reco-section">
+              <div className="reco-block">
               <div id="reco-settings" className="reco-block-title">{t.recoLocation}</div>
               <div className="reco-location-card">
                 <div className="location-row">
@@ -3971,6 +3972,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                     </button>
                   )}
                 </div>
+              </div>
               </div>
 
               {(heartMemories.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
