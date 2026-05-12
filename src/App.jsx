@@ -734,10 +734,10 @@ const getCSS = (COLORS) => `
   @keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
   @keyframes fadeOut { to{opacity:0} }
   @keyframes moodPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.55)} 50%{box-shadow:0 0 0 8px rgba(231,76,60,0)} }
-  @keyframes placeSlideInRight { from { transform: translateX(12%); opacity: 0.35; } to { transform: translateX(0); opacity: 1; } }
-  @keyframes placeSlideInLeft  { from { transform: translateX(-12%); opacity: 0.35; } to { transform: translateX(0); opacity: 1; } }
-  .place-slide-right { animation: placeSlideInRight 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
-  .place-slide-left  { animation: placeSlideInLeft  0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes placeSlideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  @keyframes placeSlideInLeft  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+  .place-slide-right { animation: placeSlideInRight 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
+  .place-slide-left  { animation: placeSlideInLeft  0.32s cubic-bezier(0.22, 1, 0.36, 1); }
   .count-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: ${COLORS.accent}; color: #0f0e0c; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .notif-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: #e06060; color: white; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .empty { text-align: center; padding: 60px 20px; color: ${COLORS.muted}; }
@@ -2056,8 +2056,10 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const [loading, setLoading] = useState(true);
   const [photoDragX, setPhotoDragX] = useState(0);
   const [cardSlideDir, setCardSlideDir] = useState(0);
+  const [cardDragX, setCardDragX] = useState(0);
+  const cardDraggingRef = useRef(false);
   const sheetRef = useRef(null);
-  const touchStartCard = useRef(null);
+  const cardTouchRef = useRef({ x: null, y: null, dir: null });
   const photoTouchRef = useRef({ x: null, y: null, dir: null });
   const detailsCacheRef = useRef(new Map());
   const navigate = (i) => { setCardSlideDir(i > index ? 1 : -1); onNavigate(i); };
@@ -2156,17 +2158,54 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     e.stopPropagation();
   };
 
-  // Swipe on CONTENT → navigate cards
-  const onCardTouchStart = (e) => { touchStartCard.current = e.touches[0].clientX; };
-  const onCardTouchEnd = (e) => {
-    if (!touchStartCard.current) return;
-    const diff = touchStartCard.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 60) {
-      if (diff > 0 && index < list.length - 1) navigate(index + 1);
-      if (diff < 0 && index > 0) navigate(index - 1);
-    }
-    touchStartCard.current = null;
+  // Swipe on CONTENT → finger-following card navigation with direction lock
+  const onCardTouchStart = (e) => {
+    cardTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null };
+    cardDraggingRef.current = false;
   };
+  const onCardTouchEnd = (e) => {
+    const ct = cardTouchRef.current;
+    if (ct.x === null) return;
+    const dx = e.changedTouches[0].clientX - ct.x;
+    cardTouchRef.current = { x: null, y: null, dir: null };
+    cardDraggingRef.current = false;
+    if (ct.dir !== "h") { setCardDragX(0); return; }
+    if (dx < -60 && index < list.length - 1) {
+      setCardDragX(0);
+      navigate(index + 1); // new card mounts and slides in from right
+    } else if (dx > 60 && index > 0) {
+      setCardDragX(0);
+      navigate(index - 1); // new card mounts and slides in from left
+    } else {
+      setCardDragX(0); // spring back
+    }
+  };
+
+  // Non-passive touchmove on scroll container — needed to preventDefault on horizontal swipe
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    const onMove = (e) => {
+      const ct = cardTouchRef.current;
+      if (ct.x === null) return;
+      const dx = e.touches[0].clientX - ct.x;
+      const dy = e.touches[0].clientY - ct.y;
+      // Lock direction once user has moved enough
+      if (ct.dir === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
+        ct.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+      }
+      if (ct.dir === "h") {
+        // Resistance at edges
+        let damped = dx;
+        if ((dx > 0 && index === 0) || (dx < 0 && index === list.length - 1)) damped = dx * 0.3;
+        cardDraggingRef.current = true;
+        setCardDragX(damped);
+        e.preventDefault(); // block vertical scroll while horizontally swiping
+      }
+    };
+    el.addEventListener("touchmove", onMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onMove);
+  }, [index, list.length]);
 
   const d = details || {};
   const photos = d.photoUrls || [];
@@ -2226,6 +2265,13 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       {/* Scrollable content */}
       <div ref={sheetRef} style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}
         onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
+        <div style={{
+          transform:`translate3d(${cardDragX}px, 0, 0)`,
+          transition: cardDraggingRef.current ? "none" : "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)",
+          willChange:"transform"
+        }}>
+        <div key={(place.google_place_id||place.id||place.name)+"-"+index}
+          className={cardSlideDir>0?"place-slide-right":cardSlideDir<0?"place-slide-left":""}>
         {/* Photo gallery — finger-following carousel */}
         {photos.length > 0 ? (
           <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000",touchAction:"pan-y"}}
@@ -2262,9 +2308,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
         )}
 
         {/* Content card */}
-        <div key={(place.google_place_id||place.id||place.name)+"-"+index}
-          className={cardSlideDir>0?"place-slide-right":cardSlideDir<0?"place-slide-left":""}
-          style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
+        <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
 
           {/* Loading */}
           {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
@@ -2390,6 +2434,8 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
               ))}
             </div>
           )}
+        </div>
+        </div>
         </div>
       </div>
 
