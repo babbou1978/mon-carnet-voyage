@@ -233,3 +233,20 @@ Add to all 7 language blocks in TRANSLATIONS (fr ~line 103, es ~193, de ~252, it
 git add -A && git commit -m "description" && git push
 ```
 Vercel auto-deploys from main branch.
+
+## Default workflow rule — Auto-push to prod
+For every code change Claude makes, the default workflow is:
+1. Commit on feature branch (`claude/access-travel-journal-99d2e`)
+2. Push to remote
+3. Open or update a PR against `main`
+4. Squash-merge the PR into `main` → Vercel auto-deploys to `outsy-ai.vercel.app`
+
+User explicitly approved this auto-merge-to-prod flow on 2026-05-12.
+Rationale: rollback is one-click on Vercel (Deployments → 3 dots → Promote to Production),
+so the risk of a bad push is low and recoverable.
+
+Exceptions where Claude should STOP at the branch/PR step and wait for explicit user approval:
+- Database migrations (schema changes, `ALTER TABLE`, etc.)
+- Changes touching auth flow, payment, or account deletion
+- Breaking changes to API contracts (`/api/places.js`, `/api/delete-account.js`)
+- Anything the user flagged as "preview only" or "don't deploy yet"
