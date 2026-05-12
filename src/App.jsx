@@ -2053,17 +2053,61 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const sheetRef = useRef(null);
   const touchStartCard = useRef(null);
   const touchStartPhoto = useRef(null);
+  const detailsCacheRef = useRef(new Map());
 
-  // Fetch full details when place changes
+  // Fetch full details when place changes (with cache + prefetch of adjacent places)
   useEffect(() => {
-    setLoading(true); setDetails(null); setPhotoIdx(0);
+    setPhotoIdx(0);
     const pid = place.google_place_id || place.id;
-    if (!pid || pid === "NOT_FOUND") { setLoading(false); return; }
-    fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "details", placeId: pid, lang: t._lang || "en" })
-    }).then(r => r.json()).then(d => { setDetails(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [place.google_place_id, place.id, place.name]);
+    if (!pid || pid === "NOT_FOUND") { setLoading(false); setDetails(null); return; }
+
+    const lang = t._lang || "en";
+    const cache = detailsCacheRef.current;
+
+    const fetchDetails = (id) => fetch("/api/places", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "details", placeId: id, lang })
+    }).then(r => r.json());
+
+    const preloadPhotos = (urls) => {
+      (urls || []).slice(0, 3).forEach(url => { const img = new Image(); img.src = url; });
+    };
+
+    // Current place — read from cache if available (instant), else fetch
+    const cached = cache.get(pid);
+    if (cached) {
+      setDetails(cached);
+      setLoading(false);
+      preloadPhotos(cached.photoUrls);
+    } else {
+      setLoading(true);
+      setDetails(null);
+      fetchDetails(pid)
+        .then(d => { cache.set(pid, d); setDetails(d); setLoading(false); preloadPhotos(d.photoUrls); })
+        .catch(() => setLoading(false));
+    }
+
+    // Prefetch adjacent places in background (don't await, don't update UI)
+    [index - 1, index + 1].forEach(i => {
+      if (i < 0 || i >= list.length) return;
+      const adj = list[i];
+      const apid = adj?.google_place_id || adj?.id;
+      if (!apid || apid === "NOT_FOUND" || cache.has(apid)) return;
+      fetchDetails(apid)
+        .then(d => { cache.set(apid, d); preloadPhotos(d.photoUrls); })
+        .catch(() => {});
+    });
+  }, [place.google_place_id, place.id, place.name, index, list.length]);
+
+  // Preload next/prev photos of current place — instant photo navigation
+  useEffect(() => {
+    const photos = details?.photoUrls || [];
+    [photoIdx - 1, photoIdx + 1, photoIdx + 2].forEach(i => {
+      if (i < 0 || i >= photos.length) return;
+      const img = new Image();
+      img.src = photos[i];
+    });
+  }, [details, photoIdx]);
 
   // ESC / arrows to close/navigate
   useEffect(() => {
@@ -4245,6 +4289,13 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={v=>{setDistance(v);if(locationLabel)setHeartsKey(k=>k+1);}}/></div>
+                <div className="field" style={{marginTop:4}}>
+                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
+                  <div style={{position:"relative",width:"100%"}}>
+                    <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 44px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box"}}/>
+                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
+                  </div>
+                </div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>{setRecoType(tp);if(locationLabel)setHeartsKey(k=>k+1);}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>)}</div>
@@ -4257,13 +4308,6 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                     <button className={`filter-btn ${recoFriendFilter==="mine"?"active":""}`} onClick={()=>{setRecoFriendFilter("mine");if(locationLabel)setHeartsKey(k=>k+1);}}>👤 {t.filterMine||"Mine"}</button>
                     <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");if(locationLabel)setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
                   </>)}
-                </div>
-                <div className="field" style={{marginTop:4}}>
-                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
-                  <div style={{position:"relative",width:"100%"}}>
-                    <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 44px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box"}}/>
-                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
-                  </div>
                 </div>
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
