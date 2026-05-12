@@ -2057,6 +2057,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
     return pid && !detailsCacheRef.current.get(pid);
   });
   const [photoDragX, setPhotoDragX] = useState(0);
+  const [photoDragging, setPhotoDragging] = useState(false);
   const photoTouchRef = useRef({ x: null, y: null, dir: null });
 
   // Fetch details: always for active/adjacent, otherwise only from cache
@@ -2103,7 +2104,11 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
     if (start.dir === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
       start.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
     }
-    if (start.dir === "h") { setPhotoDragX(dx); e.stopPropagation(); }
+    if (start.dir === "h") {
+      if (!photoDragging) setPhotoDragging(true);
+      setPhotoDragX(dx);
+      e.stopPropagation();
+    }
   };
   const onPhotoTouchEnd = (e) => {
     const start = photoTouchRef.current;
@@ -2114,6 +2119,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
       if (dx < 0 && photoIdx < photos.length - 1) setPhotoIdx(i => i + 1);
       if (dx > 0 && photoIdx > 0) setPhotoIdx(i => i - 1);
     }
+    setPhotoDragging(false);
     setPhotoDragX(0);
     photoTouchRef.current = { x: null, y: null, dir: null };
     e.stopPropagation();
@@ -2153,40 +2159,44 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
 
   return (
     <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
-      {/* Photo gallery — finger-following carousel */}
-      {photos.length > 0 ? (
-        <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000",touchAction:"pan-y"}}
-          onTouchStart={onPhotoTouchStart} onTouchMove={onPhotoTouchMove} onTouchEnd={onPhotoTouchEnd}>
-          <div style={{
-            display:"flex",
-            height:"100%",
-            width:`${photos.length * 100}%`,
-            transform:`translate3d(calc(${-photoIdx * (100/photos.length)}% + ${photoDragX}px), 0, 0)`,
-            transition: photoDragX === 0 ? "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
-            willChange:"transform"
-          }}>
-            {photos.map((url, i) => (
-              <div key={i} style={{flex:`0 0 ${100/photos.length}%`,height:"100%"}}>
-                <img src={url} alt="" loading={isActive && Math.abs(i - photoIdx) <= 2 ? "eager" : "lazy"} draggable="false"
-                  style={{width:"100%",height:"100%",objectFit:"cover",display:"block",userSelect:"none",pointerEvents:"none"}}
-                  onError={(e) => { e.target.style.opacity = 0; }}/>
-              </div>
-            ))}
-          </div>
-          {photos.length > 1 && (
-            <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5,pointerEvents:"none"}}>
-              {photos.map((_, i) => (
-                <button key={i} onClick={() => setPhotoIdx(i)}
-                  style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.25s ease, background 0.25s ease",pointerEvents:"auto"}}/>
+      {/* Photo gallery — fixed-height carousel (no layout shift while loading) */}
+      <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
+        onTouchStart={photos.length>0?onPhotoTouchStart:undefined}
+        onTouchMove={photos.length>0?onPhotoTouchMove:undefined}
+        onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}>
+        {photos.length > 0 ? (
+          <>
+            <div style={{
+              display:"flex",
+              height:"100%",
+              width:`${photos.length * 100}%`,
+              transform:`translate3d(calc(${-photoIdx * (100/photos.length)}% + ${photoDragX}px), 0, 0)`,
+              transition: photoDragging ? "none" : "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)",
+              willChange:"transform"
+            }}>
+              {photos.map((url, i) => (
+                <div key={i} style={{flex:`0 0 ${100/photos.length}%`,height:"100%",background:"#000"}}>
+                  <img src={url} alt="" loading={isActive ? "eager" : (isAdjacent && i === 0 ? "eager" : "lazy")} draggable="false"
+                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block",userSelect:"none",pointerEvents:"none"}}
+                    onError={(e) => { e.target.style.opacity = 0; }}/>
+                </div>
               ))}
             </div>
-          )}
-          {photos.length > 1 && photoIdx > 0 && <button onClick={() => setPhotoIdx(i => i - 1)} style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>‹</button>}
-          {photos.length > 1 && photoIdx < photos.length - 1 && <button onClick={() => setPhotoIdx(i => i + 1)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>›</button>}
-        </div>
-      ) : (
-        <div style={{height:120,background:COLORS.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:0.3}}>{typeIcon}</div>
-      )}
+            {photos.length > 1 && (
+              <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5,pointerEvents:"none"}}>
+                {photos.map((_, i) => (
+                  <button key={i} onClick={() => setPhotoIdx(i)}
+                    style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.25s ease, background 0.25s ease",pointerEvents:"auto"}}/>
+                ))}
+              </div>
+            )}
+            {photos.length > 1 && photoIdx > 0 && <button onClick={() => setPhotoIdx(i => i - 1)} style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>‹</button>}
+            {photos.length > 1 && photoIdx < photos.length - 1 && <button onClick={() => setPhotoIdx(i => i + 1)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>›</button>}
+          </>
+        ) : (
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",fontSize:48,opacity:0.3}}>{typeIcon}</div>
+        )}
+      </div>
 
       {/* Content */}
       <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
@@ -2424,7 +2434,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       </div>
 
       {/* Bottom action bar — applies to current card */}
-      <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"12px 20px",background:`${COLORS.bg}ee`,borderTop:`1px solid ${COLORS.border}`,display:"flex",gap:8,backdropFilter:"blur(10px)"}}>
+      <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"12px 20px",background:COLORS.bg,borderTop:`1px solid ${COLORS.border}`,display:"flex",gap:8}}>
         {!myMem && !myPin && onPin && <button onClick={() => onPin(currentPlace)}
           style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
           📌 {t.pinBtn||"Pin"}
