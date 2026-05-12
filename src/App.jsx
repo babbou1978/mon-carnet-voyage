@@ -4245,6 +4245,13 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={v=>{setDistance(v);if(locationLabel)setHeartsKey(k=>k+1);}}/></div>
+                <div className="field" style={{marginTop:4}}>
+                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
+                  <div style={{position:"relative",width:"100%"}}>
+                    <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 44px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box"}}/>
+                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
+                  </div>
+                </div>
                 <div>
                   <div style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,marginBottom:6}}>Type</div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{TYPES.map(tp=><button key={tp} className={`reco-type-btn ${recoType===tp?"active":""}`} onClick={()=>{setRecoType(tp);if(locationLabel)setHeartsKey(k=>k+1);}}>{TYPE_ICONS[tp]} {(TYPES_I18N[lang]||TYPES_I18N.en)[tp]||tp}</button>)}</div>
@@ -4257,13 +4264,6 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                     <button className={`filter-btn ${recoFriendFilter==="mine"?"active":""}`} onClick={()=>{setRecoFriendFilter("mine");if(locationLabel)setHeartsKey(k=>k+1);}}>👤 {t.filterMine||"Mine"}</button>
                     <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");if(locationLabel)setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
                   </>)}
-                </div>
-                <div className="field" style={{marginTop:4}}>
-                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
-                  <div style={{position:"relative",width:"100%"}}>
-                    <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 44px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box"}}/>
-                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
-                  </div>
                 </div>
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
