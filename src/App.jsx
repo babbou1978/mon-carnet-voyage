@@ -2160,7 +2160,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   return (
     <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
       {/* Photo gallery — fixed-height carousel (no layout shift while loading) */}
-      <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
+      <div style={{position:"relative",width:"100%",height:260,minHeight:260,maxHeight:260,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
         onTouchStart={photos.length>0?onPhotoTouchStart:undefined}
         onTouchMove={photos.length>0?onPhotoTouchMove:undefined}
         onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}>
@@ -2389,21 +2389,21 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:500,display:"flex",justifyContent:"center"}}
       onClick={(e)=>{if(e.target===e.currentTarget)onClose();}}>
-      <div style={{width:"100%",maxWidth:480,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
+      <div style={{width:"100%",maxWidth:480,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative",background:COLORS.bg}}>
 
       {/* Top bar */}
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",flexShrink:0}}>
-        <div style={{color:"#fff9",fontSize:12,fontFamily:"'DM Sans',sans-serif"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",flexShrink:0,background:COLORS.bg,borderBottom:`1px solid ${COLORS.border}`}}>
+        <div style={{color:COLORS.muted,fontSize:12,fontFamily:"'DM Sans',sans-serif"}}>
           {list.length > 1 && `${index + 1} / ${list.length}`}
         </div>
         <div style={{display:"flex",gap:12}}>
           {list.length > 1 && <>
             <button onClick={() => index > 0 && onNavigate(index - 1)} disabled={index === 0}
-              style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===0?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+              style={{background:"none",border:`1px solid ${COLORS.border}`,borderRadius:"50%",width:36,height:36,color:index===0?COLORS.muted:COLORS.text,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:index===0?0.4:1}}>‹</button>
             <button onClick={() => index < list.length - 1 && onNavigate(index + 1)} disabled={index === list.length - 1}
-              style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===list.length-1?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+              style={{background:"none",border:`1px solid ${COLORS.border}`,borderRadius:"50%",width:36,height:36,color:index===list.length-1?COLORS.muted:COLORS.text,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:index===list.length-1?0.4:1}}>›</button>
           </>}
-          <button onClick={onClose} style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+          <button onClick={onClose} style={{background:"none",border:`1px solid ${COLORS.border}`,borderRadius:"50%",width:36,height:36,color:COLORS.text,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
         </div>
       </div>
 
