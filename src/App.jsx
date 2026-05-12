@@ -734,6 +734,10 @@ const getCSS = (COLORS) => `
   @keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
   @keyframes fadeOut { to{opacity:0} }
   @keyframes moodPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.55)} 50%{box-shadow:0 0 0 8px rgba(231,76,60,0)} }
+  @keyframes placeSlideInRight { from { transform: translateX(12%); opacity: 0.35; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes placeSlideInLeft  { from { transform: translateX(-12%); opacity: 0.35; } to { transform: translateX(0); opacity: 1; } }
+  .place-slide-right { animation: placeSlideInRight 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+  .place-slide-left  { animation: placeSlideInLeft  0.28s cubic-bezier(0.22, 1, 0.36, 1); }
   .count-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: ${COLORS.accent}; color: #0f0e0c; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .notif-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: #e06060; color: white; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .empty { text-align: center; padding: 60px 20px; color: ${COLORS.muted}; }
@@ -2050,10 +2054,13 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const [details, setDetails] = useState(null);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [photoDragX, setPhotoDragX] = useState(0);
+  const [cardSlideDir, setCardSlideDir] = useState(0);
   const sheetRef = useRef(null);
   const touchStartCard = useRef(null);
-  const touchStartPhoto = useRef(null);
+  const photoTouchRef = useRef({ x: null, y: null, dir: null });
   const detailsCacheRef = useRef(new Map());
+  const navigate = (i) => { setCardSlideDir(i > index ? 1 : -1); onNavigate(i); };
 
   // Fetch full details when place changes (with cache + prefetch of adjacent places)
   useEffect(() => {
@@ -2111,22 +2118,41 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
 
   // ESC / arrows to close/navigate
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowLeft" && index > 0) onNavigate(index - 1); if (e.key === "ArrowRight" && index < list.length - 1) onNavigate(index + 1); };
+    const handler = (e) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowLeft" && index > 0) navigate(index - 1); if (e.key === "ArrowRight" && index < list.length - 1) navigate(index + 1); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [index, list.length]);
 
-  // Swipe on PHOTOS → navigate photos
-  const onPhotoTouchStart = (e) => { touchStartPhoto.current = e.touches[0].clientX; };
-  const onPhotoTouchEnd = (e) => {
-    if (!touchStartPhoto.current) return;
-    const diff = touchStartPhoto.current - e.changedTouches[0].clientX;
-    const photos = (details?.photoUrls || []);
-    if (Math.abs(diff) > 50) {
-      if (diff > 0 && photoIdx < photos.length - 1) setPhotoIdx(i => i + 1);
-      if (diff < 0 && photoIdx > 0) setPhotoIdx(i => i - 1);
+  // Swipe on PHOTOS → finger-following carousel
+  const onPhotoTouchStart = (e) => {
+    photoTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null };
+    e.stopPropagation();
+  };
+  const onPhotoTouchMove = (e) => {
+    const start = photoTouchRef.current;
+    if (start.x === null) return;
+    const dx = e.touches[0].clientX - start.x;
+    const dy = e.touches[0].clientY - start.y;
+    // Lock direction on first significant move (avoid fighting vertical scroll)
+    if (start.dir === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      start.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
     }
-    touchStartPhoto.current = null;
+    if (start.dir === "h") {
+      setPhotoDragX(dx);
+      e.stopPropagation();
+    }
+  };
+  const onPhotoTouchEnd = (e) => {
+    const start = photoTouchRef.current;
+    if (start.x === null) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const photos = (details?.photoUrls || []);
+    if (start.dir === "h" && Math.abs(dx) > 50) {
+      if (dx < 0 && photoIdx < photos.length - 1) setPhotoIdx(i => i + 1);
+      if (dx > 0 && photoIdx > 0) setPhotoIdx(i => i - 1);
+    }
+    setPhotoDragX(0);
+    photoTouchRef.current = { x: null, y: null, dir: null };
     e.stopPropagation();
   };
 
@@ -2136,8 +2162,8 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     if (!touchStartCard.current) return;
     const diff = touchStartCard.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 60) {
-      if (diff > 0 && index < list.length - 1) onNavigate(index + 1);
-      if (diff < 0 && index > 0) onNavigate(index - 1);
+      if (diff > 0 && index < list.length - 1) navigate(index + 1);
+      if (diff < 0 && index > 0) navigate(index - 1);
     }
     touchStartCard.current = null;
   };
@@ -2188,9 +2214,9 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
         </div>
         <div style={{display:"flex",gap:12}}>
           {list.length > 1 && <>
-            <button onClick={() => index > 0 && onNavigate(index - 1)} disabled={index === 0}
+            <button onClick={() => index > 0 && navigate(index - 1)} disabled={index === 0}
               style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===0?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
-            <button onClick={() => index < list.length - 1 && onNavigate(index + 1)} disabled={index === list.length - 1}
+            <button onClick={() => index < list.length - 1 && navigate(index + 1)} disabled={index === list.length - 1}
               style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===list.length-1?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
           </>}
           <button onClick={onClose} style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
@@ -2200,17 +2226,31 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       {/* Scrollable content */}
       <div ref={sheetRef} style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}
         onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
-        {/* Photo gallery — swipe here navigates photos */}
+        {/* Photo gallery — finger-following carousel */}
         {photos.length > 0 ? (
-          <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000"}}
-            onTouchStart={onPhotoTouchStart} onTouchEnd={onPhotoTouchEnd}>
-            <img src={photos[photoIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}
-              onError={(e) => { e.target.style.display = "none"; }}/>
+          <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000",touchAction:"pan-y"}}
+            onTouchStart={onPhotoTouchStart} onTouchMove={onPhotoTouchMove} onTouchEnd={onPhotoTouchEnd}>
+            <div style={{
+              display:"flex",
+              height:"100%",
+              width:`${photos.length * 100}%`,
+              transform:`translate3d(calc(${-photoIdx * (100/photos.length)}% + ${photoDragX}px), 0, 0)`,
+              transition: photoDragX === 0 ? "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+              willChange:"transform"
+            }}>
+              {photos.map((url, i) => (
+                <div key={i} style={{flex:`0 0 ${100/photos.length}%`,height:"100%"}}>
+                  <img src={url} alt="" loading={Math.abs(i - photoIdx) <= 2 ? "eager" : "lazy"} draggable="false"
+                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block",userSelect:"none",pointerEvents:"none"}}
+                    onError={(e) => { e.target.style.opacity = 0; }}/>
+                </div>
+              ))}
+            </div>
             {photos.length > 1 && (
-              <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5}}>
+              <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5,pointerEvents:"none"}}>
                 {photos.map((_, i) => (
                   <button key={i} onClick={() => setPhotoIdx(i)}
-                    style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.2s"}}/>
+                    style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.25s ease, background 0.25s ease",pointerEvents:"auto"}}/>
                 ))}
               </div>
             )}
@@ -2222,7 +2262,9 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
         )}
 
         {/* Content card */}
-        <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
+        <div key={(place.google_place_id||place.id||place.name)+"-"+index}
+          className={cardSlideDir>0?"place-slide-right":cardSlideDir<0?"place-slide-left":""}
+          style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
 
           {/* Loading */}
           {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
