@@ -2199,7 +2199,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
       </div>
 
       {/* Content */}
-      <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
+      <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh",boxShadow:"0 -6px 14px rgba(0,0,0,0.08)"}}>
         {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
         <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
           {typeIcon} {name}
@@ -2307,7 +2307,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
 }
 
 // ─── PlaceSheet: Full place details overlay with photos, actions, reviews ───
-function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin }) {
+function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin, onEdit }) {
   const [cardDragX, setCardDragX] = useState(0);
   const [cardDragging, setCardDragging] = useState(false);
   const trackRef = useRef(null);
@@ -2439,11 +2439,21 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
           style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
           📌 {t.pinBtn||"Pin"}
         </button>}
-        {!myMem && onAdd && <button onClick={() => { onAdd(currentPlace); onClose(); }}
+        {!myMem && onAdd && <button onClick={() => onAdd(currentPlace)}
           style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-          + {t.recoAddFav||"Add to favorites"}
+          {t.recoAddFav||"+ Add to my favorites"}
         </button>}
-        {myMem && <div style={{flex:1,textAlign:"center",padding:12,color:COLORS.accent,fontSize:13,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.placeInFavs||"In your favorites"}</div>}
+        {myMem && (
+          <>
+            <div style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              ❤️ {t.placeInFavs||"In your favorites"}
+            </div>
+            {onEdit && <button onClick={() => onEdit(myMem)}
+              style={{flex:1,padding:"12px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,color:COLORS.text,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+              {t.editBtn||"✏️ Edit"}
+            </button>}
+          </>
+        )}
       </div>
       </div>
     </div>
@@ -2597,6 +2607,17 @@ function TravelAgent() {
   const [usernameError, setUsernameError] = useState("");
   const [pinModal, setPinModal] = useState(null);
   const [placeSheet, setPlaceSheet] = useState(null); // {place, list, index}
+  const [pendingPlaceSheet, setPendingPlaceSheet] = useState(null); // restored when add/pin/edit modal closes
+
+  // When the user opens add/pin/edit from inside the place sheet, the sheet
+  // is hidden while the modal is open. As soon as the modal closes, restore
+  // the sheet at the same card.
+  useEffect(() => {
+    if (pendingPlaceSheet && !editMemory && !pinModal && !recoToAdd) {
+      setPlaceSheet(pendingPlaceSheet);
+      setPendingPlaceSheet(null);
+    }
+  }, [editMemory, pinModal, recoToAdd, pendingPlaceSheet]);
 
   // Shared mood matching function — used for Popular display, Map, and AI pre-filter
   const MOOD_SYNONYMS = {
@@ -5023,10 +5044,20 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
           memories={memories}
           pins={pins}
           onAdd={(p)=>{
+            setPendingPlaceSheet(placeSheet);
             setRecoToAdd({name:p.name,type:p.type||recoType,price:p.price||"",city:p.city||"",country:p.country||"",address:p.address||p.formattedAddress||"",cuisine:p.cuisine||"",activityType:p.activityType||p.activity_type||"",google_place_id:p.google_place_id||p.id||"",rating:0,likeTags:[],dislikeTags:[],why:"",dislike:"",kidsf:false});
             setPlaceSheet(null);
           }}
-          onPin={(p)=>{openPinModal({name:p.name,type:p.type||recoType,price:p.price||"",address:p.address||p.formattedAddress||"",cuisine:p.cuisine||"",activityType:p.activityType||p.activity_type||"",google_place_id:p.google_place_id||p.id||""}); setPlaceSheet(null);}}
+          onPin={(p)=>{
+            setPendingPlaceSheet(placeSheet);
+            openPinModal({name:p.name,type:p.type||recoType,price:p.price||"",address:p.address||p.formattedAddress||"",cuisine:p.cuisine||"",activityType:p.activityType||p.activity_type||"",google_place_id:p.google_place_id||p.id||""});
+            setPlaceSheet(null);
+          }}
+          onEdit={(mem)=>{
+            setPendingPlaceSheet(placeSheet);
+            setEditMemory(mem);
+            setPlaceSheet(null);
+          }}
         />
       )}
 
