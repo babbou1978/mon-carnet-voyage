@@ -2152,7 +2152,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   const typeIcon = TYPE_ICONS[place.type?.split(",")[0]?.trim()] || "📍";
 
   return (
-    <div style={{flex:"0 0 100%",height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
+    <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
       {/* Photo gallery — finger-following carousel */}
       {photos.length > 0 ? (
         <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000",touchAction:"pan-y"}}
@@ -2409,14 +2409,16 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
           willChange:"transform"
         }}>
           {list.map((p, i) => (
-            <PlaceCardBody key={(p.google_place_id||p.id||p.name||"")+"-"+i}
-              place={p}
-              isActive={i === index}
-              isAdjacent={Math.abs(i - index) === 1}
-              detailsCacheRef={detailsCacheRef}
-              lang={t._lang || "en"}
-              COLORS={COLORS} t={t}
-              friendMemories={friendMemories} memories={memories} pins={pins}/>
+            <div key={(p.google_place_id||p.id||p.name||"")+"-"+i} style={{flex:`0 0 ${100/N}%`,height:"100%",minWidth:0}}>
+              <PlaceCardBody
+                place={p}
+                isActive={i === index}
+                isAdjacent={Math.abs(i - index) === 1}
+                detailsCacheRef={detailsCacheRef}
+                lang={t._lang || "en"}
+                COLORS={COLORS} t={t}
+                friendMemories={friendMemories} memories={memories} pins={pins}/>
+            </div>
           ))}
         </div>
       </div>
