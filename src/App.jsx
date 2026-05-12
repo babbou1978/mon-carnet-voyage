@@ -2057,7 +2057,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const [photoDragX, setPhotoDragX] = useState(0);
   const [cardSlideDir, setCardSlideDir] = useState(0);
   const [cardDragX, setCardDragX] = useState(0);
-  const cardDraggingRef = useRef(false);
+  const [cardDragging, setCardDragging] = useState(false);
   const sheetRef = useRef(null);
   const cardTouchRef = useRef({ x: null, y: null, dir: null });
   const photoTouchRef = useRef({ x: null, y: null, dir: null });
@@ -2161,27 +2161,30 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   // Swipe on CONTENT → finger-following card navigation with direction lock
   const onCardTouchStart = (e) => {
     cardTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null };
-    cardDraggingRef.current = false;
+    setCardDragX(0);
   };
-  const onCardTouchEnd = (e) => {
+  const finishCardSwipe = (changedX) => {
     const ct = cardTouchRef.current;
-    if (ct.x === null) return;
-    const dx = e.changedTouches[0].clientX - ct.x;
     cardTouchRef.current = { x: null, y: null, dir: null };
-    cardDraggingRef.current = false;
+    setCardDragging(false);
+    const dx = changedX === undefined || ct.x === null ? 0 : changedX - ct.x;
     if (ct.dir !== "h") { setCardDragX(0); return; }
     if (dx < -60 && index < list.length - 1) {
       setCardDragX(0);
-      navigate(index + 1); // new card mounts and slides in from right
+      navigate(index + 1);
     } else if (dx > 60 && index > 0) {
       setCardDragX(0);
-      navigate(index - 1); // new card mounts and slides in from left
+      navigate(index - 1);
     } else {
       setCardDragX(0); // spring back
     }
   };
+  const onCardTouchEnd = (e) => {
+    if (cardTouchRef.current.x === null) return;
+    finishCardSwipe(e.changedTouches[0].clientX);
+  };
 
-  // Non-passive touchmove on scroll container — needed to preventDefault on horizontal swipe
+  // Non-passive touchmove + touchcancel on scroll container
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
@@ -2190,22 +2193,34 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       if (ct.x === null) return;
       const dx = e.touches[0].clientX - ct.x;
       const dy = e.touches[0].clientY - ct.y;
-      // Lock direction once user has moved enough
       if (ct.dir === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
         ct.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
       }
       if (ct.dir === "h") {
-        // Resistance at edges
         let damped = dx;
         if ((dx > 0 && index === 0) || (dx < 0 && index === list.length - 1)) damped = dx * 0.3;
-        cardDraggingRef.current = true;
+        setCardDragging(true);
         setCardDragX(damped);
-        e.preventDefault(); // block vertical scroll while horizontally swiping
+        e.preventDefault();
       }
     };
+    const onCancel = () => { finishCardSwipe(undefined); };
     el.addEventListener("touchmove", onMove, { passive: false });
-    return () => el.removeEventListener("touchmove", onMove);
+    el.addEventListener("touchcancel", onCancel);
+    return () => {
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchcancel", onCancel);
+    };
   }, [index, list.length]);
+
+  // Defensive reset whenever the place changes (avoids stuck dragX from interrupted swipes)
+  useEffect(() => {
+    setCardDragX(0);
+    setCardDragging(false);
+    setPhotoDragX(0);
+    cardTouchRef.current = { x: null, y: null, dir: null };
+    photoTouchRef.current = { x: null, y: null, dir: null };
+  }, [place.google_place_id, place.id, place.name]);
 
   const d = details || {};
   const photos = d.photoUrls || [];
@@ -2267,7 +2282,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
         onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
         <div style={{
           transform:`translate3d(${cardDragX}px, 0, 0)`,
-          transition: cardDraggingRef.current ? "none" : "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)",
+          transition: cardDragging ? "none" : "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)",
           willChange:"transform"
         }}>
         <div key={(place.google_place_id||place.id||place.name)+"-"+index}
