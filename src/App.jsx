@@ -734,10 +734,6 @@ const getCSS = (COLORS) => `
   @keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
   @keyframes fadeOut { to{opacity:0} }
   @keyframes moodPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.55)} 50%{box-shadow:0 0 0 8px rgba(231,76,60,0)} }
-  @keyframes placeSlideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  @keyframes placeSlideInLeft  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
-  .place-slide-right { animation: placeSlideInRight 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
-  .place-slide-left  { animation: placeSlideInLeft  0.32s cubic-bezier(0.22, 1, 0.36, 1); }
   .count-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: ${COLORS.accent}; color: #0f0e0c; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .notif-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: #e06060; color: white; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .empty { text-align: center; padding: 60px 20px; color: ${COLORS.muted}; }
@@ -2049,83 +2045,52 @@ function CityPicker({ cities: citiesRaw, onChange, placeholder, empty, COLORS=TH
   );
 }
 
-// ─── PlaceSheet: Full place details overlay with photos, actions, reviews ───
-function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin }) {
-  const [details, setDetails] = useState(null);
-  const [photoIdx, setPhotoIdx] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [photoDragX, setPhotoDragX] = useState(0);
-  const [cardSlideDir, setCardSlideDir] = useState(0);
-  const [cardDragX, setCardDragX] = useState(0);
-  const [cardDragging, setCardDragging] = useState(false);
-  const sheetRef = useRef(null);
-  const cardTouchRef = useRef({ x: null, y: null, dir: null });
-  const photoTouchRef = useRef({ x: null, y: null, dir: null });
-  const detailsCacheRef = useRef(new Map());
-  const navigate = (i) => { setCardSlideDir(i > index ? 1 : -1); onNavigate(i); };
-
-  // Fetch full details when place changes (with cache + prefetch of adjacent places)
-  useEffect(() => {
-    setPhotoIdx(0);
+// ─── PlaceCardBody: Single card content (photos + details) inside the carousel track ───
+function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COLORS, t, friendMemories, memories, pins }) {
+  const [details, setDetails] = useState(() => {
     const pid = place.google_place_id || place.id;
-    if (!pid || pid === "NOT_FOUND") { setLoading(false); setDetails(null); return; }
+    return pid ? (detailsCacheRef.current.get(pid) || null) : null;
+  });
+  const [photoIdx, setPhotoIdx] = useState(0);
+  const [loading, setLoading] = useState(() => {
+    const pid = place.google_place_id || place.id;
+    return pid && !detailsCacheRef.current.get(pid);
+  });
+  const [photoDragX, setPhotoDragX] = useState(0);
+  const photoTouchRef = useRef({ x: null, y: null, dir: null });
 
-    const lang = t._lang || "en";
-    const cache = detailsCacheRef.current;
-
-    const fetchDetails = (id) => fetch("/api/places", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "details", placeId: id, lang })
-    }).then(r => r.json());
-
-    const preloadPhotos = (urls) => {
-      (urls || []).slice(0, 3).forEach(url => { const img = new Image(); img.src = url; });
-    };
-
-    // Current place — read from cache if available (instant), else fetch
-    const cached = cache.get(pid);
-    if (cached) {
-      setDetails(cached);
-      setLoading(false);
-      preloadPhotos(cached.photoUrls);
-    } else {
-      setLoading(true);
-      setDetails(null);
-      fetchDetails(pid)
-        .then(d => { cache.set(pid, d); setDetails(d); setLoading(false); preloadPhotos(d.photoUrls); })
-        .catch(() => setLoading(false));
-    }
-
-    // Prefetch adjacent places in background (don't await, don't update UI)
-    [index - 1, index + 1].forEach(i => {
-      if (i < 0 || i >= list.length) return;
-      const adj = list[i];
-      const apid = adj?.google_place_id || adj?.id;
-      if (!apid || apid === "NOT_FOUND" || cache.has(apid)) return;
-      fetchDetails(apid)
-        .then(d => { cache.set(apid, d); preloadPhotos(d.photoUrls); })
-        .catch(() => {});
-    });
-  }, [place.google_place_id, place.id, place.name, index, list.length]);
-
-  // Preload next/prev photos of current place — instant photo navigation
+  // Fetch details: always for active/adjacent, otherwise only from cache
   useEffect(() => {
+    const pid = place.google_place_id || place.id;
+    if (!pid || pid === "NOT_FOUND") { setLoading(false); return; }
+    const cached = detailsCacheRef.current.get(pid);
+    if (cached) { setDetails(cached); setLoading(false); return; }
+    if (!isActive && !isAdjacent) { setLoading(false); return; }
+    setLoading(true);
+    fetch("/api/places", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "details", placeId: pid, lang: lang || "en" })
+    })
+      .then(r => r.json())
+      .then(d => {
+        detailsCacheRef.current.set(pid, d);
+        setDetails(d);
+        setLoading(false);
+        (d.photoUrls || []).slice(0, 3).forEach(url => { const img = new Image(); img.src = url; });
+      })
+      .catch(() => setLoading(false));
+  }, [place.google_place_id, place.id, isActive, isAdjacent, lang]);
+
+  // Preload neighboring photos when active
+  useEffect(() => {
+    if (!isActive) return;
     const photos = details?.photoUrls || [];
     [photoIdx - 1, photoIdx + 1, photoIdx + 2].forEach(i => {
       if (i < 0 || i >= photos.length) return;
-      const img = new Image();
-      img.src = photos[i];
+      const img = new Image(); img.src = photos[i];
     });
-  }, [details, photoIdx]);
+  }, [details, photoIdx, isActive]);
 
-  // ESC / arrows to close/navigate
-  useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowLeft" && index > 0) navigate(index - 1); if (e.key === "ArrowRight" && index < list.length - 1) navigate(index + 1); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [index, list.length]);
-
-  // Swipe on PHOTOS → finger-following carousel
   const onPhotoTouchStart = (e) => {
     photoTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null };
     e.stopPropagation();
@@ -2135,14 +2100,10 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     if (start.x === null) return;
     const dx = e.touches[0].clientX - start.x;
     const dy = e.touches[0].clientY - start.y;
-    // Lock direction on first significant move (avoid fighting vertical scroll)
     if (start.dir === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
       start.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
     }
-    if (start.dir === "h") {
-      setPhotoDragX(dx);
-      e.stopPropagation();
-    }
+    if (start.dir === "h") { setPhotoDragX(dx); e.stopPropagation(); }
   };
   const onPhotoTouchEnd = (e) => {
     const start = photoTouchRef.current;
@@ -2157,70 +2118,6 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     photoTouchRef.current = { x: null, y: null, dir: null };
     e.stopPropagation();
   };
-
-  // Swipe on CONTENT → finger-following card navigation with direction lock
-  const onCardTouchStart = (e) => {
-    cardTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null };
-    setCardDragX(0);
-  };
-  const finishCardSwipe = (changedX) => {
-    const ct = cardTouchRef.current;
-    cardTouchRef.current = { x: null, y: null, dir: null };
-    setCardDragging(false);
-    const dx = changedX === undefined || ct.x === null ? 0 : changedX - ct.x;
-    if (ct.dir !== "h") { setCardDragX(0); return; }
-    if (dx < -60 && index < list.length - 1) {
-      setCardDragX(0);
-      navigate(index + 1);
-    } else if (dx > 60 && index > 0) {
-      setCardDragX(0);
-      navigate(index - 1);
-    } else {
-      setCardDragX(0); // spring back
-    }
-  };
-  const onCardTouchEnd = (e) => {
-    if (cardTouchRef.current.x === null) return;
-    finishCardSwipe(e.changedTouches[0].clientX);
-  };
-
-  // Non-passive touchmove + touchcancel on scroll container
-  useEffect(() => {
-    const el = sheetRef.current;
-    if (!el) return;
-    const onMove = (e) => {
-      const ct = cardTouchRef.current;
-      if (ct.x === null) return;
-      const dx = e.touches[0].clientX - ct.x;
-      const dy = e.touches[0].clientY - ct.y;
-      if (ct.dir === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
-        ct.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
-      }
-      if (ct.dir === "h") {
-        let damped = dx;
-        if ((dx > 0 && index === 0) || (dx < 0 && index === list.length - 1)) damped = dx * 0.3;
-        setCardDragging(true);
-        setCardDragX(damped);
-        e.preventDefault();
-      }
-    };
-    const onCancel = () => { finishCardSwipe(undefined); };
-    el.addEventListener("touchmove", onMove, { passive: false });
-    el.addEventListener("touchcancel", onCancel);
-    return () => {
-      el.removeEventListener("touchmove", onMove);
-      el.removeEventListener("touchcancel", onCancel);
-    };
-  }, [index, list.length]);
-
-  // Defensive reset whenever the place changes (avoids stuck dragX from interrupted swipes)
-  useEffect(() => {
-    setCardDragX(0);
-    setCardDragging(false);
-    setPhotoDragX(0);
-    cardTouchRef.current = { x: null, y: null, dir: null };
-    photoTouchRef.current = { x: null, y: null, dir: null };
-  }, [place.google_place_id, place.id, place.name]);
 
   const d = details || {};
   const photos = d.photoUrls || [];
@@ -2238,7 +2135,6 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const reviews = (d.reviews || []).slice(0, 3);
   const isOpen = d.currentOpeningHours?.openNow ?? d.regularOpeningHours?.openNow;
 
-  // Features
   const feats = [];
   if (d.outdoorSeating) feats.push("Terrace");
   if (d.liveMusic) feats.push("Live music");
@@ -2250,11 +2146,235 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   if (d.reservable) feats.push("Reservable");
   if (d.servesBrunch) feats.push("Brunch");
 
-  // Friends who have this place
   const friendsHere = friendMemories.filter(fm => fm.name?.toLowerCase() === name?.toLowerCase());
   const myMem = memories.find(m => m.name?.toLowerCase() === name?.toLowerCase());
   const myPin = pins.find(p => p.name?.toLowerCase() === name?.toLowerCase());
   const typeIcon = TYPE_ICONS[place.type?.split(",")[0]?.trim()] || "📍";
+
+  return (
+    <div style={{flex:"0 0 100%",height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
+      {/* Photo gallery — finger-following carousel */}
+      {photos.length > 0 ? (
+        <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000",touchAction:"pan-y"}}
+          onTouchStart={onPhotoTouchStart} onTouchMove={onPhotoTouchMove} onTouchEnd={onPhotoTouchEnd}>
+          <div style={{
+            display:"flex",
+            height:"100%",
+            width:`${photos.length * 100}%`,
+            transform:`translate3d(calc(${-photoIdx * (100/photos.length)}% + ${photoDragX}px), 0, 0)`,
+            transition: photoDragX === 0 ? "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+            willChange:"transform"
+          }}>
+            {photos.map((url, i) => (
+              <div key={i} style={{flex:`0 0 ${100/photos.length}%`,height:"100%"}}>
+                <img src={url} alt="" loading={isActive && Math.abs(i - photoIdx) <= 2 ? "eager" : "lazy"} draggable="false"
+                  style={{width:"100%",height:"100%",objectFit:"cover",display:"block",userSelect:"none",pointerEvents:"none"}}
+                  onError={(e) => { e.target.style.opacity = 0; }}/>
+              </div>
+            ))}
+          </div>
+          {photos.length > 1 && (
+            <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5,pointerEvents:"none"}}>
+              {photos.map((_, i) => (
+                <button key={i} onClick={() => setPhotoIdx(i)}
+                  style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.25s ease, background 0.25s ease",pointerEvents:"auto"}}/>
+              ))}
+            </div>
+          )}
+          {photos.length > 1 && photoIdx > 0 && <button onClick={() => setPhotoIdx(i => i - 1)} style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>‹</button>}
+          {photos.length > 1 && photoIdx < photos.length - 1 && <button onClick={() => setPhotoIdx(i => i + 1)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>›</button>}
+        </div>
+      ) : (
+        <div style={{height:120,background:COLORS.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:0.3}}>{typeIcon}</div>
+      )}
+
+      {/* Content */}
+      <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
+        {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
+        <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
+          {typeIcon} {name}
+        </div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8,alignItems:"center"}}>
+          {cuisine && <span style={{fontSize:10,padding:"3px 8px",borderRadius:6,background:`${COLORS.accent}15`,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.05em"}}>{cuisine}</span>}
+          {rating && <span style={{fontSize:12,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif"}}>{"★".repeat(Math.round(rating))} {rating}</span>}
+          {reviewCount > 0 && <span style={{fontSize:11,color:COLORS.muted}}>({reviewCount})</span>}
+          {price && <span style={{fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif"}}>{price}</span>}
+        </div>
+        {isOpen !== undefined && (
+          <div style={{marginTop:8,fontSize:12,fontFamily:"'DM Sans',sans-serif",color:isOpen?"#5a9a5a":"#d4869b"}}>
+            {isOpen ? "● " + (t.placeOpen || "Open") : "● " + (t.placeClosed || "Closed")}
+          </div>
+        )}
+        <div style={{display:"flex",gap:8,marginTop:16,flexWrap:"wrap"}}>
+          {phone && <a href={`tel:${phone}`} style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
+            <span style={{fontSize:18}}>📞</span>{t.placeCall||"Call"}
+          </a>}
+          {website && <a href={website} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
+            <span style={{fontSize:18}}>🌐</span>{t.placeWebsite||"Website"}
+          </a>}
+          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
+            <span style={{fontSize:18}}>🗺️</span>{t.placeDirections||"Directions"}
+          </a>
+          {d.reservable && website && <a href={website} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,textDecoration:"none",color:COLORS.accent,fontSize:10,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>
+            <span style={{fontSize:18}}>📅</span>{t.placeReserve||"Reserve"}
+          </a>}
+        </div>
+        {feats.length > 0 && (
+          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginTop:14}}>
+            {feats.map((f, i) => <span key={i} style={{fontSize:10,padding:"3px 8px",borderRadius:10,background:`${COLORS.accent}11`,color:COLORS.accent,border:`1px solid ${COLORS.accent}22`,fontFamily:"'DM Sans',sans-serif"}}>✓ {f}</span>)}
+          </div>
+        )}
+        {address && (
+          <div style={{marginTop:14,fontSize:13,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif"}}>
+            📍 {address}
+          </div>
+        )}
+        {hours && (
+          <details style={{marginTop:14}}>
+            <summary style={{fontSize:12,color:COLORS.accent,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>
+              🕐 {t.placeHours||"Opening hours"}
+            </summary>
+            <div style={{marginTop:6,fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",lineHeight:1.8}}>
+              {hours.map((h, i) => <div key={i}>{h}</div>)}
+            </div>
+          </details>
+        )}
+        {editorial && (
+          <div style={{marginTop:16,padding:14,background:COLORS.card,borderRadius:10,border:`1px solid ${COLORS.border}`}}>
+            <div style={{fontSize:13,fontStyle:"italic",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",lineHeight:1.5}}>
+              « {editorial} »
+            </div>
+          </div>
+        )}
+        {friendsHere.length > 0 && (
+          <div style={{marginTop:16}}>
+            <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:8}}>
+              👥 {t.placeFriends||"Friends who've been here"}
+            </div>
+            {friendsHere.map((fm, i) => (
+              <div key={i} style={{padding:"8px 12px",background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`,marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:13,color:COLORS.text,fontFamily:"'DM Sans',sans-serif"}}>{fm.friendName || "Friend"}</span>
+                <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                  {fm.rating > 0 && <span style={{fontSize:12,color:COLORS.accent}}>{"★".repeat(fm.rating)} {fm.rating}/5</span>}
+                  {fm.price && <span style={{fontSize:11,color:COLORS.muted}}>{fm.price}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {myMem && (
+          <div style={{marginTop:16,padding:12,background:`${COLORS.accent}08`,borderRadius:10,border:`1px solid ${COLORS.accent}33`}}>
+            <div style={{fontSize:11,textTransform:"uppercase",color:COLORS.accent,fontWeight:600,marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.placeMyReview||"My review"}</div>
+            <div style={{fontSize:13,color:COLORS.text}}>{"★".repeat(myMem.rating||0)} {myMem.rating}/5</div>
+            {myMem.why && <div style={{fontSize:12,color:COLORS.muted,marginTop:4}}>{myMem.why}</div>}
+          </div>
+        )}
+        {myPin && !myMem && (
+          <div style={{marginTop:16,padding:12,background:"#6b8cce08",borderRadius:10,border:"1px solid #6b8cce33"}}>
+            <div style={{fontSize:11,textTransform:"uppercase",color:"#6b8cce",fontWeight:600,marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>📌 {t.placePinned||"Pinned"}</div>
+            {myPin.pin_note && <div style={{fontSize:12,color:COLORS.muted,fontStyle:"italic"}}>{myPin.pin_note}</div>}
+          </div>
+        )}
+        {reviews.length > 0 && (
+          <div style={{marginTop:16}}>
+            <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:8}}>
+              💬 {t.placeReviews||"Reviews"}
+            </div>
+            {reviews.map((rv, i) => (
+              <div key={i} style={{padding:12,background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`,marginBottom:8}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                  <span style={{fontSize:12,fontWeight:600,color:COLORS.text}}>{rv.authorAttribution?.displayName||"Anonymous"}</span>
+                  {rv.rating && <span style={{fontSize:11,color:COLORS.accent}}>{"★".repeat(rv.rating)}</span>}
+                </div>
+                <div style={{fontSize:12,color:COLORS.muted,lineHeight:1.5}}>{(rv.text?.text||"").slice(0, 200)}{(rv.text?.text||"").length > 200 ? "..." : ""}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── PlaceSheet: Full place details overlay with photos, actions, reviews ───
+function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin }) {
+  const [cardDragX, setCardDragX] = useState(0);
+  const [cardDragging, setCardDragging] = useState(false);
+  const trackRef = useRef(null);
+  const cardTouchRef = useRef({ x: null, y: null, dir: null });
+  const detailsCacheRef = useRef(new Map());
+
+  // ESC / arrows
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft" && index > 0) onNavigate(index - 1);
+      if (e.key === "ArrowRight" && index < list.length - 1) onNavigate(index + 1);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [index, list.length]);
+
+  // Card swipe — track manager
+  const onCardTouchStart = (e) => {
+    cardTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null };
+    setCardDragX(0);
+  };
+  const finishCardSwipe = (changedX) => {
+    const ct = cardTouchRef.current;
+    cardTouchRef.current = { x: null, y: null, dir: null };
+    setCardDragging(false);
+    const dx = changedX === undefined || ct.x === null ? 0 : changedX - ct.x;
+    if (ct.dir !== "h") { setCardDragX(0); return; }
+    if (dx < -60 && index < list.length - 1) { setCardDragX(0); onNavigate(index + 1); }
+    else if (dx > 60 && index > 0) { setCardDragX(0); onNavigate(index - 1); }
+    else { setCardDragX(0); }
+  };
+  const onCardTouchEnd = (e) => {
+    if (cardTouchRef.current.x === null) return;
+    finishCardSwipe(e.changedTouches[0].clientX);
+  };
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const onMove = (e) => {
+      const ct = cardTouchRef.current;
+      if (ct.x === null) return;
+      const dx = e.touches[0].clientX - ct.x;
+      const dy = e.touches[0].clientY - ct.y;
+      if (ct.dir === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
+        ct.dir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+      }
+      if (ct.dir === "h") {
+        let damped = dx;
+        if ((dx > 0 && index === 0) || (dx < 0 && index === list.length - 1)) damped = dx * 0.3;
+        setCardDragging(true);
+        setCardDragX(damped);
+        e.preventDefault();
+      }
+    };
+    const onCancel = () => finishCardSwipe(undefined);
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchcancel", onCancel);
+    return () => {
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchcancel", onCancel);
+    };
+  }, [index, list.length]);
+
+  // Defensive reset on navigation
+  useEffect(() => {
+    setCardDragX(0);
+    setCardDragging(false);
+    cardTouchRef.current = { x: null, y: null, dir: null };
+  }, [index]);
+
+  const N = Math.max(list.length, 1);
+  const currentPlace = list[index] || place;
+  const currentName = currentPlace.name;
+  const myMem = memories.find(m => m.name?.toLowerCase() === currentName?.toLowerCase());
+  const myPin = pins.find(p => p.name?.toLowerCase() === currentName?.toLowerCase());
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:500,display:"flex",justifyContent:"center"}}
@@ -2268,199 +2388,46 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
         </div>
         <div style={{display:"flex",gap:12}}>
           {list.length > 1 && <>
-            <button onClick={() => index > 0 && navigate(index - 1)} disabled={index === 0}
+            <button onClick={() => index > 0 && onNavigate(index - 1)} disabled={index === 0}
               style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===0?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
-            <button onClick={() => index < list.length - 1 && navigate(index + 1)} disabled={index === list.length - 1}
+            <button onClick={() => index < list.length - 1 && onNavigate(index + 1)} disabled={index === list.length - 1}
               style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:index===list.length-1?"#fff3":"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
           </>}
           <button onClick={onClose} style={{background:"none",border:"1px solid #fff3",borderRadius:"50%",width:36,height:36,color:"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
         </div>
       </div>
 
-      {/* Scrollable content */}
-      <div ref={sheetRef} style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}
+      {/* Carousel track */}
+      <div ref={trackRef} style={{flex:1,overflow:"hidden",position:"relative"}}
         onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
         <div style={{
-          transform:`translate3d(${cardDragX}px, 0, 0)`,
+          display:"flex",
+          height:"100%",
+          width:`${N * 100}%`,
+          transform:`translate3d(calc(${-index * (100/N)}% + ${cardDragX}px), 0, 0)`,
           transition: cardDragging ? "none" : "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)",
           willChange:"transform"
         }}>
-        <div key={(place.google_place_id||place.id||place.name)+"-"+index}
-          className={cardSlideDir>0?"place-slide-right":cardSlideDir<0?"place-slide-left":""}>
-        {/* Photo gallery — finger-following carousel */}
-        {photos.length > 0 ? (
-          <div style={{position:"relative",width:"100%",height:260,overflow:"hidden",background:"#000",touchAction:"pan-y"}}
-            onTouchStart={onPhotoTouchStart} onTouchMove={onPhotoTouchMove} onTouchEnd={onPhotoTouchEnd}>
-            <div style={{
-              display:"flex",
-              height:"100%",
-              width:`${photos.length * 100}%`,
-              transform:`translate3d(calc(${-photoIdx * (100/photos.length)}% + ${photoDragX}px), 0, 0)`,
-              transition: photoDragX === 0 ? "transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
-              willChange:"transform"
-            }}>
-              {photos.map((url, i) => (
-                <div key={i} style={{flex:`0 0 ${100/photos.length}%`,height:"100%"}}>
-                  <img src={url} alt="" loading={Math.abs(i - photoIdx) <= 2 ? "eager" : "lazy"} draggable="false"
-                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block",userSelect:"none",pointerEvents:"none"}}
-                    onError={(e) => { e.target.style.opacity = 0; }}/>
-                </div>
-              ))}
-            </div>
-            {photos.length > 1 && (
-              <div style={{position:"absolute",bottom:10,left:0,right:0,display:"flex",justifyContent:"center",gap:5,pointerEvents:"none"}}>
-                {photos.map((_, i) => (
-                  <button key={i} onClick={() => setPhotoIdx(i)}
-                    style={{width:i===photoIdx?20:8,height:8,borderRadius:4,border:"none",background:i===photoIdx?"#fff":"#fff6",cursor:"pointer",transition:"width 0.25s ease, background 0.25s ease",pointerEvents:"auto"}}/>
-                ))}
-              </div>
-            )}
-            {photos.length > 1 && photoIdx > 0 && <button onClick={() => setPhotoIdx(i => i - 1)} style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>‹</button>}
-            {photos.length > 1 && photoIdx < photos.length - 1 && <button onClick={() => setPhotoIdx(i => i + 1)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"#0005",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer"}}>›</button>}
-          </div>
-        ) : (
-          <div style={{height:120,background:COLORS.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:0.3}}>{typeIcon}</div>
-        )}
-
-        {/* Content card */}
-        <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh"}}>
-
-          {/* Loading */}
-          {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
-
-          {/* Name + type */}
-          <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
-            {typeIcon} {name}
-          </div>
-
-          {/* Badges row */}
-          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8,alignItems:"center"}}>
-            {cuisine && <span style={{fontSize:10,padding:"3px 8px",borderRadius:6,background:`${COLORS.accent}15`,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.05em"}}>{cuisine}</span>}
-            {rating && <span style={{fontSize:12,color:COLORS.accent,fontFamily:"'DM Sans',sans-serif"}}>{"★".repeat(Math.round(rating))} {rating}</span>}
-            {reviewCount > 0 && <span style={{fontSize:11,color:COLORS.muted}}>({reviewCount})</span>}
-            {price && <span style={{fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif"}}>{price}</span>}
-          </div>
-
-          {/* Open/Closed */}
-          {isOpen !== undefined && (
-            <div style={{marginTop:8,fontSize:12,fontFamily:"'DM Sans',sans-serif",color:isOpen?"#5a9a5a":"#d4869b"}}>
-              {isOpen ? "● " + (t.placeOpen || "Open") : "● " + (t.placeClosed || "Closed")}
-            </div>
-          )}
-
-          {/* Action buttons */}
-          <div style={{display:"flex",gap:8,marginTop:16,flexWrap:"wrap"}}>
-            {phone && <a href={`tel:${phone}`} style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
-              <span style={{fontSize:18}}>📞</span>{t.placeCall||"Call"}
-            </a>}
-            {website && <a href={website} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
-              <span style={{fontSize:18}}>🌐</span>{t.placeWebsite||"Website"}
-            </a>}
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,textDecoration:"none",color:COLORS.text,fontSize:10,fontFamily:"'DM Sans',sans-serif"}}>
-              <span style={{fontSize:18}}>🗺️</span>{t.placeDirections||"Directions"}
-            </a>
-            {d.reservable && website && <a href={website} target="_blank" rel="noopener noreferrer" style={{flex:"1 1 70px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 8px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,textDecoration:"none",color:COLORS.accent,fontSize:10,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>
-              <span style={{fontSize:18}}>📅</span>{t.placeReserve||"Reserve"}
-            </a>}
-          </div>
-
-          {/* Features */}
-          {feats.length > 0 && (
-            <div style={{display:"flex",gap:5,flexWrap:"wrap",marginTop:14}}>
-              {feats.map((f, i) => <span key={i} style={{fontSize:10,padding:"3px 8px",borderRadius:10,background:`${COLORS.accent}11`,color:COLORS.accent,border:`1px solid ${COLORS.accent}22`,fontFamily:"'DM Sans',sans-serif"}}>✓ {f}</span>)}
-            </div>
-          )}
-
-          {/* Address */}
-          {address && (
-            <div style={{marginTop:14,fontSize:13,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif"}}>
-              📍 {address}
-            </div>
-          )}
-
-          {/* Opening hours */}
-          {hours && (
-            <details style={{marginTop:14}}>
-              <summary style={{fontSize:12,color:COLORS.accent,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>
-                🕐 {t.placeHours||"Opening hours"}
-              </summary>
-              <div style={{marginTop:6,fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",lineHeight:1.8}}>
-                {hours.map((h, i) => <div key={i}>{h}</div>)}
-              </div>
-            </details>
-          )}
-
-          {/* Editorial summary */}
-          {editorial && (
-            <div style={{marginTop:16,padding:14,background:COLORS.card,borderRadius:10,border:`1px solid ${COLORS.border}`}}>
-              <div style={{fontSize:13,fontStyle:"italic",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",lineHeight:1.5}}>
-                « {editorial} »
-              </div>
-            </div>
-          )}
-
-          {/* Friends who have it */}
-          {friendsHere.length > 0 && (
-            <div style={{marginTop:16}}>
-              <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:8}}>
-                👥 {t.placeFriends||"Friends who've been here"}
-              </div>
-              {friendsHere.map((fm, i) => (
-                <div key={i} style={{padding:"8px 12px",background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`,marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <span style={{fontSize:13,color:COLORS.text,fontFamily:"'DM Sans',sans-serif"}}>{fm.friendName || "Friend"}</span>
-                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                    {fm.rating > 0 && <span style={{fontSize:12,color:COLORS.accent}}>{"★".repeat(fm.rating)} {fm.rating}/5</span>}
-                    {fm.price && <span style={{fontSize:11,color:COLORS.muted}}>{fm.price}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* My status */}
-          {myMem && (
-            <div style={{marginTop:16,padding:12,background:`${COLORS.accent}08`,borderRadius:10,border:`1px solid ${COLORS.accent}33`}}>
-              <div style={{fontSize:11,textTransform:"uppercase",color:COLORS.accent,fontWeight:600,marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>❤️ {t.placeMyReview||"My review"}</div>
-              <div style={{fontSize:13,color:COLORS.text}}>{"★".repeat(myMem.rating||0)} {myMem.rating}/5</div>
-              {myMem.why && <div style={{fontSize:12,color:COLORS.muted,marginTop:4}}>{myMem.why}</div>}
-            </div>
-          )}
-          {myPin && !myMem && (
-            <div style={{marginTop:16,padding:12,background:"#6b8cce08",borderRadius:10,border:"1px solid #6b8cce33"}}>
-              <div style={{fontSize:11,textTransform:"uppercase",color:"#6b8cce",fontWeight:600,marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>📌 {t.placePinned||"Pinned"}</div>
-              {myPin.pin_note && <div style={{fontSize:12,color:COLORS.muted,fontStyle:"italic"}}>{myPin.pin_note}</div>}
-            </div>
-          )}
-
-          {/* Reviews */}
-          {reviews.length > 0 && (
-            <div style={{marginTop:16}}>
-              <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:8}}>
-                💬 {t.placeReviews||"Reviews"}
-              </div>
-              {reviews.map((rv, i) => (
-                <div key={i} style={{padding:12,background:COLORS.card,borderRadius:8,border:`1px solid ${COLORS.border}`,marginBottom:8}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                    <span style={{fontSize:12,fontWeight:600,color:COLORS.text}}>{rv.authorAttribution?.displayName||"Anonymous"}</span>
-                    {rv.rating && <span style={{fontSize:11,color:COLORS.accent}}>{"★".repeat(rv.rating)}</span>}
-                  </div>
-                  <div style={{fontSize:12,color:COLORS.muted,lineHeight:1.5}}>{(rv.text?.text||"").slice(0, 200)}{(rv.text?.text||"").length > 200 ? "..." : ""}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        </div>
+          {list.map((p, i) => (
+            <PlaceCardBody key={(p.google_place_id||p.id||p.name||"")+"-"+i}
+              place={p}
+              isActive={i === index}
+              isAdjacent={Math.abs(i - index) === 1}
+              detailsCacheRef={detailsCacheRef}
+              lang={t._lang || "en"}
+              COLORS={COLORS} t={t}
+              friendMemories={friendMemories} memories={memories} pins={pins}/>
+          ))}
         </div>
       </div>
 
-      {/* Bottom action bar */}
+      {/* Bottom action bar — applies to current card */}
       <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"12px 20px",background:`${COLORS.bg}ee`,borderTop:`1px solid ${COLORS.border}`,display:"flex",gap:8,backdropFilter:"blur(10px)"}}>
-        {!myMem && !myPin && onPin && <button onClick={() => { onPin(place); }}
+        {!myMem && !myPin && onPin && <button onClick={() => onPin(currentPlace)}
           style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
           📌 {t.pinBtn||"Pin"}
         </button>}
-        {!myMem && onAdd && <button onClick={() => { onAdd(place); onClose(); }}
+        {!myMem && onAdd && <button onClick={() => { onAdd(currentPlace); onClose(); }}
           style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
           + {t.recoAddFav||"Add to favorites"}
         </button>}
