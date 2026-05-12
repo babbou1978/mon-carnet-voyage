@@ -2199,7 +2199,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
       </div>
 
       {/* Content */}
-      <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-16,position:"relative",padding:"20px 20px 100px",minHeight:"50vh",boxShadow:"0 -6px 14px rgba(0,0,0,0.08)"}}>
+      <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-20,position:"relative",padding:"24px 20px 100px",minHeight:"50vh",boxShadow:"0 -1px 0 rgba(0,0,0,0.05), 0 -10px 24px rgba(0,0,0,0.18)"}}>
         {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
         <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
           {typeIcon} {name}
@@ -2433,27 +2433,36 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
         </div>
       </div>
 
-      {/* Bottom action bar — applies to current card */}
+      {/* Bottom action bar — always two slots so the bar height is constant */}
       <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"12px 20px",background:COLORS.bg,borderTop:`1px solid ${COLORS.border}`,display:"flex",gap:8}}>
-        {!myMem && !myPin && onPin && <button onClick={() => onPin(currentPlace)}
-          style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-          📌 {t.pinBtn||"Pin"}
-        </button>}
-        {!myMem && onAdd && <button onClick={() => onAdd(currentPlace)}
-          style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-          {t.recoAddFav||"+ Add to my favorites"}
-        </button>}
-        {myMem && (
-          <>
-            <div style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              ❤️ {t.placeInFavs||"In your favorites"}
-            </div>
-            {onEdit && <button onClick={() => onEdit(myMem)}
-              style={{flex:1,padding:"12px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,color:COLORS.text,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-              {t.editBtn||"✏️ Edit"}
-            </button>}
-          </>
-        )}
+        {/* Left slot: state indicator or pin action */}
+        {myMem ? (
+          <div style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1.2}}>
+            ❤️ {t.placeInFavs||"In your favorites"}
+          </div>
+        ) : myPin ? (
+          <div style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1.2}}>
+            📌 {t.placePinned||"Pinned"}
+          </div>
+        ) : onPin ? (
+          <button onClick={() => onPin(currentPlace)}
+            style={{flex:1,padding:"12px",background:"#6b8cce11",border:"1px solid #6b8cce44",borderRadius:10,color:"#6b8cce",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",lineHeight:1.2}}>
+            📌 {t.pinBtn||"Pin"}
+          </button>
+        ) : <div style={{flex:1}}/>}
+
+        {/* Right slot: edit if already a favorite, else add */}
+        {myMem && onEdit ? (
+          <button onClick={() => onEdit(myMem)}
+            style={{flex:1,padding:"12px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,color:COLORS.text,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",lineHeight:1.2}}>
+            {t.editBtn||"✏️ Edit"}
+          </button>
+        ) : !myMem && onAdd ? (
+          <button onClick={() => onAdd(currentPlace)}
+            style={{flex:1,padding:"12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}44`,borderRadius:10,color:COLORS.accent,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",lineHeight:1.2}}>
+            {t.recoAddFav||"+ Add to my favorites"}
+          </button>
+        ) : <div style={{flex:1}}/>}
       </div>
       </div>
     </div>
