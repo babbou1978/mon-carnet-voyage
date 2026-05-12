@@ -132,7 +132,7 @@ const TRANSLATIONS = {
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
     errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: romantique, rooftop, brunch entre amis...", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
+    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: romantique, rooftop, brunch entre amis...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
@@ -193,7 +193,7 @@ const TRANSLATIONS = {
     followUnfollow: "Dejar de seguir", followPrivate: "Cuenta privada", followPublic: "Cuenta pública",
     errorUsernameRequired: "El usuario es obligatorio.", errorUsernameTaken: "Este usuario ya está en uso.", errorUsernameInvalid: "3-20 caracteres, letras, números, _ o . solamente.", profilePhoto: "Foto", profileUsername: "Usuario", profilePrivacy: "Privacidad",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
-    recoMood: "Mood / preferencia", recoMoodPlaceholder: "Ej: romántico, terraza, brunch con amigos...", recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
+    recoMood: "Mood / preferencia", recoMoodPlaceholder: "Ej: romántico, terraza, brunch con amigos...", recoMoodDictate: "Dictar mi preferencia", recoMoodStop: "Detener la dictado", recoMoodListening: "Escuchando...", recoMoodNotSupported: "El dictado por voz no está disponible en este navegador. Prueba Chrome, Edge o Safari móvil.", recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
     recoGPS: "📍 Mi ubicación", recoManual: "✏️ Introducir", recoGPSLoading: "Obteniendo tu ubicación...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y seguidos",
@@ -252,7 +252,7 @@ const TRANSLATIONS = {
     followUnfollow: "Entfolgen", followPrivate: "Privates Konto", followPublic: "Öffentliches Konto",
     errorUsernameRequired: "Benutzername ist erforderlich.", errorUsernameTaken: "Dieser Benutzername ist bereits vergeben.", errorUsernameInvalid: "3-20 Zeichen, Buchstaben, Zahlen, _ oder . erlaubt.", profilePhoto: "Foto", profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
-    recoMood: "Mood / Stimmung", recoMoodPlaceholder: "z.B. romantisch, Dachterrasse, Brunch mit Freunden...", recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
+    recoMood: "Mood / Stimmung", recoMoodPlaceholder: "z.B. romantisch, Dachterrasse, Brunch mit Freunden...", recoMoodDictate: "Stimmung diktieren", recoMoodStop: "Diktat beenden", recoMoodListening: "Höre zu...", recoMoodNotSupported: "Die Sprachdiktierung ist in diesem Browser nicht verfügbar. Versuche Chrome, Edge oder mobiles Safari.", recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
     recoGPS: "📍 Mein Standort", recoManual: "✏️ Eingeben", recoGPSLoading: "Standort wird ermittelt...",
     recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Gefolgte",
@@ -311,7 +311,7 @@ const TRANSLATIONS = {
     followUnfollow: "Smetti di seguire", followPrivate: "Account privato", followPublic: "Account pubblico",
     errorUsernameRequired: "Il nome utente è obbligatorio.", errorUsernameTaken: "Questo nome utente è già in uso.", errorUsernameInvalid: "3-20 caratteri, lettere, numeri, _ o . ammessi.", profilePhoto: "Foto", profileUsername: "Nome utente", profilePrivacy: "Privacy",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
-    recoMood: "Mood / desiderio", recoMoodPlaceholder: "Es: romantico, rooftop, brunch con amici...", recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
+    recoMood: "Mood / desiderio", recoMoodPlaceholder: "Es: romantico, rooftop, brunch con amici...", recoMoodDictate: "Detta il desiderio", recoMoodStop: "Ferma la dettatura", recoMoodListening: "In ascolto...", recoMoodNotSupported: "La dettatura vocale non è disponibile in questo browser. Prova Chrome, Edge o Safari mobile.", recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
     recoGPS: "📍 La mia posizione", recoManual: "✏️ Inserisci", recoGPSLoading: "Recupero posizione...",
     recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e seguiti",
@@ -370,7 +370,7 @@ const TRANSLATIONS = {
     followUnfollow: "Deixar de seguir", followPrivate: "Conta privada", followPublic: "Conta pública",
     errorUsernameRequired: "O nome de utilizador é obrigatório.", errorUsernameTaken: "Este utilizador já está em uso.", errorUsernameInvalid: "3-20 caracteres, letras, números, _ ou . apenas.", profilePhoto: "Foto", profileUsername: "Utilizador", profilePrivacy: "Privacidade",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
-    recoMood: "Mood / desejo", recoMoodPlaceholder: "Ex: romântico, terraço, brunch com amigos...", recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
+    recoMood: "Mood / desejo", recoMoodPlaceholder: "Ex: romântico, terraço, brunch com amigos...", recoMoodDictate: "Ditar o desejo", recoMoodStop: "Parar o ditado", recoMoodListening: "A ouvir...", recoMoodNotSupported: "O ditado por voz não está disponível neste navegador. Experimenta o Chrome, Edge ou Safari móvel.", recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
     recoGPS: "📍 A minha posição", recoManual: "✏️ Introduzir", recoGPSLoading: "A obter posição...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e seguidos",
@@ -429,7 +429,7 @@ const TRANSLATIONS = {
     followUnfollow: "Ontvolgen", followPrivate: "Privéaccount", followPublic: "Openbaar account",
     errorUsernameRequired: "Gebruikersnaam is verplicht.", errorUsernameTaken: "Deze gebruikersnaam is al in gebruik.", errorUsernameInvalid: "3-20 tekens, letters, cijfers, _ of . toegestaan.", profilePhoto: "Foto", profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
-    recoMood: "Mood / stemming", recoMoodPlaceholder: "Bijv. romantisch, dakterras, brunch met vrienden...", recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
+    recoMood: "Mood / stemming", recoMoodPlaceholder: "Bijv. romantisch, dakterras, brunch met vrienden...", recoMoodDictate: "Stemming dicteren", recoMoodStop: "Dicteren stoppen", recoMoodListening: "Aan het luisteren...", recoMoodNotSupported: "Spraakdictee is niet beschikbaar in deze browser. Probeer Chrome, Edge of Safari op mobiel.", recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
     recoGPS: "📍 Mijn locatie", recoManual: "✏️ Invoeren", recoGPSLoading: "Locatie ophalen...",
     recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & gevolgd",
@@ -488,7 +488,7 @@ const TRANSLATIONS = {
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
     errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. romantic, rooftop, kids birthday, brunch with friends...", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
+    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. romantic, rooftop, kids birthday, brunch with friends...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
@@ -733,6 +733,7 @@ const getCSS = (COLORS) => `
   .success-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${COLORS.accent}; color: ${COLORS.bg}; color: #0f0e0c; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 300; animation: fadeInUp 0.3s ease, fadeOut 0.3s ease 1.7s forwards; }
   @keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
   @keyframes fadeOut { to{opacity:0} }
+  @keyframes moodPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.55)} 50%{box-shadow:0 0 0 8px rgba(231,76,60,0)} }
   .count-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: ${COLORS.accent}; color: #0f0e0c; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .notif-badge { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: #e06060; color: white; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .empty { text-align: center; padding: 60px 20px; color: ${COLORS.muted}; }
@@ -2432,6 +2433,41 @@ function TravelAgent() {
   const nbRecosRef = useRef(prefs.nbrecos || "10");
   const [recoLimit, setRecoLimit] = useState(prefs.nbrecos || "10");
   const [recoMood, setRecoMood] = useState("");
+  const [recoMoodListening, setRecoMoodListening] = useState(false);
+  const moodRecognitionRef = useRef(null);
+  const moodFinalTranscriptRef = useRef("");
+  const toggleMoodDictation = () => {
+    const SR = typeof window !== "undefined" ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+    if (!SR) {
+      alert(t.recoMoodNotSupported || "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.");
+      return;
+    }
+    if (recoMoodListening && moodRecognitionRef.current) {
+      try { moodRecognitionRef.current.stop(); } catch(_) {}
+      return;
+    }
+    const langMap = { fr: "fr-FR", en: "en-US", es: "es-ES", de: "de-DE", it: "it-IT", pt: "pt-PT", nl: "nl-NL" };
+    const rec = new SR();
+    rec.lang = langMap[prefs.language] || "en-US";
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
+    moodFinalTranscriptRef.current = recoMood ? recoMood + " " : "";
+    rec.onstart = () => setRecoMoodListening(true);
+    rec.onresult = (event) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) moodFinalTranscriptRef.current += transcript + " ";
+        else interim += transcript;
+      }
+      setRecoMood((moodFinalTranscriptRef.current + interim).replace(/\s+/g, " ").trim());
+    };
+    rec.onerror = () => setRecoMoodListening(false);
+    rec.onend = () => { setRecoMoodListening(false); moodRecognitionRef.current = null; };
+    moodRecognitionRef.current = rec;
+    try { rec.start(); } catch(_) { setRecoMoodListening(false); }
+  };
   const [usernameError, setUsernameError] = useState("");
   const [pinModal, setPinModal] = useState(null);
   const [placeSheet, setPlaceSheet] = useState(null); // {place, list, index}
@@ -4224,7 +4260,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 </div>
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
-                  <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends..."} style={{background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:"10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic"}}/>
+                  <div style={{position:"relative",width:"100%"}}>
+                    <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 44px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box"}}/>
+                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
+                  </div>
                 </div>
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
