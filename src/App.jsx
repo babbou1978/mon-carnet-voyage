@@ -2514,10 +2514,23 @@ function TravelAgent() {
   const [prevTab, setPrevTab] = useState("reco");
   const [pins, setPins] = useState([]);
   const scrollPositions = useRef({});
-  const pendingScrollRef = useRef(null); // { target, attempts } while a tab change is restoring
+  const pendingScrollRef = useRef(null);
 
-  // After tab change, re-apply the saved scroll until the new tab's content
-  // is tall enough for it to actually stick (async data, images, etc.).
+  // Get / set the page scroll using the scrollingElement API (the modern
+  // cross-browser way that returns the actual element that scrolls — either
+  // <html> or <body> depending on the doctype / quirks mode).
+  const getPageScroll = () => {
+    const el = document.scrollingElement || document.documentElement || document.body;
+    return Math.max(el.scrollTop || 0, window.scrollY || 0);
+  };
+  const setPageScroll = (y) => {
+    const el = document.scrollingElement || document.documentElement || document.body;
+    el.scrollTop = y;
+    if (el !== document.documentElement) document.documentElement.scrollTop = y;
+    if (el !== document.body) document.body.scrollTop = y;
+    window.scrollTo(0, y);
+  };
+
   useLayoutEffect(() => {
     const target = scrollPositions.current._next;
     if (target === null || target === undefined) return;
@@ -2527,16 +2540,14 @@ function TravelAgent() {
     const apply = () => {
       const pending = pendingScrollRef.current;
       if (!pending) return;
-      window.scrollTo(0, pending.target);
-      if (document.documentElement) document.documentElement.scrollTop = pending.target;
-      const actual = Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0);
-      // If we reached (or passed) the target, we're done.
+      setPageScroll(pending.target);
+      const actual = getPageScroll();
       if (Math.abs(actual - pending.target) < 2 || pending.target === 0) {
         pendingScrollRef.current = null;
         return;
       }
       pending.attempts += 1;
-      if (pending.attempts < 20) {
+      if (pending.attempts < 30) {
         requestAnimationFrame(apply);
       } else {
         pendingScrollRef.current = null;
@@ -2546,9 +2557,7 @@ function TravelAgent() {
   }, [tab]);
 
   const setTab = (t) => {
-    // Capture scroll position from whichever value is the real one on this browser.
-    const currentY = Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0);
-    scrollPositions.current[tab] = currentY;
+    scrollPositions.current[tab] = getPageScroll();
     scrollPositions.current._next = scrollPositions.current[t] ?? 0;
     _setTab(t);
   };
