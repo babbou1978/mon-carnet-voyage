@@ -2536,38 +2536,22 @@ function TravelAgent() {
     if (target === null || target === undefined) return;
     scrollPositions.current._next = null;
 
-    // Push to target now and keep pushing on every frame for ~700ms so async
-    // content loads, image layouts, and iOS sticky-header rewrites can't drift
-    // us away. Stop early on any user touch / wheel input (they want to
-    // override us). 30 frames * 16ms = ~500ms; 45 = ~720ms.
-    let stop = false;
-    const onUserInput = () => { stop = true; };
-    window.addEventListener("touchstart", onUserInput, { passive: true });
-    window.addEventListener("wheel", onUserInput, { passive: true });
-
+    // Apply right away, then keep pushing on every frame for ~500ms in case
+    // body height changes after async content / image / sticky-header
+    // recompute. No early-stop on user input — the touchstart of the tab tap
+    // can fire after the listener is registered on some iOS versions and
+    // cancel the restore prematurely.
     let attempts = 0;
+    let cancelled = false;
     const tick = () => {
-      if (stop) {
-        window.removeEventListener("touchstart", onUserInput);
-        window.removeEventListener("wheel", onUserInput);
-        return;
-      }
+      if (cancelled) return;
       setPageScroll(target);
       attempts += 1;
-      if (attempts < 45) {
-        requestAnimationFrame(tick);
-      } else {
-        window.removeEventListener("touchstart", onUserInput);
-        window.removeEventListener("wheel", onUserInput);
-      }
+      if (attempts < 30) requestAnimationFrame(tick);
     };
     tick();
 
-    return () => {
-      stop = true;
-      window.removeEventListener("touchstart", onUserInput);
-      window.removeEventListener("wheel", onUserInput);
-    };
+    return () => { cancelled = true; };
   }, [tab]);
 
   const setTab = (t) => {
