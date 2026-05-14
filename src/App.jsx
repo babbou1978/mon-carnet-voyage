@@ -2514,20 +2514,39 @@ function TravelAgent() {
   const [prevTab, setPrevTab] = useState("reco");
   const [pins, setPins] = useState([]);
   const scrollPositions = useRef({});
+  const pendingScrollRef = useRef(null); // { target, attempts } while a tab change is restoring
+
+  // After tab change, re-apply the saved scroll until the new tab's content
+  // is tall enough for it to actually stick (async data, images, etc.).
   useLayoutEffect(() => {
-    const pos = scrollPositions.current._next;
-    if (pos === null || pos === undefined) return;
+    const target = scrollPositions.current._next;
+    if (target === null || target === undefined) return;
     scrollPositions.current._next = null;
-    // Two-arg form is always instant (the {behavior:"instant"} option is not
-    // supported on older Safari/iOS and the call was being ignored there).
-    window.scrollTo(0, pos);
-    // Re-apply after a frame in case async tab content was still mounting and
-    // the body wasn't tall enough yet (scrollTo clamps to body height).
-    requestAnimationFrame(() => window.scrollTo(0, pos));
+    pendingScrollRef.current = { target, attempts: 0 };
+
+    const apply = () => {
+      const pending = pendingScrollRef.current;
+      if (!pending) return;
+      window.scrollTo(0, pending.target);
+      if (document.documentElement) document.documentElement.scrollTop = pending.target;
+      const actual = Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0);
+      // If we reached (or passed) the target, we're done.
+      if (Math.abs(actual - pending.target) < 2 || pending.target === 0) {
+        pendingScrollRef.current = null;
+        return;
+      }
+      pending.attempts += 1;
+      if (pending.attempts < 20) {
+        requestAnimationFrame(apply);
+      } else {
+        pendingScrollRef.current = null;
+      }
+    };
+    apply();
   }, [tab]);
+
   const setTab = (t) => {
-    // Use both window.scrollY and documentElement.scrollTop for cross-browser
-    // safety (some iOS versions return 0 from one or the other).
+    // Capture scroll position from whichever value is the real one on this browser.
     const currentY = Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0);
     scrollPositions.current[tab] = currentY;
     scrollPositions.current._next = scrollPositions.current[t] ?? 0;
