@@ -2514,9 +2514,9 @@ function TravelAgent() {
   const [prevTab, setPrevTab] = useState("reco");
   const [pins, setPins] = useState([]);
 
-  // Set scroll to top of page. Targets every possible scrolling element so
-  // the call works regardless of whether the browser scrolls <html>, <body>
-  // or relies on window.scrollTo on this device.
+  // Reset scroll to the top of the page. Targets every possible scrolling
+  // element so the call lands regardless of whether the browser scrolls
+  // <html>, <body>, or only responds to window.scrollTo.
   const scrollPageToTop = () => {
     if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
     if (document.documentElement) document.documentElement.scrollTop = 0;
@@ -2524,25 +2524,29 @@ function TravelAgent() {
     window.scrollTo(0, 0);
   };
 
-  // On every tab change, force the page back to the top. The previous
-  // per-tab scroll-memory implementation was inconsistent across browsers
-  // (saving worked, restoring didn't reliably stick on iOS Safari for short
-  // tabs that inherited a clamped scroll position from the previous tab).
-  // Always-top is predictable and matches Twitter / Instagram tab behavior.
+  // Pre-paint reset.
   useLayoutEffect(() => {
-    let attempts = 0;
-    let cancelled = false;
-    const tick = () => {
-      if (cancelled) return;
-      scrollPageToTop();
-      attempts += 1;
-      if (attempts < 30) requestAnimationFrame(tick);
-    };
-    tick();
-    return () => { cancelled = true; };
+    scrollPageToTop();
   }, [tab]);
 
-  const setTab = (t) => { _setTab(t); };
+  // Post-paint + delayed resets, so async content / image loads / iOS
+  // sticky-header recompute can't drift us back away from the top.
+  useEffect(() => {
+    scrollPageToTop();
+    const t1 = setTimeout(scrollPageToTop, 0);
+    const t2 = setTimeout(scrollPageToTop, 50);
+    const t3 = setTimeout(scrollPageToTop, 150);
+    const t4 = setTimeout(scrollPageToTop, 400);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, [tab]);
+
+  const setTab = (t) => {
+    // Scroll BEFORE the React state update so when the new tab's content
+    // mounts and the body height changes, scrollY is already 0 and the
+    // browser has nothing to clamp.
+    scrollPageToTop();
+    _setTab(t);
+  };
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
   const [friends, setFriends] = useState([]); // people I follow
