@@ -2535,25 +2535,39 @@ function TravelAgent() {
     const target = scrollPositions.current._next;
     if (target === null || target === undefined) return;
     scrollPositions.current._next = null;
-    pendingScrollRef.current = { target, attempts: 0 };
 
-    const apply = () => {
-      const pending = pendingScrollRef.current;
-      if (!pending) return;
-      setPageScroll(pending.target);
-      const actual = getPageScroll();
-      if (Math.abs(actual - pending.target) < 2 || pending.target === 0) {
-        pendingScrollRef.current = null;
+    // Push to target now and keep pushing on every frame for ~700ms so async
+    // content loads, image layouts, and iOS sticky-header rewrites can't drift
+    // us away. Stop early on any user touch / wheel input (they want to
+    // override us). 30 frames * 16ms = ~500ms; 45 = ~720ms.
+    let stop = false;
+    const onUserInput = () => { stop = true; };
+    window.addEventListener("touchstart", onUserInput, { passive: true });
+    window.addEventListener("wheel", onUserInput, { passive: true });
+
+    let attempts = 0;
+    const tick = () => {
+      if (stop) {
+        window.removeEventListener("touchstart", onUserInput);
+        window.removeEventListener("wheel", onUserInput);
         return;
       }
-      pending.attempts += 1;
-      if (pending.attempts < 30) {
-        requestAnimationFrame(apply);
+      setPageScroll(target);
+      attempts += 1;
+      if (attempts < 45) {
+        requestAnimationFrame(tick);
       } else {
-        pendingScrollRef.current = null;
+        window.removeEventListener("touchstart", onUserInput);
+        window.removeEventListener("wheel", onUserInput);
       }
     };
-    apply();
+    tick();
+
+    return () => {
+      stop = true;
+      window.removeEventListener("touchstart", onUserInput);
+      window.removeEventListener("wheel", onUserInput);
+    };
   }, [tab]);
 
   const setTab = (t) => {
