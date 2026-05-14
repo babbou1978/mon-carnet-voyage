@@ -2199,7 +2199,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
       </div>
 
       {/* Content */}
-      <div style={{background:COLORS.bg,borderRadius:"14px 14px 0 0",marginTop:-12,position:"relative",padding:"18px 20px 100px",minHeight:"50vh",boxShadow:"0 -1px 0 rgba(0,0,0,0.06)"}}>
+      <div style={{background:COLORS.bg,marginTop:0,position:"relative",padding:"18px 20px 100px",minHeight:"50vh",borderTop:`1px solid ${COLORS.border}`}}>
         {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
         <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
           {typeIcon} {name}
