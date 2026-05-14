@@ -2160,7 +2160,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   return (
     <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
       {/* Photo gallery — fixed-height carousel (no layout shift while loading) */}
-      <div style={{position:"relative",width:"100%",height:260,minHeight:260,maxHeight:260,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
+      <div style={{position:"relative",width:"100%",height:220,minHeight:220,maxHeight:220,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
         onTouchStart={photos.length>0?onPhotoTouchStart:undefined}
         onTouchMove={photos.length>0?onPhotoTouchMove:undefined}
         onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}>
@@ -2199,7 +2199,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
       </div>
 
       {/* Content */}
-      <div style={{background:COLORS.bg,borderRadius:"16px 16px 0 0",marginTop:-20,position:"relative",padding:"24px 20px 100px",minHeight:"50vh",boxShadow:"0 -1px 0 rgba(0,0,0,0.05), 0 -10px 24px rgba(0,0,0,0.18)"}}>
+      <div style={{background:COLORS.bg,borderRadius:"14px 14px 0 0",marginTop:-12,position:"relative",padding:"18px 20px 100px",minHeight:"50vh",boxShadow:"0 -1px 0 rgba(0,0,0,0.06)"}}>
         {loading && <div style={{textAlign:"center",padding:"20px 0",color:COLORS.muted,fontSize:13}}>Loading...</div>}
         <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:COLORS.text,fontWeight:600,lineHeight:1.2}}>
           {typeIcon} {name}
