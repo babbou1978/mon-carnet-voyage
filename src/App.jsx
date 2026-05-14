@@ -2515,10 +2515,24 @@ function TravelAgent() {
   const [pins, setPins] = useState([]);
   const scrollPositions = useRef({});
   useLayoutEffect(() => {
-    const pos = scrollPositions.current._next ?? null;
-    if (pos !== null) { window.scrollTo({top: pos, behavior:"instant"}); scrollPositions.current._next = null; }
+    const pos = scrollPositions.current._next;
+    if (pos === null || pos === undefined) return;
+    scrollPositions.current._next = null;
+    // Two-arg form is always instant (the {behavior:"instant"} option is not
+    // supported on older Safari/iOS and the call was being ignored there).
+    window.scrollTo(0, pos);
+    // Re-apply after a frame in case async tab content was still mounting and
+    // the body wasn't tall enough yet (scrollTo clamps to body height).
+    requestAnimationFrame(() => window.scrollTo(0, pos));
   }, [tab]);
-  const setTab = (t) => { scrollPositions.current[tab] = window.scrollY; scrollPositions.current._next = scrollPositions.current[t] ?? 0; _setTab(t); };
+  const setTab = (t) => {
+    // Use both window.scrollY and documentElement.scrollTop for cross-browser
+    // safety (some iOS versions return 0 from one or the other).
+    const currentY = Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0);
+    scrollPositions.current[tab] = currentY;
+    scrollPositions.current._next = scrollPositions.current[t] ?? 0;
+    _setTab(t);
+  };
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
   const [friends, setFriends] = useState([]); // people I follow
