@@ -2513,52 +2513,36 @@ function TravelAgent() {
   const [showProfilePanel, setShowProfilePanel] = useState(false);
   const [prevTab, setPrevTab] = useState("reco");
   const [pins, setPins] = useState([]);
-  const scrollPositions = useRef({});
-  const pendingScrollRef = useRef(null);
 
-  // Get / set the page scroll using the scrollingElement API (the modern
-  // cross-browser way that returns the actual element that scrolls — either
-  // <html> or <body> depending on the doctype / quirks mode).
-  const getPageScroll = () => {
-    const el = document.scrollingElement || document.documentElement || document.body;
-    return Math.max(el.scrollTop || 0, window.scrollY || 0);
-  };
-  const setPageScroll = (y) => {
-    const el = document.scrollingElement || document.documentElement || document.body;
-    el.scrollTop = y;
-    if (el !== document.documentElement) document.documentElement.scrollTop = y;
-    if (el !== document.body) document.body.scrollTop = y;
-    window.scrollTo(0, y);
+  // Set scroll to top of page. Targets every possible scrolling element so
+  // the call works regardless of whether the browser scrolls <html>, <body>
+  // or relies on window.scrollTo on this device.
+  const scrollPageToTop = () => {
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
   };
 
+  // On every tab change, force the page back to the top. The previous
+  // per-tab scroll-memory implementation was inconsistent across browsers
+  // (saving worked, restoring didn't reliably stick on iOS Safari for short
+  // tabs that inherited a clamped scroll position from the previous tab).
+  // Always-top is predictable and matches Twitter / Instagram tab behavior.
   useLayoutEffect(() => {
-    const target = scrollPositions.current._next;
-    if (target === null || target === undefined) return;
-    scrollPositions.current._next = null;
-
-    // Apply right away, then keep pushing on every frame for ~500ms in case
-    // body height changes after async content / image / sticky-header
-    // recompute. No early-stop on user input — the touchstart of the tab tap
-    // can fire after the listener is registered on some iOS versions and
-    // cancel the restore prematurely.
     let attempts = 0;
     let cancelled = false;
     const tick = () => {
       if (cancelled) return;
-      setPageScroll(target);
+      scrollPageToTop();
       attempts += 1;
       if (attempts < 30) requestAnimationFrame(tick);
     };
     tick();
-
     return () => { cancelled = true; };
   }, [tab]);
 
-  const setTab = (t) => {
-    scrollPositions.current[tab] = getPageScroll();
-    scrollPositions.current._next = scrollPositions.current[t] ?? 0;
-    _setTab(t);
-  };
+  const setTab = (t) => { _setTab(t); };
   const [memories, setMemories] = useState([]);
   const [friendMemories, setFriendMemories] = useState([]);
   const [friends, setFriends] = useState([]); // people I follow
