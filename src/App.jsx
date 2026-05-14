@@ -2513,38 +2513,46 @@ function TravelAgent() {
   const [showProfilePanel, setShowProfilePanel] = useState(false);
   const [prevTab, setPrevTab] = useState("reco");
   const [pins, setPins] = useState([]);
+  const scrollPositions = useRef({});
 
-  // Reset scroll to the top of the page. Targets every possible scrolling
-  // element so the call lands regardless of whether the browser scrolls
-  // <html>, <body>, or only responds to window.scrollTo.
-  const scrollPageToTop = () => {
-    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
-    if (document.documentElement) document.documentElement.scrollTop = 0;
-    if (document.body) document.body.scrollTop = 0;
-    window.scrollTo(0, 0);
+  const getPageScroll = () => {
+    const el = document.scrollingElement || document.documentElement || document.body;
+    return Math.max(el.scrollTop || 0, window.scrollY || 0);
+  };
+  const setPageScroll = (y) => {
+    if (document.scrollingElement) document.scrollingElement.scrollTop = y;
+    if (document.documentElement) document.documentElement.scrollTop = y;
+    if (document.body) document.body.scrollTop = y;
+    window.scrollTo(0, y);
   };
 
-  // Pre-paint reset.
+  // Pre-paint restore.
   useLayoutEffect(() => {
-    scrollPageToTop();
+    const target = scrollPositions.current._next;
+    if (target === null || target === undefined) return;
+    scrollPositions.current._next = null;
+    setPageScroll(target);
   }, [tab]);
 
-  // Post-paint + delayed resets, so async content / image loads / iOS
-  // sticky-header recompute can't drift us back away from the top.
+  // Post-paint + staggered retries, in case async content / image loads /
+  // sticky-header recompute drift us away from the saved target.
   useEffect(() => {
-    scrollPageToTop();
-    const t1 = setTimeout(scrollPageToTop, 0);
-    const t2 = setTimeout(scrollPageToTop, 50);
-    const t3 = setTimeout(scrollPageToTop, 150);
-    const t4 = setTimeout(scrollPageToTop, 400);
+    const target = scrollPositions.current._lastTarget;
+    if (target === null || target === undefined) return;
+    setPageScroll(target);
+    const t1 = setTimeout(() => setPageScroll(target), 0);
+    const t2 = setTimeout(() => setPageScroll(target), 50);
+    const t3 = setTimeout(() => setPageScroll(target), 150);
+    const t4 = setTimeout(() => setPageScroll(target), 400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [tab]);
 
   const setTab = (t) => {
-    // Scroll BEFORE the React state update so when the new tab's content
-    // mounts and the body height changes, scrollY is already 0 and the
-    // browser has nothing to clamp.
-    scrollPageToTop();
+    // Save current tab's scroll, queue the destination's saved scroll.
+    scrollPositions.current[tab] = getPageScroll();
+    const target = scrollPositions.current[t] ?? 0;
+    scrollPositions.current._next = target;
+    scrollPositions.current._lastTarget = target;
     _setTab(t);
   };
   const [memories, setMemories] = useState([]);
