@@ -897,7 +897,26 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
       const res = await fetch("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "details", placeId }) });
       const details = await res.json();
       const components = details.addressComponents||[];
-      const city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
+      let city = components.find(c=>c.types?.includes("locality"))?.longText || components.find(c=>c.types?.includes("postal_town"))?.longText || components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText || "";
+      // Fallback: parse from formattedAddress when addressComponents are missing/incomplete
+      // (e.g. for some Paris results where locality is empty)
+      if (!city) {
+        const fa = details.formattedAddress || secondaryText || "";
+        const parts = fa.split(",").map(s=>s.trim()).filter(Boolean);
+        if (parts.length >= 2) {
+          const cityPart = parts[parts.length - 2] || "";
+          // Drop tokens that look like postal codes
+          // - pure digits ("75008", "10001")
+          // - UK outward like "W1U", "SW1A", "E1"
+          // - UK inward like "6RG", "1AA"
+          const tokens = cityPart.split(/\s+/).filter(w =>
+            !/^\d+$/.test(w) &&
+            !/^[A-Z]{1,2}\d[A-Z\d]?$/i.test(w) &&
+            !/^\d[A-Z]{2}$/i.test(w)
+          );
+          city = tokens.join(" ");
+        }
+      }
       const country = components.find(c=>c.types?.includes("country"))?.longText || secondaryText.split(",").pop()?.trim() || "";
       const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
       const route = components.find(c=>c.types?.includes("route"))?.longText || "";

@@ -80,7 +80,7 @@ export default async function handler(req, res) {
       return res.status(200).json(await r.json());
 
     } else if (action === 'details') {
-      const detailsFieldMask = 'displayName,formattedAddress,priceLevel,types,primaryType,primaryTypeDisplayName,rating,userRatingCount,location,currentOpeningHours,regularOpeningHours,businessStatus,editorialSummary,reviews,websiteUri,internationalPhoneNumber,nationalPhoneNumber,googleMapsUri,photos,outdoorSeating,liveMusic,servesCocktails,goodForChildren,goodForGroups,servesVegetarianFood,allowsDogs,menuForChildren,reservable,servesBrunch,servesLunch,servesDinner,dineIn,takeout,delivery';
+      const detailsFieldMask = 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,primaryTypeDisplayName,rating,userRatingCount,location,currentOpeningHours,regularOpeningHours,businessStatus,editorialSummary,reviews,websiteUri,internationalPhoneNumber,nationalPhoneNumber,googleMapsUri,photos,outdoorSeating,liveMusic,servesCocktails,goodForChildren,goodForGroups,servesVegetarianFood,allowsDogs,menuForChildren,reservable,servesBrunch,servesLunch,servesDinner,dineIn,takeout,delivery';
       const r = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=${userLang}`, {
         headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': detailsFieldMask },
       });
