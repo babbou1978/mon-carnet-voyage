@@ -1316,6 +1316,13 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
   const timerRef = useRef(null);
   const wrapperRef = useRef(null);
 
+  // Sync query when the parent updates initialValue externally (e.g. the
+  // 'Ask Outsy' parser sets a city). Without this, useState(initialValue)
+  // only reads on mount and later updates are silently dropped.
+  useEffect(() => {
+    setQuery(initialValue);
+  }, [initialValue]);
+
   useEffect(() => {
     const handler = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false); };
     document.addEventListener("mousedown", handler);
@@ -2719,11 +2726,15 @@ function TravelAgent() {
       });
       const data = await res.json();
       if (!data.error) {
+        // Reset the soft form fields first so the form reflects exactly the
+        // current textarea content, never a leftover from a previous parse.
+        // Type and location stay if the AI didn't mention them explicitly.
+        setRecoMood("");
+        setRecoKids(false);
+        setRecoPrice(ALL);
+
         if (data.type) setRecoType(data.type);
-        // Replace the mood field with what was just parsed (don't merge with
-        // previous analyses). The textarea is the source of truth: each
-        // re-analyse should reflect exactly its current content.
-        if (Array.isArray(data.moodKeywords)) {
+        if (Array.isArray(data.moodKeywords) && data.moodKeywords.length > 0) {
           setRecoMood(data.moodKeywords.join(", "));
         }
         if (data.useCurrentLocation === true) {
