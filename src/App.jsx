@@ -3862,9 +3862,25 @@ function TravelAgent() {
       // For display: show ALL popular places. Display-time dedup with heartMemories/aiRecos handles overlap.
       setNearbyPlaces(sorted);
 
+      // Distance hard-cap (same heuristic as moodFilteredNearby for the
+      // display): half-way between the user's chosen radius and the
+      // server-side locationBias radius. Prevents global-name-match
+      // hallucinations like 'Refinery Rooftop NYC' at 5500 km being
+      // sent to Claude as an AI candidate just because the keyword
+      // happens to be in its name.
+      const biasRadius = Math.max(distance * 1.5, 3000);
+      const maxDistance = (distance + biasRadius) / 2;
+      const withinRange = sorted.filter(p => {
+        if (!p.lat || !p.lng || !coords?.lat) return true;
+        const R = 6371, dLat = (coords.lat - p.lat) * Math.PI/180, dLng = (coords.lng - p.lng) * Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(coords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+        const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1000;
+        return dist <= maxDistance;
+      });
+
       // For AI candidates: exclude visited places so AI proposes novel ones
-      nearbyForAI = sorted.filter(p => !alreadyVisited.has(p.name));
-      
+      nearbyForAI = withinRange.filter(p => !alreadyVisited.has(p.name));
+
       // Pre-filter by mood: if mood is set, only send mood-matching candidates to AI
       if (recoMood) {
         const moodFiltered = nearbyForAI.filter(p => placeMatchesMood(p, recoMood));
@@ -3958,9 +3974,10 @@ ${candidateList
   ? `${recoType.toUpperCase()} LIST — ${nearbyForAI.length} places near the user:
 ${candidateList}
 
-Task: Pick the top ${nbRecosCount} ${recoType.toLowerCase()}s from this list that best match the user profile based on the guidance above.
+Task: Pick up to ${nbRecosCount} ${recoType.toLowerCase()}s STRICTLY from the list above that best match the user profile based on the guidance.
+**CRITICAL — only pick from the numbered list. NEVER invent or recall a place that is not in the list.** If fewer than ${nbRecosCount} items match the user's request, return ONLY the matching ones. Never pad the result with places outside the list.
 For each pick, set "idx" to the item number (e.g. idx: 3 for item 3) and "name" to the place name as written in the list.`
-  : `Task: Find the ${nbRecosCount} best ${recoType} near "${locationLabel}" within ${distLabel}.`
+  : `No candidate list is available (Google returned zero places near the user). Return an empty "recommendations" array. Do NOT invent places.`
 }
 
 RULES:
@@ -3979,7 +3996,12 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
       });
       const data = await res.json();
       if (data.recommendations) {
-        // Pre-resolve AI number references to real Google places BEFORE verify
+        // Pre-resolve AI picks to real Google places. Always validate against
+        // nearbyForAI — if the AI hallucinated a place that isn't in the
+        // candidate list (e.g. 'Refinery Rooftop NYC' when we're in London),
+        // drop it. When the candidate list is empty we return zero recos
+        // (the prompt instructs Claude to do the same), so the UI shows the
+        // 'no matches' empty state rather than a wrong place far away.
         const preResolved = nearbyForAI.length > 0
           ? data.recommendations.map(r => {
               // Try idx field first (new approach), then parse name as number (fallback)
@@ -3996,7 +4018,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               }
               return null;
             }).filter(Boolean)
-          : data.recommendations;
+          : [];
 
         // Verify places are still operational via Google Places
         try {
