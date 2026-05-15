@@ -2923,6 +2923,20 @@ function TravelAgent() {
     return filtered.length > 0 ? filtered : inRange;
   })();
 
+  // Popular places shown in the UI = mood-filtered nearby MINUS anything
+  // already surfaced as an AI reco / favourite / pin. Single source of truth
+  // for the chip counter and the actual list rendered below.
+  const popularToShow = (() => {
+    const aiNames = new Set((aiRecos||[]).map(r=>(r.name||"").toLowerCase()));
+    const heartNames = new Set((heartMemories||[]).map(m=>(m.name||"").toLowerCase()));
+    const pinNames = new Set((pins||[]).map(p=>(p.name||"").toLowerCase()));
+    return moodFilteredNearby.filter(p =>
+      !aiNames.has((p.name||"").toLowerCase()) &&
+      !heartNames.has((p.name||"").toLowerCase()) &&
+      !pinNames.has((p.name||"").toLowerCase())
+    );
+  })();
+
   // Enrich pins with friend data (same as heartMemories enrichment)
   const enrichedPins = pins.map(pin => {
     const key = pin.name?.toLowerCase().trim();
@@ -4221,7 +4235,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               {heartMemories.length>0&&<button onClick={()=>document.getElementById("reco-hearts")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#d4869b44",background:"#d4869b11",color:"#d4869b"}}>❤️ {heartMemories.length}</button>}
               {recoPins.length>0&&<button onClick={()=>document.getElementById("reco-pins")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#6b8cce44",background:"#6b8cce11",color:"#6b8cce"}}>📌 {recoPins.length}</button>}
               {(aiRecos.length>0||aiLoading)&&<button onClick={()=>document.getElementById("reco-ai")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:`${COLORS.accent}44`,background:`${COLORS.accent}11`,color:COLORS.accent}}>✨ {aiLoading?"...":aiRecos.length}</button>}
-              {moodFilteredNearby.length>0&&<button onClick={()=>document.getElementById("reco-popular")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#7a9d7a44",background:"#7a9d7a11",color:"#7a9d7a"}}>🔥 {moodFilteredNearby.length}</button>}
+              {popularToShow.length>0&&<button onClick={()=>document.getElementById("reco-popular")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#7a9d7a44",background:"#7a9d7a11",color:"#7a9d7a"}}>🔥 {popularToShow.length}</button>}
             </div>
           )}
         </div>
@@ -4885,14 +4899,8 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 </div>
               )}
 
-              {moodFilteredNearby.length>0&&(()=>{
-                const aiNames = new Set(aiRecos.map(r=>r.name.toLowerCase()));
-                const heartNames = new Set(heartMemories.map(m=>m.name.toLowerCase()));
-                const pinNames = new Set(pins.map(p=>p.name.toLowerCase()));
-                const filtered = moodFilteredNearby.filter(p =>
-                  !aiNames.has(p.name.toLowerCase()) && !heartNames.has(p.name.toLowerCase()) && !pinNames.has(p.name.toLowerCase())
-                );
-                if (filtered.length === 0) return null;
+              {popularToShow.length>0&&(()=>{
+                const filtered = popularToShow;
                 return (
                   <div id="reco-popular" className="reco-block section-nearby">
                     <div className="reco-block-title">{t.recoNearby}{recoMood ? ` · ${recoMood}` : ""} ({filtered.length})</div>
