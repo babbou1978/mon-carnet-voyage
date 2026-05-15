@@ -23,6 +23,7 @@ jobs:
           STATE: ${{ github.event.deployment_status.state }}
           ENV: ${{ github.event.deployment.environment }}
           REF: ${{ github.event.deployment.ref }}
+          PAYLOAD_REF: ${{ github.event.deployment.payload.commit_ref }}
           SHA: ${{ github.event.deployment.sha }}
           TARGET_URL: ${{ github.event.deployment_status.target_url }}
           REPO: ${{ github.repository }}
@@ -40,7 +41,20 @@ jobs:
           if [ "$ENV" = "Production" ] || [ "$ENV" = "production" ]; then
             ENV_LINE="🌐 *PROD*"
           else
-            ENV_LINE="🧪 preview (\`$ENV\`)"
+            ENV_LINE="🧪 preview"
+          fi
+
+          # Pick the branch name. Vercel often sets deployment.ref to the
+          # commit SHA itself; try the payload's commit_ref first, then fall
+          # back to ref. If it still looks like a 40-char hex SHA, derive
+          # from the environment (Production -> main, Preview -> preview).
+          BRANCH="${PAYLOAD_REF:-$REF}"
+          if echo "$BRANCH" | grep -qE '^[a-f0-9]{40}$'; then
+            if [ "$ENV" = "Production" ] || [ "$ENV" = "production" ]; then
+              BRANCH="main"
+            else
+              BRANCH="preview"
+            fi
           fi
 
           SHORT_SHA="${SHA:0:7}"
@@ -50,7 +64,7 @@ jobs:
             COMMIT_LINE=$'\n'"📝 $FIRST_LINE"
           fi
 
-          TEXT="${ICON} *${REPO##*/}* — \`${STATE}\`"$'\n'"${ENV_LINE}"$'\n'"🌿 \`${REF}\` · \`${SHORT_SHA}\`${COMMIT_LINE}"$'\n'"🔗 ${TARGET_URL}"
+          TEXT="${ICON} *${REPO##*/}* — \`${STATE}\`"$'\n'"${ENV_LINE}"$'\n'"🌿 \`${BRANCH}\` · \`${SHORT_SHA}\`${COMMIT_LINE}"$'\n'"🔗 ${TARGET_URL}"
 
           curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
