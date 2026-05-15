@@ -193,7 +193,35 @@ export default async function handler(req, res) {
         "parking","transit_station","bus_station","train_station",
         "moving_company","storage","funeral_home","cemetery"
       ]);
-      const fieldMask = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.types,places.primaryType,places.primaryTypeDisplayName,places.location,places.businessStatus,places.currentOpeningHours.openNow,places.currentOpeningHours.weekdayDescriptions,places.regularOpeningHours.openNow,places.regularOpeningHours.weekdayDescriptions,places.editorialSummary,places.reviews,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.goodForChildren,places.goodForGroups,places.servesVegetarianFood,places.allowsDogs,places.menuForChildren,places.reservable,places.servesBrunch,places.servesLunch,places.servesDinner,places.dineIn,places.takeout,places.delivery';
+      // FieldMask — expanded with every useful attribute Places API New exposes.
+      // Same Preferred-tier SKU as before (already had editorialSummary + reviews)
+      // so this costs the same per call but gives us much more structured signal.
+      const fieldMask = [
+        // Identity & location
+        'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
+        'places.types', 'places.primaryType', 'places.primaryTypeDisplayName',
+        'places.addressDescriptor',
+        // Reputation & price
+        'places.rating', 'places.userRatingCount', 'places.priceLevel', 'places.businessStatus',
+        // Hours
+        'places.currentOpeningHours.openNow', 'places.currentOpeningHours.weekdayDescriptions',
+        'places.regularOpeningHours.openNow', 'places.regularOpeningHours.weekdayDescriptions',
+        // Long-form text (used by the mood matcher and the AI scorer)
+        'places.editorialSummary', 'places.reviews',
+        // Food & drink attributes
+        'places.outdoorSeating', 'places.liveMusic', 'places.servesCocktails',
+        'places.servesBeer', 'places.servesWine', 'places.servesCoffee', 'places.servesDessert',
+        'places.servesBrunch', 'places.servesBreakfast', 'places.servesLunch', 'places.servesDinner',
+        'places.servesVegetarianFood',
+        // Audience / accessibility
+        'places.goodForChildren', 'places.goodForGroups', 'places.goodForWatchingSports',
+        'places.menuForChildren', 'places.allowsDogs',
+        'places.reservable', 'places.restroom',
+        // Service modes
+        'places.dineIn', 'places.takeout', 'places.delivery', 'places.curbsidePickup',
+        // Practical / amenities
+        'places.parkingOptions', 'places.paymentOptions', 'places.accessibilityOptions',
+      ].join(',');
 
       // Use includedTypes (broader) - matches both primary and secondary types.
       // Double strategy: POPULARITY for best-rated + DISTANCE for nearby gems
@@ -269,24 +297,69 @@ export default async function handler(req, res) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
             // Build features summary from Google attributes
             const feats = [];
+            // Setting / vibe
             if (p.outdoorSeating) feats.push("outdoor seating/terrace");
             if (p.liveMusic) feats.push("live music");
+            // Food & drink
             if (p.servesCocktails) feats.push("cocktails");
-            if (p.goodForChildren) feats.push("kids friendly");
-            if (p.goodForGroups) feats.push("good for groups");
-            if (p.servesVegetarianFood) feats.push("vegetarian options");
-            if (p.allowsDogs) feats.push("dog friendly");
-            if (p.menuForChildren) feats.push("kids menu");
-            if (p.reservable) feats.push("reservable");
+            if (p.servesBeer) feats.push("beer");
+            if (p.servesWine) feats.push("wine");
+            if (p.servesCoffee) feats.push("coffee");
+            if (p.servesDessert) feats.push("dessert");
             if (p.servesBrunch) feats.push("brunch");
+            if (p.servesBreakfast) feats.push("breakfast");
+            if (p.servesLunch) feats.push("lunch");
+            if (p.servesDinner) feats.push("dinner");
+            if (p.servesVegetarianFood) feats.push("vegetarian options");
+            // Audience
+            if (p.goodForChildren) feats.push("kids friendly");
+            if (p.menuForChildren) feats.push("kids menu");
+            if (p.goodForGroups) feats.push("good for groups");
+            if (p.goodForWatchingSports) feats.push("sports viewing");
+            if (p.allowsDogs) feats.push("dog friendly");
+            // Service
+            if (p.reservable) feats.push("reservable");
+            if (p.restroom) feats.push("restroom");
+            if (p.dineIn) feats.push("dine-in");
+            if (p.takeout) feats.push("takeout");
+            if (p.delivery) feats.push("delivery");
+            if (p.curbsidePickup) feats.push("curbside pickup");
+            // Parking
+            if (p.parkingOptions?.freeParkingLot || p.parkingOptions?.freeStreetParking) feats.push("free parking");
+            if (p.parkingOptions?.paidParkingLot) feats.push("paid parking");
+            if (p.parkingOptions?.valetParking) feats.push("valet parking");
+            // Accessibility
+            if (p.accessibilityOptions?.wheelchairAccessibleEntrance) feats.push("wheelchair accessible");
+            // Payment
+            if (p.paymentOptions?.acceptsCreditCards) feats.push("credit cards");
+            if (p.paymentOptions?.acceptsCashOnly) feats.push("cash only");
+            if (p.paymentOptions?.acceptsNfc) feats.push("contactless payment");
             p.features = feats;
-            // Also scan reviews/editorial for rooftop keyword
+            // Also scan reviews/editorial for keywords that Places API doesn't
+            // expose as booleans (rooftop, pool, view, garden, etc.)
             const allText = [
-              p.editorialSummary,
+              p.editorialSummary?.text || p.editorialSummary,
               ...(p.reviews||[]).map(r => r.text?.text || "")
-            ].join(" ").toLowerCase();
-            if (allText.includes("rooftop") || allText.includes("roof terrace") || allText.includes("toit-terrasse") || allText.includes("toit terrasse")) {
-              p.features.push("rooftop");
+            ].filter(Boolean).join(" ").toLowerCase();
+            const textFeatures = [
+              { keys: ["rooftop","roof terrace","toit-terrasse","toit terrasse","sur les toits"], label: "rooftop" },
+              { keys: ["swimming pool","piscine"], label: "pool" },
+              { keys: ["sea view","ocean view","vue mer","vue sur la mer"], label: "sea view" },
+              { keys: ["river view","vue sur la seine","vue sur le fleuve"], label: "river view" },
+              { keys: ["mountain view","vue montagne"], label: "mountain view" },
+              { keys: ["garden","jardin","patio"], label: "garden/patio" },
+              { keys: ["fireplace","cheminée"], label: "fireplace" },
+              { keys: ["michelin"], label: "michelin" },
+              { keys: ["speakeasy","hidden","secret","caché","souterrain"], label: "speakeasy" },
+              { keys: ["dj ","djs ","resident dj"], label: "dj" },
+              { keys: ["jazz "], label: "jazz" },
+              { keys: ["karaoke"], label: "karaoke" },
+              { keys: ["dance floor","piste de danse"], label: "dance floor" },
+            ];
+            for (const { keys, label } of textFeatures) {
+              if (keys.some(k => allText.includes(k)) && !p.features.includes(label)) {
+                p.features.push(label);
+              }
             }
             seen.set(key, p);
           }
