@@ -348,6 +348,18 @@ export default async function handler(req, res) {
           if (p.businessStatus === 'CLOSED_PERMANENTLY' || p.businessStatus === 'CLOSED_TEMPORARILY') return;
           // For Activité: filter out places whose primaryType is in the blacklist
           if (type === "Activité" && ACTIVITY_BLACKLIST && p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)) return;
+          // Hard reject: when searching food/drink (Restaurant/Bar/Café), drop
+          // accommodation results that the mood text search dragged in.
+          // 'toit-terrasse' returns many Airbnb-style apartments and hotel
+          // suites — those are NOT what the user wants when they ask for a
+          // restaurant with a rooftop.
+          const ACCOMMODATION_TYPES = new Set([
+            "lodging","hotel","motel","hostel","guest_house","bed_and_breakfast",
+            "apartment_hotel","apartment_building","vacation_rental_agency",
+            "extended_stay_hotel","resort_hotel","private_guest_room",
+            "campground","cottage","inn","japanese_inn","cabin"
+          ]);
+          if ((type === "Restaurant" || type === "Bar" || type === "Café") && p.primaryType && ACCOMMODATION_TYPES.has(p.primaryType)) return;
           // Cross-type filtering: exclude restaurants from Bar results and vice versa
           // BUT skip this filter for results coming from the mood-driven Text
           // Search — those are keyword-matched (e.g. 'rooftop restaurant') and
