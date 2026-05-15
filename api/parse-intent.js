@@ -43,7 +43,29 @@ Output ONLY valid JSON, no markdown, no backticks, no explanation:
 Rules:
 - Be conservative. Only fill a field when the request clearly implies it. Use null otherwise.
 - Type: pick exactly one. "rooftop bar" -> Bar. "place to stay" -> Hôtel. "museum / hike / show" -> Activité. "trip / weekend somewhere" -> Destination.
-- moodKeywords: 1-6 short tags describing setting / vibe / constraints. Examples: "rooftop", "japanese", "romantique", "terrasse", "live music", "kids menu", "vegetarian", "casher", "vue mer". Always in the user's language. NO full sentences.
+
+moodKeywords (IMPORTANT — be strict):
+  1. Start with keywords the user EXPLICITLY mentioned (style / vibe / setting / cuisine).
+     Examples: "rooftop", "terrasse", "japanese", "speakeasy", "romantique", "live music", "vue mer", "chic", "casher".
+  2. You MAY ADD an inferred keyword ONLY if it maps to one of these recognised Google Places features
+     AND the user's wording clearly implies that feature:
+       - "terrasse" / "outdoor seating" (only if user mentions outdoor, garden, balcony, view, soleil, plein air)
+       - "rooftop" (only if user says rooftop or "sur les toits")
+       - "groups" (only when "avec mes collègues", "team", "groupe", "anniversaire entre amis", "after work")
+       - "kids friendly" (only when "avec les enfants", "famille avec enfants", "kids", "enfants")
+       - "live music" (only when "concert", "musique live", "live band")
+       - "cocktails" (only when "cocktails", "cocktail bar")
+       - "wine bar" (only when "bar à vin", "wine bar")
+       - "brunch" (only when "brunch")
+       - "reservable" (only when "à réserver", "réservation possible")
+       - "dog friendly" (only when "avec mon chien", "dog friendly")
+       - "vegetarian" / "vegan" (only when explicitly mentioned)
+       - "romantic" (only when "en amoureux", "date night", "romantique", "tête à tête")
+  3. DO NOT add synonyms, paraphrases or related concepts that are NOT in this list.
+     Example: user says "avec mes collègues" -> add "groups", but DO NOT add "entre amis" or "casual".
+  4. Keep moodKeywords short tags (1-3 words each), always in the user's language. NO full sentences. Max 6 tags total. Explicit first, inferred after.
+
+Other fields:
 - useCurrentLocation: true if the user mentions "near me", "around here", "dans le quartier", "à proximité", "à côté", etc. False if they explicitly name a city / area / country. Null if not stated.
 - city: only the city name itself (e.g. "Paris", "London", "Lisbon"). Null if "near me" or unspecified.
 - kidsFriendly: true if "avec mes enfants" / "en famille" / "kids" mentioned. Null otherwise (don't default to false).
@@ -51,17 +73,20 @@ Rules:
 - radiusKm: only if explicitly stated ("dans les 5 km", "within 10 km"). Else null.
 
 Examples:
-  "outsy je cherche un restaurant en rooftop avec mes collègues a côté"
-  -> {"type":"Restaurant","moodKeywords":["rooftop","collègues","entre amis"],"useCurrentLocation":true,"city":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  "outsy je cherche un restaurant en rooftop avec mes collègues à côté"
+  -> {"type":"Restaurant","moodKeywords":["rooftop","groups"],"useCurrentLocation":true,"city":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
-  "un bar speakeasy romantique à Paris"
-  -> {"type":"Bar","moodKeywords":["speakeasy","romantique"],"useCurrentLocation":false,"city":"Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  "un bar speakeasy romantique à Paris en amoureux"
+  -> {"type":"Bar","moodKeywords":["speakeasy","romantique","romantic"],"useCurrentLocation":false,"city":"Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
-  "hotel chic à Lisbonne avec piscine"
+  "hôtel chic à Lisbonne avec piscine"
   -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbonne","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
 
   "activité en famille au bord de la mer"
-  -> {"type":"Activité","moodKeywords":["bord de mer","famille"],"useCurrentLocation":null,"city":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}`;
+  -> {"type":"Activité","moodKeywords":["bord de mer","kids friendly"],"useCurrentLocation":null,"city":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
+
+  "café avec terrasse pour brunch entre amis"
+  -> {"type":"Café","moodKeywords":["terrasse","brunch","groups"],"useCurrentLocation":null,"city":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}`;
 
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
