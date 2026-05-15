@@ -2804,7 +2804,8 @@ function TravelAgent() {
         if (data.kidsFriendly === true) setRecoKids(true);
         else if (data.kidsFriendly === false) setRecoKids(false);
         if (data.priceRange) setRecoPrice(data.priceRange);
-        if (data.radiusKm) setDistance(data.radiusKm);
+        // radiusKm comes in kilometres; the `distance` state is in metres.
+        if (data.radiusKm) setDistance(Math.round(data.radiusKm * 1000));
       }
     } catch (_) {}
     setAnalyzingIntent(false);
@@ -2826,7 +2827,7 @@ function TravelAgent() {
 
   // Shared mood matching function — used for Popular display, Map, and AI pre-filter
   const MOOD_SYNONYMS = {
-    rooftop:["rooftop","roof terrace","toit-terrasse","toit terrasse","sur les toits"],
+    rooftop:["rooftop","roof terrace","toit-terrasse","toit terrasse","sur les toits","outdoor seating/terrace","terrace","terrasse"],
     terrasse:["outdoor seating","terrace","terrasse","patio","garden/patio","jardin"],
     terrace:["outdoor seating","terrace","terrasse","patio"],
     outdoor:["outdoor seating","terrace","terrasse","patio","garden/patio"],
@@ -2896,10 +2897,16 @@ function TravelAgent() {
     });
   };
 
-  // Mood-filtered nearby places — single source of truth for map + list
-  const moodFilteredNearby = recoMood
-    ? nearbyPlaces.filter(p => placeMatchesMood(p, recoMood))
-    : nearbyPlaces;
+  // Mood-filtered nearby places — single source of truth for map + list.
+  // Fallback: if the mood filter strips everything (Google didn't surface any
+  // place matching the user's vibe), show the full unfiltered list rather
+  // than an empty 'Popular places' section. Avoids the case where 'rooftop'
+  // in central London returned 0 visible results.
+  const moodFilteredNearby = (() => {
+    if (!recoMood) return nearbyPlaces;
+    const filtered = nearbyPlaces.filter(p => placeMatchesMood(p, recoMood));
+    return filtered.length > 0 ? filtered : nearbyPlaces;
+  })();
 
   // Enrich pins with friend data (same as heartMemories enrichment)
   const enrichedPins = pins.map(pin => {
