@@ -2883,13 +2883,20 @@ function TravelAgent() {
     if (!mood) return true;
     const moodWords = mood.toLowerCase().split(/[\s,]+/).filter(w=>w.length>2);
     if (moodWords.length === 0) return true;
-    // Build searchable text from all available data
+    // Build searchable text from every available data source. Works for both
+    // Google Places results (features, editorialSummary, reviews) AND for the
+    // user's own memories / pins (likeTags, why text, pin_note, cuisine).
     const name = (p.name||p.displayName?.text||"").toLowerCase();
     const feats = (p.features||[]).join(" ").toLowerCase();
     const desc = (p.editorialSummary||"").toLowerCase();
     const review = (p.topReview||"").toLowerCase();
     const allReviews = (p.reviews||[]).map(r=>(r.text?.text||"").toLowerCase()).join(" ");
-    const allText = `${name} ${feats} ${desc} ${review} ${allReviews}`;
+    const likeTags = Array.isArray(p.likeTags) ? p.likeTags.join(" ").toLowerCase() : "";
+    const why = (p.why||"").toLowerCase();
+    const pinNote = (p.pin_note||"").toLowerCase();
+    const cuisine = (p.cuisine||"").toLowerCase();
+    const activityType = (p.activityType||p.activity_type||"").toLowerCase();
+    const allText = `${name} ${feats} ${desc} ${review} ${allReviews} ${likeTags} ${why} ${pinNote} ${cuisine} ${activityType}`;
     return moodWords.some(kw => {
       const syns = MOOD_SYNONYMS[kw];
       if (syns) return syns.some(s => allText.includes(s));
@@ -2923,12 +2930,19 @@ function TravelAgent() {
     return filtered.length > 0 ? filtered : inRange;
   })();
 
+  // Hearts / pins shown in the Reco tab also obey the mood filter. Same
+  // function as for nearby places — a 'rooftop' search should only surface
+  // the user's own rooftop favourites / pins, not all their restaurants.
+  const heartsToShow = recoMood
+    ? heartMemories.filter(m => placeMatchesMood(m, recoMood))
+    : heartMemories;
+
   // Popular places shown in the UI = mood-filtered nearby MINUS anything
   // already surfaced as an AI reco / favourite / pin. Single source of truth
   // for the chip counter and the actual list rendered below.
   const popularToShow = (() => {
     const aiNames = new Set((aiRecos||[]).map(r=>(r.name||"").toLowerCase()));
-    const heartNames = new Set((heartMemories||[]).map(m=>(m.name||"").toLowerCase()));
+    const heartNames = new Set((heartsToShow||[]).map(m=>(m.name||"").toLowerCase()));
     const pinNames = new Set((pins||[]).map(p=>(p.name||"").toLowerCase()));
     return moodFilteredNearby.filter(p =>
       !aiNames.has((p.name||"").toLowerCase()) &&
@@ -2948,23 +2962,28 @@ function TravelAgent() {
     };
   });
 
-  // Pins filtered by type + proximity — single source for Map + Reco
+  // Pins filtered by type + proximity + mood — single source for Map + Reco
   const recoPins = (() => {
     const typed = enrichedPins.filter(p => typeMatches(p.type, recoType));
-    if (!recoCoords?.lat) return typed;
-    const loc = (locMode === "gps" ? gpsLocation : freeLocation || "").toLowerCase();
-    return typed.filter(p => {
-      if (p.lat && p.lng) {
-        const R = 6371, dLat = (recoCoords.lat - p.lat) * Math.PI/180, dLng = (recoCoords.lng - p.lng) * Math.PI/180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) <= (distance / 1000);
-      }
-      if (p.city && loc) {
-        const pc = p.city.toLowerCase(), sc = loc.split(",")[0].trim();
-        if (pc.length > 2 && sc.length > 2 && !pc.includes(sc) && !sc.includes(pc)) return false;
-      }
-      return true;
-    });
+    let inRange;
+    if (!recoCoords?.lat) {
+      inRange = typed;
+    } else {
+      const loc = (locMode === "gps" ? gpsLocation : freeLocation || "").toLowerCase();
+      inRange = typed.filter(p => {
+        if (p.lat && p.lng) {
+          const R = 6371, dLat = (recoCoords.lat - p.lat) * Math.PI/180, dLng = (recoCoords.lng - p.lng) * Math.PI/180;
+          const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+          return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) <= (distance / 1000);
+        }
+        if (p.city && loc) {
+          const pc = p.city.toLowerCase(), sc = loc.split(",")[0].trim();
+          if (pc.length > 2 && sc.length > 2 && !pc.includes(sc) && !sc.includes(pc)) return false;
+        }
+        return true;
+      });
+    }
+    return recoMood ? inRange.filter(p => placeMatchesMood(p, recoMood)) : inRange;
   })();
   useEffect(() => {
     if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
@@ -4232,7 +4251,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
           {tab==="reco"&&(
             <div className="reco-subnav">
               <button onClick={()=>document.getElementById("reco-settings")?.scrollIntoView({behavior:"smooth",block:"start"})}>📍</button>
-              {heartMemories.length>0&&<button onClick={()=>document.getElementById("reco-hearts")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#d4869b44",background:"#d4869b11",color:"#d4869b"}}>❤️ {heartMemories.length}</button>}
+              {heartsToShow.length>0&&<button onClick={()=>document.getElementById("reco-hearts")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#d4869b44",background:"#d4869b11",color:"#d4869b"}}>❤️ {heartsToShow.length}</button>}
               {recoPins.length>0&&<button onClick={()=>document.getElementById("reco-pins")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#6b8cce44",background:"#6b8cce11",color:"#6b8cce"}}>📌 {recoPins.length}</button>}
               {(aiRecos.length>0||aiLoading)&&<button onClick={()=>document.getElementById("reco-ai")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:`${COLORS.accent}44`,background:`${COLORS.accent}11`,color:COLORS.accent}}>✨ {aiLoading?"...":aiRecos.length}</button>}
               {popularToShow.length>0&&<button onClick={()=>document.getElementById("reco-popular")?.scrollIntoView({behavior:"smooth",block:"start"})} style={{borderColor:"#7a9d7a44",background:"#7a9d7a11",color:"#7a9d7a"}}>🔥 {popularToShow.length}</button>}
@@ -4774,10 +4793,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} pins={recoPins} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
               )}
 
-              {heartMemories.length>0&&(
+              {heartsToShow.length>0&&(
                 <div id="reco-hearts" className="reco-block section-hearts">
-                  <div className="reco-block-title">{t.recoHearts}</div>
-                  <div className="memory-list">{heartMemories.map(m=><MemoryCard key={`heart-${m.id}`} m={m} onOpen={()=>openPlaceSheet(m,heartMemories)} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
+                  <div className="reco-block-title">{t.recoHearts}{recoMood ? ` · ${recoMood}` : ""}</div>
+                  <div className="memory-list">{heartsToShow.map(m=><MemoryCard key={`heart-${m.id}`} m={m} onOpen={()=>openPlaceSheet(m,heartsToShow)} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} onPin={(m)=>openPinModal({name:m.name,type:m.type,price:m.price,city:m.city,country:m.country,address:m.address,cuisine:m.cuisine,activityType:m.activity_type,google_place_id:m.google_place_id})}/>)}</div>
                 </div>
               )}
@@ -4796,7 +4815,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 });
                 return (
                 <div id="reco-pins" className="reco-block section-pins">
-                  <div className="reco-block-title">📌 {t.tabPins||"Pins"} ({pinsWithDist.length})</div>
+                  <div className="reco-block-title">📌 {t.tabPins||"Pins"}{recoMood ? ` · ${recoMood}` : ""} ({pinsWithDist.length})</div>
                   <div className="memory-list">
                     {pinsWithDist.map(pin=>(
                       <div key={pin.id} className="memory-card" style={{borderLeft:`3px solid #6b8cce`}}>
