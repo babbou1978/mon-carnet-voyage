@@ -2731,8 +2731,14 @@ function TravelAgent() {
           setRecoMood(merged.join(", "));
         }
         if (data.useCurrentLocation === true) {
+          // Trigger the same flow as the manual 'Ma position' button so the
+          // GPS is actually refreshed (was only setting locMode, GPS stayed
+          // stale because gpsReady defaults to true).
           setLocMode("gps");
-          if (!gpsReady) getGPS();
+          setRecoCoords(null);
+          recoCoordsRef.current = null;
+          setGpsReady(false);
+          getGPS();
         }
         if (data.city) {
           setLocMode("free");
