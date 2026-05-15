@@ -257,32 +257,52 @@ export default async function handler(req, res) {
 
       const responses = await Promise.all(requests);
 
-      // If mood is specified, also run a Text Search to find mood-specific places
+      // If mood is specified, run Text Search variants in parallel to find
+      // mood-specific places that Nearby's strict primary-type filter misses
+      // (rooftop bars classed as 'bar' when user asks for restaurant, etc.)
       if (mood.trim()) {
         const textSearchFieldMask = fieldMask;
-        try {
-          const moodQuery = `${mood} ${type === "Restaurant" ? "restaurant" : type === "Bar" ? "bar" : type === "Café" ? "cafe" : type === "Hôtel" ? "hotel" : ""}`.trim();
-          const textRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        const typeSuffix = type === "Restaurant" ? "restaurant"
+          : type === "Bar" ? "bar"
+          : type === "Café" ? "cafe"
+          : type === "Hôtel" ? "hotel"
+          : "";
+        // Clean the full mood string: commas become spaces so Google reads it
+        // as space-separated keywords, not a list.
+        const cleanedMood = mood.replace(/[,;]/g, ' ').replace(/\s+/g, ' ').trim();
+        // First keyword only (the most specific intent — 'rooftop' beats
+        // generic synonyms like 'outdoor seating' that the parser may add).
+        const primaryKeyword = mood.split(/[,;]/)[0].trim();
+
+        const queries = [
+          `${cleanedMood} ${typeSuffix}`.trim(),                  // full mood + type
+          primaryKeyword !== cleanedMood ? `${primaryKeyword} ${typeSuffix}`.trim() : null, // just the headline keyword + type
+          `${primaryKeyword} near here`.trim(),                   // headline keyword without type bias (catches 'rooftop' bars that serve food)
+        ].filter(Boolean);
+
+        const textSearches = await Promise.all(queries.map(q =>
+          fetch('https://places.googleapis.com/v1/places:searchText', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': textSearchFieldMask },
             body: JSON.stringify({
-              textQuery: moodQuery,
-              maxResultCount: 20,
+              textQuery: q,
+              maxResultCount: 15,
               locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
               languageCode: userLang
             }),
+          }).then(r => r.json()).catch(() => ({places:[]}))
+        ));
+
+        try {
+          textSearches.forEach((textData, i) => {
+            if (textData.places && textData.places.length > 0) {
+              // Tag every text-search hit so the downstream cross-type filter
+              // doesn't drop e.g. rooftop BARS when the user wants a Restaurant.
+              textData.places.forEach(p => { p._fromTextSearch = true; p._textQuery = queries[i]; });
+              responses.push(textData);
+            }
+            console.log('Mood text search:', JSON.stringify({ q: queries[i], results: textData.places?.length || 0 }));
           });
-          const textData = await textRes.json();
-          if (textData.places) {
-            // Tag every text-search hit so the downstream cross-type filter
-            // doesn't drop e.g. rooftop BARS when the user is looking for a
-            // Restaurant. A rooftop bar that serves food legitimately matches
-            // the user's intent — the keyword match is more authoritative
-            // than Google's primaryType bucket.
-            textData.places.forEach(p => { p._fromTextSearch = true; });
-            responses.push(textData);
-            console.log('Mood text search:', JSON.stringify({ mood: moodQuery, results: textData.places?.length || 0 }));
-          }
         } catch (e) { console.error('Mood text search error:', e); }
       }
 
