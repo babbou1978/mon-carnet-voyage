@@ -2827,7 +2827,7 @@ function TravelAgent() {
 
   // Shared mood matching function — used for Popular display, Map, and AI pre-filter
   const MOOD_SYNONYMS = {
-    rooftop:["rooftop","roof terrace","toit-terrasse","toit terrasse","sur les toits","outdoor seating/terrace","terrace","terrasse"],
+    rooftop:["rooftop","roof terrace","toit-terrasse","toit terrasse","sur les toits","terrasse sur le toit","terrasse panoramique","dachterrasse","azotea"],
     terrasse:["outdoor seating","terrace","terrasse","patio","garden/patio","jardin"],
     terrace:["outdoor seating","terrace","terrasse","patio"],
     outdoor:["outdoor seating","terrace","terrasse","patio","garden/patio"],
