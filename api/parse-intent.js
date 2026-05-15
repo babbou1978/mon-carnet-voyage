@@ -68,8 +68,8 @@ moodKeywords (IMPORTANT — be strict):
 
 Other fields:
 - useCurrentLocation: true if the user mentions "near me", "around here", "dans le quartier", "à proximité", "à côté", etc. False if they explicitly name a city / area / country. Null if not stated.
-- city: only the city name itself (e.g. "Paris", "London", "Lisbon"). Null if "near me" or unspecified.
-- country: the country that city belongs to (in English: "France", "United Kingdom", "Portugal", "Spain", "Italy", "United States", etc.). Use your general knowledge — the user usually omits it. Only set it when you ALSO set a city. Null otherwise. This disambiguates places like Springfield, Cambridge, Toledo etc. for the geocoder.
+- city: the city name itself in the USER'S LANGUAGE (French user -> "Lisbonne", "Londres"; English user -> "Lisbon", "London"). Null if "near me" or unspecified.
+- country: the country that city belongs to, in the USER'S LANGUAGE ("France", "Royaume-Uni", "Portugal", "États-Unis"). Use your general knowledge — the user usually omits it. Only set it when you ALSO set a city. Null otherwise. This disambiguates places like Springfield, Cambridge, Toledo etc.
 - kidsFriendly: true if "avec mes enfants" / "en famille" / "kids" mentioned. Null otherwise (don't default to false).
 - priceRange: only if explicitly stated ("cheap"/"€", "mid"/"€€", "fancy"/"upscale"/"€€€"). Else null.
 - radiusKm: only if explicitly stated ("dans les 5 km", "within 10 km"). Else null.
@@ -78,10 +78,13 @@ Examples:
   "outsy je cherche un restaurant en rooftop avec mes collègues à côté"
   -> {"type":"Restaurant","moodKeywords":["rooftop","groups"],"useCurrentLocation":true,"city":null,"country":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
-  "un bar speakeasy romantique à Paris en amoureux"
+  "un bar speakeasy romantique à Paris en amoureux" (user lang: fr)
   -> {"type":"Bar","moodKeywords":["speakeasy","romantique","romantic"],"useCurrentLocation":false,"city":"Paris","country":"France","kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
-  "hôtel chic à Lisbonne avec piscine"
+  "hôtel chic à Lisbonne avec piscine" (user lang: fr)
+  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbonne","country":"Portugal","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
+
+  "fancy hotel in Lisbon with a pool" (user lang: en)
   -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbon","country":"Portugal","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
 
   "activité en famille au bord de la mer"
