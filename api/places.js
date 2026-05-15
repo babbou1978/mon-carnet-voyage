@@ -310,14 +310,20 @@ export default async function handler(req, res) {
         }
         const queries = [...querySet];
 
+        // Bigger candidate pool: max=20 per Text Search (was 10). Use
+        // locationBias instead of locationRestriction so a slightly-out-of-
+        // radius rooftop still surfaces — missing the one rooftop near the
+        // user by 100m would be worse than minor radius drift. The actual
+        // distance filtering happens client-side anyway.
+        const biasRadius = Math.max(radius * 1.5, 3000);
         const textSearches = await Promise.all(queries.map(q =>
           fetch('https://places.googleapis.com/v1/places:searchText', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
             body: JSON.stringify({
               textQuery: q,
-              maxResultCount: 10,
-              locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
+              maxResultCount: 20,
+              locationBias: { circle: { center: { latitude: latF, longitude: lngF }, radius: biasRadius } },
               languageCode: userLang
             }),
           }).then(r => r.json()).catch(() => ({places:[]}))
