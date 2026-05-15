@@ -261,32 +261,62 @@ export default async function handler(req, res) {
       // mood-specific places that Nearby's strict primary-type filter misses
       // (rooftop bars classed as 'bar' when user asks for restaurant, etc.)
       if (mood.trim()) {
-        const textSearchFieldMask = fieldMask;
+        // Translation table: Google indexes places by language. Searching
+        // 'rooftop' in a French-locale data returns nothing because Google
+        // categorises the same place under 'Toit-terrasse'. For each known
+        // mood keyword, expand to its localised variants in the user's
+        // language so we hit Google's index in the language it lives in.
+        const MOOD_LANG_VARIANTS = {
+          rooftop: { fr:["toit-terrasse","terrasse sur le toit","terrasse panoramique"], es:["azotea","terraza panorámica"], de:["Dachterrasse"], it:["terrazza panoramica","terrazza sul tetto"], pt:["terraço","terraço panorâmico"], nl:["dakterras"] },
+          speakeasy: { fr:["bar caché","bar secret"], es:["bar oculto"], de:["geheime bar"], it:["bar segreto"], pt:["bar escondido"], nl:["verborgen bar"] },
+          romantic: { fr:["romantique"], es:["romántico"], de:["romantisch"], it:["romantico"], pt:["romântico"], nl:["romantisch"] },
+          romantique: { en:["romantic"], es:["romántico"], de:["romantisch"], it:["romantico"], pt:["romântico"], nl:["romantisch"] },
+          brunch: { fr:["brunch"], es:["brunch"], de:["brunch"], it:["brunch"] },
+          terrasse: { en:["terrace","outdoor seating"], es:["terraza"], de:["Terrasse"], it:["terrazza"], pt:["esplanada"], nl:["terras"] },
+          terrace: { fr:["terrasse"], es:["terraza"], de:["Terrasse"], it:["terrazza"], pt:["esplanada"], nl:["terras"] },
+          piscine: { en:["pool","swimming pool"], es:["piscina"], de:["Schwimmbad"], it:["piscina"], pt:["piscina"], nl:["zwembad"] },
+          pool: { fr:["piscine"], es:["piscina"], de:["Schwimmbad"], it:["piscina"], pt:["piscina"], nl:["zwembad"] },
+          "live music": { fr:["musique live","concert"], es:["música en vivo"], de:["Live-Musik"], it:["musica dal vivo"], pt:["música ao vivo"], nl:["live muziek"] },
+          jazz: { fr:["jazz"], es:["jazz"], de:["jazz"], it:["jazz"] },
+        };
+        const expandKeyword = (kw) => {
+          const lower = kw.toLowerCase().trim();
+          const entry = MOOD_LANG_VARIANTS[lower];
+          if (!entry) return [kw];
+          const variants = [kw, ...(entry[userLang] || []), ...(userLang !== "en" ? (entry.en || []) : [])];
+          return [...new Set(variants.map(v => v.trim()).filter(Boolean))];
+        };
+
         const typeSuffix = type === "Restaurant" ? "restaurant"
           : type === "Bar" ? "bar"
           : type === "Café" ? "cafe"
           : type === "Hôtel" ? "hotel"
           : "";
-        // Clean the full mood string: commas become spaces so Google reads it
-        // as space-separated keywords, not a list.
+
+        // Clean the full mood string
         const cleanedMood = mood.replace(/[,;]/g, ' ').replace(/\s+/g, ' ').trim();
-        // First keyword only (the most specific intent — 'rooftop' beats
-        // generic synonyms like 'outdoor seating' that the parser may add).
         const primaryKeyword = mood.split(/[,;]/)[0].trim();
 
-        const queries = [
-          `${cleanedMood} ${typeSuffix}`.trim(),                  // full mood + type
-          primaryKeyword !== cleanedMood ? `${primaryKeyword} ${typeSuffix}`.trim() : null, // just the headline keyword + type
-          `${primaryKeyword} near here`.trim(),                   // headline keyword without type bias (catches 'rooftop' bars that serve food)
-        ].filter(Boolean);
+        // Build a deduped list of textQueries: variants of the primary
+        // keyword (across languages) combined with the type suffix, plus a
+        // 'cleanedMood + type' catch-all.
+        const querySet = new Set();
+        for (const variant of expandKeyword(primaryKeyword)) {
+          if (typeSuffix) querySet.add(`${variant} ${typeSuffix}`.trim());
+          querySet.add(variant);
+        }
+        if (cleanedMood !== primaryKeyword) {
+          querySet.add(`${cleanedMood} ${typeSuffix}`.trim());
+        }
+        const queries = [...querySet];
 
         const textSearches = await Promise.all(queries.map(q =>
           fetch('https://places.googleapis.com/v1/places:searchText', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': textSearchFieldMask },
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': fieldMask },
             body: JSON.stringify({
               textQuery: q,
-              maxResultCount: 15,
+              maxResultCount: 10,
               locationRestriction: { circle: { center: { latitude: latF, longitude: lngF }, radius: radius } },
               languageCode: userLang
             }),
@@ -296,8 +326,6 @@ export default async function handler(req, res) {
         try {
           textSearches.forEach((textData, i) => {
             if (textData.places && textData.places.length > 0) {
-              // Tag every text-search hit so the downstream cross-type filter
-              // doesn't drop e.g. rooftop BARS when the user wants a Restaurant.
               textData.places.forEach(p => { p._fromTextSearch = true; p._textQuery = queries[i]; });
               responses.push(textData);
             }
