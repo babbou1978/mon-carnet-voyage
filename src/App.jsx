@@ -2898,14 +2898,29 @@ function TravelAgent() {
   };
 
   // Mood-filtered nearby places — single source of truth for map + list.
-  // Fallback: if the mood filter strips everything (Google didn't surface any
-  // place matching the user's vibe), show the full unfiltered list rather
-  // than an empty 'Popular places' section. Avoids the case where 'rooftop'
-  // in central London returned 0 visible results.
+  // 1) Distance filter: server-side locationBias is permissive (max(radius*1.5, 3km))
+  //    so a great place just outside the chosen radius can still surface. But
+  //    Google sometimes returns hits WAY outside (e.g. Galeries Lafayette Paris
+  //    while user is in London) when the keyword match is strong. Hard-cap the
+  //    distance to the AVERAGE of the user's chosen radius and the bias radius.
+  // 2) Mood filter: keep only places whose features / reviews / editorial
+  //    actually mention the mood keyword.
+  // 3) Mood fallback: if the mood filter strips everything (Google didn't
+  //    surface any matching place), show the full distance-filtered list.
   const moodFilteredNearby = (() => {
-    if (!recoMood) return nearbyPlaces;
-    const filtered = nearbyPlaces.filter(p => placeMatchesMood(p, recoMood));
-    return filtered.length > 0 ? filtered : nearbyPlaces;
+    if (!recoCoords?.lat) return recoMood ? nearbyPlaces.filter(p => placeMatchesMood(p, recoMood)) : nearbyPlaces;
+    const biasRadius = Math.max(distance * 1.5, 3000); // mirrors server-side bias
+    const maxDistance = (distance + biasRadius) / 2;
+    const inRange = nearbyPlaces.filter(p => {
+      if (!p.lat || !p.lng) return true; // keep places without coords (rare)
+      const R = 6371, dLat = (recoCoords.lat - p.lat) * Math.PI/180, dLng = (recoCoords.lng - p.lng) * Math.PI/180;
+      const a = Math.sin(dLat/2)**2 + Math.cos(p.lat*Math.PI/180)*Math.cos(recoCoords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+      const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1000; // metres
+      return dist <= maxDistance;
+    });
+    if (!recoMood) return inRange;
+    const filtered = inRange.filter(p => placeMatchesMood(p, recoMood));
+    return filtered.length > 0 ? filtered : inRange;
   })();
 
   // Enrich pins with friend data (same as heartMemories enrichment)
