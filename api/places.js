@@ -274,6 +274,12 @@ export default async function handler(req, res) {
           });
           const textData = await textRes.json();
           if (textData.places) {
+            // Tag every text-search hit so the downstream cross-type filter
+            // doesn't drop e.g. rooftop BARS when the user is looking for a
+            // Restaurant. A rooftop bar that serves food legitimately matches
+            // the user's intent — the keyword match is more authoritative
+            // than Google's primaryType bucket.
+            textData.places.forEach(p => { p._fromTextSearch = true; });
             responses.push(textData);
             console.log('Mood text search:', JSON.stringify({ mood: moodQuery, results: textData.places?.length || 0 }));
           }
@@ -289,9 +295,15 @@ export default async function handler(req, res) {
           // For Activité: filter out places whose primaryType is in the blacklist
           if (type === "Activité" && ACTIVITY_BLACKLIST && p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)) return;
           // Cross-type filtering: exclude restaurants from Bar results and vice versa
-          if (type === "Bar" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType.includes("_restaurant"))) return;
-          if (type === "Restaurant" && p.primaryType && (p.primaryType === "bar" || p.primaryType === "night_club")) return;
-          if (type === "Café" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType === "bar")) return;
+          // BUT skip this filter for results coming from the mood-driven Text
+          // Search — those are keyword-matched (e.g. 'rooftop restaurant') and
+          // a rooftop bar that serves food is a legitimate hit even though
+          // Google buckets it as primaryType: bar.
+          if (!p._fromTextSearch) {
+            if (type === "Bar" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType.includes("_restaurant"))) return;
+            if (type === "Restaurant" && p.primaryType && (p.primaryType === "bar" || p.primaryType === "night_club")) return;
+            if (type === "Café" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType === "bar")) return;
+          }
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
