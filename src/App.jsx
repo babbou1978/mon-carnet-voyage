@@ -1315,13 +1315,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
   const [showDropdown, setShowDropdown] = useState(false);
   const timerRef = useRef(null);
   const wrapperRef = useRef(null);
-
-  // Sync query when the parent updates initialValue externally (e.g. the
-  // 'Ask Outsy' parser sets a city). Without this, useState(initialValue)
-  // only reads on mount and later updates are silently dropped.
-  useEffect(() => {
-    setQuery(initialValue);
-  }, [initialValue]);
+  const firstSyncRef = useRef(true);
 
   useEffect(() => {
     const handler = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false); };
@@ -1362,6 +1356,25 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
     } catch {}
     setLoading(false);
   }, []);
+
+  // When the parent updates initialValue externally (e.g. 'Ask Outsy' parser
+  // sets a city), sync the input AND trigger the Google autocomplete so the
+  // user gets a real list of matching places to pick from. Skip the first
+  // sync (mount) so the autocomplete dropdown doesn't open uninvited when
+  // arriving on the page with a previously-saved free location.
+  useEffect(() => {
+    if (firstSyncRef.current) {
+      firstSyncRef.current = false;
+      return;
+    }
+    setQuery(initialValue);
+    if (initialValue && initialValue.length >= 2) {
+      search(initialValue);
+    } else {
+      setSuggestions([]);
+      setShowDropdown(false);
+    }
+  }, [initialValue, search]);
 
   const [activeIdx, setActiveIdx] = useState(-1);
 
