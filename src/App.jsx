@@ -1328,15 +1328,24 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
     setLoading(true);
     try {
       // When the search is for an explicit city query (typed by user or
-      // injected by the 'Ask Outsy' parser), restrict to geographic types
-      // so the city itself surfaces at the top instead of being buried
-      // under nearby businesses.
+      // injected by the 'Ask Outsy' parser), fetch BOTH a geo-restricted
+      // result set AND the regular one in parallel. Geo results land at
+      // the top so the city surfaces first; regular results fill in the
+      // tail so the dropdown is never empty if the geo filter returns 0
+      // (e.g. Google rejects the filter, or the query is unusual).
       if (cityOnly) {
-        const r = await fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val, cityOnly: true }) }).then(r=>r.json()).catch(()=>({suggestions:[]}));
+        const [geoRes, regRes] = await Promise.all([
+          fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val, cityOnly: true }) }).then(r=>r.json()).catch(()=>({suggestions:[]})),
+          fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val }) }).then(r=>r.json()).catch(()=>({suggestions:[]})),
+        ]);
         const seen = new Set();
         const merged = [];
-        for (const s of (r.suggestions||[])) {
-          const id = s.placePrediction?.placeId||"";
+        for (const s of (geoRes.suggestions || [])) {
+          const id = s.placePrediction?.placeId || "";
+          if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
+        }
+        for (const s of (regRes.suggestions || [])) {
+          const id = s.placePrediction?.placeId || "";
           if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
         }
         setSuggestions(merged.slice(0,7));

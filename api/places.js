@@ -72,17 +72,15 @@ export default async function handler(req, res) {
 
   try {
     if (action === 'autocomplete') {
-      // Optional cityOnly mode: restrict suggestions to geographic regions
-      // (cities / admin areas / countries) so the real city result is not
-      // buried under nearby businesses when the user is searching a city.
+      // Optional cityOnly mode: restrict to geographic regions (locality,
+      // admin areas, country). Max 5 types per Places API spec. Kept small
+      // and Table-B-only so the API doesn't 400.
       const body = { input, languageCode: userLang };
       if (req.body.cityOnly) {
         body.includedPrimaryTypes = [
           'locality',
-          'sublocality',
           'administrative_area_level_1',
           'administrative_area_level_2',
-          'administrative_area_level_3',
           'country',
         ];
       }
