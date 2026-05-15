@@ -2748,12 +2748,15 @@ function TravelAgent() {
           getGPS();
         }
         if (data.city) {
+          // Combine city + country (e.g. 'Lisbon, Portugal') so the geocoder
+          // resolves to the right place when the city name is ambiguous
+          // (Springfield, Cambridge, Toledo, …).
+          const fullLocation = data.country ? `${data.city}, ${data.country}` : data.city;
           setLocMode("free");
-          setFreeLocation(data.city);
-          // Geocode the city in the background so AI search has coords
+          setFreeLocation(fullLocation);
           fetch("/api/places", {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "geocode", input: data.city }),
+            body: JSON.stringify({ action: "geocode", input: fullLocation }),
           })
             .then(r => r.json())
             .then(g => { if (g?.lat && g?.lng) { const c = { lat: g.lat, lng: g.lng }; setRecoCoords(c); recoCoordsRef.current = c; setHeartsKey(k => k + 1); } })

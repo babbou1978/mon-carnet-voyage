@@ -35,6 +35,7 @@ Output ONLY valid JSON, no markdown, no backticks, no explanation:
   "moodKeywords": ["short", "keywords", "describing", "vibe", "or", "constraints"] | [],
   "useCurrentLocation": true | false | null,
   "city": "name of city if explicitly mentioned" | null,
+  "country": "country name in English for that city (use your general knowledge)" | null,
   "kidsFriendly": true | false | null,
   "priceRange": "€" | "€€" | "€€€" | null,
   "radiusKm": number_between_1_and_50 | null
@@ -68,25 +69,26 @@ moodKeywords (IMPORTANT — be strict):
 Other fields:
 - useCurrentLocation: true if the user mentions "near me", "around here", "dans le quartier", "à proximité", "à côté", etc. False if they explicitly name a city / area / country. Null if not stated.
 - city: only the city name itself (e.g. "Paris", "London", "Lisbon"). Null if "near me" or unspecified.
+- country: the country that city belongs to (in English: "France", "United Kingdom", "Portugal", "Spain", "Italy", "United States", etc.). Use your general knowledge — the user usually omits it. Only set it when you ALSO set a city. Null otherwise. This disambiguates places like Springfield, Cambridge, Toledo etc. for the geocoder.
 - kidsFriendly: true if "avec mes enfants" / "en famille" / "kids" mentioned. Null otherwise (don't default to false).
 - priceRange: only if explicitly stated ("cheap"/"€", "mid"/"€€", "fancy"/"upscale"/"€€€"). Else null.
 - radiusKm: only if explicitly stated ("dans les 5 km", "within 10 km"). Else null.
 
 Examples:
   "outsy je cherche un restaurant en rooftop avec mes collègues à côté"
-  -> {"type":"Restaurant","moodKeywords":["rooftop","groups"],"useCurrentLocation":true,"city":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  -> {"type":"Restaurant","moodKeywords":["rooftop","groups"],"useCurrentLocation":true,"city":null,"country":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
   "un bar speakeasy romantique à Paris en amoureux"
-  -> {"type":"Bar","moodKeywords":["speakeasy","romantique","romantic"],"useCurrentLocation":false,"city":"Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  -> {"type":"Bar","moodKeywords":["speakeasy","romantique","romantic"],"useCurrentLocation":false,"city":"Paris","country":"France","kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
   "hôtel chic à Lisbonne avec piscine"
-  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbonne","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
+  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbon","country":"Portugal","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
 
   "activité en famille au bord de la mer"
-  -> {"type":"Activité","moodKeywords":["bord de mer","kids friendly"],"useCurrentLocation":null,"city":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
+  -> {"type":"Activité","moodKeywords":["bord de mer","kids friendly"],"useCurrentLocation":null,"city":null,"country":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
 
-  "café avec terrasse pour brunch entre amis"
-  -> {"type":"Café","moodKeywords":["terrasse","brunch","groups"],"useCurrentLocation":null,"city":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}`;
+  "café avec terrasse pour brunch entre amis dans le Marais à Paris"
+  -> {"type":"Café","moodKeywords":["terrasse","brunch","groups"],"useCurrentLocation":false,"city":"Paris","country":"France","kidsFriendly":null,"priceRange":null,"radiusKm":null}`;
 
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -121,6 +123,7 @@ Examples:
         : [],
       useCurrentLocation: typeof parsed.useCurrentLocation === "boolean" ? parsed.useCurrentLocation : null,
       city: typeof parsed.city === "string" && parsed.city.trim() ? parsed.city.trim() : null,
+      country: typeof parsed.country === "string" && parsed.country.trim() ? parsed.country.trim() : null,
       kidsFriendly: typeof parsed.kidsFriendly === "boolean" ? parsed.kidsFriendly : null,
       priceRange: allowedPrices.includes(parsed.priceRange) ? parsed.priceRange : null,
       radiusKm: typeof parsed.radiusKm === "number" && parsed.radiusKm > 0 && parsed.radiusKm <= 100
