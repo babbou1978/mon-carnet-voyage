@@ -72,10 +72,24 @@ export default async function handler(req, res) {
 
   try {
     if (action === 'autocomplete') {
+      // Optional cityOnly mode: restrict suggestions to geographic regions
+      // (cities / admin areas / countries) so the real city result is not
+      // buried under nearby businesses when the user is searching a city.
+      const body = { input, languageCode: userLang };
+      if (req.body.cityOnly) {
+        body.includedPrimaryTypes = [
+          'locality',
+          'sublocality',
+          'administrative_area_level_1',
+          'administrative_area_level_2',
+          'administrative_area_level_3',
+          'country',
+        ];
+      }
       const r = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key },
-        body: JSON.stringify({ input, languageCode: userLang }),
+        body: JSON.stringify(body),
       });
       return res.status(200).json(await r.json());
 

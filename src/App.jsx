@@ -1323,10 +1323,27 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const search = useCallback(async (val) => {
+  const search = useCallback(async (val, cityOnly = false) => {
     if (val.length < 2) { setSuggestions([]); return; }
     setLoading(true);
     try {
+      // When the search is for an explicit city query (typed by user or
+      // injected by the 'Ask Outsy' parser), restrict to geographic types
+      // so the city itself surfaces at the top instead of being buried
+      // under nearby businesses.
+      if (cityOnly) {
+        const r = await fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val, cityOnly: true }) }).then(r=>r.json()).catch(()=>({suggestions:[]}));
+        const seen = new Set();
+        const merged = [];
+        for (const s of (r.suggestions||[])) {
+          const id = s.placePrediction?.placeId||"";
+          if (id && !seen.has(id)) { seen.add(id); merged.push(s); }
+        }
+        setSuggestions(merged.slice(0,7));
+        setShowDropdown(true);
+        setLoading(false);
+        return;
+      }
       const cities = window._prefCities || [];
       // Search globally + one search per preferred city in parallel
       const queries = [
@@ -1358,8 +1375,8 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
   }, []);
 
   // When the parent updates initialValue externally (e.g. 'Ask Outsy' parser
-  // sets a city), sync the input AND trigger the Google autocomplete so the
-  // user gets a real list of matching places to pick from. Skip the first
+  // sets a city), sync the input AND trigger the Google autocomplete in
+  // city-only mode so the city itself surfaces at the top. Skip the first
   // sync (mount) so the autocomplete dropdown doesn't open uninvited when
   // arriving on the page with a previously-saved free location.
   useEffect(() => {
@@ -1369,7 +1386,7 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
     }
     setQuery(initialValue);
     if (initialValue && initialValue.length >= 2) {
-      search(initialValue);
+      search(initialValue, true);
     } else {
       setSuggestions([]);
       setShowDropdown(false);
