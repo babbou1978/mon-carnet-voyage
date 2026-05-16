@@ -4070,6 +4070,16 @@ function TravelAgent() {
         // Prefer review in user lang over editorial summary which is usually English
         const summary = (reviewInLang?.text?.text) || (p.editorialSummary?.text?.languageCode === userLang ? p.editorialSummary.text : null);
         return {
+          // Google placeId — required so PlaceCardBody can fetch full
+          // details (photos, phone, website, hours, reviews, …). Without
+          // it the place sheet for popular results lands on the loading
+          // short-circuit and renders only the sparse fields the nearby
+          // search itself returned.
+          id: p.id,
+          google_place_id: p.id,
+          primaryType: p.primaryType,
+          primaryTypeDisplayName: p.primaryTypeDisplayName,
+          features: p.features,
           name: p.displayName?.text||"", address: p.formattedAddress||"",
           rating: p.rating, userRatingCount: p.userRatingCount||0,
           cuisine: p.cuisine || null,
@@ -4251,12 +4261,24 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               const idx = rawIdx - 1;
               if (!isNaN(idx) && idx >= 0 && idx < nearbyForAI.length) {
                 const gp = nearbyForAI[idx];
-                return {...r, name: gp.name, address: gp.address, lat: gp.lat, lng: gp.lng, _dist: gp._dist};
+                return {
+                  ...r,
+                  name: gp.name, address: gp.address, lat: gp.lat, lng: gp.lng, _dist: gp._dist,
+                  // Carry the Google placeId so the place sheet can fetch
+                  // full details (photos, phone, website, reviews, …).
+                  id: gp.id, google_place_id: gp.google_place_id,
+                  primaryType: gp.primaryType, primaryTypeDisplayName: gp.primaryTypeDisplayName,
+                };
               }
               // Try exact name match in nearbyForAI
               const exactMatch = nearbyForAI.find(p => p.name.toLowerCase() === (r.name||"").toLowerCase());
               if (exactMatch) {
-                return {...r, name: exactMatch.name, address: exactMatch.address, lat: exactMatch.lat, lng: exactMatch.lng, _dist: exactMatch._dist};
+                return {
+                  ...r,
+                  name: exactMatch.name, address: exactMatch.address, lat: exactMatch.lat, lng: exactMatch.lng, _dist: exactMatch._dist,
+                  id: exactMatch.id, google_place_id: exactMatch.google_place_id,
+                  primaryType: exactMatch.primaryType, primaryTypeDisplayName: exactMatch.primaryTypeDisplayName,
+                };
               }
               return null;
             }).filter(Boolean)
