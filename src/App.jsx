@@ -1463,6 +1463,11 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
       }
       return;
     }
+    // When the parent's value echoes back what we just set internally
+    // (typically after selectPlace updated query → onPlaceSelected →
+    // parent setFreeLocation), don't rerun autocomplete — it would just
+    // reopen the dropdown immediately after the user confirmed.
+    if (initialValue === query) return;
     setQuery(initialValue);
     if (initialValue && initialValue.length >= 2) {
       search(initialValue, true);
