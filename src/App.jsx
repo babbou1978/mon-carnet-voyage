@@ -2465,19 +2465,30 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     return () => window.removeEventListener("keydown", handler);
   }, [index, list.length]);
 
-  // Lock the body scroll while the sheet is open. On AI / Popular tabs the
-  // page underneath is long, and without this lock the horizontal swipe
-  // gesture inside the carousel sometimes bleeds through to the body and
-  // scrolls the underlying list. Favorites lists are short enough that the
-  // issue doesn't surface there — but locking body scroll fixes both.
+  // Lock the body scroll while the sheet is open, using the iOS-safe
+  // pattern: freeze the body in place with position:fixed and offset
+  // (overflow:hidden alone doesn't stop momentum scroll on Safari). We
+  // also explicitly leave touch-action default so the carousel inside
+  // the sheet can pan normally — setting touch-action:none on body was
+  // visibly slowing / hiccuping the card carousel on AI / Popular tabs.
   useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevTouchAction = document.body.style.touchAction;
+    const scrollY = window.scrollY;
+    const prev = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+    };
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
     return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.touchAction = prevTouchAction;
+      document.body.style.overflow = prev.overflow;
+      document.body.style.position = prev.position;
+      document.body.style.top = prev.top;
+      document.body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
     };
   }, []);
 
