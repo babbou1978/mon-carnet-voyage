@@ -377,7 +377,15 @@ export default async function handler(req, res) {
             "barber_shop","clothing_store","shoe_store","jewelry_store",
             "shopping_mall","bank","atm","post_office","gas_station",
             "car_dealer","car_rental","car_repair","parking","police","embassy",
-            "city_hall","courthouse","local_government_office"
+            "city_hall","courthouse","local_government_office",
+            // Service businesses that Google sometimes attaches to rooftops /
+            // terraces because the company built or manages them. They are
+            // not places you eat or drink.
+            "general_contractor","contractor","electrician","plumber","roofing_contractor",
+            "real_estate_agency","insurance_agency","accounting","lawyer","notary_public",
+            "moving_company","storage","laundry","dry_cleaning",
+            "florist","hardware_store","home_goods_store","furniture_store",
+            "travel_agency","tourist_information_center"
           ]);
           if ((type === "Restaurant" || type === "Bar" || type === "Café") && p.primaryType && NON_FOOD_VENUE_TYPES.has(p.primaryType)) return;
           // Cross-type filtering: exclude restaurants from Bar results and vice versa
