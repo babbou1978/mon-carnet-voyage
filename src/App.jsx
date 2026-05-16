@@ -2914,10 +2914,28 @@ function TravelAgent() {
         if (data.priceRange) setRecoPrice(data.priceRange);
         // radiusKm comes in kilometres; the `distance` state is in metres.
         if (data.radiusKm) setDistance(Math.round(data.radiusKm * 1000));
+        // Auto-launch the AI search after the form has been filled. We can't
+        // call loadRecos() synchronously here because setState is batched —
+        // loadRecos would read stale state. Flip a flag and let an effect
+        // below pick it up once the new state (incl. async GPS / geocode)
+        // has actually committed.
+        setPendingAutoSearch(true);
       }
     } catch (_) {}
     setAnalyzingIntent(false);
   };
+
+  // Flag set by handleAnalyzeQuery to trigger the AI search once the form
+  // state (and especially the location coords) is ready.
+  const [pendingAutoSearch, setPendingAutoSearch] = useState(false);
+  useEffect(() => {
+    if (!pendingAutoSearch) return;
+    if (aiLoading || heartLoading) return; // search already in flight
+    if (locMode === "gps" && !gpsReady) return; // wait for GPS to come back
+    if (!recoCoords?.lat) return; // wait for coords (GPS or geocode)
+    setPendingAutoSearch(false);
+    loadRecos(false);
+  }, [pendingAutoSearch, recoCoords, gpsReady, locMode, aiLoading, heartLoading]);
   const [usernameError, setUsernameError] = useState("");
   const [pinModal, setPinModal] = useState(null);
   const [placeSheet, setPlaceSheet] = useState(null); // {place, list, index}
@@ -4840,10 +4858,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 <div style={{position:"relative",width:"100%",marginTop:10}}>
                   <textarea
                     value={outsyQuery}
-                    onChange={e=>setOutsyQuery(e.target.value)}
+                    onChange={e=>{ setOutsyQuery(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
                     placeholder={outsyQueryListening?(t.recoMoodListening||"À l'écoute..."):(t.askOutsyPlaceholder||"Ex: I'm looking for a rooftop restaurant near me with colleagues")}
                     rows={3}
-                    style={{background:COLORS.card,border:`1px solid ${outsyQueryListening?"#e74c3c":COLORS.border}`,borderRadius:10,padding:"12px 90px 12px 14px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%",resize:"vertical",minHeight:74,boxSizing:"border-box",lineHeight:1.4}}
+                    style={{background:COLORS.card,border:`1px solid ${outsyQueryListening?"#e74c3c":COLORS.border}`,borderRadius:10,padding:"12px 90px 12px 14px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%",resize:"none",minHeight:74,boxSizing:"border-box",lineHeight:1.4,overflow:"hidden"}}
                   />
                   {outsyQuery && (
                     <button type="button" onClick={()=>setOutsyQuery("")} title={t.askOutsyClear||"Clear"} aria-label={t.askOutsyClear||"Clear"} style={{position:"absolute",right:48,top:8,width:36,height:36,borderRadius:"50%",border:"none",background:COLORS.bg,color:COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,padding:0,boxShadow:"0 1px 4px rgba(0,0,0,0.08)"}}>✕</button>
@@ -4905,8 +4923,11 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
                   <div style={{position:"relative",width:"100%"}}>
-                    <input value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 44px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box"}}/>
-                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
+                    <textarea value={recoMood} onChange={e=>{ setRecoMood(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} rows={1} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 80px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box",resize:"none",minHeight:40,lineHeight:1.4,overflow:"hidden"}}/>
+                    {recoMood && (
+                      <button type="button" onClick={()=>setRecoMood("")} title={t.askOutsyClear||"Effacer"} aria-label={t.askOutsyClear||"Effacer"} style={{position:"absolute",right:44,top:6,width:30,height:30,borderRadius:"50%",border:"none",background:"transparent",color:COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,padding:0}}>✕</button>
+                    )}
+                    <button type="button" onClick={toggleMoodDictation} title={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} aria-label={recoMoodListening?(t.recoMoodStop||"Arrêter la dictée"):(t.recoMoodDictate||"Dicter")} style={{position:"absolute",right:6,top:6,width:32,height:32,borderRadius:"50%",border:"none",background:recoMoodListening?"#e74c3c":"transparent",color:recoMoodListening?"#fff":COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,padding:0,animation:recoMoodListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
                   </div>
                 </div>
                 <div>
