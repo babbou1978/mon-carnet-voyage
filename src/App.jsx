@@ -2823,6 +2823,18 @@ function TravelAgent() {
   const [analyzingIntent, setAnalyzingIntent] = useState(false);
   const outsyRecognitionRef = useRef(null);
   const outsyFinalTranscriptRef = useRef("");
+  // Refs on the two auto-resizing textareas. We resize them whenever their
+  // value changes — covers typing AND voice dictation (which mutates state
+  // without firing onChange).
+  const outsyTextareaRef = useRef(null);
+  const moodTextareaRef = useRef(null);
+  const autoSizeTextarea = (el) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  };
+  useEffect(() => { autoSizeTextarea(outsyTextareaRef.current); }, [outsyQuery]);
+  useEffect(() => { autoSizeTextarea(moodTextareaRef.current); }, [recoMood]);
   const toggleOutsyDictation = () => {
     const SR = typeof window !== "undefined" ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
     if (!SR) {
@@ -2894,16 +2906,22 @@ function TravelAgent() {
           setGpsReady(false);
           getGPS();
         }
-        if (data.city) {
-          // Combine city + country (e.g. 'Lisbon, Portugal') so the geocoder
-          // resolves to the right place when the city name is ambiguous
-          // (Springfield, Cambridge, Toledo, …).
-          const fullLocation = data.country ? `${data.city}, ${data.country}` : data.city;
+        if (data.city || data.locationText) {
+          // If the user gave a precise address ("55 avenue Hoche, 75008 Paris"),
+          // geocode THAT to land at the exact spot — not just the city centre.
+          // Otherwise fall back to "city, country" (Springfield, Cambridge etc.
+          // are ambiguous without the country).
+          const preciseLocation = data.locationText
+            ? (data.country ? `${data.locationText}, ${data.country}` : data.locationText)
+            : (data.country ? `${data.city}, ${data.country}` : data.city);
+          // What we show in the input: keep it readable (the precise version
+          // if provided, otherwise the city).
+          const labelForInput = data.locationText || (data.country ? `${data.city}, ${data.country}` : data.city);
           setLocMode("free");
-          setFreeLocation(fullLocation);
+          setFreeLocation(labelForInput);
           fetch("/api/places", {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "geocode", input: fullLocation }),
+            body: JSON.stringify({ action: "geocode", input: preciseLocation }),
           })
             .then(r => r.json())
             .then(g => { if (g?.lat && g?.lng) { const c = { lat: g.lat, lng: g.lng }; setRecoCoords(c); recoCoordsRef.current = c; setHeartsKey(k => k + 1); } })
@@ -4857,8 +4875,9 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 </div>
                 <div style={{position:"relative",width:"100%",marginTop:10}}>
                   <textarea
+                    ref={outsyTextareaRef}
                     value={outsyQuery}
-                    onChange={e=>{ setOutsyQuery(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+                    onChange={e=>setOutsyQuery(e.target.value)}
                     placeholder={outsyQueryListening?(t.recoMoodListening||"À l'écoute..."):(t.askOutsyPlaceholder||"Ex: I'm looking for a rooftop restaurant near me with colleagues")}
                     rows={3}
                     style={{background:COLORS.card,border:`1px solid ${outsyQueryListening?"#e74c3c":COLORS.border}`,borderRadius:10,padding:"12px 90px 12px 14px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%",resize:"none",minHeight:74,boxSizing:"border-box",lineHeight:1.4,overflow:"hidden"}}
@@ -4923,7 +4942,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
                   <div style={{position:"relative",width:"100%"}}>
-                    <textarea value={recoMood} onChange={e=>{ setRecoMood(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} rows={1} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 80px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box",resize:"none",minHeight:40,lineHeight:1.4,overflow:"hidden"}}/>
+                    <textarea ref={moodTextareaRef} value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} rows={1} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 80px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box",resize:"none",minHeight:40,lineHeight:1.4,overflow:"hidden"}}/>
                     {recoMood && (
                       <button type="button" onClick={()=>setRecoMood("")} title={t.askOutsyClear||"Effacer"} aria-label={t.askOutsyClear||"Effacer"} style={{position:"absolute",right:44,top:6,width:30,height:30,borderRadius:"50%",border:"none",background:"transparent",color:COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,padding:0}}>✕</button>
                     )}

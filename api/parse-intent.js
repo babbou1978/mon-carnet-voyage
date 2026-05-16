@@ -36,6 +36,7 @@ Output ONLY valid JSON, no markdown, no backticks, no explanation:
   "useCurrentLocation": true | false | null,
   "city": "name of city if explicitly mentioned" | null,
   "country": "country name in English for that city (use your general knowledge)" | null,
+  "locationText": "FULL precise location string if the user gave more than just a city (street number + street + postal code / arrondissement + city). Null if they only gave a city or nothing." | null,
   "kidsFriendly": true | false | null,
   "priceRange": "€" | "€€" | "€€€" | null,
   "radiusKm": number_between_1_and_50 | null
@@ -52,7 +53,12 @@ moodKeywords (IMPORTANT — be strict):
      AND the user's wording clearly implies that feature:
        - "terrasse" / "outdoor seating" (only if user mentions outdoor, garden, balcony, view, soleil, plein air)
        - "rooftop" (only if user says rooftop or "sur les toits")
-       - "groups" (only when "avec mes collègues", "team", "groupe", "anniversaire entre amis", "after work")
+       - "groups" (ONLY when the user EXPLICITLY mentions MULTIPLE people / a group, in the plural:
+          "avec mes collègues", "avec mes amis", "entre amis", "mon équipe", "team",
+          "un groupe de", "anniversaire entre amis", "after work", "EVG", "EVJF",
+          "réunion de famille".
+          DO NOT add "groups" for SINGULAR companions: "un client", "un ami", "un collègue",
+          "ma femme", "mon mari", "ma copine", "un date", etc. One companion is NOT a group.)
        - "kids friendly" (only when "avec les enfants", "famille avec enfants", "kids", "enfants")
        - "live music" (only when "concert", "musique live", "live band")
        - "cocktails" (only when "cocktails", "cocktail bar")
@@ -70,28 +76,43 @@ Other fields:
 - useCurrentLocation: true if the user mentions "near me", "around here", "dans le quartier", "à proximité", "à côté", etc. False if they explicitly name a city / area / country. Null if not stated.
 - city: the city name itself in the USER'S LANGUAGE (French user -> "Lisbonne", "Londres"; English user -> "Lisbon", "London"). Null if "near me" or unspecified.
 - country: the country that city belongs to, in the USER'S LANGUAGE ("France", "Royaume-Uni", "Portugal", "États-Unis"). Use your general knowledge — the user usually omits it. Only set it when you ALSO set a city. Null otherwise. This disambiguates places like Springfield, Cambridge, Toledo etc.
+- locationText: if the user gave a PRECISE location (street number, street name, postal code, arrondissement, neighbourhood), copy that full string here as the user wrote it. Examples:
+    "près du 55, avenue Hoche 75008 Paris" -> locationText: "55 avenue Hoche, 75008 Paris", city: "Paris", country: "France"
+    "around 1600 Pennsylvania Ave Washington" -> locationText: "1600 Pennsylvania Ave, Washington", city: "Washington", country: "United States"
+    "dans le Marais à Paris" -> locationText: "Marais, Paris", city: "Paris", country: "France"
+    "à Paris" -> locationText: null, city: "Paris", country: "France"
+    "près de moi" -> locationText: null, city: null
+  Always also fill city/country when you fill locationText. Null when the user only mentions a city or nothing.
 - kidsFriendly: true if "avec mes enfants" / "en famille" / "kids" mentioned. Null otherwise (don't default to false).
 - priceRange: only if explicitly stated ("cheap"/"€", "mid"/"€€", "fancy"/"upscale"/"€€€"). Else null.
 - radiusKm: only if explicitly stated ("dans les 5 km", "within 10 km"). Else null.
 
 Examples:
   "outsy je cherche un restaurant en rooftop avec mes collègues à côté"
-  -> {"type":"Restaurant","moodKeywords":["rooftop","groups"],"useCurrentLocation":true,"city":null,"country":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  -> {"type":"Restaurant","moodKeywords":["rooftop","groups"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
   "un bar speakeasy romantique à Paris en amoureux" (user lang: fr)
-  -> {"type":"Bar","moodKeywords":["speakeasy","romantique","romantic"],"useCurrentLocation":false,"city":"Paris","country":"France","kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  -> {"type":"Bar","moodKeywords":["speakeasy","romantique","romantic"],"useCurrentLocation":false,"city":"Paris","country":"France","locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
 
   "hôtel chic à Lisbonne avec piscine" (user lang: fr)
-  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbonne","country":"Portugal","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
+  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbonne","country":"Portugal","locationText":null,"kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
 
   "fancy hotel in Lisbon with a pool" (user lang: en)
-  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbon","country":"Portugal","kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
+  -> {"type":"Hôtel","moodKeywords":["chic","piscine"],"useCurrentLocation":false,"city":"Lisbon","country":"Portugal","locationText":null,"kidsFriendly":null,"priceRange":"€€€","radiusKm":null}
 
   "activité en famille au bord de la mer"
-  -> {"type":"Activité","moodKeywords":["bord de mer","kids friendly"],"useCurrentLocation":null,"city":null,"country":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
+  -> {"type":"Activité","moodKeywords":["bord de mer","kids friendly"],"useCurrentLocation":null,"city":null,"country":null,"locationText":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
 
   "café avec terrasse pour brunch entre amis dans le Marais à Paris"
-  -> {"type":"Café","moodKeywords":["terrasse","brunch","groups"],"useCurrentLocation":false,"city":"Paris","country":"France","kidsFriendly":null,"priceRange":null,"radiusKm":null}`;
+  -> {"type":"Café","moodKeywords":["terrasse","brunch","groups"],"useCurrentLocation":false,"city":"Paris","country":"France","locationText":"Marais, Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
+
+  "Je cherche un restaurant avec terrasse ou rooftop près du 55, avenue Hoche 75008 Paris pour amener un client jeudi soir" (user lang: fr)
+  -> {"type":"Restaurant","moodKeywords":["terrasse","rooftop"],"useCurrentLocation":false,"city":"Paris","country":"France","locationText":"55 avenue Hoche, 75008 Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  (NOTE: "un client" = singular, do NOT add "groups". Only one companion.)
+
+  "restaurant avec ma femme pour notre anniversaire dans le 6e arrondissement à Paris"
+  -> {"type":"Restaurant","moodKeywords":["romantic"],"useCurrentLocation":false,"city":"Paris","country":"France","locationText":"6e arrondissement, Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  (NOTE: "ma femme" = singular romantic context, NOT groups.)`;
 
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -127,6 +148,7 @@ Examples:
       useCurrentLocation: typeof parsed.useCurrentLocation === "boolean" ? parsed.useCurrentLocation : null,
       city: typeof parsed.city === "string" && parsed.city.trim() ? parsed.city.trim() : null,
       country: typeof parsed.country === "string" && parsed.country.trim() ? parsed.country.trim() : null,
+      locationText: typeof parsed.locationText === "string" && parsed.locationText.trim() ? parsed.locationText.trim() : null,
       kidsFriendly: typeof parsed.kidsFriendly === "boolean" ? parsed.kidsFriendly : null,
       priceRange: allowedPrices.includes(parsed.priceRange) ? parsed.priceRange : null,
       radiusKm: typeof parsed.radiusKm === "number" && parsed.radiusKm > 0 && parsed.radiusKm <= 100
