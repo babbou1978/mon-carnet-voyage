@@ -1364,7 +1364,7 @@ function GoogleMap({ recommendations, userCoords, heartMemories, nearbyPlaces, p
 
 
 // Autocomplete spécial pour la localisation Reco — retourne aussi les coordonnées GPS
-function RecoPlaceSearch({ onPlaceSelected, initialValue="", silentSyncToken=0, COLORS=THEMES.dark }) {
+function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark }) {
   const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1373,11 +1373,6 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", silentSyncToken=0, 
   const timerRef = useRef(null);
   const wrapperRef = useRef(null);
   const firstSyncRef = useRef(true);
-  // Tracks the silentSyncToken at the previous render. When the parent
-  // bumps it alongside an initialValue change, we sync the query *without*
-  // reopening the autocomplete — the value is already validated upstream
-  // (e.g. the 'Ask Outsy' parser fills the field and geocodes in one shot).
-  const lastSilentTokenRef = useRef(silentSyncToken);
 
   useEffect(() => {
     const handler = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false); };
@@ -1453,25 +1448,16 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", silentSyncToken=0, 
   useEffect(() => {
     if (firstSyncRef.current) {
       firstSyncRef.current = false;
-      lastSilentTokenRef.current = silentSyncToken;
       return;
     }
     setQuery(initialValue);
-    // Silent set from parent (parser already validated + geocoded): keep
-    // the dropdown closed so the user doesn't have to confirm a second time.
-    if (silentSyncToken !== lastSilentTokenRef.current) {
-      lastSilentTokenRef.current = silentSyncToken;
-      setSuggestions([]);
-      setShowDropdown(false);
-      return;
-    }
     if (initialValue && initialValue.length >= 2) {
       search(initialValue, true);
     } else {
       setSuggestions([]);
       setShowDropdown(false);
     }
-  }, [initialValue, silentSyncToken, search]);
+  }, [initialValue, search]);
 
   const [activeIdx, setActiveIdx] = useState(-1);
 
@@ -2744,11 +2730,6 @@ function TravelAgent() {
   const [distance, setDistance] = useState(1000);
   const [locMode, setLocMode] = useState(() => localStorage.getItem("outsy_locMode") || "free");
   const [freeLocation, setFreeLocation] = useState(() => localStorage.getItem("outsy_freeLocation") || "");
-  // Bumped whenever we programmatically fill freeLocation from a trusted
-  // source (e.g. the 'Ask Outsy' parser). RecoPlaceSearch sees the bump
-  // and suppresses the autocomplete dropdown so the user doesn't have to
-  // re-confirm an address that's already geocoded.
-  const [freeLocationSilentToken, setFreeLocationSilentToken] = useState(0);
   const [gpsLocation, setGpsLocation] = useState(() => localStorage.getItem("outsy_gpsLocation") || "");
   const [gpsReady, setGpsReady] = useState(true); // false while GPS is loading
   const [gpsPermissionState, setGpsPermissionState] = useState("unknown"); // 'granted' | 'denied' | 'prompt' | 'unknown'
@@ -2954,7 +2935,6 @@ function TravelAgent() {
           const labelForInput = data.locationText || (data.country ? `${data.city}, ${data.country}` : data.city);
           setLocMode("free");
           setFreeLocation(labelForInput);
-          setFreeLocationSilentToken(t => t + 1);
           fetch("/api/places", {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "geocode", input: preciseLocation }),
@@ -4973,7 +4953,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 )}
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
-                {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} silentSyncToken={freeLocationSilentToken} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
+                {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
                 <div className="field"><label>{t.recoRadius}</label><DistanceSlider value={distance} onChange={v=>{setDistance(v);if(locationLabel)setHeartsKey(k=>k+1);}}/></div>
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
