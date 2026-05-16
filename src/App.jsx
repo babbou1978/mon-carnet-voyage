@@ -1373,6 +1373,11 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
   const timerRef = useRef(null);
   const wrapperRef = useRef(null);
   const firstSyncRef = useRef(true);
+  // What was in localStorage when this component mounted. Lets us tell
+  // "page load with a previously-saved location" (skip autocomplete) apart
+  // from "parent set a fresh value before mount" (e.g. 'Ask Outsy' parser
+  // flipped locMode to free and filled the address — should open autocomplete).
+  const savedAtMountRef = useRef(typeof localStorage !== "undefined" ? (localStorage.getItem("outsy_freeLocation") || "") : "");
 
   useEffect(() => {
     const handler = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false); };
@@ -1448,6 +1453,14 @@ function RecoPlaceSearch({ onPlaceSelected, initialValue="", COLORS=THEMES.dark 
   useEffect(() => {
     if (firstSyncRef.current) {
       firstSyncRef.current = false;
+      // Only suppress the dropdown on first sync when this initialValue
+      // matches the localStorage-saved value (i.e. real page load). When
+      // the parent has *changed* the value before our mount (parser flow),
+      // open the autocomplete just like a manual edit would.
+      if (initialValue === savedAtMountRef.current) return;
+      if (initialValue && initialValue.length >= 2) {
+        search(initialValue, true);
+      }
       return;
     }
     setQuery(initialValue);
