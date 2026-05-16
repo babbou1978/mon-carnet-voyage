@@ -26,6 +26,48 @@ const PRICE_MAP = { PRICE_LEVEL_FREE: "€", PRICE_LEVEL_INEXPENSIVE: "€", PRI
 const normalizePrice = (p) => p === "€€€€" ? "€€€" : p; // Migrate old 4-level to 3-level
 const DISTANCE_STEPS = [100, 500, 1000, 2000, 5000, 10000];
 const ALL = "__ALL__"; // Internal constant for "all" filter - language independent
+
+// Browser detection (for GPS permission help). Returns a stable key like
+// 'ios_chrome' / 'android_firefox' / 'desktop_safari'. The instructions for
+// re-enabling location differ per browser, so we tell the user the exact
+// path rather than a generic 'check your settings'.
+const detectBrowser = () => {
+  if (typeof navigator === "undefined") return "unknown";
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isIOS) {
+    if (/CriOS/.test(ua)) return "ios_chrome";
+    if (/FxiOS/.test(ua)) return "ios_firefox";
+    if (/EdgiOS/.test(ua)) return "ios_edge";
+    return "ios_safari";
+  }
+  if (/Android/.test(ua)) {
+    if (/Chrome/.test(ua)) return "android_chrome";
+    if (/Firefox/.test(ua)) return "android_firefox";
+    return "android_other";
+  }
+  if (/Edg/.test(ua)) return "desktop_edge";
+  if (/Chrome/.test(ua)) return "desktop_chrome";
+  if (/Firefox/.test(ua)) return "desktop_firefox";
+  if (/Safari/.test(ua)) return "desktop_safari";
+  return "unknown";
+};
+
+const GPS_INSTRUCTIONS_FR = {
+  ios_safari: "Réglages iPhone → Confidentialité → Service de localisation → Safari → Pendant l'utilisation",
+  ios_chrome: "Réglages iPhone → Chrome → Position → Pendant l'utilisation",
+  ios_firefox: "Réglages iPhone → Firefox → Position → Autoriser",
+  ios_edge: "Réglages iPhone → Edge → Position → Autoriser",
+  android_chrome: "Touche 🔒 à gauche de l'URL → Autorisations du site → Position → Autoriser",
+  android_firefox: "Menu ⋮ → Paramètres → Permissions des sites → Position",
+  android_other: "Réglages Android → Apps → Ton navigateur → Autorisations → Position",
+  desktop_chrome: "Clique 🔒 à gauche de l'URL → Position → Autoriser",
+  desktop_safari: "Safari → Réglages → Sites web → Position → Autoriser",
+  desktop_firefox: "Clique 🔒 à gauche de l'URL → Permissions → Position",
+  desktop_edge: "Clique 🔒 à gauche de l'URL → Autorisations → Position",
+  unknown: "Active la localisation dans les réglages de ton navigateur",
+};
+
 // Legacy compatibility: "Bar / Café" matches both "Bar" and "Café"
 // Support comma-separated multi-types: "Restaurant,Bar" matches both "Restaurant" and "Bar"
 const typeMatches = (memType, filterType) => {
@@ -2659,6 +2701,26 @@ function TravelAgent() {
   const [freeLocation, setFreeLocation] = useState(() => localStorage.getItem("outsy_freeLocation") || "");
   const [gpsLocation, setGpsLocation] = useState(() => localStorage.getItem("outsy_gpsLocation") || "");
   const [gpsReady, setGpsReady] = useState(true); // false while GPS is loading
+  const [gpsPermissionState, setGpsPermissionState] = useState("unknown"); // 'granted' | 'denied' | 'prompt' | 'unknown'
+  const [gpsErrorCount, setGpsErrorCount] = useState(0);
+  const [showGpsHelp, setShowGpsHelp] = useState(false);
+
+  // Proactive permission check via the Permissions API. Lets us know up-front
+  // (without firing getCurrentPosition) whether the user has previously
+  // denied location, so we can show actionable instructions instead of a
+  // mysterious 'Location error' after their tap.
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.permissions) return;
+    let permRef = null;
+    navigator.permissions.query({ name: "geolocation" })
+      .then(p => {
+        permRef = p;
+        setGpsPermissionState(p.state);
+        p.onchange = () => setGpsPermissionState(p.state);
+      })
+      .catch(() => {});
+    return () => { if (permRef) permRef.onchange = null; };
+  }, []);
   const [recoCoords, setRecoCoords] = useState(() => {
     try { const s = localStorage.getItem("outsy_recoCoords"); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -3516,15 +3578,27 @@ function TravelAgent() {
       }
     }, (err) => {
       // Map the standard GeolocationPositionError code to a clearer message
-      // so the user knows what to do (denied vs unavailable vs timeout).
       let msg = t.gpsError || "Location error";
+      const isDenial = err && err.code === 1;
       if (err && typeof err.code === "number") {
-        if (err.code === 1) msg = t.gpsErrorDenied || "Permission refusée — autorisez la localisation dans les réglages du navigateur";
+        if (err.code === 1) msg = t.gpsErrorDenied || "Permission refusée — voir Comment activer ?";
         else if (err.code === 2) msg = t.gpsErrorUnavailable || "Position indisponible — vérifie le GPS / la connexion";
         else if (err.code === 3) msg = t.gpsErrorTimeout || "Délai dépassé — réessaie";
       }
       setGpsLocation(msg);
       setGpsReady(true);
+      if (isDenial) setGpsPermissionState("denied");
+
+      // Count failures and after 2 denial errors auto-fallback to manual
+      // mode so the user is never stuck without a way to set a location.
+      const newCount = gpsErrorCount + 1;
+      setGpsErrorCount(newCount);
+      if (isDenial && newCount >= 2) {
+        setLocMode("free");
+        showToast("📍 " + (t.gpsFallbackToManual || "Saisie manuelle activée — tu pourras retenter le GPS plus tard"));
+      } else if (isDenial) {
+        setShowGpsHelp(true);
+      }
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
 
@@ -4742,6 +4816,24 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   <button className={`loc-btn ${locMode==="gps"?"active":""}`} onClick={()=>{setLocMode("gps");setRecoCoords(null);setGpsReady(false);getGPS();}}>{t.recoGPS}</button>
                   <button className={`loc-btn ${locMode==="free"?"active":""}`} onClick={()=>{setLocMode("free");setRecoCoords(null);recoCoordsRef.current=null;localStorage.removeItem("outsy_recoCoords");}}>{t.recoManual}</button>
                 </div>
+                {(locMode==="gps" && (gpsPermissionState==="denied" || showGpsHelp)) && (
+                  <div style={{marginTop:8,padding:"10px 12px",background:`${COLORS.dislike||"#d4869b"}11`,border:`1px solid ${COLORS.dislike||"#d4869b"}44`,borderRadius:8,fontSize:12,color:COLORS.text,fontFamily:"'DM Sans',sans-serif"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                      <span>📍 {t.gpsPermissionDeniedShort || "Localisation bloquée pour ce navigateur"}</span>
+                      <button onClick={()=>setShowGpsHelp(s=>!s)} style={{background:"none",border:"none",color:COLORS.accent,cursor:"pointer",fontSize:12,fontFamily:"'DM Sans',sans-serif",textDecoration:"underline",padding:0}}>
+                        {showGpsHelp ? (t.gpsHide||"Masquer") : (t.gpsHowToActivate||"Comment activer ?")}
+                      </button>
+                    </div>
+                    {showGpsHelp && (
+                      <div style={{marginTop:8,paddingTop:8,borderTop:`1px solid ${COLORS.border}`,lineHeight:1.5}}>
+                        {GPS_INSTRUCTIONS_FR[detectBrowser()] || GPS_INSTRUCTIONS_FR.unknown}
+                        <div style={{marginTop:6,fontSize:11,color:COLORS.muted}}>
+                          {t.gpsAfterActivate || "Après activation, retape sur \"Ma position\". Tu peux aussi utiliser \"Saisir\" en attendant."}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {locMode==="gps"&&gpsLocation&&<input className="inline-input" value={gpsLocation} onChange={e=>setGpsLocation(e.target.value)}/>}
                 {locMode==="gps"&&!gpsLocation&&<div style={{fontSize:12,color:COLORS.muted}}>{t.recoGPSLoading}</div>}
                 {locMode==="free"&&<RecoPlaceSearch COLORS={COLORS} initialValue={freeLocation} onPlaceSelected={(p)=>{if(p){setFreeLocation(p.address);if(p.lat){const c={lat:p.lat,lng:p.lng};setRecoCoords(c);recoCoordsRef.current=c;setHeartsKey(k=>k+1);}  }else{setFreeLocation("");setRecoCoords(null);}}}/>}
