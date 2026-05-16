@@ -68,6 +68,21 @@ const GPS_INSTRUCTIONS_FR = {
   unknown: "Active la localisation dans les réglages de ton navigateur",
 };
 
+const MIC_INSTRUCTIONS_FR = {
+  ios_safari: "Réglages iPhone → Confidentialité → Microphone → Safari → Activer",
+  ios_chrome: "Réglages iPhone → Chrome → Microphone → Activer",
+  ios_firefox: "Réglages iPhone → Firefox → Microphone → Activer",
+  ios_edge: "Réglages iPhone → Edge → Microphone → Activer",
+  android_chrome: "Touche 🔒 à gauche de l'URL → Autorisations du site → Microphone → Autoriser",
+  android_firefox: "Menu ⋮ → Paramètres → Permissions des sites → Microphone",
+  android_other: "Réglages Android → Apps → Ton navigateur → Autorisations → Microphone",
+  desktop_chrome: "Clique 🔒 à gauche de l'URL → Microphone → Autoriser",
+  desktop_safari: "Safari → Réglages → Sites web → Microphone → Autoriser",
+  desktop_firefox: "Clique 🔒 à gauche de l'URL → Permissions → Microphone",
+  desktop_edge: "Clique 🔒 à gauche de l'URL → Autorisations → Microphone",
+  unknown: "Active le microphone dans les réglages de ton navigateur",
+};
+
 // Legacy compatibility: "Bar / Café" matches both "Bar" and "Café"
 // Support comma-separated multi-types: "Restaurant,Bar" matches both "Restaurant" and "Bar"
 const typeMatches = (memType, filterType) => {
@@ -2721,6 +2736,25 @@ function TravelAgent() {
       .catch(() => {});
     return () => { if (permRef) permRef.onchange = null; };
   }, []);
+
+  // Same proactive check for microphone (Web Speech API dictation). Not all
+  // browsers support querying 'microphone' via the Permissions API (notably
+  // iOS Safari), so we fall back to detecting 'not-allowed' on the
+  // SpeechRecognition error event below.
+  const [micPermissionState, setMicPermissionState] = useState("unknown");
+  const [showMicHelp, setShowMicHelp] = useState(false);
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.permissions) return;
+    let permRef = null;
+    navigator.permissions.query({ name: "microphone" })
+      .then(p => {
+        permRef = p;
+        setMicPermissionState(p.state);
+        p.onchange = () => setMicPermissionState(p.state);
+      })
+      .catch(() => {}); // Not supported (Safari iOS) — we'll detect from SpeechRecognition errors instead
+    return () => { if (permRef) permRef.onchange = null; };
+  }, []);
   const [recoCoords, setRecoCoords] = useState(() => {
     try { const s = localStorage.getItem("outsy_recoCoords"); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -2771,7 +2805,13 @@ function TravelAgent() {
       }
       setRecoMood((moodFinalTranscriptRef.current + interim).replace(/\s+/g, " ").trim());
     };
-    rec.onerror = () => setRecoMoodListening(false);
+    rec.onerror = (e) => {
+      setRecoMoodListening(false);
+      if (e && (e.error === "not-allowed" || e.error === "service-not-allowed")) {
+        setMicPermissionState("denied");
+        setShowMicHelp(true);
+      }
+    };
     rec.onend = () => { setRecoMoodListening(false); moodRecognitionRef.current = null; };
     moodRecognitionRef.current = rec;
     try { rec.start(); } catch(_) { setRecoMoodListening(false); }
@@ -2810,7 +2850,13 @@ function TravelAgent() {
       }
       setOutsyQuery((outsyFinalTranscriptRef.current + interim).replace(/\s+/g, " ").trim());
     };
-    rec.onerror = () => setOutsyQueryListening(false);
+    rec.onerror = (e) => {
+      setOutsyQueryListening(false);
+      if (e && (e.error === "not-allowed" || e.error === "service-not-allowed")) {
+        setMicPermissionState("denied");
+        setShowMicHelp(true);
+      }
+    };
     rec.onend = () => { setOutsyQueryListening(false); outsyRecognitionRef.current = null; };
     outsyRecognitionRef.current = rec;
     try { rec.start(); } catch(_) { setOutsyQueryListening(false); }
@@ -4804,6 +4850,24 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   )}
                   <button type="button" onClick={toggleOutsyDictation} title={outsyQueryListening?(t.recoMoodStop||"Arrêter la dictée"):(t.askOutsyDictate||"Dicter ma demande")} aria-label={outsyQueryListening?(t.recoMoodStop||"Arrêter"):(t.askOutsyDictate||"Dicter")} style={{position:"absolute",right:8,top:8,width:36,height:36,borderRadius:"50%",border:"none",background:outsyQueryListening?"#e74c3c":COLORS.bg,color:outsyQueryListening?"#fff":COLORS.accent,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,padding:0,boxShadow:"0 1px 4px rgba(0,0,0,0.08)",animation:outsyQueryListening?"moodPulse 1.2s ease-in-out infinite":"none"}}>🎤</button>
                 </div>
+                {(micPermissionState === "denied" || showMicHelp) && (
+                  <div style={{marginTop:10,padding:"10px 12px",background:`${COLORS.dislike||"#d4869b"}11`,border:`1px solid ${COLORS.dislike||"#d4869b"}44`,borderRadius:8,fontSize:12,color:COLORS.text,fontFamily:"'DM Sans',sans-serif"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                      <span>🎤 {t.micPermissionDeniedShort || "Microphone bloqué pour ce navigateur"}</span>
+                      <button onClick={()=>setShowMicHelp(s=>!s)} style={{background:"none",border:"none",color:COLORS.accent,cursor:"pointer",fontSize:12,fontFamily:"'DM Sans',sans-serif",textDecoration:"underline",padding:0}}>
+                        {showMicHelp ? (t.gpsHide||"Masquer") : (t.gpsHowToActivate||"Comment activer ?")}
+                      </button>
+                    </div>
+                    {showMicHelp && (
+                      <div style={{marginTop:8,paddingTop:8,borderTop:`1px solid ${COLORS.border}`,lineHeight:1.5}}>
+                        {MIC_INSTRUCTIONS_FR[detectBrowser()] || MIC_INSTRUCTIONS_FR.unknown}
+                        <div style={{marginTop:6,fontSize:11,color:COLORS.muted}}>
+                          {t.micAfterActivate || "Après activation, retape sur 🎤. Tu peux aussi taper ta demande au clavier en attendant."}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <button onClick={handleAnalyzeQuery} disabled={!outsyQuery.trim() || analyzingIntent}
                   style={{marginTop:10,width:"100%",padding:"11px 14px",background:COLORS.accent,border:"none",borderRadius:10,color:COLORS.bg,fontSize:13,fontWeight:700,letterSpacing:"0.04em",cursor:(!outsyQuery.trim()||analyzingIntent)?"not-allowed":"pointer",opacity:(!outsyQuery.trim()||analyzingIntent)?0.5:1,fontFamily:"'DM Sans',sans-serif",textTransform:"uppercase"}}>
                   {analyzingIntent ? (t.askOutsyAnalyzing||"Analyzing...") : (t.askOutsyAnalyze||"✨ Analyze my request")}
