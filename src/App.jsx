@@ -3515,7 +3515,15 @@ function TravelAgent() {
         setGpsReady(true);
       }
     }, (err) => {
-      setGpsLocation(t.gpsError||"Location error");
+      // Map the standard GeolocationPositionError code to a clearer message
+      // so the user knows what to do (denied vs unavailable vs timeout).
+      let msg = t.gpsError || "Location error";
+      if (err && typeof err.code === "number") {
+        if (err.code === 1) msg = t.gpsErrorDenied || "Permission refusée — autorisez la localisation dans les réglages du navigateur";
+        else if (err.code === 2) msg = t.gpsErrorUnavailable || "Position indisponible — vérifie le GPS / la connexion";
+        else if (err.code === 3) msg = t.gpsErrorTimeout || "Délai dépassé — réessaie";
+      }
+      setGpsLocation(msg);
       setGpsReady(true);
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
@@ -4231,6 +4239,9 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                   <button onClick={()=>{setShowMenu(false);setShowProfilePanel(true);}} style={{display:"block",width:"100%",padding:"10px 16px",background:"none",border:"none",textAlign:"left",cursor:"pointer",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,borderRadius:6}} onMouseEnter={e=>e.target.style.background=`${COLORS.accent}11`} onMouseLeave={e=>e.target.style.background="none"}>
                     👤 {t.tabProfile||"Profile"}
                   </button>
+                  <button onClick={()=>{setShowMenu(false);window.location.reload();}} style={{display:"block",width:"100%",padding:"10px 16px",background:"none",border:"none",textAlign:"left",cursor:"pointer",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,borderRadius:6}} onMouseEnter={e=>e.target.style.background=`${COLORS.accent}11`} onMouseLeave={e=>e.target.style.background="none"}>
+                    🔄 {t.refresh||"Rafraîchir"}
+                  </button>
                   <div style={{height:1,background:COLORS.border,margin:"2px 8px"}}/>
                   <button onClick={()=>{setShowMenu(false);logout();}} style={{display:"block",width:"100%",padding:"10px 16px",background:"none",border:"none",textAlign:"left",cursor:"pointer",color:"#d4869b",fontFamily:"'DM Sans',sans-serif",fontSize:13,borderRadius:6}} onMouseEnter={e=>e.target.style.background=`${COLORS.accent}11`} onMouseLeave={e=>e.target.style.background="none"}>
                     🚪 {t.logout||"Disconnect"}
@@ -4789,8 +4800,8 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               </div>
               </div>
 
-              {(heartMemories.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
-                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartMemories} nearbyPlaces={moodFilteredNearby} pins={recoPins} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
+              {(heartsToShow.length>0||aiRecos.length>0||moodFilteredNearby.length>0)&&(
+                <GoogleMap recommendations={aiRecos} userCoords={recoCoords} heartMemories={heartsToShow} nearbyPlaces={moodFilteredNearby} pins={recoPins} themeKey={themeKey} COLORS={COLORS} t={t} recoLimit={recoLimit}/>
               )}
 
               {heartsToShow.length>0&&(
