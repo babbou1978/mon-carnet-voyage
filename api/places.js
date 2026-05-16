@@ -360,6 +360,26 @@ export default async function handler(req, res) {
             "campground","cottage","inn","japanese_inn","cabin"
           ]);
           if ((type === "Restaurant" || type === "Bar" || type === "Café") && p.primaryType && ACCOMMODATION_TYPES.has(p.primaryType)) return;
+          // Hard reject (food/drink search only): non-consumer venues that the
+          // mood Text Search drags in by name match — private event venues
+          // ("Terrasse des Champs Elysées"), banquet halls, conference centres,
+          // wedding venues, etc. They are not places you walk into for a meal,
+          // they don't have public hours/website/phone, and the resulting
+          // place sheet is empty. Reject them up front.
+          const NON_FOOD_VENUE_TYPES = new Set([
+            "event_venue","banquet_hall","wedding_venue","convention_center",
+            "conference_center","performing_arts_theater","stadium","arena",
+            "amusement_park","zoo","aquarium","museum","art_gallery",
+            "tourist_attraction","park","church","mosque","synagogue",
+            "hindu_temple","place_of_worship","cemetery","funeral_home",
+            "school","university","library","hospital","pharmacy","doctor",
+            "dentist","gym","fitness_center","spa","beauty_salon","hair_salon",
+            "barber_shop","clothing_store","shoe_store","jewelry_store",
+            "shopping_mall","bank","atm","post_office","gas_station",
+            "car_dealer","car_rental","car_repair","parking","police","embassy",
+            "city_hall","courthouse","local_government_office"
+          ]);
+          if ((type === "Restaurant" || type === "Bar" || type === "Café") && p.primaryType && NON_FOOD_VENUE_TYPES.has(p.primaryType)) return;
           // Cross-type filtering: exclude restaurants from Bar results and vice versa
           // BUT skip this filter for results coming from the mood-driven Text
           // Search — those are keyword-matched (e.g. 'rooftop restaurant') and
