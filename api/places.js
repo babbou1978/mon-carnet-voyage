@@ -146,6 +146,7 @@ export default async function handler(req, res) {
 
     } else if (action === 'nearby') {
       const mood = req.body.mood || "";
+      const kids = req.body.kids === true;
       // Multi-type for better coverage in dense areas (Marylebone has many sub-types)
       const typeGroups = {
         "Restaurant": ["restaurant", "seafood_restaurant", "italian_restaurant", "japanese_restaurant", "french_restaurant"],
@@ -163,7 +164,7 @@ export default async function handler(req, res) {
           // Animals
           "zoo", "aquarium",
           // Outdoor & parks
-          "park", "playground", "theme_park", "water_park", 
+          "park", "playground", "theme_park", "water_park",
           "trampoline_park", "ski_resort", "hiking_area",
           // Sports & leisure
           "ice_skating_rink", "golf_course", "swimming_pool",
@@ -173,7 +174,14 @@ export default async function handler(req, res) {
         ],
         "Destination": ["tourist_attraction", "national_park", "historical_landmark"]
       };
-      const types = typeGroups[type] || ["restaurant"];
+      // When kids=true on an activity search, drop adult-only sub-types from
+      // the Google query (faster + cleaner). Same set is re-checked after the
+      // merge as a safety net in case text search drags one back in.
+      const KIDS_INCOMPATIBLE = new Set(["casino", "karaoke", "comedy_club", "golf_course"]);
+      let types = typeGroups[type] || ["restaurant"];
+      if (kids && type === "Activité") {
+        types = types.filter(t => !KIDS_INCOMPATIBLE.has(t));
+      }
 
       // Blacklist: primaryTypes that should never appear in Activité results
       // (Google sometimes returns unrelated nearby businesses)
@@ -291,6 +299,10 @@ export default async function handler(req, res) {
           : type === "Bar" ? "bar"
           : type === "Café" ? "cafe"
           : type === "Hôtel" ? "hotel"
+          // For Activité we tell Google we're looking for an activity / thing
+          // to do, otherwise a mood like "enfants" leaks restaurants tagged
+          // family-friendly. English suffix works against Google's global index.
+          : type === "Activité" ? (kids ? "kids activity" : "activity")
           : "";
 
         // Clean the full mood string
@@ -398,6 +410,19 @@ export default async function handler(req, res) {
             if (type === "Restaurant" && p.primaryType && (p.primaryType === "bar" || p.primaryType === "night_club")) return;
             if (type === "Café" && p.primaryType && (p.primaryType === "restaurant" || p.primaryType === "bar")) return;
           }
+          // For Activité, the cross-type filter is STRICT — applied even to
+          // text-search results. A "kids activity" query happily returns
+          // family-friendly restaurants and bars, which is not what the user
+          // asked for. The blacklist above catches some, this catches the rest.
+          if (type === "Activité" && p.primaryType) {
+            const pt = p.primaryType;
+            if (pt === "restaurant" || pt.endsWith("_restaurant") ||
+                pt === "bar" || pt === "night_club" || pt === "wine_bar" || pt === "cocktail_bar" ||
+                pt === "cafe" || pt === "coffee_shop" || pt === "bakery" || pt === "tea_house" ||
+                pt === "lodging" || pt === "hotel" || pt === "motel" || pt === "hostel") return;
+          }
+          // Kids exclusion safety net (even if text search dragged one in).
+          if (kids && type === "Activité" && p.primaryType && KIDS_INCOMPATIBLE.has(p.primaryType)) return;
           const key = (p.displayName?.text || p.id || p.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             p.cuisine = extractCuisine(p.types, p.primaryType, p.primaryTypeDisplayName);
@@ -471,13 +496,21 @@ export default async function handler(req, res) {
           }
         });
       });
-      const allPlaces = Array.from(seen.values());
+      let allPlaces = Array.from(seen.values());
 
-      // Sort by quality: rating prioritized, reviews capped at 1000 to avoid favoring tourist hotspots
+      // Eligibility floor: drop places with too few ratings to be trusted
+      // (a 5★ from 3 reviews is statistically meaningless). Low enough that
+      // genuine neighborhood gems still surface — calibrate up if too noisy.
+      const REVIEW_FLOOR = 30;
+      allPlaces = allPlaces.filter(p => (p.userRatingCount || 0) >= REVIEW_FLOOR);
+
+      // Sort by rating only — no review-count multiplier. Tourist hotspots no
+      // longer crush genuine matches just because they have 50k reviews.
+      // Tie-break by review count so two 4.7★ places favor the more established.
       allPlaces.sort((a, b) => {
-        const sa = (a.rating||0) * Math.sqrt(Math.min(a.userRatingCount||0, 1000));
-        const sb = (b.rating||0) * Math.sqrt(Math.min(b.userRatingCount||0, 1000));
-        return sb - sa;
+        const ra = a.rating || 0, rb = b.rating || 0;
+        if (rb !== ra) return rb - ra;
+        return (b.userRatingCount || 0) - (a.userRatingCount || 0);
       });
 
       console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types, requestCount: responses.length }));

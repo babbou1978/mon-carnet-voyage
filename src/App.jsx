@@ -4258,7 +4258,7 @@ function TravelAgent() {
     try {
       const res = await fetch("/api/places", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "nearby", lat: coords.lat, lng: coords.lng, radius: distance, type: recoType, lang: prefs.language || "en", mood: recoMood || "" }),
+        body: JSON.stringify({ action: "nearby", lat: coords.lat, lng: coords.lng, radius: distance, type: recoType, lang: prefs.language || "en", mood: recoMood || "", kids: !!recoKids }),
       });
       const data = await res.json();
       const places = (data.places||[]).map(p=>{
