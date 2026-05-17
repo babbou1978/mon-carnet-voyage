@@ -35,7 +35,7 @@ Required format:
         "ref": "the actual reference: a mood phrase, a favorite place name, a friend's name, or short context — null only when no honest link exists"
       },
       "signals": [
-        { "kind": "mood | taste | friends | context", "label": "short reason ≤ 8 words" }
+        { "kind": "mood | taste | friends", "label": "short reason ≤ 8 words" }
       ],
       "tip": "practical insider tip or null",
       "warning": "specific warning based on user's dislikes or null"
@@ -46,7 +46,7 @@ Rules for the schema:
 - Order the recommendations array by strength of match (best first). No numeric score.
 - "anchor" is the primary justification. If the mood is set and you can honestly link the place to it, kind = "mood". If a favorite is a real match, kind = "favorite". A friend reference is "friend". Otherwise "context" (proximity, reputation) or null.
 - Never invent a link. A korean spot is not a japanese favorite. If you cannot honestly tie the place to a favorite or a mood, leave anchor.kind = "context" or null and rely on signals.
-- "signals" lists the matches actually used: only include "mood" if the place truly matches the mood, only include "taste" if it shares a real attribute with a top favorite, only include "friends" if a friend has been there. Max 3 signals.
+- "signals" lists the matches actually used. Valid kinds: "mood", "taste", "friends". Only include "mood" if the place truly matches the mood, only include "taste" if it shares a real attribute with a top favorite, only include "friends" if a friend has been there. Max 3 signals. NEVER emit a "context" signal — leave it out when no specific signal applies.
 - "headline" must reflect the anchor and be specific. No filler like "Great restaurant in town".`
       : `You are Outsy AI, a personal travel agent expert. ${langInstruction}`;
 

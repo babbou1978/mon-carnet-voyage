@@ -168,11 +168,14 @@ function computeFitTags(item, ctx, lang = "fr") {
   const labels = FIT_TAG_LABELS[lang] || FIT_TAG_LABELS.fr;
   const tags = [];
   const nameLower = (item.name || "").toLowerCase();
-  // 1. AI signals override / supplement client-side ones (mood + taste anchors come from Claude)
+  // 1. AI signals override / supplement client-side ones (mood + taste anchors come from Claude).
+  // "context" is intentionally excluded — it's a catch-all that adds no info,
+  // and the objective context (proximity, reputation) is covered by client-side
+  // tags computed below.
   const aiKinds = new Set();
   if (ctx.aiSignals) {
     ctx.aiSignals.forEach(s => {
-      if (s.kind && ["mood", "taste", "friends", "context"].includes(s.kind)) {
+      if (s.kind && ["mood", "taste", "friends"].includes(s.kind)) {
         if (aiKinds.has(s.kind)) return;
         aiKinds.add(s.kind);
         tags.push({ kind: s.kind, label: labels[s.kind] || s.kind, hint: s.label || null });
