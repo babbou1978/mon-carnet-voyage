@@ -4469,6 +4469,7 @@ TASK:
 - Select 5 to 10 ${recoType.toLowerCase()}s STRICTLY from the numbered candidate list above.
 - ${recoMood ? "RANK PRIMARILY by mood fit, then by taste profile match." : "RANK by taste profile match (cuisine, price, friend anchors)."}
 - Quality over quantity: return 5 if only 5 are strong matches; return up to 10 if you have that many with a clear anchor. NEVER pad with weak matches.
+- DIVERSIFY: avoid near-duplicates of the same kind of experience. If two candidates are essentially the same thing (e.g. two VR arcades, two trampoline parks, two of the same chain, two go-kart tracks, two of the same brand of escape room), keep ONLY ONE — the one with the best rating, closer in case of tie. Two museums on clearly different subjects are NOT duplicates; two VR experiences ARE. The user wants variety.
 - Each pick MUST have "idx" set to its number in the candidate list (e.g. idx: 3 for item 3).
 - "name" must be the place name exactly as written in the list.
 - Generate "headline", "anchor" and "signals" per the JSON schema. anchor.kind = "mood" when mood is set AND honestly matched; "favorite" when a real favorite is comparable; "friend" when citing a friend; "context" or null otherwise. DO NOT invent links (a korean spot is not a japanese favorite).
