@@ -159,6 +159,7 @@ export default async function handler(req, res) {
           // Entertainment & games
           "amusement_park", "performing_arts_theater", "movie_theater",
           "bowling_alley", "miniature_golf_course", "video_arcade",
+          "escape_room", "amusement_center", "adventure_sports_center",
           // Shows & music
           "concert_hall", "comedy_club", "live_music_venue",
           // Animals
@@ -412,14 +413,33 @@ export default async function handler(req, res) {
           }
           // For Activité, the cross-type filter is STRICT — applied even to
           // text-search results. A "kids activity" query happily returns
-          // family-friendly restaurants and bars, which is not what the user
-          // asked for. The blacklist above catches some, this catches the rest.
+          // family-friendly restaurants and pubs, which is not what the user
+          // asked for. We reject ALL food/drink/lodging variants, including
+          // the ones with weird suffixes (steak_house, pub, food_truck, …)
+          // that the previous narrow check missed.
           if (type === "Activité" && p.primaryType) {
             const pt = p.primaryType;
-            if (pt === "restaurant" || pt.endsWith("_restaurant") ||
-                pt === "bar" || pt === "night_club" || pt === "wine_bar" || pt === "cocktail_bar" ||
-                pt === "cafe" || pt === "coffee_shop" || pt === "bakery" || pt === "tea_house" ||
-                pt === "lodging" || pt === "hotel" || pt === "motel" || pt === "hostel") return;
+            const ACTIVITE_REJECT_FOOD_DRINK = new Set([
+              // Bars & drinking
+              "bar", "pub", "night_club", "wine_bar", "cocktail_bar",
+              "sports_bar", "irish_pub", "biergarten", "brewery",
+              // Cafés & light food
+              "cafe", "coffee_shop", "bakery", "tea_house", "juice_shop",
+              "ice_cream_shop", "candy_store", "chocolate_factory", "chocolate_shop",
+              // Restaurant base + non-_restaurant variants
+              "restaurant", "steak_house", "diner", "cafeteria", "buffet_restaurant",
+              "fine_dining_restaurant", "deli", "sandwich_shop", "food_court",
+              "food_truck", "meal_delivery", "meal_takeaway", "fast_food_restaurant",
+              "hamburger_restaurant", "pizza_restaurant",
+              // Lodging
+              "lodging", "hotel", "motel", "hostel", "inn", "resort_hotel",
+              "guest_house", "bed_and_breakfast", "apartment_hotel",
+              "apartment_building", "extended_stay_hotel", "private_guest_room",
+              "campground", "cottage", "cabin", "japanese_inn",
+            ]);
+            // Catches every "<cuisine>_restaurant" variant (italian_restaurant,
+            // sushi_restaurant, …) without listing them all.
+            if (ACTIVITE_REJECT_FOOD_DRINK.has(pt) || pt.endsWith("_restaurant")) return;
           }
           // Kids exclusion safety net (even if text search dragged one in).
           if (kids && type === "Activité" && p.primaryType && KIDS_INCOMPATIBLE.has(p.primaryType)) return;
