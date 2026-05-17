@@ -1029,7 +1029,7 @@ function DistanceSlider({ value, onChange }) {
   );
 }
 
-function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
+function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark, cityOnly=false }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1049,12 +1049,15 @@ function PlaceSearch({ onPlaceSelected, COLORS=THEMES.dark }) {
     setLoading(true);
     try {
       const cities = window._prefCities || [];
-      // Search globally + one search per preferred city in parallel
+      // Search globally + one search per preferred city in parallel.
+      // cityOnly restricts the autocomplete to localities / admin areas /
+      // countries — used when the user is adding a Destination (a city or
+      // country, not a POI).
       const queries = [
-        fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val }) }).then(r=>r.json()).catch(()=>({suggestions:[]})),
-        ...cities.slice(0,3).map(city =>
+        fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: val, cityOnly }) }).then(r=>r.json()).catch(()=>({suggestions:[]})),
+        ...(cityOnly ? [] : cities.slice(0,3).map(city =>
           fetch("/api/places", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ action:"autocomplete", input: `${val} near ${city}` }) }).then(r=>r.json()).catch(()=>({suggestions:[]}))
-        )
+        ))
       ];
       const results = await Promise.all(queries);
       // Merge: preferred cities first, then global, deduplicate by placeId
@@ -1771,12 +1774,16 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
   };
   const handlePlaceSelected = (place) => {
     if (!place) { setForm(f=>({...f,name:"",city:"",country:"",type:"Restaurant",price:""})); return; }
-    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:place.type,price:place.price,priceSource:place.priceSource||"",cuisine:place.cuisine||"",activityType:place.activityType||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
+    // If the user explicitly selected Destination type before searching, the
+    // autocomplete was restricted to cities/countries — keep their chosen type
+    // instead of overwriting it from the place details (which would map a
+    // locality to something nonsensical).
+    setForm(f=>({...f,name:place.name,city:place.city,country:place.country,address:place.address||"",type:f.type==="Destination"?"Destination":place.type,price:place.price,priceSource:place.priceSource||"",cuisine:place.cuisine||"",activityType:place.activityType||"",google_place_id:place.googlePlaceId||"",likeTags:[],dislikeTags:[]}));
     if (onDuplicate) onDuplicate(place.name);
   };
   return (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {(!isEdit&&!prefilled)?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch COLORS={COLORS} onPlaceSelected={handlePlaceSelected}/></div>
+      {(!isEdit&&!prefilled)?<div className="field"><label>{t?.addPlace||"Place name"}</label><PlaceSearch COLORS={COLORS} cityOnly={form.type==="Destination"} onPlaceSelected={handlePlaceSelected}/></div>
         :<div className="field"><label>{t?.addPlace||"Place name"}</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} readOnly={prefilled&&!isEdit} style={prefilled&&!isEdit?{opacity:0.7,cursor:"default"}:{}}/></div>}
       {form.name && <>
         <div className="field"><label>{t?.addType||"Type"}</label>
@@ -4466,9 +4473,9 @@ ${pinsList}
 ${candidateList}
 
 TASK:
-- Select 5 to 10 ${recoType.toLowerCase()}s STRICTLY from the numbered candidate list above.
+- Select 5 to ${recoType === "Activité" ? 20 : 10} ${recoType.toLowerCase()}s STRICTLY from the numbered candidate list above.
 - ${recoMood ? "RANK PRIMARILY by mood fit, then by taste profile match." : "RANK by taste profile match (cuisine, price, friend anchors)."}
-- Quality over quantity: return 5 if only 5 are strong matches; return up to 10 if you have that many with a clear anchor. NEVER pad with weak matches.
+- Quality over quantity: return 5 if only 5 are strong matches; return up to ${recoType === "Activité" ? 20 : 10} if you have that many with a clear anchor. NEVER pad with weak matches.
 - DIVERSIFY: avoid near-duplicates of the same kind of experience. If two candidates are essentially the same thing (e.g. two VR arcades, two trampoline parks, two of the same chain, two go-kart tracks, two of the same brand of escape room), keep ONLY ONE — the one with the best rating, closer in case of tie. Two museums on clearly different subjects are NOT duplicates; two VR experiences ARE. The user wants variety.
 - Each pick MUST have "idx" set to its number in the candidate list (e.g. idx: 3 for item 3).
 - "name" must be the place name exactly as written in the list.
@@ -5255,6 +5262,11 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                     <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");if(locationLabel)setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
                   </>)}
                 </div>
+                {recoType === "Destination" ? (
+                  <div style={{padding:"10px 12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}33`,borderRadius:8,fontSize:12,color:COLORS.muted,fontFamily:"'DM Sans',sans-serif",lineHeight:1.4}}>
+                    {t.recoDestinationInfo||"Destination = villes et pays à visiter. La recherche \"près de moi\" ne s'applique pas — enregistre tes destinations depuis l'onglet + Ajouter et retrouve-les ici."}
+                  </div>
+                ) : (
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                   <button className="reco-btn" style={{flex:"1 1 140px",fontSize:11,padding:"13px 8px"}} onClick={()=>loadRecos(true)} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
                     🔥 {t.recoFindNearby||"Lieux populaires"}
@@ -5268,6 +5280,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                     </button>
                   )}
                 </div>
+                )}
               </div>
               </div>
 
@@ -5350,7 +5363,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   {aiRecos.length>0&&!aiLoading&&(
                     <>
                       <div className="ai-reco-list">
-                        {aiRecos.slice(0,10).map((reco,i)=>(
+                        {aiRecos.slice(0, recoType === "Activité" ? 20 : 10).map((reco,i)=>(
                           <div key={i} className="ai-reco-card">
                             <div className="ai-reco-header">
                               <div className="ai-reco-top">
