@@ -93,6 +93,163 @@ const typeMatches = (memType, filterType) => {
 };
 const DISTANCE_LABELS = ["100m", "500m", "1km", "2km", "5km", "10km"];
 
+// ---------- Taste profile ----------
+// Derives a compact, structured taste profile from the user's favorites and
+// the friend favorites they have access to. Sent to the AI prompt so Claude
+// can anchor each recommendation in a real preference instead of hallucinating
+// generic links. Avoid forcing weak connections — only include strong signals.
+function buildTasteProfile(memories, friendMemories, recoType) {
+  const ownFavs = (memories||[]).filter(m => !m.is_pin && m.rating >= 3);
+  const top = (recoType ? ownFavs.filter(m => typeMatches(m.type, recoType)) : ownFavs);
+  // Top cuisines / sub-types weighted by rating
+  const cuisineCount = new Map();
+  top.forEach(m => {
+    const c = m.cuisine || m.activity_type;
+    if (!c) return;
+    const cur = cuisineCount.get(c) || { sum: 0, n: 0 };
+    cuisineCount.set(c, { sum: cur.sum + m.rating, n: cur.n + 1 });
+  });
+  const topCuisines = [...cuisineCount.entries()]
+    .map(([c, v]) => ({ name: c, avg: v.sum / v.n, count: v.n }))
+    .sort((a, b) => b.count - a.count || b.avg - a.avg)
+    .slice(0, 5);
+  // Avoided cuisines (low-rated favorites)
+  const lowRated = (memories||[]).filter(m => !m.is_pin && m.rating > 0 && m.rating < 3);
+  const avoided = [...new Set(lowRated.map(m => m.cuisine || m.activity_type).filter(Boolean))].slice(0, 5);
+  // Price comfort zone (modal price)
+  const priceCount = new Map();
+  ownFavs.forEach(m => { if (m.price) priceCount.set(m.price, (priceCount.get(m.price) || 0) + 1); });
+  const priceComfort = [...priceCount.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  // Friend anchors — friend-loved places (≥4★) in the search type
+  const friendAnchors = (friendMemories || [])
+    .filter(m => !m.is_pin && m.rating >= 4 && (!recoType || typeMatches(m.type, recoType)))
+    .slice(0, 6)
+    .map(m => ({ name: m.name, friend: m.friendName, cuisine: m.cuisine || m.activity_type || null, rating: m.rating }));
+  return { topCuisines, avoided, priceComfort, friendAnchors };
+}
+
+// ---------- Fit tags ----------
+// Visual grammar shared by every card (favorites, pins, AI recos, popular).
+// Each card surfaces 1-3 short reasons why it fits the current context.
+// Tags are computed from objective criteria — no AI scoring, no hallucinated
+// numbers. Order: mood → taste → friends → pinned → near → rep.
+const FIT_TAG_META = {
+  mood:    { icon: "🎯", color: "#7e6fff" },
+  taste:   { icon: "❤️", color: "#d4869b" },
+  friends: { icon: "👥", color: "#5c9b8a" },
+  pinned:  { icon: "📌", color: "#6b8cce" },
+  near:    { icon: "📍", color: "#b89a2a" },
+  rep:     { icon: "🔥", color: "#c87a2a" },
+  context: { icon: "✨", color: "#9a8a6f" },
+};
+const FIT_TAG_ORDER = ["mood", "taste", "friends", "pinned", "near", "rep", "context"];
+
+const FIT_TAG_LABELS = {
+  fr: { mood: "Envie", taste: "Goûts", friends: "Amis", pinned: "Pinné", near: "Tout près", rep: "Réputé", context: "" },
+  en: { mood: "Vibe", taste: "Tastes", friends: "Friends", pinned: "Pinned", near: "Close by", rep: "Top-rated", context: "" },
+  es: { mood: "Vibra", taste: "Gustos", friends: "Amigos", pinned: "Fijado", near: "Cerca", rep: "Top", context: "" },
+  de: { mood: "Stimmung", taste: "Geschmack", friends: "Freunde", pinned: "Gemerkt", near: "Nah", rep: "Top", context: "" },
+  it: { mood: "Vibe", taste: "Gusti", friends: "Amici", pinned: "Salvato", near: "Vicino", rep: "Top", context: "" },
+  pt: { mood: "Vibe", taste: "Gostos", friends: "Amigos", pinned: "Guardado", near: "Perto", rep: "Top", context: "" },
+  nl: { mood: "Sfeer", taste: "Smaak", friends: "Vrienden", pinned: "Bewaard", near: "Dichtbij", rep: "Top", context: "" },
+};
+
+// Threshold for "🔥 Réputé". Calibratable — start lenient enough to surface
+// great places in less-touristy neighborhoods, tight enough to mean something.
+const REP_MIN_RATING = 4.6;
+const REP_MIN_REVIEWS = 100;
+
+// Computes the visual fit tags for any card. ctx provides the search context.
+// Each tag carries an optional `hint` shown on hover or in the place sheet.
+//   ctx = { mood, recoType, searchRadius, friendNames: Set, pinNames: Set, ownNames: Set,
+//           tasteCuisines: Set, source: 'favorite'|'pin'|'ai'|'popular',
+//           aiSignals?: Array<{kind, label}> }
+function computeFitTags(item, ctx, lang = "fr") {
+  const labels = FIT_TAG_LABELS[lang] || FIT_TAG_LABELS.fr;
+  const tags = [];
+  const nameLower = (item.name || "").toLowerCase();
+  // 1. AI signals override / supplement client-side ones (mood + taste anchors come from Claude).
+  // "context" is intentionally excluded — it's a catch-all that adds no info,
+  // and the objective context (proximity, reputation) is covered by client-side
+  // tags computed below.
+  const aiKinds = new Set();
+  if (ctx.aiSignals) {
+    ctx.aiSignals.forEach(s => {
+      if (s.kind && ["mood", "taste", "friends"].includes(s.kind)) {
+        if (aiKinds.has(s.kind)) return;
+        aiKinds.add(s.kind);
+        tags.push({ kind: s.kind, label: labels[s.kind] || s.kind, hint: s.label || null });
+      }
+    });
+  }
+  // 2. Mood — client only computes if AI didn't already (favorites/pins/popular)
+  if (ctx.source !== "ai" && ctx.mood && itemMatchesMood(item, ctx.mood) && !aiKinds.has("mood")) {
+    tags.push({ kind: "mood", label: labels.mood, hint: ctx.mood });
+  }
+  // 3. Taste — favorites are taste by definition; for popular, infer from cuisine match
+  if (ctx.source === "favorite" && !aiKinds.has("taste")) {
+    tags.push({ kind: "taste", label: labels.taste, hint: null });
+  } else if (ctx.source === "popular" && ctx.tasteCuisines && item.cuisine && ctx.tasteCuisines.has((item.cuisine || "").toLowerCase()) && !aiKinds.has("taste")) {
+    tags.push({ kind: "taste", label: labels.taste, hint: item.cuisine });
+  }
+  // 4. Friends — a friend has been there
+  if (!aiKinds.has("friends") && ctx.friendNames && ctx.friendNames.has(nameLower)) {
+    tags.push({ kind: "friends", label: labels.friends, hint: null });
+  }
+  // 5. Pinned — already in user's pin list (only flag on non-pin sources)
+  if (ctx.source !== "pin" && ctx.pinNames && ctx.pinNames.has(nameLower)) {
+    tags.push({ kind: "pinned", label: labels.pinned, hint: null });
+  } else if (ctx.source === "pin") {
+    tags.push({ kind: "pinned", label: labels.pinned, hint: null });
+  }
+  // 6. Near — within half the search radius
+  const dist = item._dist != null ? item._dist : (item.distanceKm != null ? item.distanceKm * 1000 : null);
+  if (dist != null && ctx.searchRadius && dist <= ctx.searchRadius / 2) {
+    tags.push({ kind: "near", label: labels.near, hint: dist >= 1000 ? `${(dist/1000).toFixed(1)}km` : `${Math.round(dist)}m` });
+  }
+  // 7. Rep — high Google rating with enough reviews
+  const gRating = item.googleRating || item.rating;
+  const gReviews = item.userRatingCount || 0;
+  // For favorites, item.rating is the user's own 1-5 — skip rep signal in that case.
+  const isUserRating = ctx.source === "favorite" || ctx.source === "pin";
+  if (!isUserRating && gRating >= REP_MIN_RATING && gReviews >= REP_MIN_REVIEWS) {
+    tags.push({ kind: "rep", label: labels.rep, hint: `${gRating}★ · ${gReviews} avis` });
+  }
+  // Sort by canonical order, dedup by kind, cap at 3
+  const seen = new Set();
+  return tags
+    .sort((a, b) => FIT_TAG_ORDER.indexOf(a.kind) - FIT_TAG_ORDER.indexOf(b.kind))
+    .filter(t => { if (seen.has(t.kind)) return false; seen.add(t.kind); return true; })
+    .slice(0, 3);
+}
+
+// Lightweight mood matcher for client-side tags on non-AI cards. Mirrors the
+// keyword logic used server-side but stays permissive — false positives are
+// fine here (it's a hint, not a hard filter).
+function itemMatchesMood(item, mood) {
+  if (!mood) return false;
+  const m = mood.toLowerCase();
+  const features = (item.features || []).map(f => f.toLowerCase()).join(" ");
+  const text = `${item.editorialSummary || ""} ${item.topReview || ""} ${item.cuisine || ""} ${item.why || ""}`.toLowerCase();
+  const hay = `${features} ${text}`;
+  // Crude synonyms — keep tight so we don't over-flag
+  const syns = {
+    rooftop: ["rooftop", "terrasse", "terrace", "outdoor"],
+    terrasse: ["terrasse", "terrace", "outdoor", "rooftop"],
+    speakeasy: ["speakeasy", "hidden", "secret", "caché"],
+    romantique: ["romantic", "romantique", "intimate"],
+    "live music": ["live music", "concert"],
+    brunch: ["brunch"],
+    cocktail: ["cocktail"],
+    kids: ["kids", "enfants", "family", "famille"],
+  };
+  for (const [k, vs] of Object.entries(syns)) {
+    if (m.includes(k) && vs.some(v => hay.includes(v))) return true;
+  }
+  // Fallback: raw mood string appears verbatim in features or text
+  return hay.includes(m);
+}
+
 const LIKES_BY_TYPE_LANG = {
   fr: { "Restaurant":["Ambiance chaleureuse","Cuisine locale","Terrasse agréable","Service attentionné","Cadre original","Cave à vins","Produits frais","Vue exceptionnelle","Rapport qualité/prix"],"Bar":["Ambiance chaleureuse","Terrasse agréable","Bonne sélection de cocktails","Service attentionné","Cadre original","Musique agréable","Vue exceptionnelle","Rapport qualité/prix"],"Café":["Ambiance chaleureuse","Terrasse agréable","Bon café","Pâtisseries maison","Cadre original","Calme pour travailler","Brunch savoureux","Rapport qualité/prix"],"Hôtel":["Chambre spacieuse","Petit-déjeuner inclus","Piscine","Spa","Vue exceptionnelle","Personnel attentionné","Rapport qualité/prix","Calme","Emplacement idéal"],"Destination":["Paysages exceptionnels","Culture locale","Peu touristique","Gastronomie","Architecture","Nature","Art","Vie nocturne","Accessibilité"],"Activité":["Expérience unique","Bien organisé","Guide excellent","Rapport qualité/prix","Vue exceptionnelle","Originalité","Accessibilité"] },
   en: { "Restaurant":["Warm atmosphere","Local cuisine","Pleasant terrace","Attentive service","Original setting","Wine cellar","Fresh produce","Exceptional view","Value for money"],"Bar":["Warm atmosphere","Pleasant terrace","Good cocktail selection","Attentive service","Original setting","Pleasant music","Exceptional view","Value for money"],"Café":["Warm atmosphere","Pleasant terrace","Great coffee","Homemade pastries","Original setting","Quiet for working","Tasty brunch","Value for money"],"Hôtel":["Spacious room","Breakfast included","Pool","Spa","Exceptional view","Attentive staff","Value for money","Quiet","Ideal location"],"Destination":["Exceptional scenery","Local culture","Off the beaten track","Gastronomy","Architecture","Nature","Art","Nightlife","Accessibility"],"Activité":["Unique experience","Well organized","Excellent guide","Value for money","Exceptional view","Originality","Accessibility"] },
@@ -771,12 +928,6 @@ const getCSS = (COLORS) => `
   .ai-reco-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: ${COLORS.text}; }
   .ai-reco-rank { font-size: 28px; font-family: 'Cormorant Garamond', serif; color: ${COLORS.accent}; font-style: italic; font-weight: 500; }
   .ai-reco-meta { display: flex; gap: 6px; flex-wrap: wrap; }
-  .match-score { display: flex; align-items: center; gap: 6px; }
-  .match-bar-wrap { flex: 1; height: 4px; background: ${COLORS.border}; border-radius: 4px; overflow: hidden; }
-  .match-bar { height: 100%; border-radius: 4px; background: ${COLORS.accent}; transition: width 0.5s ease; }
-  .match-score-label { font-size: 11px; color: ${COLORS.accent}; font-weight: 600; white-space: nowrap; }
-  .match-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
-  .match-reason { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: ${COLORS.accent}18; color: ${COLORS.accent}; border: 1px solid ${COLORS.accent}33; }
   .ai-reco-address { font-size: 12px; color: ${COLORS.muted}; }
   .ai-reco-why { font-size: 13px; color: #b8ad98; line-height: 1.5; font-style: italic; }
   .ai-reco-tip { font-size: 12px; color: ${COLORS.accent}; line-height: 1.4; }
@@ -1976,7 +2127,28 @@ function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, onPin, COLOR
   );
 }
 
-function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, onPin, onOpen, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[] }) {
+function FitTags({ tags, COLORS }) {
+  if (!tags || tags.length === 0) return null;
+  return (
+    <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}>
+      {tags.map((t,i)=>{
+        const meta = FIT_TAG_META[t.kind] || FIT_TAG_META.context;
+        return (
+          <span key={i} title={t.hint || ""} style={{
+            display:"inline-flex",alignItems:"center",gap:3,
+            fontSize:10,padding:"2px 7px",borderRadius:20,
+            background:`${meta.color}1c`,color:meta.color,border:`1px solid ${meta.color}40`,
+            fontFamily:"'DM Sans',sans-serif",fontWeight:600,whiteSpace:"nowrap",
+          }}>
+            <span style={{fontSize:11}}>{meta.icon}</span>{t.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", onViewFriend, onSaveFriend, onPin, onOpen, COLORS=THEMES.dark, t={}, setFriendMemoryModal, addFriendToCarnet, memories=[], fitTags=null }) {
   // Compute displayed values: own data if isMine, friend averages otherwise
   const friendsWithData = (m.friendsData||[]);
   const displayRating = (() => {
@@ -2031,6 +2203,7 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
         {displayKids&&<span className="badge kids">👶</span>}
         {displayPrice&&<span className="badge price">{displayPrice}</span>}
       </div>
+      {fitTags && fitTags.length>0 && <div style={{marginBottom:6}}><FitTags tags={fitTags} COLORS={COLORS}/></div>}
       {(m.address||m.city||m.country)&&<div className="memory-location">
         📍 {m.address||[m.city,m.country].filter(Boolean).join(", ")}
         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.name+", "+(m.address||[m.city,m.country].filter(Boolean).join(", ")))}`}
@@ -3174,6 +3347,22 @@ function TravelAgent() {
     }
     return recoMood ? inRange.filter(p => placeMatchesMood(p, recoMood)) : inRange;
   })();
+
+  // Shared context for the FitTags grammar — recomputed each render but cheap
+  // (Set operations on a few dozen names). Used by every card in the Reco tab
+  // so favorites, pins, AI recos and popular all speak the same visual language.
+  const fitCtx = (() => {
+    const friendNames = new Set((friendMemories||[]).map(m => (m.name||"").toLowerCase()));
+    const pinNames = new Set((pins||[]).map(p => (p.name||"").toLowerCase()));
+    const ownNames = new Set((memories||[]).map(m => (m.name||"").toLowerCase()));
+    const tasteCuisines = new Set(
+      (memories||[])
+        .filter(m => !m.is_pin && m.rating >= 4)
+        .map(m => (m.cuisine || m.activity_type || "").toLowerCase())
+        .filter(Boolean)
+    );
+    return { mood: recoMood, recoType, searchRadius: distance, friendNames, pinNames, ownNames, tasteCuisines };
+  })();
   useEffect(() => {
     if (prefs.nbrecos) { setRecoLimit(prefs.nbrecos); nbRecosRef.current = prefs.nbrecos; }
   }, [prefs.nbrecos]);
@@ -4147,45 +4336,48 @@ function TravelAgent() {
 
     // AI Recos
     setAiLoading(true); setAiRecos([]);
-    // Prioritize favorites matching the search type (e.g. hotels for hotel search)
-    // Then add other types as profile context
+
+    // Build the structured taste profile (top cuisines + avoided + price + friend anchors).
+    const tasteProfile = buildTasteProfile(memories, friendMemories, recoType);
+
+    // Same-type favorites are sent in full (rich anchor candidates). Other-type
+    // favorites are summarized as profile colour without flooding the prompt.
     const sameType = memories.filter(m=>m.rating>=3 && typeMatches(m.type, recoType)).sort((a,b)=>b.rating-a.rating);
-    const otherType = memories.filter(m=>m.rating>=3 && !typeMatches(m.type, recoType)).sort((a,b)=>b.rating-a.rating);
-    const liked = [...sameType.slice(0,7), ...otherType.slice(0,3)]
-      .map(m=>{
-        const subType = m.activity_type || m.cuisine || "";
-        return `- ${m.name} (${m.type}${subType?` / ${subType}`:""}, ${m.price}, ${m.rating}/5) — liked: ${[...(m.likeTags||[]),m.why].filter(Boolean).join(", ")||"—"} — disliked: ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"—"}${m.kidsf?" — kids friendly":""}`;
-      })
-      .join("\n");
-    const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5)
-      .map(m=>{
-        const subType = m.activity_type || m.cuisine || "";
-        return `- ${m.name} (${m.type}${subType?` / ${subType}`:""}, ${m.rating}/5) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`;
-      })
-      .join("\n");
+    const liked = sameType.slice(0,8).map(m=>{
+      const subType = m.activity_type || m.cuisine || "";
+      const tags = [...(m.likeTags||[]),m.why].filter(Boolean).join(", ");
+      return `- ${m.name} (${subType||m.type}, ${m.price||"?"}, ${m.rating}/5)${tags?` — loved: ${tags}`:""}${m.kidsf?" — kids friendly":""}`;
+    }).join("\n");
+    const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5).map(m=>{
+      const subType = m.activity_type || m.cuisine || "";
+      return `- ${m.name} (${subType||m.type}) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`;
+    }).join("\n");
 
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
 
-    // Pins: places the user wants to try (boost them if they match the search)
+    // Pins matching the search type — Claude should BOOST them if they show up.
     const pinsList = pins.filter(p => typeMatches(p.type, recoType)).slice(0, 10)
-      .map(p => `- ${p.name} (${p.type}${p.activity_type?` / ${p.activity_type}`:""}${p.cuisine?` / ${p.cuisine}`:""}${p.city?`, ${p.city}`:""})${p.pin_note?` — note: "${p.pin_note}"`:""}`).join("\n");
+      .map(p => `- ${p.name} (${p.activity_type||p.cuisine||p.type})${p.pin_note?` — "${p.pin_note}"`:""}`).join("\n");
 
-    const nbRecosCount = parseInt(recoLimit) || 10;
-    const distLabel = DISTANCE_LABELS[DISTANCE_STEPS.indexOf(distance)];
+    // Friend-loved anchors for the searched type — strong taste signal.
+    const friendAnchorList = tasteProfile.friendAnchors.length > 0
+      ? tasteProfile.friendAnchors.map(a => `- ${a.name}${a.cuisine?` (${a.cuisine})`:""} — loved by ${a.friend} (${a.rating}/5)`).join("\n")
+      : "";
+
     const langLabel = LANGUAGES.find(l=>l.code===prefs.language)?.label || "English";
 
-    // Type-specific guidance — tells the AI what to focus on for each category
+    // Type-specific guidance — what the AI should focus on for each category.
     const typeGuidance = {
-      "Restaurant": "Focus on cuisine quality, ambiance, food style, and dietary preferences. Match cuisines, atmospheres and price points the user has enjoyed.",
-      "Bar": "Focus on atmosphere, cocktail/wine/beer selection, music, vibe and setting. Match the user's bar style preferences. IMPORTANT: if the user specified a mood (e.g. rooftop, speakeasy, live music), ONLY recommend bars that strictly match that setting. A rooftop request means ONLY open-air rooftop bars. An underground/speakeasy request means ONLY hidden/secret bars.",
-      "Café": "Focus on coffee quality, pastries, brunch options, ambiance, and work-friendliness. Match cozy spots, specialty coffee, patisseries, tea rooms based on user style.",
-      "Hôtel": "Focus on stay quality: comfort, location, character, amenities, room quality, service, and value. DO NOT focus on the hotel's restaurant. Match the user's preferences for hotel style (boutique, luxury, budget, design, family-friendly etc) inferred from their profile and other favorites.",
-      "Destination": "Focus on cultural, scenic or unique value of the place. Match the user's interests in landmarks, neighborhoods, parks, viewpoints.",
-      "Activité": "Focus on the EXPERIENCE TYPE, not just cultural value. Activities include: escape games, VR experiences, mini golf, bowling, trampoline parks, theme parks, water parks, arcades, go-karts, laser tag, cooking classes, boat tours, shows, concerts, zoos, aquariums, AND museums/galleries. CRITICAL: analyze the user's favorite activity TYPES (check their activity_type field) and recommend SIMILAR experiences. If user loves escape games, recommend other immersive/game experiences — NOT museums. Only compare a recommendation to a favorite of the SAME activity sub-type."
+      "Restaurant": "Focus on cuisine, ambiance and price match. Anchor each recommendation in a real cuisine the user has rated highly, NOT a vague similarity.",
+      "Bar": "Focus on atmosphere, cocktail/wine selection, music and setting. If the mood mentions a specific format (rooftop, speakeasy, live music), ONLY return bars that strictly match it.",
+      "Café": "Focus on coffee quality, pastries, brunch and work-friendliness. Match cozy spots, specialty coffee, patisseries based on the user's style.",
+      "Hôtel": "Focus on stay quality (comfort, location, character, service). Ignore the hotel restaurant. Anchor in hotel STYLE (boutique, luxury, design, family) inferred from the profile.",
+      "Destination": "Focus on cultural, scenic or unique value. Anchor in the user's interest in landmarks, neighborhoods, viewpoints.",
+      "Activité": "Anchor in the EXPERIENCE TYPE, not the cultural category. Escape games anchor in other game/immersive experiences, NOT museums. Only cite a favorite of the SAME activity sub-type."
     };
     const guidance = typeGuidance[recoType] || typeGuidance["Restaurant"];
 
-    // Build candidate list — numbered, with type info and features for AI to match properly
+    // Build the numbered candidate list with type, rating, price and features.
     const candidateList = nearbyForAI.length > 0
       ? nearbyForAI.map((p, i) => {
           const placeType = p.primaryTypeDisplayName?.text || p.primaryType || "";
@@ -4195,52 +4387,63 @@ function TravelAgent() {
         }).join("\n")
       : null;
 
+    // Compact taste-profile summary — top cuisines, price comfort, avoided list.
+    const profileSummary = [
+      tasteProfile.topCuisines.length > 0
+        ? `Top sub-types: ${tasteProfile.topCuisines.map(c=>`${c.name} (×${c.count}, avg ${c.avg.toFixed(1)})`).join(", ")}`
+        : null,
+      tasteProfile.priceComfort ? `Usual price level: ${tasteProfile.priceComfort}` : null,
+      tasteProfile.avoided.length > 0 ? `Avoided sub-types: ${tasteProfile.avoided.join(", ")}` : null,
+    ].filter(Boolean).join("\n");
+
+    const moodBlock = recoMood ? `
+🎯 CURRENT MOOD (PRIMARY CRITERION — hard filter): "${recoMood}"
+- The mood is the user's explicit current intent. It outranks the taste profile.
+- ONLY return places that genuinely match this mood. Use the candidate "features" + editorial summary to verify.
+- For each pick that matches the mood, anchor.kind MUST be "mood" and signals MUST include {kind:"mood", label:"..."}.
+- Mood mismatch = automatic exclusion. NEVER pad with non-matching places to hit a count.` : "";
+
     const prompt = `User is searching for: ${recoType.toUpperCase()}
 ${guidance}
 
-User profile:
-Likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"not specified"}
-Dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"not specified"}
-Budget: ${recoPrice!==ALL?recoPrice:prefs.budget||"not specified"}
+USER PROFILE (background taste — secondary to mood when mood is set):
+${profileSummary || "No strong taste signal yet."}
+Stated likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"—"}
+Stated dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"—"}
+Budget filter: ${recoPrice!==ALL?recoPrice:prefs.budget||"—"}
 Kids friendly required: ${recoKids?"yes":"no"}
-Other notes: ${prefs.notes||"none"}
-${recoMood ? `\n🎯 MOOD / CURRENT VIBE (HARD FILTER — this is a REQUIREMENT, not a preference): ${recoMood}
-ONLY recommend places that MATCH this mood. Use the "features" field in the candidate list to verify.
-- "rooftop" mood → ONLY places with "rooftop" or "outdoor seating/terrace" in features. If neither feature is present, the place does NOT qualify.
-- "speakeasy" mood → ONLY hidden/underground bars.
-- "kids" mood → ONLY places with "kids friendly" or "kids menu" in features.
-- "live music" mood → ONLY places with "live music" in features.
-Mood mismatch = automatic exclusion, regardless of rating. If fewer than ${nbRecosCount} places match, return only the ones that match — NEVER pad with non-matching places.` : ""}
-Preferred language: ${langLabel}
+Other notes: ${prefs.notes||"—"}
+Preferred output language: ${langLabel}
+${moodBlock}
 
-My top favorites (reference by name in "why" field):
-${liked||"None."}
+TOP FAVORITES of the user (use as anchor when truly comparable — never force a link):
+${liked||"None yet."}
 
-My disappointments (skip similar places):
+DISAPPOINTMENTS (skip places similar to these):
 ${disliked||"None."}
 
-${pinsList ? `📌 PINNED places (the user specifically wants to try these — BOOST them if they appear in the list or are nearby):
+${friendAnchorList ? `FRIEND FAVORITES (use as anchor when applicable — friend social proof is a strong taste signal):
+${friendAnchorList}
+` : ""}${pinsList ? `📌 PINNED by user — BOOST these if they appear in the candidate list or have a strong match:
 ${pinsList}
-` : ""}
-${candidateList
-  ? `${recoType.toUpperCase()} LIST — ${nearbyForAI.length} places near the user:
+` : ""}${candidateList
+  ? `${recoType.toUpperCase()} CANDIDATE LIST — ${nearbyForAI.length} places near the user:
 ${candidateList}
 
-Task: Pick up to ${nbRecosCount} ${recoType.toLowerCase()}s STRICTLY from the list above that best match the user profile based on the guidance.
-**CRITICAL — only pick from the numbered list. NEVER invent or recall a place that is not in the list.** If fewer than ${nbRecosCount} items match the user's request, return ONLY the matching ones. Never pad the result with places outside the list.
-For each pick, set "idx" to the item number (e.g. idx: 3 for item 3) and "name" to the place name as written in the list.`
-  : `No candidate list is available (Google returned zero places near the user). Return an empty "recommendations" array. Do NOT invent places.`
+TASK:
+- Select 5 to 10 ${recoType.toLowerCase()}s STRICTLY from the numbered candidate list above.
+- ${recoMood ? "RANK PRIMARILY by mood fit, then by taste profile match." : "RANK by taste profile match (cuisine, price, friend anchors)."}
+- Quality over quantity: return 5 if only 5 are strong matches; return up to 10 if you have that many with a clear anchor. NEVER pad with weak matches.
+- Each pick MUST have "idx" set to its number in the candidate list (e.g. idx: 3 for item 3).
+- "name" must be the place name exactly as written in the list.
+- Generate "headline", "anchor" and "signals" per the JSON schema. anchor.kind = "mood" when mood is set AND honestly matched; "favorite" when a real favorite is comparable; "friend" when citing a friend; "context" or null otherwise. DO NOT invent links (a korean spot is not a japanese favorite).
+- "signals" array max 3 entries. Each {kind, label}. label ≤ 8 words, in ${langLabel}.
+- Skip places similar to the disappointments above.
+- Skip already-visited names: ${excludeList||"none"}.`
+  : `No candidate list is available (Google returned zero places). Return an empty "recommendations" array. Do NOT invent places.`
 }
 
-RULES:
-- "name" field = ONLY the arabic digit (e.g. "3" or "12") corresponding to the item number in the list above. Example: if you pick item 3, write "name": "3". Never write the place name, never use roman numerals.
-- matchScore 0-100, rank DESC
-- Skip places similar to disappointments
-- Skip: ${excludeList||"none"}
-- 2-3 short matchReasons (max 8 words each), focused on ${recoType}-relevant criteria (NOT food when searching hotels)
-- "why": 1 sentence = "[Brief place description focused on ${recoType}-relevant qualities] — [personal reason citing the user's favorites of the SAME sub-type/style by name]". CRITICAL: only compare to favorites that are genuinely similar. An escape game should reference other games/experiences, NOT museums. A rooftop bar should reference other outdoor/rooftop places, NOT underground bars.
-- Write all text (why, tip, warning, matchReasons) in ${langLabel}
-${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", DO NOT include it. matchScore=0 for mood mismatches.` : ""}`;
+Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabel}.`;
     try {
       const res = await fetch("/api/recommend", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -4307,8 +4510,11 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
             !alreadyVisited.has(r.name) && !allClosedNames.has(r.name.toLowerCase())
           );
 
-          const filtered = resolvedRecos
-            .sort((a,b) => (b.matchScore||0)-(a.matchScore||0)||(a._dist||0)-(b._dist||0));
+          // Claude returns the array already ranked by strength of match —
+          // we preserve that order. resolvedRecos is built from preResolved
+          // which keeps Claude's order. We only tie-break visually
+          // identical positions by distance.
+          const filtered = resolvedRecos;
 
           // Enrich with openNow from verify
           const verifyMap = {};
@@ -4849,21 +5055,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
               </div>
 
               <div className="prefs-card">
-                <div className="prefs-card-title">🎯 {t.nbRecosLabel||"Results limit"} & {t.profileBudget||"Budget"}</div>
-                <div className="field">
-                  <label>{t.nbRecosLabel||"AI Recommendation Number"}</label>
-                  <div style={{display:"flex",gap:8}}>
-                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["20",t.nbRecos20||"20"]].map(([val,label])=>(
-                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
-                        style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.muted,
-                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <div className="prefs-card-title">🎯 {t.profileBudget||"Budget"}</div>
                 <div className="field">
                   <label>{t.profileBudget}</label>
                   <div style={{display:"flex",gap:8}}>
@@ -5029,24 +5221,6 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                     <button className={`filter-btn ${recoFriendFilter==="friends"?"active":""}`} onClick={()=>{setRecoFriendFilter("friends");if(locationLabel)setHeartsKey(k=>k+1);}}>👥 {t.filterFriendsOnly||"Friends"}</button>
                   </>)}
                 </div>
-                <div className="field" style={{marginTop:4}}>
-                  <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>{t.nbRecosLabel||"AI Recommendation Number"}</label>
-                  <div style={{display:"flex",gap:6,marginTop:6}}>
-                    {[["5","5"],["10","10"],["20","20"]].map(([val,label])=>(
-                      <button key={val} onClick={()=>{
-                        nbRecosRef.current = val;
-                        setRecoLimit(val);
-                        if(locationLabel) setHeartsKey(k=>k+1);
-                      }}
-                        style={{flex:1,padding:"8px 4px",background:(recoLimit||"10")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(recoLimit||"10")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(recoLimit||"10")===val?COLORS.accent:COLORS.muted,
-                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600}}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                   <button className="reco-btn" style={{flex:"1 1 140px",fontSize:11,padding:"13px 8px"}} onClick={()=>loadRecos(true)} disabled={heartLoading||aiLoading||geocoding||!locationLabel||(locMode==="gps"&&!gpsReady)}>
                     🔥 {t.recoFindNearby||"Lieux populaires"}
@@ -5071,6 +5245,7 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 <div id="reco-hearts" className="reco-block section-hearts">
                   <div className="reco-block-title">{t.recoHearts}{recoMood ? ` · ${recoMood}` : ""}</div>
                   <div className="memory-list">{heartsToShow.map(m=><MemoryCard key={`heart-${m.id}`} m={m} onOpen={()=>openPlaceSheet(m,heartsToShow)} isMine={m.isMine} lang={lang} COLORS={COLORS} t={t} onEdit={setEditMemory} onDelete={deleteMemory} onDeleteRequest={(id,name)=>setDeleteConfirm({id,name})} onViewFriend={(name,fMem)=>{ const mem=fMem||friendMemories.find(x=>x.friendName===name&&x.name===m.name); if(mem)setFriendMemoryModal({memory:mem,friendName:name}); }} setFriendMemoryModal={setFriendMemoryModal} addFriendToCarnet={addFriendToCarnet}
+                  fitTags={computeFitTags(m, { ...fitCtx, source: "favorite" }, lang)}
                   onSaveFriend={(fMem)=>addFriendToCarnet(fMem)} onPin={(m)=>openPinModal({name:m.name,type:m.type,price:m.price,city:m.city,country:m.country,address:m.address,cuisine:m.cuisine,activityType:m.activity_type,google_place_id:m.google_place_id})}/>)}</div>
                 </div>
               )}
@@ -5116,6 +5291,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                           {pin.activity_type&&<span className="badge">{pin.activity_type}</span>}
                           {pin.price&&<span className="badge price">{pin.price}</span>}
                         </div>
+                        {(() => {
+                          const tags = computeFitTags(pin, { ...fitCtx, source: "pin" }, lang);
+                          return tags.length > 0 ? <div style={{marginTop:4}}><FitTags tags={tags} COLORS={COLORS}/></div> : null;
+                        })()}
                         {(pin.address||pin.city)&&<div className="memory-location">
                           📍 {pin.address||[pin.city,pin.country].filter(Boolean).join(", ")}
                           <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pin.name+", "+(pin.address||[pin.city,pin.country].filter(Boolean).join(", ")))}`}
@@ -5164,15 +5343,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                                 {reco.googleRating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={reco.googleRating} size={11} emptyColor={COLORS.border}/></span>}
                                 <span className="badge price">{reco.price}</span>
                               </div>
-                              {reco.matchScore&&(
-                                <div className="match-score">
-                                  <div className="match-bar-wrap"><div className="match-bar" style={{width:`${reco.matchScore}%`}}/></div>
-                                  <div className="match-score-label">{reco.matchScore}{t.matchLabel||"% match"}</div>
-                                </div>
-                              )}
-                              {reco.matchReasons?.length>0&&(
-                                <div className="match-reasons">{reco.matchReasons.map((r,j)=><span key={j} className="match-reason">✓ {r}</span>)}</div>
-                              )}
+                              {(() => {
+                                const tags = computeFitTags(reco, { ...fitCtx, source: "ai", aiSignals: reco.signals }, lang);
+                                return tags.length > 0 ? <div style={{marginTop:2}}><FitTags tags={tags} COLORS={COLORS}/></div> : null;
+                              })()}
                               {reco.address&&(
                                 <div className="ai-reco-address">
                                   📍 {reco.address}
@@ -5180,7 +5354,8 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                                 </div>
                               )}
                               {reco.openNow!==undefined&&reco.openNow!==null&&<OpeningHoursWidget openNow={reco.openNow} hours={reco.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
-                              {reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
+                              {reco.headline&&<div className="ai-reco-why">« {reco.headline} »</div>}
+                              {!reco.headline&&reco.why&&<div className="ai-reco-why">« {reco.why} »</div>}
                               {reco.tip&&<div className="ai-reco-tip">💡 {reco.tip}</div>}
                               {reco.warning&&<div className="ai-reco-warning">⚠️ {reco.warning}</div>}
                             </div>
@@ -5221,6 +5396,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                               {p.rating&&<span className="badge stars" style={{padding:"2px 6px"}}><StarRating rating={p.rating} size={11} emptyColor={COLORS.border}/></span>}
                               {p.price&&<span className="badge price">{p.price}</span>}
                             </div>
+                            {(() => {
+                              const tags = computeFitTags(p, { ...fitCtx, source: "popular" }, lang);
+                              return tags.length > 0 ? <div style={{marginTop:2}}><FitTags tags={tags} COLORS={COLORS}/></div> : null;
+                            })()}
                             {(p.features||[]).length>0&&(
                               <div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:2}}>
                                 {p.features.map((f,fi)=><span key={fi} style={{fontSize:9,padding:"2px 6px",borderRadius:10,background:`${COLORS.accent}11`,color:COLORS.accent,border:`1px solid ${COLORS.accent}22`,fontFamily:"'DM Sans',sans-serif"}}>{f}</span>)}
@@ -5416,24 +5595,10 @@ ${recoMood ? `- MOOD FILTER: If a place does not match the mood "${recoMood}", D
                 </div>
               </>)}
 
-              {/* Step 1: Results & Budget */}
+              {/* Step 1: Budget */}
               {onboardingStep===1&&(<>
-                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,marginBottom:4}}>🎯 {t.nbRecosLabel||"Results limit"} & {t.profileBudget||"Budget"}</div>
-                <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{ot.onboardResultsSub||"Choose how many results to display and your usual budget."}</div>
-                <div style={{marginBottom:14}}>
-                  <label style={labelStyle}>{t.nbRecosLabel||"Results limit"}</label>
-                  <div style={{display:"flex",gap:8}}>
-                    {[["5",t.nbRecos5||"5"],["10",t.nbRecos10||"10"],["20",t.nbRecos20||"20"]].map(([val,label])=>(
-                      <button key={val} onClick={()=>setPrefs(p=>({...p,nbrecos:val}))}
-                        style={{flex:1,padding:"10px 4px",background:(prefs.nbrecos||"10")===val?`${COLORS.accent}22`:COLORS.card,
-                          border:`1px solid ${(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.border}`,
-                          borderRadius:8,color:(prefs.nbrecos||"10")===val?COLORS.accent:COLORS.muted,
-                          cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,transition:"all 0.2s"}}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,marginBottom:4}}>🎯 {t.profileBudget||"Budget"}</div>
+                <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{ot.onboardResultsSub||"Choose your usual budget. (optional)"}</div>
                 <div>
                   <label style={labelStyle}>{t.profileBudget||"Budget"}</label>
                   <div style={{display:"flex",gap:8}}>
