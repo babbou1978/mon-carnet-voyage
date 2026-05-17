@@ -346,7 +346,7 @@ const TRANSLATIONS = {
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
     errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: romantique, rooftop, brunch entre amis...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
+    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
@@ -407,7 +407,7 @@ const TRANSLATIONS = {
     followUnfollow: "Dejar de seguir", followPrivate: "Cuenta privada", followPublic: "Cuenta pública",
     errorUsernameRequired: "El usuario es obligatorio.", errorUsernameTaken: "Este usuario ya está en uso.", errorUsernameInvalid: "3-20 caracteres, letras, números, _ o . solamente.", profilePhoto: "Foto", profileUsername: "Usuario", profilePrivacy: "Privacidad",
     recoLocation: "📍 Ubicación y ajustes", recoRadius: "Radio de búsqueda",
-    recoMood: "Mood / preferencia", recoMoodPlaceholder: "Ej: romántico, terraza, brunch con amigos...", recoMoodDictate: "Dictar mi preferencia", recoMoodStop: "Detener la dictado", recoMoodListening: "Escuchando...", recoMoodNotSupported: "El dictado por voz no está disponible en este navegador. Prueba Chrome, Edge o Safari móvil.", askOutsyHeadline: "¡Hola {name}! Dime qué buscas y Outsy te ayudará", askOutsyPlaceholder: "Ej: Busco un restaurante con terraza cerca de mí, con compañeros de trabajo", askOutsyDictate: "Dictar mi solicitud", askOutsyAnalyze: "✨ Analizar mi solicitud", askOutsyAnalyzing: "Analizando...", askOutsyClear: "Borrar", recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
+    recoMood: "Mood / preferencia", recoMoodPlaceholder: "Ej: terraza, romántico, brunch...", recoMoodDictate: "Dictar mi preferencia", recoMoodStop: "Detener la dictado", recoMoodListening: "Escuchando...", recoMoodNotSupported: "El dictado por voz no está disponible en este navegador. Prueba Chrome, Edge o Safari móvil.", askOutsyHeadline: "¡Hola {name}! Dime qué buscas y Outsy te ayudará", askOutsyPlaceholder: "Ej: Busco un restaurante con terraza cerca de mí, con compañeros de trabajo", askOutsyDictate: "Dictar mi solicitud", askOutsyAnalyze: "✨ Analizar mi solicitud", askOutsyAnalyzing: "Analizando...", askOutsyClear: "Borrar", recoType: "Tipo", recoPrice: "Precio", recoFind: "✨ Preguntar a Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "Localizando...", recoSearching: "Buscando...",
     recoGPS: "📍 Mi ubicación", recoManual: "✏️ Introducir", recoGPSLoading: "Obteniendo tu ubicación...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Tus favoritos y seguidos",
@@ -466,7 +466,7 @@ const TRANSLATIONS = {
     followUnfollow: "Entfolgen", followPrivate: "Privates Konto", followPublic: "Öffentliches Konto",
     errorUsernameRequired: "Benutzername ist erforderlich.", errorUsernameTaken: "Dieser Benutzername ist bereits vergeben.", errorUsernameInvalid: "3-20 Zeichen, Buchstaben, Zahlen, _ oder . erlaubt.", profilePhoto: "Foto", profileUsername: "Benutzername", profilePrivacy: "Privatsphäre",
     recoLocation: "📍 Standort & Einstellungen", recoRadius: "Suchradius",
-    recoMood: "Mood / Stimmung", recoMoodPlaceholder: "z.B. romantisch, Dachterrasse, Brunch mit Freunden...", recoMoodDictate: "Stimmung diktieren", recoMoodStop: "Diktat beenden", recoMoodListening: "Höre zu...", recoMoodNotSupported: "Die Sprachdiktierung ist in diesem Browser nicht verfügbar. Versuche Chrome, Edge oder mobiles Safari.", askOutsyHeadline: "Hallo {name}! Sag mir, wonach du suchst, und Outsy hilft dir", askOutsyPlaceholder: "z.B. Ich suche ein Rooftop-Restaurant in meiner Nähe, mit Kollegen", askOutsyDictate: "Anfrage diktieren", askOutsyAnalyze: "✨ Anfrage analysieren", askOutsyAnalyzing: "Wird analysiert...", askOutsyClear: "Löschen", recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
+    recoMood: "Mood / Stimmung", recoMoodPlaceholder: "z.B. Dachterrasse, romantisch, Brunch...", recoMoodDictate: "Stimmung diktieren", recoMoodStop: "Diktat beenden", recoMoodListening: "Höre zu...", recoMoodNotSupported: "Die Sprachdiktierung ist in diesem Browser nicht verfügbar. Versuche Chrome, Edge oder mobiles Safari.", askOutsyHeadline: "Hallo {name}! Sag mir, wonach du suchst, und Outsy hilft dir", askOutsyPlaceholder: "z.B. Ich suche ein Rooftop-Restaurant in meiner Nähe, mit Kollegen", askOutsyDictate: "Anfrage diktieren", askOutsyAnalyze: "✨ Anfrage analysieren", askOutsyAnalyzing: "Wird analysiert...", askOutsyClear: "Löschen", recoType: "Typ", recoPrice: "Preis", recoFind: "✨ Outsy AI fragen", recoFindNearby: "Beliebte Orte",
     recoLocating: "Wird geortet...", recoSearching: "Suche läuft...",
     recoGPS: "📍 Mein Standort", recoManual: "✏️ Eingeben", recoGPSLoading: "Standort wird ermittelt...",
     recoHearts: "❤️ Favoriten", recoHeartsNear: "Deine Favoriten & Gefolgte",
@@ -525,7 +525,7 @@ const TRANSLATIONS = {
     followUnfollow: "Smetti di seguire", followPrivate: "Account privato", followPublic: "Account pubblico",
     errorUsernameRequired: "Il nome utente è obbligatorio.", errorUsernameTaken: "Questo nome utente è già in uso.", errorUsernameInvalid: "3-20 caratteri, lettere, numeri, _ o . ammessi.", profilePhoto: "Foto", profileUsername: "Nome utente", profilePrivacy: "Privacy",
     recoLocation: "📍 Posizione & impostazioni", recoRadius: "Raggio di ricerca",
-    recoMood: "Mood / desiderio", recoMoodPlaceholder: "Es: romantico, rooftop, brunch con amici...", recoMoodDictate: "Detta il desiderio", recoMoodStop: "Ferma la dettatura", recoMoodListening: "In ascolto...", recoMoodNotSupported: "La dettatura vocale non è disponibile in questo browser. Prova Chrome, Edge o Safari mobile.", askOutsyHeadline: "Ciao {name}! Dimmi cosa cerchi e Outsy ti aiuterà", askOutsyPlaceholder: "Es: Cerco un ristorante rooftop vicino a me, con i colleghi", askOutsyDictate: "Detta la tua richiesta", askOutsyAnalyze: "✨ Analizza la mia richiesta", askOutsyAnalyzing: "Analisi in corso...", askOutsyClear: "Cancella", recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
+    recoMood: "Mood / desiderio", recoMoodPlaceholder: "Es: rooftop, romantico, brunch...", recoMoodDictate: "Detta il desiderio", recoMoodStop: "Ferma la dettatura", recoMoodListening: "In ascolto...", recoMoodNotSupported: "La dettatura vocale non è disponibile in questo browser. Prova Chrome, Edge o Safari mobile.", askOutsyHeadline: "Ciao {name}! Dimmi cosa cerchi e Outsy ti aiuterà", askOutsyPlaceholder: "Es: Cerco un ristorante rooftop vicino a me, con i colleghi", askOutsyDictate: "Detta la tua richiesta", askOutsyAnalyze: "✨ Analizza la mia richiesta", askOutsyAnalyzing: "Analisi in corso...", askOutsyClear: "Cancella", recoType: "Tipo", recoPrice: "Prezzo", recoFind: "✨ Chiedi a Outsy AI", recoFindNearby: "Posti popolari",
     recoLocating: "Localizzazione...", recoSearching: "Ricerca in corso...",
     recoGPS: "📍 La mia posizione", recoManual: "✏️ Inserisci", recoGPSLoading: "Recupero posizione...",
     recoHearts: "❤️ Preferiti", recoHeartsNear: "I tuoi preferiti e seguiti",
@@ -584,7 +584,7 @@ const TRANSLATIONS = {
     followUnfollow: "Deixar de seguir", followPrivate: "Conta privada", followPublic: "Conta pública",
     errorUsernameRequired: "O nome de utilizador é obrigatório.", errorUsernameTaken: "Este utilizador já está em uso.", errorUsernameInvalid: "3-20 caracteres, letras, números, _ ou . apenas.", profilePhoto: "Foto", profileUsername: "Utilizador", profilePrivacy: "Privacidade",
     recoLocation: "📍 Localização & definições", recoRadius: "Raio de pesquisa",
-    recoMood: "Mood / desejo", recoMoodPlaceholder: "Ex: romântico, terraço, brunch com amigos...", recoMoodDictate: "Ditar o desejo", recoMoodStop: "Parar o ditado", recoMoodListening: "A ouvir...", recoMoodNotSupported: "O ditado por voz não está disponível neste navegador. Experimenta o Chrome, Edge ou Safari móvel.", askOutsyHeadline: "Olá {name}! Diz-me o que procuras e o Outsy vai ajudar-te", askOutsyPlaceholder: "Ex: Procuro um restaurante com esplanada perto de mim, com colegas", askOutsyDictate: "Ditar o pedido", askOutsyAnalyze: "✨ Analisar o meu pedido", askOutsyAnalyzing: "A analisar...", askOutsyClear: "Limpar", recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
+    recoMood: "Mood / desejo", recoMoodPlaceholder: "Ex: terraço, romântico, brunch...", recoMoodDictate: "Ditar o desejo", recoMoodStop: "Parar o ditado", recoMoodListening: "A ouvir...", recoMoodNotSupported: "O ditado por voz não está disponível neste navegador. Experimenta o Chrome, Edge ou Safari móvel.", askOutsyHeadline: "Olá {name}! Diz-me o que procuras e o Outsy vai ajudar-te", askOutsyPlaceholder: "Ex: Procuro um restaurante com esplanada perto de mim, com colegas", askOutsyDictate: "Ditar o pedido", askOutsyAnalyze: "✨ Analisar o meu pedido", askOutsyAnalyzing: "A analisar...", askOutsyClear: "Limpar", recoType: "Tipo", recoPrice: "Preço", recoFind: "✨ Perguntar ao Outsy AI", recoFindNearby: "Lugares populares",
     recoLocating: "A localizar...", recoSearching: "A pesquisar...",
     recoGPS: "📍 A minha posição", recoManual: "✏️ Introduzir", recoGPSLoading: "A obter posição...",
     recoHearts: "❤️ Favoritos", recoHeartsNear: "Os seus favoritos e seguidos",
@@ -643,7 +643,7 @@ const TRANSLATIONS = {
     followUnfollow: "Ontvolgen", followPrivate: "Privéaccount", followPublic: "Openbaar account",
     errorUsernameRequired: "Gebruikersnaam is verplicht.", errorUsernameTaken: "Deze gebruikersnaam is al in gebruik.", errorUsernameInvalid: "3-20 tekens, letters, cijfers, _ of . toegestaan.", profilePhoto: "Foto", profileUsername: "Gebruikersnaam", profilePrivacy: "Privacy",
     recoLocation: "📍 Locatie & instellingen", recoRadius: "Zoekradius",
-    recoMood: "Mood / stemming", recoMoodPlaceholder: "Bijv. romantisch, dakterras, brunch met vrienden...", recoMoodDictate: "Stemming dicteren", recoMoodStop: "Dicteren stoppen", recoMoodListening: "Aan het luisteren...", recoMoodNotSupported: "Spraakdictee is niet beschikbaar in deze browser. Probeer Chrome, Edge of Safari op mobiel.", askOutsyHeadline: "Hallo {name}! Vertel me wat je zoekt en Outsy helpt je", askOutsyPlaceholder: "Bijv. Ik zoek een dakterras-restaurant in de buurt, met collega's", askOutsyDictate: "Verzoek dicteren", askOutsyAnalyze: "✨ Mijn verzoek analyseren", askOutsyAnalyzing: "Bezig met analyseren...", askOutsyClear: "Wissen", recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
+    recoMood: "Mood / stemming", recoMoodPlaceholder: "Bijv. dakterras, romantisch, brunch...", recoMoodDictate: "Stemming dicteren", recoMoodStop: "Dicteren stoppen", recoMoodListening: "Aan het luisteren...", recoMoodNotSupported: "Spraakdictee is niet beschikbaar in deze browser. Probeer Chrome, Edge of Safari op mobiel.", askOutsyHeadline: "Hallo {name}! Vertel me wat je zoekt en Outsy helpt je", askOutsyPlaceholder: "Bijv. Ik zoek een dakterras-restaurant in de buurt, met collega's", askOutsyDictate: "Verzoek dicteren", askOutsyAnalyze: "✨ Mijn verzoek analyseren", askOutsyAnalyzing: "Bezig met analyseren...", askOutsyClear: "Wissen", recoType: "Type", recoPrice: "Prijs", recoFind: "✨ Vraag Outsy AI", recoFindNearby: "Populaire plekken",
     recoLocating: "Locatie bepalen...", recoSearching: "Zoeken...",
     recoGPS: "📍 Mijn locatie", recoManual: "✏️ Invoeren", recoGPSLoading: "Locatie ophalen...",
     recoHearts: "❤️ Favorieten", recoHeartsNear: "Jouw favorieten & gevolgd",
@@ -702,7 +702,7 @@ const TRANSLATIONS = {
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
     errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. romantic, rooftop, kids birthday, brunch with friends...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
+    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
@@ -1722,9 +1722,24 @@ const DEFAULT_FORM = { name:"",type:"Restaurant",price:"",city:"",country:"",rat
 const DEFAULT_PREFS = { theme: "light", loves:"",hates:"",budget:"",notes:"",lovesTags:[],hatesTags:[],firstName:"",lastName:"",username:"",is_private:false,avatar_url:"",language:"en",nbrecos:"10",preferredCities:[] };
 
 function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, t, lang="en", COLORS=THEMES.dark, onDuplicate, onDelete }) {
-  const [form, setForm] = useState(initial ? { ...initial, activityType: initial.activityType || initial.activity_type || "" } : DEFAULT_FORM);
+  // Migrate legacy data: if the memory was created with the old split
+  // why / dislike fields, merge them into a single free note. why stays as
+  // the unified field (DB column kept for backwards compatibility); dislike
+  // is cleared on next save.
+  const mergedInitial = (() => {
+    const base = initial ? { ...initial, activityType: initial.activityType || initial.activity_type || "" } : DEFAULT_FORM;
+    if (initial && initial.dislike && initial.dislike.trim()) {
+      const joined = [initial.why, initial.dislike].filter(s => s && s.trim()).join("\n\n");
+      return { ...base, why: joined, dislike: "" };
+    }
+    return base;
+  })();
+  const [form, setForm] = useState(mergedInitial);
   const [confirmClose, setConfirmClose] = useState(false);
-  const initialRef = useRef(JSON.stringify(initial||DEFAULT_FORM));
+  // Compare against the merged baseline, not the raw initial — otherwise a
+  // legacy memory looks "dirty" the moment it's opened (merged why content
+  // differs from the raw why field).
+  const initialRef = useRef(JSON.stringify(mergedInitial));
   const isDirty = () => JSON.stringify(form) !== initialRef.current;
 
   useEffect(() => {
@@ -1805,11 +1820,11 @@ function MemoryForm({ initial, onSave, onCancel, isEdit=false, prefilled=false, 
         <div className="field"><label>{t?.addRating||"Rating"}</label><StarPicker value={form.rating} onChange={v=>setForm(f=>({...f,rating:v}))}/></div>
         <KidsToggle value={form.kidsf} onChange={v=>setForm(f=>({...f,kidsf:v}))} t={t}/>
         <div className="section-divider"><span>{t?.addLiked||"Liked"}</span></div>
-        <div className="field"><label>{t?.addLikedSelect||"Select"}</label><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
-        <div className="field"><label>{t?.addLikedPrecise||"Details"}</label><textarea placeholder="..." value={form.why} onChange={e=>setForm(f=>({...f,why:e.target.value}))}/></div>
+        <div className="field"><TagPicker options={likesOptions} selected={form.likeTags} onChange={v=>setForm(f=>({...f,likeTags:v}))} mode="like"/></div>
         <div className="section-divider"><span>{t?.addDisliked||"Disliked"}</span></div>
-        <div className="field"><label style={{color:"#d4869b"}}>{t?.addDislikedSelect||"Select"}</label><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
-        <div className="field"><label style={{color:"#d4869b"}}>{t?.addDislikedPrecise||"Details"}</label><textarea placeholder="..." value={form.dislike} onChange={e=>setForm(f=>({...f,dislike:e.target.value}))} style={{background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
+        <div className="field"><TagPicker options={dislikesOptions} selected={form.dislikeTags} onChange={v=>setForm(f=>({...f,dislikeTags:v}))} mode="dislike"/></div>
+        <div className="section-divider"><span>{t?.addNotes||"Notes libres"}</span></div>
+        <div className="field"><textarea placeholder={t?.addNotesPlaceholder||"Ce que tu veux retenir de cet endroit — points forts, bémols, ambiance..."} value={form.why||""} onChange={e=>setForm(f=>({...f,why:e.target.value}))} style={{textAlign:"justify",minHeight:80}}/></div>
         <div style={{display:"flex",gap:8,marginTop:4,alignItems:"center"}}>
           {isEdit&&onDelete&&<button onClick={onDelete} title={t?.deleteTitle||"Delete"} style={{background:COLORS.dislikeBg,border:`1px solid ${COLORS.dislike}66`,color:"#d4869b",borderRadius:"50%",width:38,height:38,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",flexShrink:0}}>🗑️</button>}
           {onCancel&&<button className="modal-btn secondary" onClick={onCancel}>{t?.duplicateCancel||"Cancel"}</button>}
@@ -2213,9 +2228,13 @@ function MemoryCard({ m, onEdit, onDelete, onDeleteRequest, isMine, lang="en", o
       {m.openNow!==undefined&&m.openNow!==null&&<OpeningHoursWidget openNow={m.openNow} hours={m.openingHours} lang={lang} COLORS={COLORS} t={t}/>}
 
       {(m.likeTags||[]).length>0&&<div className="memory-tags">{m.likeTags.map(t=><span key={t} className="memory-tag">👍 {t}</span>)}</div>}
-      {m.why&&<div className="memory-why">« {m.why} »</div>}
       {(m.dislikeTags||[]).length>0&&<div className="memory-tags">{m.dislikeTags.map(t=><span key={t} className="memory-tag bad">👎 {t}</span>)}</div>}
-      {m.dislike&&<div className="memory-dislike">« {m.dislike} »</div>}
+      {(() => {
+        // Unified free note. Legacy memories may still have content in
+        // `dislike` until the user re-edits them — show both joined.
+        const note = [m.why, m.dislike].filter(s => s && s.trim()).join("\n\n");
+        return note ? <div className="memory-why" style={{whiteSpace:"pre-wrap",textAlign:"justify"}}>« {note} »</div> : null;
+      })()}
     </div>
   );
 }
@@ -4342,15 +4361,28 @@ function TravelAgent() {
 
     // Same-type favorites are sent in full (rich anchor candidates). Other-type
     // favorites are summarized as profile colour without flooding the prompt.
+    // Note: free note (why) may contain BOTH positive and negative remarks —
+    // the star rating is the polarity anchor, the note adds texture. Claude
+    // is expected to read sentiment naturally.
     const sameType = memories.filter(m=>m.rating>=3 && typeMatches(m.type, recoType)).sort((a,b)=>b.rating-a.rating);
+    const memoryNote = (m) => [m.why, m.dislike].filter(s => s && s.trim()).join(" / ");
     const liked = sameType.slice(0,8).map(m=>{
       const subType = m.activity_type || m.cuisine || "";
-      const tags = [...(m.likeTags||[]),m.why].filter(Boolean).join(", ");
-      return `- ${m.name} (${subType||m.type}, ${m.price||"?"}, ${m.rating}/5)${tags?` — loved: ${tags}`:""}${m.kidsf?" — kids friendly":""}`;
+      const positive = (m.likeTags||[]).join(", ");
+      const negative = (m.dislikeTags||[]).join(", ");
+      const note = memoryNote(m);
+      const parts = [
+        positive ? `👍 ${positive}` : null,
+        negative ? `👎 ${negative}` : null,
+        note ? `note: "${note}"` : null,
+      ].filter(Boolean).join(" — ");
+      return `- ${m.name} (${subType||m.type}, ${m.price||"?"}, ${m.rating}/5)${parts?` — ${parts}`:""}${m.kidsf?" — kids friendly":""}`;
     }).join("\n");
     const disliked = memories.filter(m=>m.rating>0&&m.rating<3).slice(0,5).map(m=>{
       const subType = m.activity_type || m.cuisine || "";
-      return `- ${m.name} (${subType||m.type}) — ${[...(m.dislikeTags||[]),m.dislike].filter(Boolean).join(", ")||"disappointing"}`;
+      const negative = (m.dislikeTags||[]).join(", ");
+      const note = memoryNote(m);
+      return `- ${m.name} (${subType||m.type})${negative?` — 👎 ${negative}`:""}${note?` — note: "${note}"`:""}`;
     }).join("\n");
 
     const excludeList = [...alreadyVisited].slice(0, 40).join(", ");
@@ -4408,15 +4440,18 @@ ${guidance}
 
 USER PROFILE (background taste — secondary to mood when mood is set):
 ${profileSummary || "No strong taste signal yet."}
-Stated likes: ${[...(prefs.lovesTags||[]),prefs.loves].filter(Boolean).join(", ")||"—"}
-Stated dislikes: ${[...(prefs.hatesTags||[]),prefs.hates].filter(Boolean).join(", ")||"—"}
+Stated likes (tags): ${(prefs.lovesTags||[]).filter(Boolean).join(", ")||"—"}
+Stated dislikes (tags): ${(prefs.hatesTags||[]).filter(Boolean).join(", ")||"—"}
 Budget filter: ${recoPrice!==ALL?recoPrice:prefs.budget||"—"}
 Kids friendly required: ${recoKids?"yes":"no"}
-Other notes: ${prefs.notes||"—"}
+Free notes: ${prefs.notes||"—"}
 Preferred output language: ${langLabel}
 ${moodBlock}
 
-TOP FAVORITES of the user (use as anchor when truly comparable — never force a link):
+TOP FAVORITES of the user (use as anchor when truly comparable — never force a link).
+IMPORTANT: each favorite's "note" is FREE TEXT and may contain BOTH praise and gripes.
+The star rating is the dominant polarity. Read the note for nuance, but trust the rating
+as the overall verdict (e.g. 5/5 with a small gripe in the note is still a place they love).
 ${liked||"None yet."}
 
 DISAPPOINTMENTS (skip places similar to these):
@@ -5075,18 +5110,16 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileLikes}</div>
-                <div className="field"><label>{t.profileLikesSelect}</label><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
-                <div className="field"><label>{t.profileLikesPrecise}</label><textarea placeholder="..." value={prefs.loves} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} style={{minHeight:60}}/></div>
+                <div className="field"><TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/></div>
               </div>
 
               <div className="prefs-card" style={{borderColor:COLORS.dislike+"44"}}>
                 <div className="prefs-card-title bad">{t.profileDislikes}</div>
-                <div className="field"><label style={{color:"#d4869b"}}>{t.profileDislikesSelect}</label><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
-                <div className="field"><label style={{color:"#d4869b"}}>{t.profileDislikesPrecise}</label><textarea placeholder="..." value={prefs.hates} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} style={{minHeight:60,background:COLORS.dislikeBg,borderColor:COLORS.dislike+"44",color:"#d4a0a0"}}/></div>
+                <div className="field"><TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/></div>
               </div>
               <div className="prefs-card">
                 <div className="prefs-card-title">{t.profileNotes}</div>
-                <div className="field"><label>{t.profileNotesLabel}</label><textarea placeholder="..." value={prefs.notes} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:70}}/></div>
+                <div className="field"><textarea placeholder={t.profileNotesPlaceholder||"Régime, allergies, contexte, style préféré..."} value={prefs.notes||""} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:80,textAlign:"justify"}}/></div>
               </div>
               <button className="prefs-save-btn" onClick={savePrefs}>{t.profileSave}</button>
               {prefsSaved&&<div className="prefs-saved">{t.profileSaved}</div>}
@@ -5201,7 +5234,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                 <div className="field" style={{marginTop:4}}>
                   <label style={{fontSize:10,textTransform:"uppercase",letterSpacing:"0.15em",color:COLORS.muted,fontWeight:500}}>💭 {t.recoMood||"Mood / envie"}</label>
                   <div style={{position:"relative",width:"100%"}}>
-                    <textarea ref={moodTextareaRef} value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: romantic, rooftop, kids birthday, brunch with friends...")} rows={1} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 80px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box",resize:"none",minHeight:40,lineHeight:1.4,overflow:"hidden"}}/>
+                    <textarea ref={moodTextareaRef} value={recoMood} onChange={e=>setRecoMood(e.target.value)} placeholder={recoMoodListening?(t.recoMoodListening||"À l'écoute..."):(t.recoMoodPlaceholder||"Ex: rooftop, romantique, brunch...")} rows={1} style={{background:COLORS.card,border:`1px solid ${recoMoodListening?"#e74c3c":COLORS.border}`,borderRadius:8,padding:"10px 80px 10px 12px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:13,width:"100%",fontStyle:recoMood?"normal":"italic",boxSizing:"border-box",resize:"none",minHeight:40,lineHeight:1.4,overflow:"hidden",textAlign:"justify"}}/>
                     {recoMood && (
                       <button type="button" onClick={()=>setRecoMood("")} title={t.askOutsyClear||"Effacer"} aria-label={t.askOutsyClear||"Effacer"} style={{position:"absolute",right:44,top:6,width:30,height:30,borderRadius:"50%",border:"none",background:"transparent",color:COLORS.muted,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,padding:0}}>✕</button>
                     )}
@@ -5628,27 +5661,21 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
               {onboardingStep===3&&(<>
                 <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,marginBottom:4}}>{t.profileLikes||"✨ What I love"}</div>
                 <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{ot.onboardLikesSub}</div>
-                <label style={{...labelStyle,color:COLORS.accent}}>{t.profileLikesSelect||"Select"}</label>
                 <TagPicker options={PREFS_LOVES_BY_LANG[lang]||PREFS_LOVES_BY_LANG.en} selected={prefs.lovesTags||[]} onChange={v=>setPrefs(p=>({...p,lovesTags:v}))} mode="like"/>
-                <label style={{...labelStyle,marginTop:12}}>{t.profileLikesPrecise||"Specify"}</label>
-                <input value={prefs.loves||""} onChange={e=>setPrefs(p=>({...p,loves:e.target.value}))} placeholder="..." style={inputStyle}/>
               </>)}
 
               {/* Step 4: What I avoid */}
               {onboardingStep===4&&(<>
                 <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:"#d4869b",marginBottom:4}}>{t.profileDislikes||"🚫 What I avoid"}</div>
                 <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{ot.onboardDislikesSub}</div>
-                <label style={{...labelStyle,color:"#d4869b"}}>{t.profileDislikesSelect||"Select"}</label>
                 <TagPicker options={PREFS_HATES_BY_LANG[lang]||PREFS_HATES_BY_LANG.en} selected={prefs.hatesTags||[]} onChange={v=>setPrefs(p=>({...p,hatesTags:v}))} mode="dislike"/>
-                <label style={{...labelStyle,marginTop:12}}>{t.profileDislikesPrecise||"Specify"}</label>
-                <input value={prefs.hates||""} onChange={e=>setPrefs(p=>({...p,hates:e.target.value}))} placeholder="..." style={{...inputStyle,borderColor:"#d4869b33"}}/>
               </>)}
 
               {/* Step 5: Notes for AI */}
               {onboardingStep===5&&(<>
                 <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",color:COLORS.accent,marginBottom:4}}>{t.profileNotes||"📝 Notes for the AI"}</div>
                 <div style={{fontSize:12,color:COLORS.muted,marginBottom:12}}>{ot.onboardNotesSub}</div>
-                <textarea value={prefs.notes||""} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} placeholder={ot.onboardNotesPlaceholder} style={{...inputStyle,minHeight:100,resize:"vertical"}}/>
+                <textarea value={prefs.notes||""} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} placeholder={ot.onboardNotesPlaceholder} style={{...inputStyle,minHeight:100,resize:"vertical",textAlign:"justify"}}/>
               </>)}
 
               {/* Step 6: Ready! */}
