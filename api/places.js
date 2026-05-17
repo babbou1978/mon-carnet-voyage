@@ -154,8 +154,8 @@ export default async function handler(req, res) {
         "Café": ["cafe", "coffee_shop", "bakery", "tea_house"],
         "Hôtel": ["lodging"],
         "Activité": [
-          // Cultural
-          "museum", "art_gallery", "botanical_garden",
+          // Cultural & visit
+          "museum", "art_gallery", "botanical_garden", "tourist_attraction", "historical_landmark",
           // Entertainment & games
           "amusement_park", "performing_arts_theater", "movie_theater",
           "bowling_alley", "miniature_golf_course", "video_arcade",
@@ -173,7 +173,11 @@ export default async function handler(req, res) {
           // Nightlife entertainment
           "casino", "karaoke"
         ],
-        "Destination": ["tourist_attraction", "national_park", "historical_landmark"]
+        // Destination = cities / countries (a place you travel TO, not a POI
+        // near you). Google has no real "city" nearby-search type, so this
+        // category mostly lives via manual entry. national_park kept here as
+        // a faint fallback when the user does a Destination search nearby.
+        "Destination": ["national_park"]
       };
       // When kids=true on an activity search, drop adult-only sub-types from
       // the Google query (faster + cleaner). Same set is re-checked after the
