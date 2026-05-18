@@ -223,6 +223,41 @@ function computeFitTags(item, ctx, lang = "fr") {
     .slice(0, 3);
 }
 
+// Parses Google Places addressComponents into structured fields. Falls back
+// to a naive comma split of formattedAddress when components are missing.
+// Used both by PlaceSearch (autocomplete picks) and by the nearby transform
+// so saving a popular reco gets a clean city/country instead of a garbled
+// "London W1U 6PT" mash-up.
+function parseAddress(components, formattedAddress) {
+  components = components || [];
+  let city = components.find(c=>c.types?.includes("locality"))?.longText ||
+             components.find(c=>c.types?.includes("postal_town"))?.longText ||
+             components.find(c=>c.types?.includes("administrative_area_level_2"))?.longText ||
+             "";
+  if (!city) {
+    const fa = formattedAddress || "";
+    const parts = fa.split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      const cityPart = parts[parts.length - 2] || "";
+      // Strip postal-code-like tokens (FR / US digits, UK outward/inward)
+      const tokens = cityPart.split(/\s+/).filter(w =>
+        !/^\d+$/.test(w) &&
+        !/^[A-Z]{1,2}\d[A-Z\d]?$/i.test(w) &&
+        !/^\d[A-Z]{2}$/i.test(w)
+      );
+      city = tokens.join(" ");
+    }
+  }
+  const country = components.find(c=>c.types?.includes("country"))?.longText ||
+                  (formattedAddress || "").split(",").pop()?.trim() ||
+                  "";
+  const streetNumber = components.find(c=>c.types?.includes("street_number"))?.longText || "";
+  const route = components.find(c=>c.types?.includes("route"))?.longText || "";
+  const postalCode = components.find(c=>c.types?.includes("postal_code"))?.longText || "";
+  const streetAddress = [streetNumber, route, postalCode].filter(Boolean).join(" ") || "";
+  return { city, country, streetAddress };
+}
+
 // Lightweight mood matcher for client-side tags on non-AI cards. Mirrors the
 // keyword logic used server-side but stays permissive — false positives are
 // fine here (it's a hint, not a hard filter).
@@ -4284,18 +4319,24 @@ function TravelAgent() {
         const topReview = reviewInLang || fiveStarReview || reviews.find(r => r.text?.text?.length > 30 && r.text.text.length < 200);
         // Prefer review in user lang over editorial summary which is usually English
         const summary = (reviewInLang?.text?.text) || (p.editorialSummary?.text?.languageCode === userLang ? p.editorialSummary.text : null);
+        // Google placeId — required so PlaceCardBody can fetch full
+        // details (photos, phone, website, hours, reviews, …). Without
+        // it the place sheet for popular results lands on the loading
+        // short-circuit and renders only the sparse fields the nearby
+        // search itself returned.
+        const parsed = parseAddress(p.addressComponents, p.formattedAddress);
         return {
-          // Google placeId — required so PlaceCardBody can fetch full
-          // details (photos, phone, website, hours, reviews, …). Without
-          // it the place sheet for popular results lands on the loading
-          // short-circuit and renders only the sparse fields the nearby
-          // search itself returned.
           id: p.id,
           google_place_id: p.id,
           primaryType: p.primaryType,
           primaryTypeDisplayName: p.primaryTypeDisplayName,
           features: p.features,
           name: p.displayName?.text||"", address: p.formattedAddress||"",
+          // Structured city / country / street — fed straight into the add
+          // form when the user pins or hearts a popular reco. Without these
+          // the form had to parse formattedAddress and would mash postcodes
+          // into the city field.
+          city: parsed.city, country: parsed.country, streetAddress: parsed.streetAddress,
           rating: p.rating, userRatingCount: p.userRatingCount||0,
           cuisine: p.cuisine || null,
           editorialSummary: summary,
@@ -4591,11 +4632,27 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
   };
 
   const addRecoToCarnet = (reco) => {
-    // Extract city/country from address
-    const addrParts = (reco.address||"").split(",").map(s=>s.trim());
-    const country = addrParts[addrParts.length-1] || "";
-    const city = addrParts[addrParts.length-2] || "";
-    const streetAddress = addrParts.slice(0, addrParts.length-2).join(", ") || reco.address || "";
+    // Prefer the structured city / country / street fields attached to the
+    // reco during the nearby transform (from Google addressComponents).
+    // Fall back to a naive split of formattedAddress when those are missing
+    // (legacy code paths or AI recos that didn't go through the transform).
+    let city = reco.city || "";
+    let country = reco.country || "";
+    let streetAddress = reco.streetAddress || "";
+    if (!city || !country) {
+      const addrParts = (reco.address||"").split(",").map(s=>s.trim());
+      country = country || addrParts[addrParts.length-1] || "";
+      city = city || addrParts[addrParts.length-2] || "";
+      streetAddress = streetAddress || addrParts.slice(0, addrParts.length-2).join(", ") || reco.address || "";
+    }
+    // For Activité, auto-fill activityType from Google's primaryTypeDisplayName
+    // (the human-readable category like "Escape room game"). The AI reco
+    // payload doesn't include activityType explicitly, so we read it off the
+    // resolved Google place data carried through pre-resolution.
+    const activityType = reco.activityType
+      || reco.primaryTypeDisplayName?.text
+      || reco.primaryTypeDisplayName
+      || "";
     setRecoToAdd({
       name: reco.name,
       type: recoType,
@@ -4603,7 +4660,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
       city, country,
       address: streetAddress,
       cuisine: reco.cuisine || "",
-      activityType: reco.activityType || "",
+      activityType,
       google_place_id: reco.google_place_id || reco.googlePlaceId || "",
       rating: 0, likeTags: [], dislikeTags: [], why: "", dislike: "", kidsf: false
     });
@@ -5430,7 +5487,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                                 friendsHave={friendMemories.filter(fm => fm.name.toLowerCase()===p.name.toLowerCase())}
                                 myMem={memories.find(mm => mm.name.toLowerCase()===p.name.toLowerCase())}
                                 onEdit={setEditMemory}
-                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,googleRating:p.rating,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",google_place_id:p.id||""})}
+                                onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,city:p.city||"",country:p.country||"",streetAddress:p.streetAddress||"",cuisine:p.cuisine,googleRating:p.rating,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",google_place_id:p.id||"",primaryTypeDisplayName:p.primaryTypeDisplayName})}
                                 onPin={()=>openPinModal({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",id:p.id||"",lat:p.location?.latitude||p.lat,lng:p.location?.longitude||p.lng})}
                                 COLORS={COLORS}
                                 t={t}
