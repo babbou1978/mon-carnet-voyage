@@ -2433,6 +2433,11 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   const [photoDragX, setPhotoDragX] = useState(0);
   const [photoDragging, setPhotoDragging] = useState(false);
   const photoTouchRef = useRef({ x: null, y: null, dir: null });
+  // Trackpad horizontal swipe support — a Mac / Windows trackpad two-finger
+  // horizontal gesture emits wheel events with deltaX. Without this handler
+  // the photo carousel is touch-only and desktop users can only navigate
+  // via the dots. Cooldown prevents one swipe from skipping multiple photos.
+  const photoWheelCooldownRef = useRef(0);
 
   // Fetch details: always for active/adjacent, otherwise only from cache
   useEffect(() => {
@@ -2501,6 +2506,24 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
 
   const d = details || {};
   const photos = d.photoUrls || [];
+
+  // Photo carousel wheel handler — translates horizontal trackpad swipe
+  // into next/prev photo. Threshold + cooldown keep it deliberate so a tiny
+  // accidental deltaX on a mostly-vertical scroll doesn't skip a photo.
+  const onPhotoWheel = (e) => {
+    if (photos.length <= 1) return;
+    if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    const now = Date.now();
+    if (now < photoWheelCooldownRef.current) return;
+    if (e.deltaX > 0 && photoIdx < photos.length - 1) {
+      setPhotoIdx(i => i + 1);
+      photoWheelCooldownRef.current = now + 350;
+    } else if (e.deltaX < 0 && photoIdx > 0) {
+      setPhotoIdx(i => i - 1);
+      photoWheelCooldownRef.current = now + 350;
+    }
+    e.stopPropagation();
+  };
   const name = d.displayName?.text || place.name;
   const address = d.formattedAddress || place.address || "";
   const rating = d.rating || place.rating;
@@ -2537,7 +2560,8 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
       <div style={{position:"relative",width:"100%",height:220,minHeight:220,maxHeight:220,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
         onTouchStart={photos.length>0?onPhotoTouchStart:undefined}
         onTouchMove={photos.length>0?onPhotoTouchMove:undefined}
-        onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}>
+        onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}
+        onWheel={onPhotoWheel}>
         {photos.length > 0 ? (
           <>
             <div style={{
@@ -2687,6 +2711,10 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
   const trackRef = useRef(null);
   const cardTouchRef = useRef({ x: null, y: null, dir: null });
   const detailsCacheRef = useRef(new Map());
+  // Trackpad horizontal swipe on the card body navigates between places
+  // (same as the touch swipe on mobile). Threshold + cooldown ensure a tiny
+  // accidental deltaX during vertical reading doesn't skip a place.
+  const cardWheelCooldownRef = useRef(0);
 
   // ESC / arrows
   useEffect(() => {
@@ -2810,7 +2838,20 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
 
       {/* Carousel track */}
       <div ref={trackRef} style={{flex:1,overflow:"hidden",position:"relative"}}
-        onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
+        onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}
+        onWheel={(e) => {
+          if (list.length <= 1) return;
+          if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+          const now = Date.now();
+          if (now < cardWheelCooldownRef.current) return;
+          if (e.deltaX > 0 && index < list.length - 1) {
+            onNavigate(index + 1);
+            cardWheelCooldownRef.current = now + 450;
+          } else if (e.deltaX < 0 && index > 0) {
+            onNavigate(index - 1);
+            cardWheelCooldownRef.current = now + 450;
+          }
+        }}>
         <div style={{
           display:"flex",
           height:"100%",
@@ -4562,7 +4603,11 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   // city/country empty entirely for venues with peculiar
                   // address formats.
                   city: gp.city, country: gp.country, streetAddress: gp.streetAddress,
-                  activityType: gp.primaryTypeDisplayName?.text || gp.primaryTypeDisplayName || "",
+                  // gp.cuisine holds the localised activity sub-type for
+                  // Activité places (escape game / zoo / musée / …). Falls
+                  // back to Google's raw primaryTypeDisplayName, then a
+                  // humanised primaryType, so the form is never empty.
+                  activityType: gp.cuisine || gp.primaryTypeDisplayName?.text || gp.primaryTypeDisplayName || (gp.primaryType ? gp.primaryType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : ""),
                 };
               }
               // Try exact name match in nearbyForAI
@@ -4574,7 +4619,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   id: exactMatch.id, google_place_id: exactMatch.google_place_id,
                   primaryType: exactMatch.primaryType, primaryTypeDisplayName: exactMatch.primaryTypeDisplayName,
                   city: exactMatch.city, country: exactMatch.country, streetAddress: exactMatch.streetAddress,
-                  activityType: exactMatch.primaryTypeDisplayName?.text || exactMatch.primaryTypeDisplayName || "",
+                  activityType: exactMatch.cuisine || exactMatch.primaryTypeDisplayName?.text || exactMatch.primaryTypeDisplayName || (exactMatch.primaryType ? exactMatch.primaryType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : ""),
                 };
               }
               return null;
