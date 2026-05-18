@@ -4733,7 +4733,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                 const reco = data.recommendations.find(x=>x.name.toLowerCase()===r.name.toLowerCase());
                 return { place_id: r.placeId||null, name: r.name, address: reco?.address||'', confirmed_by: userId };
               });
-              await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id' });
+              await supabase.from('closed_places').upsert(toInsert, { onConflict: 'place_id', ignoreDuplicates: true });
               const newIds = newlyClosed.map(r=>r.name);
               const newNames = [...new Set([...closedPlacesRef.current, ...newIds])];
               setClosedPlaces(newNames);
@@ -5717,7 +5717,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   await supabase.from('memories').delete().eq('id',f.id).eq('user_id',userId);
                   setMemories(prev=>prev.filter(m=>m.id!==f.id));
                   // Add to community closed list
-                  if (f.placeId) await supabase.from('closed_places').upsert({place_id:f.placeId,name:f.name},{onConflict:'place_id'});
+                  if (f.placeId) await supabase.from('closed_places').upsert({place_id:f.placeId,name:f.name,confirmed_by:userId},{onConflict:'place_id',ignoreDuplicates:true});
                 }
                 setClosedFavoritesAlert([]);
                 showToast(t.closedToast||"✓ Favorites removed");
