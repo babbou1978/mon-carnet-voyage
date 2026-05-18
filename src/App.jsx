@@ -4555,6 +4555,14 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   // full details (photos, phone, website, reviews, …).
                   id: gp.id, google_place_id: gp.google_place_id,
                   primaryType: gp.primaryType, primaryTypeDisplayName: gp.primaryTypeDisplayName,
+                  // Carry the structured fields parsed from Google's
+                  // addressComponents. Without these, addRecoToCarnet falls
+                  // back to a naive comma split of formattedAddress which
+                  // mashes the postcode into the city and sometimes leaves
+                  // city/country empty entirely for venues with peculiar
+                  // address formats.
+                  city: gp.city, country: gp.country, streetAddress: gp.streetAddress,
+                  activityType: gp.primaryTypeDisplayName?.text || gp.primaryTypeDisplayName || "",
                 };
               }
               // Try exact name match in nearbyForAI
@@ -4565,6 +4573,8 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   name: exactMatch.name, address: exactMatch.address, lat: exactMatch.lat, lng: exactMatch.lng, _dist: exactMatch._dist,
                   id: exactMatch.id, google_place_id: exactMatch.google_place_id,
                   primaryType: exactMatch.primaryType, primaryTypeDisplayName: exactMatch.primaryTypeDisplayName,
+                  city: exactMatch.city, country: exactMatch.country, streetAddress: exactMatch.streetAddress,
+                  activityType: exactMatch.primaryTypeDisplayName?.text || exactMatch.primaryTypeDisplayName || "",
                 };
               }
               return null;
@@ -4632,6 +4642,21 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
   };
 
   const addRecoToCarnet = (reco) => {
+    // Debug: surfaces in the browser console so we can see whether the
+    // reco object actually carries city/country/activityType. Helps diagnose
+    // "city/country empty" reports without server-side guessing.
+    if (typeof window !== "undefined") {
+      console.log("addRecoToCarnet input:", {
+        name: reco.name,
+        address: reco.address,
+        city: reco.city,
+        country: reco.country,
+        streetAddress: reco.streetAddress,
+        activityType: reco.activityType,
+        primaryType: reco.primaryType,
+        primaryTypeDisplayName: reco.primaryTypeDisplayName,
+      });
+    }
     // Prefer the structured city / country / street fields attached to the
     // reco during the nearby transform (from Google addressComponents).
     // Fall back to a naive split of formattedAddress when those are missing
