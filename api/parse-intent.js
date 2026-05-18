@@ -39,41 +39,52 @@ Output ONLY valid JSON, no markdown, no backticks, no explanation:
   "locationText": "FULL precise location string if the user gave more than just a city (street number + street + postal code / arrondissement + city). Null if they only gave a city or nothing." | null,
   "kidsFriendly": true | false | null,
   "priceRange": "€" | "€€" | "€€€" | null,
-  "radiusKm": number_between_1_and_50 | null
+  "radiusKm": number_between_1_and_50 | null,
+  "unclearTerms": ["phrases", "the", "user", "wrote", "that", "you", "could", "not", "map"] | []
 }
 
 Rules:
 - Be conservative. Only fill a field when the request clearly implies it. Use null otherwise.
 - Type: pick exactly one. "rooftop bar" -> Bar. "place to stay" -> Hôtel. "museum / hike / show" -> Activité. "trip / weekend somewhere" -> Destination.
 
-moodKeywords (IMPORTANT — be strict):
-  1. Start with keywords the user EXPLICITLY mentioned (style / vibe / setting / cuisine).
-     Examples: "rooftop", "terrasse", "japanese", "speakeasy", "romantique", "live music", "vue mer", "chic", "casher".
-  2. You MAY ADD an inferred keyword ONLY if it maps to one of these recognised Google Places features
-     AND the user's wording clearly implies that feature:
-       - "terrasse" / "outdoor seating" (only if user mentions outdoor, garden, balcony, view, soleil, plein air)
-       - "rooftop" (only if user says rooftop or "sur les toits")
-       - "groups" (ONLY when the user EXPLICITLY mentions MULTIPLE people / a group, in the plural:
-          "avec mes collègues", "avec mes amis", "entre amis", "entre potes", "entre copains",
-          "avec mes potes", "avec mes copains", "ma bande", "mon équipe", "team",
-          "un groupe de", "anniversaire entre amis", "after work", "EVG", "EVJF",
-          "réunion de famille".
-          DO NOT add "groups" for SINGULAR companions: "un client", "un ami", "un collègue",
-          "ma femme", "mon mari", "ma copine", "un pote", "un copain", "un date", etc.
-          One companion is NOT a group.)
-       - "kids friendly" (only when "avec les enfants", "famille avec enfants", "kids",
-          "enfants", "avec les ados", "avec mes ados", "adolescents", "teens", "teenagers")
-       - "live music" (only when "concert", "musique live", "live band")
-       - "cocktails" (only when "cocktails", "cocktail bar")
-       - "wine bar" (only when "bar à vin", "wine bar")
-       - "brunch" (only when "brunch")
-       - "reservable" (only when "à réserver", "réservation possible")
-       - "dog friendly" (only when "avec mon chien", "dog friendly")
-       - "vegetarian" / "vegan" (only when explicitly mentioned)
-       - "romantic" (only when "en amoureux", "date night", "romantique", "tête à tête")
-  3. DO NOT add synonyms, paraphrases or related concepts that are NOT in this list.
-     Example: user says "avec mes collègues" -> add "groups", but DO NOT add "entre amis" or "casual".
-  4. Keep moodKeywords short tags (1-3 words each), always in the user's language. NO full sentences. Max 6 tags total. Explicit first, inferred after.
+moodKeywords (be generous but precise):
+  1. Always include EXPLICIT vibe / style / setting / cuisine / audience words the user wrote,
+     verbatim in their language. Examples: "rooftop", "terrasse", "japonais", "speakeasy",
+     "romantique", "live music", "vue mer", "chic", "casher", "chill", "cosy", "festif".
+  2. INFER and add the canonical Google Places feature when the user's wording clearly maps
+     to one. The list below gives the well-known triggers — but DON'T be limited to these
+     words. Use your general knowledge of synonyms, slang and equivalent expressions in the
+     user's language:
+       - "outdoor seating/terrace" — for "terrasse", "jardin", "balcon", "plein air", "vue".
+       - "rooftop" — for "rooftop", "sur les toits", "terrasse panoramique", "toit-terrasse".
+       - "groups" — for PLURAL multi-people mentions: "amis", "potes", "copains", "collègues",
+         "bande", "team", "équipe", "EVG", "EVJF", "réunion de famille", "anniversaire entre amis",
+         "after work", "un groupe de", "team building". DO NOT add for singular companions:
+         "un client", "un ami", "ma femme", "un date", etc.
+       - "kids friendly" — for children OR teens with family: "enfants", "kids", "ados",
+         "adolescents", "teens", "teenagers", "famille avec enfants", "en famille", "loulous",
+         "mômes", "petits", "gamins".
+       - "live music" — for "concert", "musique live", "live band", "DJ resident".
+       - "cocktails" — for "cocktails", "cocktail bar", "mixologie".
+       - "wine bar" — for "bar à vin", "wine bar", "cave à vin".
+       - "brunch" — for "brunch".
+       - "reservable" — for "à réserver", "réservation possible", "sur réservation".
+       - "dog friendly" — for "avec mon chien", "dog friendly".
+       - "vegetarian" / "vegan" — when explicitly mentioned.
+       - "romantic" — for "en amoureux", "date night", "romantique", "tête à tête", "en couple".
+  3. Keep moodKeywords as short tags (1-3 words each). Always in the user's language for the
+     explicit ones; canonical English for inferred Google features. Max 8 tags. Explicit first.
+
+unclearTerms (NEW — supports "I didn't fully understand your request"):
+  - Use ONLY for words / short phrases the user wrote that you noticed but COULD NOT confidently
+    map to either a vibe descriptor (moodKeywords) or a structured field (type, kidsFriendly,
+    etc.). Examples: "fais ton truc", "comme d'hab", "selon ton humeur", "n'importe quoi qui
+    fasse plaisir", a brand name you've never heard of, an idiom that doesn't translate to a
+    feature.
+  - DO NOT include a word in unclearTerms if you ALSO included it (or a canonical equivalent)
+    in moodKeywords — pick one or the other.
+  - Generic temporal mentions ("ce soir", "demain", "samedi") aren't unclear — just ignore them.
+  - Empty array when the full request was understood.
 
 Other fields:
 - useCurrentLocation: true if the user mentions "near me", "around here", "dans le quartier", "à proximité", "à côté", etc. False if they explicitly name a city / area / country. Null if not stated.
@@ -118,13 +129,24 @@ Examples:
   (NOTE: "ma femme" = singular romantic context, NOT groups.)
 
   "je cherche un resto entre potes dans le quartier"
-  -> {"type":"Restaurant","moodKeywords":["groups"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  -> {"type":"Restaurant","moodKeywords":["groups"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null,"unclearTerms":[]}
   (NOTE: "entre potes" = plural buddies → groups. "dans le quartier" → useCurrentLocation.)
 
   "je cherche une activité avec des ados près de moi"
-  -> {"type":"Activité","moodKeywords":["kids friendly","ados"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
+  -> {"type":"Activité","moodKeywords":["kids friendly","ados"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null,"unclearTerms":[]}
   (NOTE: "ados" = teenagers → kidsFriendly:true (family-suitable) + keep "ados" as a mood
-   keyword so the text search also pulls teen-targeted activities like escape rooms or VR.)`;
+   keyword so the text search also pulls teen-targeted activities like escape rooms or VR.)
+
+  "un truc cool sympa pour ce soir"
+  -> {"type":null,"moodKeywords":["cool","sympa"],"useCurrentLocation":null,"city":null,"country":null,"locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null,"unclearTerms":[]}
+  (NOTE: "cool" / "sympa" are vibe descriptors — keep them as moodKeywords, the text search
+   can use them. "ce soir" is temporal and we can't act on it — just ignore. No type was
+   specified, leave it null.)
+
+  "outsy fais ton truc, surprends-moi"
+  -> {"type":null,"moodKeywords":[],"useCurrentLocation":null,"city":null,"country":null,"locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null,"unclearTerms":["fais ton truc","surprends-moi"]}
+  (NOTE: too vague — the user hasn't specified anything actionable. Surface in unclearTerms
+   so the UI can ask for a reformulation.)`;
 
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -155,7 +177,7 @@ Examples:
     const out = {
       type: allowedTypes.includes(parsed.type) ? parsed.type : null,
       moodKeywords: Array.isArray(parsed.moodKeywords)
-        ? parsed.moodKeywords.filter(k => typeof k === "string" && k.trim()).slice(0, 6).map(k => k.trim())
+        ? parsed.moodKeywords.filter(k => typeof k === "string" && k.trim()).slice(0, 8).map(k => k.trim())
         : [],
       useCurrentLocation: typeof parsed.useCurrentLocation === "boolean" ? parsed.useCurrentLocation : null,
       city: typeof parsed.city === "string" && parsed.city.trim() ? parsed.city.trim() : null,
@@ -165,7 +187,16 @@ Examples:
       priceRange: allowedPrices.includes(parsed.priceRange) ? parsed.priceRange : null,
       radiusKm: typeof parsed.radiusKm === "number" && parsed.radiusKm > 0 && parsed.radiusKm <= 100
         ? Math.round(parsed.radiusKm) : null,
+      unclearTerms: Array.isArray(parsed.unclearTerms)
+        ? parsed.unclearTerms.filter(k => typeof k === "string" && k.trim()).slice(0, 6).map(k => k.trim())
+        : [],
     };
+
+    // Log every parse to Vercel — input + output. Lets us inspect after the
+    // fact (via `vercel logs`) which phrases the parser struggles with so we
+    // can refine the prompt iteratively. No PII is logged beyond the raw
+    // user text the parser received.
+    console.log("parse-intent:", JSON.stringify({ text: text.trim(), lang: language, out }));
 
     return res.status(200).json(out);
   } catch (e) {
