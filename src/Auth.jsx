@@ -1,6 +1,36 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase.js";
 
+// HaveIBeenPwned password check using k-anonymity (only the first 5 chars of
+// the SHA-1 hash are sent to HIBP — the password itself never leaves the
+// browser). Returns true when the password is found in a known breach, false
+// otherwise. Fails open on network errors so a HIBP outage doesn't block
+// signup. Substitutes the Supabase "Leaked password protection" feature
+// which is Pro-only — same security guarantee, free.
+async function isLeakedPassword(password) {
+  try {
+    const enc = new TextEncoder().encode(password);
+    const buf = await crypto.subtle.digest("SHA-1", enc);
+    const hash = [...new Uint8Array(buf)]
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
+    const prefix = hash.slice(0, 5);
+    const suffix = hash.slice(5);
+    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+      headers: { "Add-Padding": "true" },
+    });
+    if (!res.ok) return false;
+    const text = await res.text();
+    return text.split("\n").some(line => {
+      const [s, count] = line.trim().split(":");
+      return s === suffix && parseInt(count, 10) > 0;
+    });
+  } catch (_) {
+    return false;
+  }
+}
+
 // Change to "dark" to revert to dark theme
 const THEME = "light";
 
@@ -33,6 +63,7 @@ const AUTH_T = {
     errorUsernameRequired: "Le pseudo est requis.",
     errorPasswordShort: "Le mot de passe doit contenir au moins 6 caractères.",
     errorPasswordWeak: "Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre.",
+    errorPasswordLeaked: "Ce mot de passe a été exposé dans une fuite de données. Choisis-en un autre.",
     errorEmail: "Adresse email invalide.",
     errorName: "Prénom et nom requis.", welcome: "Bienvenue sur Outsy AI !" },
   en: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Sign in", signup: "Sign up",
@@ -50,6 +81,7 @@ const AUTH_T = {
     errorUsernameRequired: "Username is required.",
     errorPasswordShort: "Password must be at least 6 characters.",
     errorPasswordWeak: "Password must contain at least one lowercase, one uppercase letter and one digit.",
+    errorPasswordLeaked: "This password has appeared in a data breach. Please pick a different one.",
     errorEmail: "Invalid email address.",
     errorName: "First and last name required.",
     errorNotConfirmed: "Please confirm your email first. Check your inbox (and spam folder).",
@@ -71,6 +103,7 @@ const AUTH_T = {
     errorUsernameRequired: "El usuario es obligatorio.",
     errorPasswordShort: "La contraseña debe tener al menos 6 caracteres.",
     errorPasswordWeak: "La contraseña debe contener al menos una minúscula, una mayúscula y un número.",
+    errorPasswordLeaked: "Esta contraseña ha aparecido en una filtración de datos. Elige otra.",
     errorEmail: "Dirección de email inválida.",
     errorName: "Nombre y apellido requeridos.", welcome: "¡Bienvenido a Outsy AI!" },
   de: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Anmelden", signup: "Registrieren",
@@ -88,6 +121,7 @@ const AUTH_T = {
     errorUsernameRequired: "Benutzername ist erforderlich.",
     errorPasswordShort: "Das Passwort muss mindestens 6 Zeichen lang sein.",
     errorPasswordWeak: "Das Passwort muss mindestens einen Kleinbuchstaben, einen Großbuchstaben und eine Ziffer enthalten.",
+    errorPasswordLeaked: "Dieses Passwort ist in einer Datenpanne aufgetaucht. Bitte wähle ein anderes.",
     errorEmail: "Ungültige E-Mail-Adresse.",
     errorName: "Vor- und Nachname erforderlich.", welcome: "Willkommen bei Outsy AI!" },
   it: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Accedi", signup: "Registrati",
@@ -105,6 +139,7 @@ const AUTH_T = {
     errorUsernameRequired: "Il nome utente è obbligatorio.",
     errorPasswordShort: "La password deve contenere almeno 6 caratteri.",
     errorPasswordWeak: "La password deve contenere almeno una minuscola, una maiuscola e un numero.",
+    errorPasswordLeaked: "Questa password è apparsa in una fuga di dati. Scegline un'altra.",
     errorEmail: "Indirizzo email non valido.",
     errorName: "Nome e cognome richiesti.", welcome: "Benvenuto su Outsy AI!" },
   pt: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Entrar", signup: "Registar",
@@ -122,6 +157,7 @@ const AUTH_T = {
     errorUsernameRequired: "O nome de utilizador é obrigatório.",
     errorPasswordShort: "A palavra-passe deve ter pelo menos 6 caracteres.",
     errorPasswordWeak: "A palavra-passe deve conter pelo menos uma minúscula, uma maiúscula e um número.",
+    errorPasswordLeaked: "Esta palavra-passe foi exposta numa fuga de dados. Escolhe outra.",
     errorEmail: "Endereço de email inválido.",
     errorName: "Nome e apelido obrigatórios.", welcome: "Bem-vindo ao Outsy AI!" },
   nl: { logo: "Outsy AI", tagline: "Save & Share places you love.\nDiscover more.", login: "Inloggen", signup: "Registreren",
@@ -139,6 +175,7 @@ const AUTH_T = {
     errorUsernameRequired: "Gebruikersnaam is verplicht.",
     errorPasswordShort: "Het wachtwoord moet minimaal 6 tekens bevatten.",
     errorPasswordWeak: "Het wachtwoord moet minstens één kleine letter, één hoofdletter en één cijfer bevatten.",
+    errorPasswordLeaked: "Dit wachtwoord is in een datalek voorgekomen. Kies een ander.",
     errorEmail: "Ongeldig e-mailadres.",
     errorName: "Voor- en achternaam vereist.", welcome: "Welkom bij Outsy AI!" },
 };
@@ -247,6 +284,13 @@ export default function Auth() {
       if (!firstName.trim() || !lastName.trim()) { setError(at.errorName); setLoading(false); return; }
       if (password.length < 6) { setError(at.errorPasswordShort); setLoading(false); return; }
       if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) { setError(at.errorPasswordWeak); setLoading(false); return; }
+      // HIBP check — block passwords known to have leaked. Fails open on
+      // network errors so a HIBP outage doesn't block signups.
+      if (await isLeakedPassword(password)) {
+        setError(at.errorPasswordLeaked);
+        setLoading(false);
+        return;
+      }
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
       if (error) {
         console.log("Signup error:", error.status, error.message);
