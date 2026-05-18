@@ -2510,6 +2510,10 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   // Photo carousel wheel handler — translates horizontal trackpad swipe
   // into next/prev photo. Threshold + cooldown keep it deliberate so a tiny
   // accidental deltaX on a mostly-vertical scroll doesn't skip a photo.
+  // At the carousel's edge (first / last photo), the wheel event is
+  // intentionally NOT stopped so it bubbles to the parent card track and
+  // navigates to the previous / next place — matching the user's mental
+  // model that horizontal scroll on the photo "continues" past the boundary.
   const onPhotoWheel = (e) => {
     if (photos.length <= 1) return;
     if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
@@ -2518,11 +2522,12 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
     if (e.deltaX > 0 && photoIdx < photos.length - 1) {
       setPhotoIdx(i => i + 1);
       photoWheelCooldownRef.current = now + 350;
+      e.stopPropagation();
     } else if (e.deltaX < 0 && photoIdx > 0) {
       setPhotoIdx(i => i - 1);
       photoWheelCooldownRef.current = now + 350;
+      e.stopPropagation();
     }
-    e.stopPropagation();
   };
   const name = d.displayName?.text || place.name;
   const address = d.formattedAddress || place.address || "";
@@ -3406,13 +3411,20 @@ function TravelAgent() {
   // for the chip counter and the actual list rendered below.
   const popularToShow = (() => {
     const aiNames = new Set((aiRecos||[]).map(r=>(r.name||"").toLowerCase()));
+    // Exclude every place the user already knows about:
+    // - their own favourites (regardless of whether the current mood filter
+    //   surfaces them in the Coups de cœur section — without this, a saved
+    //   place that doesn't match the active mood reappears in Populaires
+    //   with the edit pencil, which is confusing)
+    // - friend favourites currently shown in heartsToShow
+    // - pinned places
+    const myMemNames = new Set((memories||[]).map(m=>(m.name||"").toLowerCase()));
     const heartNames = new Set((heartsToShow||[]).map(m=>(m.name||"").toLowerCase()));
     const pinNames = new Set((pins||[]).map(p=>(p.name||"").toLowerCase()));
-    return moodFilteredNearby.filter(p =>
-      !aiNames.has((p.name||"").toLowerCase()) &&
-      !heartNames.has((p.name||"").toLowerCase()) &&
-      !pinNames.has((p.name||"").toLowerCase())
-    );
+    return moodFilteredNearby.filter(p => {
+      const lower = (p.name||"").toLowerCase();
+      return !aiNames.has(lower) && !myMemNames.has(lower) && !heartNames.has(lower) && !pinNames.has(lower);
+    });
   })();
 
   // Enrich pins with friend data (same as heartMemories enrichment)
