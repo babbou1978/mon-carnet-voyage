@@ -155,22 +155,21 @@ export default async function handler(req, res) {
         "Hôtel": ["lodging"],
         "Activité": [
           // Cultural & visit
-          "museum", "art_gallery", "botanical_garden", "tourist_attraction",
-          "historical_landmark", "cultural_landmark", "monument", "garden",
-          "observation_deck", "planetarium", "cultural_center",
-          // Entertainment & games
-          "amusement_park", "performing_arts_theater", "movie_theater",
-          "opera_house", "philharmonic_hall",
-          "bowling_alley", "miniature_golf_course", "video_arcade",
-          "escape_room", "amusement_center", "adventure_sports_center",
-          "event_venue", "roller_coaster_park",
-          // Shows & music
-          "concert_hall", "comedy_club", "live_music_venue",
+          "museum", "art_gallery", "botanical_garden", "garden",
+          "tourist_attraction", "historical_landmark", "cultural_landmark",
+          "monument", "observation_deck", "planetarium", "cultural_center",
+          // Entertainment & games (no scheduled shows / cinemas — user picks
+          // those from the program manually rather than as a spontaneous reco)
+          "amusement_park", "bowling_alley", "miniature_golf_course",
+          "video_arcade", "escape_room", "amusement_center",
+          "adventure_sports_center", "event_venue", "roller_coaster_park",
           // Animals
           "zoo", "aquarium", "wildlife_park", "wildlife_refuge",
-          // Outdoor & parks
-          "park", "playground", "theme_park", "water_park",
-          "trampoline_park", "ski_resort", "hiking_area",
+          // Outdoor & active play (no generic "park" — too noisy, returns
+          // every patch of grass. Keep park types that imply an actual
+          // activity to do.)
+          "playground", "theme_park", "water_park", "trampoline_park",
+          "ski_resort", "hiking_area",
           // Sports & leisure
           "ice_skating_rink", "golf_course", "swimming_pool", "sports_complex",
           "marina", "dog_park", "skateboard_park",
@@ -371,7 +370,13 @@ export default async function handler(req, res) {
               textData.places.forEach(p => { p._fromTextSearch = true; p._textQuery = queries[i]; });
               responses.push(textData);
             }
-            console.log('Mood text search:', JSON.stringify({ q: queries[i], results: textData.places?.length || 0 }));
+            // Log names so we can debug "where did X go?" from Vercel logs.
+            // Activité only — restaurant text search results stay quiet to
+            // keep the log volume manageable.
+            const logExtra = type === "Activité"
+              ? { names: (textData.places||[]).slice(0, 20).map(p => p.displayName?.text).filter(Boolean) }
+              : {};
+            console.log('Mood text search:', JSON.stringify({ q: queries[i], results: textData.places?.length || 0, ...logExtra }));
           });
         } catch (e) { console.error('Mood text search error:', e); }
       }
@@ -546,6 +551,59 @@ export default async function handler(req, res) {
       // genuine neighborhood gems still surface — calibrate up if too noisy.
       const REVIEW_FLOOR = 30;
       allPlaces = allPlaces.filter(p => (p.userRatingCount || 0) >= REVIEW_FLOOR);
+
+      // Venue clustering (Activité only). Google indexes every wing / exhibit /
+      // sub-area of a big venue as a separate place — London Zoo + London Zoo
+      // Penguin Beach + London Zoo Lions etc. Two places within 80m sharing
+      // at least 2 significant name words are treated as the same venue; we
+      // keep the entry with the most reviews (the "main" one).
+      // Limited to Activité because in food/drink contexts "Starbucks" and
+      // "Starbucks Reserve" side by side should remain distinct picks.
+      if (type === "Activité" && allPlaces.length > 1) {
+        const STOP = new Set([
+          "the","of","and","at","in","on","with","la","le","les","du","de","des",
+          "el","los","las","der","die","das","il","gli","les","les","-","–","—"
+        ]);
+        const sigWords = (name) => new Set(
+          (name || "").toLowerCase().split(/[^\p{L}\d]+/u)
+            .filter(w => w.length > 2 && !STOP.has(w))
+        );
+        const used = new Set();
+        const clustered = [];
+        for (let i = 0; i < allPlaces.length; i++) {
+          if (used.has(i)) continue;
+          const a = allPlaces[i];
+          const aLat = a.location?.latitude, aLng = a.location?.longitude;
+          const aWords = sigWords(a.displayName?.text);
+          let best = a, bestI = i;
+          const score = (p) => (p.userRatingCount || 0) * 1000 + (p.rating || 0);
+          for (let j = i + 1; j < allPlaces.length; j++) {
+            if (used.has(j)) continue;
+            const b = allPlaces[j];
+            const bLat = b.location?.latitude, bLng = b.location?.longitude;
+            if (aLat == null || bLat == null) continue;
+            const dLat = (aLat - bLat) * Math.PI / 180;
+            const dLng = (aLng - bLng) * Math.PI / 180;
+            const ang = Math.sin(dLat/2)**2 +
+                        Math.cos(aLat*Math.PI/180) * Math.cos(bLat*Math.PI/180) *
+                        Math.sin(dLng/2)**2;
+            const distM = 6371000 * 2 * Math.atan2(Math.sqrt(ang), Math.sqrt(1-ang));
+            if (distM > 80) continue;
+            const bWords = sigWords(b.displayName?.text);
+            let shared = 0;
+            for (const w of aWords) if (bWords.has(w)) shared++;
+            if (shared < 2) continue;
+            used.add(j);
+            if (score(b) > score(best)) { best = b; bestI = j; }
+          }
+          used.add(bestI);
+          clustered.push(best);
+        }
+        if (clustered.length < allPlaces.length) {
+          console.log('Venue clustering:', JSON.stringify({ before: allPlaces.length, after: clustered.length, type }));
+        }
+        allPlaces = clustered;
+      }
 
       // Sort by rating only — no review-count multiplier. Tourist hotspots no
       // longer crush genuine matches just because they have 50k reviews.
