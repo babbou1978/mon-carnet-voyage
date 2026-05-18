@@ -2522,12 +2522,17 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
     const el = photoContainerRef.current;
     if (!el) return;
     const handler = (e) => {
-      if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-      // Always prevent browser default + bubbling. At the carousel's edge
-      // we still swallow the gesture so it doesn't go anywhere unexpected.
+      // Claim ANY mostly-horizontal wheel event up front — preventDefault
+      // on the very first event is what blocks the Mac trackpad's
+      // swipe-to-go-back gesture (deltaX may be tiny on the first event
+      // but the browser starts the back animation immediately). We only
+      // actually change photo when the magnitude crosses the threshold +
+      // cooldown.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
       e.stopPropagation();
       if (photos.length <= 1) return;
+      if (Math.abs(e.deltaX) < 30) return;
       const now = Date.now();
       if (now < photoWheelCooldownRef.current) return;
       if (e.deltaX > 0 && photoIdx < photos.length - 1) {
@@ -2757,16 +2762,25 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       position: document.body.style.position,
       top: document.body.style.top,
       width: document.body.style.width,
+      overscrollBehaviorX: document.documentElement.style.overscrollBehaviorX,
     };
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = "100%";
+    // overscroll-behavior-x: none tells the browser not to use horizontal
+    // overscroll as a navigation gesture (Mac trackpad swipe-back). Set on
+    // <html> because Safari ignores it on <body> in some versions. Without
+    // this the trackpad still triggers the back animation even though we
+    // preventDefault on wheel — the gesture is partly handled at the OS
+    // level before our handler sees it.
+    document.documentElement.style.overscrollBehaviorX = "none";
     return () => {
       document.body.style.overflow = prev.overflow;
       document.body.style.position = prev.position;
       document.body.style.top = prev.top;
       document.body.style.width = prev.width;
+      document.documentElement.style.overscrollBehaviorX = prev.overscrollBehaviorX;
       window.scrollTo(0, scrollY);
     };
   }, []);
@@ -2828,9 +2842,13 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     const el = trackRef.current;
     if (!el) return;
     const onWheel = (e) => {
-      if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      // Claim any mostly-horizontal wheel before the browser can interpret
+      // it as swipe-back. We still only actually navigate above the
+      // threshold + cooldown.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
       if (list.length <= 1) return;
+      if (Math.abs(e.deltaX) < 30) return;
       const now = Date.now();
       if (now < cardWheelCooldownRef.current) return;
       if (e.deltaX > 0 && index < list.length - 1) {
