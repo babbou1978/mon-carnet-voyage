@@ -2522,13 +2522,14 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
     const el = photoContainerRef.current;
     if (!el) return;
     const handler = (e) => {
-      // Claim ANY mostly-horizontal wheel event up front — preventDefault
-      // on the very first event is what blocks the Mac trackpad's
-      // swipe-to-go-back gesture (deltaX may be tiny on the first event
-      // but the browser starts the back animation immediately). We only
-      // actually change photo when the magnitude crosses the threshold +
-      // cooldown.
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      // Claim ANY wheel event with a meaningful horizontal component up
+      // front. preventDefault on the very first event blocks the trackpad's
+      // swipe-to-go-back gesture (the browser starts the back animation
+      // on the first horizontal events, even before the magnitude crosses
+      // our nav threshold). Lenient claim — deltaX > 5 and at least half
+      // of deltaY — to catch the early frames of a horizontal gesture
+      // where the trackpad is still calibrating direction.
+      if (Math.abs(e.deltaX) < 5 || Math.abs(e.deltaX) < Math.abs(e.deltaY) * 0.5) return;
       e.preventDefault();
       e.stopPropagation();
       if (photos.length <= 1) return;
@@ -2577,10 +2578,10 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   const typeIcon = TYPE_ICONS[place.type?.split(",")[0]?.trim()] || "📍";
 
   return (
-    <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
+    <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",overscrollBehaviorX:"none"}}>
       {/* Photo gallery — fixed-height carousel (no layout shift while loading) */}
       <div ref={photoContainerRef}
-        style={{position:"relative",width:"100%",height:220,minHeight:220,maxHeight:220,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
+        style={{position:"relative",width:"100%",height:220,minHeight:220,maxHeight:220,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y",overscrollBehaviorX:"none"}}
         onTouchStart={photos.length>0?onPhotoTouchStart:undefined}
         onTouchMove={photos.length>0?onPhotoTouchMove:undefined}
         onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}>
@@ -2842,10 +2843,10 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     const el = trackRef.current;
     if (!el) return;
     const onWheel = (e) => {
-      // Claim any mostly-horizontal wheel before the browser can interpret
-      // it as swipe-back. We still only actually navigate above the
-      // threshold + cooldown.
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      // Lenient horizontal claim — same logic as the photo handler so the
+      // browser's swipe-back gesture is denied even on the early frames
+      // of a fast swipe where the trackpad direction isn't crisp yet.
+      if (Math.abs(e.deltaX) < 5 || Math.abs(e.deltaX) < Math.abs(e.deltaY) * 0.5) return;
       e.preventDefault();
       if (list.length <= 1) return;
       if (Math.abs(e.deltaX) < 30) return;
@@ -2898,7 +2899,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
       </div>
 
       {/* Carousel track */}
-      <div ref={trackRef} style={{flex:1,overflow:"hidden",position:"relative"}}
+      <div ref={trackRef} style={{flex:1,overflow:"hidden",position:"relative",overscrollBehaviorX:"none"}}
         onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
         <div style={{
           display:"flex",
