@@ -325,10 +325,10 @@ export default async function handler(req, res) {
 
         // Build a deduped list of textQueries: variants of the primary
         // keyword (across languages) combined with the type suffix, plus a
-        // 'cleanedMood + type' catch-all. When mood is empty (mood-less
-        // Activité), querySet falls back to just the typeSuffix
-        // ("activity"), which sweeps Google's full index for activities
-        // regardless of primaryType.
+        // 'cleanedMood + type' catch-all. For Activité we also add broader
+        // catch-alls ("things to do", "family attraction") so venues that
+        // Google doesn't tag as "kids friendly" — like immersive game
+        // experiences — still surface.
         const querySet = new Set();
         if (primaryKeyword) {
           for (const variant of expandKeyword(primaryKeyword)) {
@@ -339,9 +339,21 @@ export default async function handler(req, res) {
             querySet.add(`${cleanedMood} ${typeSuffix}`.trim());
           }
         } else if (typeSuffix) {
-          // Mood-less Activité: search by the suffix alone.
           querySet.add(typeSuffix);
-          if (kids) querySet.add("things to do with kids");
+        }
+        // Always add a couple of broad Activité catch-alls. Google's text
+        // search "kids friendly" leans heavily toward softplay / playgrounds
+        // and misses immersive experiences (Monopoly Lifesized, escape rooms
+        // not flagged as kid-friendly, themed attractions). "Things to do"
+        // and "family attraction" sweep more of the index.
+        if (type === "Activité") {
+          if (kids) {
+            querySet.add("things to do with kids");
+            querySet.add("family attraction");
+          } else {
+            querySet.add("things to do");
+            querySet.add("attraction");
+          }
         }
         const queries = [...querySet].filter(q => q && q.length > 0);
 
@@ -554,27 +566,37 @@ export default async function handler(req, res) {
 
       // Venue clustering (Activité only). Google indexes every wing / exhibit /
       // sub-area of a big venue as a separate place — London Zoo + London Zoo
-      // Penguin Beach + London Zoo Lions etc. Two places within 80m sharing
-      // at least 2 significant name words are treated as the same venue; we
-      // keep the entry with the most reviews (the "main" one).
+      // Penguin Beach + London Zoo Lions etc. Dual threshold: tight (≥2 shared
+      // significant words within 120m) catches normal duplicates, loose (≥3
+      // shared words within 300m) catches large venues like zoos whose
+      // exhibits sit hundreds of meters apart. We keep the entry with the
+      // most reviews per cluster (the "main" one).
       // Limited to Activité because in food/drink contexts "Starbucks" and
       // "Starbucks Reserve" side by side should remain distinct picks.
       if (type === "Activité" && allPlaces.length > 1) {
         const STOP = new Set([
           "the","of","and","at","in","on","with","la","le","les","du","de","des",
-          "el","los","las","der","die","das","il","gli","les","les","-","–","—"
+          "el","los","las","der","die","das","il","gli","-","–","—"
         ]);
         const sigWords = (name) => new Set(
           (name || "").toLowerCase().split(/[^\p{L}\d]+/u)
             .filter(w => w.length > 2 && !STOP.has(w))
         );
+        const sameVenue = (a, b, distM) => {
+          const aWords = sigWords(a.displayName?.text);
+          const bWords = sigWords(b.displayName?.text);
+          let shared = 0;
+          for (const w of aWords) if (bWords.has(w)) shared++;
+          if (shared >= 3 && distM <= 300) return true;  // loose: large venue
+          if (shared >= 2 && distM <= 120) return true;  // tight: normal dup
+          return false;
+        };
         const used = new Set();
         const clustered = [];
         for (let i = 0; i < allPlaces.length; i++) {
           if (used.has(i)) continue;
           const a = allPlaces[i];
           const aLat = a.location?.latitude, aLng = a.location?.longitude;
-          const aWords = sigWords(a.displayName?.text);
           let best = a, bestI = i;
           const score = (p) => (p.userRatingCount || 0) * 1000 + (p.rating || 0);
           for (let j = i + 1; j < allPlaces.length; j++) {
@@ -588,11 +610,7 @@ export default async function handler(req, res) {
                         Math.cos(aLat*Math.PI/180) * Math.cos(bLat*Math.PI/180) *
                         Math.sin(dLng/2)**2;
             const distM = 6371000 * 2 * Math.atan2(Math.sqrt(ang), Math.sqrt(1-ang));
-            if (distM > 80) continue;
-            const bWords = sigWords(b.displayName?.text);
-            let shared = 0;
-            for (const w of aWords) if (bWords.has(w)) shared++;
-            if (shared < 2) continue;
+            if (!sameVenue(a, b, distM)) continue;
             used.add(j);
             if (score(b) > score(best)) { best = b; bestI = j; }
           }
@@ -617,6 +635,15 @@ export default async function handler(req, res) {
       console.log('Nearby request:', JSON.stringify({ lat: latF, lng: lngF, radius, types, requestCount: responses.length }));
       const filteredCount = type === "Activité" ? responses.reduce((n,r) => n + (r.places||[]).filter(p => p.primaryType && ACTIVITY_BLACKLIST.has(p.primaryType)).length, 0) : 0;
       console.log('Nearby merged:', JSON.stringify({ totalUnique: allPlaces.length, filtered: filteredCount, totalRaw: responses.reduce((n,r) => n + (r.places||[]).length, 0), top5: allPlaces.slice(0,5).map(p=>({name:p.displayName?.text, rating:p.rating})) }));
+      // Activité-only: dump up to 30 names of the deduped/clustered final
+      // list so we can investigate "where did venue X go?" from Vercel logs
+      // without rebuilding to add another print.
+      if (type === "Activité") {
+        console.log('Activité final list:', JSON.stringify({
+          count: allPlaces.length,
+          names: allPlaces.slice(0, 30).map(p => `${p.displayName?.text} [${p.primaryType}] ${p.rating}★/${p.userRatingCount}`)
+        }));
+      }
 
       return res.status(200).json({ places: allPlaces });
     }
