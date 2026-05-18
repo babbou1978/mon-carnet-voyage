@@ -2434,10 +2434,13 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   const [photoDragging, setPhotoDragging] = useState(false);
   const photoTouchRef = useRef({ x: null, y: null, dir: null });
   // Trackpad horizontal swipe support — a Mac / Windows trackpad two-finger
-  // horizontal gesture emits wheel events with deltaX. Without this handler
-  // the photo carousel is touch-only and desktop users can only navigate
-  // via the dots. Cooldown prevents one swipe from skipping multiple photos.
+  // horizontal gesture emits wheel events with deltaX. The ref is needed
+  // for a native addEventListener with { passive: false }, otherwise we
+  // can't preventDefault and the browser swallows the gesture as a
+  // back/forward navigation. Cooldown prevents one swipe from skipping
+  // multiple photos.
   const photoWheelCooldownRef = useRef(0);
+  const photoContainerRef = useRef(null);
 
   // Fetch details: always for active/adjacent, otherwise only from cache
   useEffect(() => {
@@ -2508,27 +2511,36 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   const photos = d.photoUrls || [];
 
   // Photo carousel wheel handler — translates horizontal trackpad swipe
-  // into next/prev photo. Threshold + cooldown keep it deliberate so a tiny
-  // accidental deltaX on a mostly-vertical scroll doesn't skip a photo.
-  // At the carousel's edge (first / last photo), the wheel event is
-  // intentionally NOT stopped so it bubbles to the parent card track and
-  // navigates to the previous / next place — matching the user's mental
-  // model that horizontal scroll on the photo "continues" past the boundary.
-  const onPhotoWheel = (e) => {
-    if (photos.length <= 1) return;
-    if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-    const now = Date.now();
-    if (now < photoWheelCooldownRef.current) return;
-    if (e.deltaX > 0 && photoIdx < photos.length - 1) {
-      setPhotoIdx(i => i + 1);
-      photoWheelCooldownRef.current = now + 350;
+  // into next/prev photo, scoped to the photo area only (the wheel never
+  // navigates between place sheets when fired over a photo). preventDefault
+  // is critical: without it, a Mac trackpad two-finger horizontal swipe is
+  // hijacked by the browser as a back/forward gesture and the user leaves
+  // the page. React's onWheel is passive by default — registering via
+  // useEffect + addEventListener with { passive: false } is the only way
+  // to make preventDefault actually work.
+  useEffect(() => {
+    const el = photoContainerRef.current;
+    if (!el) return;
+    const handler = (e) => {
+      if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      // Always prevent browser default + bubbling. At the carousel's edge
+      // we still swallow the gesture so it doesn't go anywhere unexpected.
+      e.preventDefault();
       e.stopPropagation();
-    } else if (e.deltaX < 0 && photoIdx > 0) {
-      setPhotoIdx(i => i - 1);
-      photoWheelCooldownRef.current = now + 350;
-      e.stopPropagation();
-    }
-  };
+      if (photos.length <= 1) return;
+      const now = Date.now();
+      if (now < photoWheelCooldownRef.current) return;
+      if (e.deltaX > 0 && photoIdx < photos.length - 1) {
+        setPhotoIdx(i => i + 1);
+        photoWheelCooldownRef.current = now + 350;
+      } else if (e.deltaX < 0 && photoIdx > 0) {
+        setPhotoIdx(i => i - 1);
+        photoWheelCooldownRef.current = now + 350;
+      }
+    };
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, [photos.length, photoIdx]);
   const name = d.displayName?.text || place.name;
   const address = d.formattedAddress || place.address || "";
   const rating = d.rating || place.rating;
@@ -2562,11 +2574,11 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
   return (
     <div style={{height:"100%",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
       {/* Photo gallery — fixed-height carousel (no layout shift while loading) */}
-      <div style={{position:"relative",width:"100%",height:220,minHeight:220,maxHeight:220,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
+      <div ref={photoContainerRef}
+        style={{position:"relative",width:"100%",height:220,minHeight:220,maxHeight:220,flexShrink:0,overflow:"hidden",background:COLORS.card,touchAction:"pan-y"}}
         onTouchStart={photos.length>0?onPhotoTouchStart:undefined}
         onTouchMove={photos.length>0?onPhotoTouchMove:undefined}
-        onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}
-        onWheel={onPhotoWheel}>
+        onTouchEnd={photos.length>0?onPhotoTouchEnd:undefined}>
         {photos.length > 0 ? (
           <>
             <div style={{
@@ -2807,6 +2819,32 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
     };
   }, [index, list.length]);
 
+  // Trackpad horizontal wheel on the card track → next/previous place.
+  // Native listener with { passive: false } so preventDefault actually
+  // stops the browser back/forward gesture. Photo carousel listens
+  // separately on its own ref and calls stopPropagation, so wheel on a
+  // photo never reaches this handler.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      if (list.length <= 1) return;
+      const now = Date.now();
+      if (now < cardWheelCooldownRef.current) return;
+      if (e.deltaX > 0 && index < list.length - 1) {
+        onNavigate(index + 1);
+        cardWheelCooldownRef.current = now + 450;
+      } else if (e.deltaX < 0 && index > 0) {
+        onNavigate(index - 1);
+        cardWheelCooldownRef.current = now + 450;
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [index, list.length, onNavigate]);
+
   // Defensive reset on navigation
   useEffect(() => {
     setCardDragX(0);
@@ -2843,20 +2881,7 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
 
       {/* Carousel track */}
       <div ref={trackRef} style={{flex:1,overflow:"hidden",position:"relative"}}
-        onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}
-        onWheel={(e) => {
-          if (list.length <= 1) return;
-          if (Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-          const now = Date.now();
-          if (now < cardWheelCooldownRef.current) return;
-          if (e.deltaX > 0 && index < list.length - 1) {
-            onNavigate(index + 1);
-            cardWheelCooldownRef.current = now + 450;
-          } else if (e.deltaX < 0 && index > 0) {
-            onNavigate(index - 1);
-            cardWheelCooldownRef.current = now + 450;
-          }
-        }}>
+        onTouchStart={onCardTouchStart} onTouchEnd={onCardTouchEnd}>
         <div style={{
           display:"flex",
           height:"100%",
@@ -3365,7 +3390,14 @@ function TravelAgent() {
     const pinNote = (p.pin_note||"").toLowerCase();
     const cuisine = (p.cuisine||"").toLowerCase();
     const activityType = (p.activityType||p.activity_type||"").toLowerCase();
-    const allText = `${name} ${feats} ${desc} ${review} ${allReviews} ${likeTags} ${why} ${pinNote} ${cuisine} ${activityType}`;
+    // Translate structured boolean flags on user memories to mood keywords.
+    // Without this, a place the user saved with the "kids friendly" toggle
+    // (m.kidsf = true) wouldn't match a "kids friendly" search because
+    // kidsf doesn't appear anywhere in the free-text fields.
+    const flags = [
+      p.kidsf ? "kids friendly kids family" : "",
+    ].filter(Boolean).join(" ");
+    const allText = `${name} ${feats} ${desc} ${review} ${allReviews} ${likeTags} ${why} ${pinNote} ${cuisine} ${activityType} ${flags}`;
     return moodWords.some(kw => {
       const syns = MOOD_SYNONYMS[kw];
       if (syns) return syns.some(s => allText.includes(s));
