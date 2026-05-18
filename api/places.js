@@ -490,20 +490,21 @@ export default async function handler(req, res) {
           // text-search results. A "kids activity" query happily returns
           // family-friendly restaurants and pubs, which is not what the user
           // asked for. We reject ALL food/drink/lodging variants, including
-          // the ones with weird suffixes (steak_house, pub, food_truck, …)
-          // that the previous narrow check missed.
+          // the ones with weird suffixes (steak_house, pub, food_truck, …).
           //
-          // Theatres and cinemas also need an explicit reject because
-          // Google often lists them with secondary types like event_venue
-          // or tourist_attraction, which slips them through the
-          // includedTypes filter even though we removed the show types
-          // from that list earlier.
+          // Theatres and cinemas also rejected explicitly (event_venue and
+          // tourist_attraction secondary types slip them through nearby).
+          //
+          // Generic "park" entries (Hyde Park, Regent's Park) also rejected
+          // by primaryType — the user wants the named gardens INSIDE the
+          // parks, not the parks themselves. Specific park sub-types
+          // (playground, theme_park, …) and gardens are kept.
           if (type === "Activité" && p.primaryType) {
             const pt = p.primaryType;
             const ACTIVITE_REJECT_FOOD_DRINK = new Set([
               // Bars & drinking
               "bar", "pub", "night_club", "wine_bar", "cocktail_bar",
-              "sports_bar", "irish_pub", "biergarten", "brewery",
+              "sports_bar", "irish_pub", "biergarten", "brewery", "gastropub",
               // Cafés & light food
               "cafe", "coffee_shop", "bakery", "tea_house", "juice_shop",
               "ice_cream_shop", "candy_store", "chocolate_factory", "chocolate_shop",
@@ -522,10 +523,12 @@ export default async function handler(req, res) {
               "performing_arts_theater", "concert_hall", "movie_theater",
               "opera_house", "philharmonic_hall", "live_music_venue", "comedy_club",
             ]);
+            const ACTIVITE_REJECT_PARKS = new Set(["park", "state_park"]);
             // Catches every "<cuisine>_restaurant" variant (italian_restaurant,
             // sushi_restaurant, …) without listing them all.
             if (ACTIVITE_REJECT_FOOD_DRINK.has(pt) || pt.endsWith("_restaurant")) return;
             if (ACTIVITE_REJECT_SHOWS.has(pt)) return;
+            if (ACTIVITE_REJECT_PARKS.has(pt)) return;
           }
           // Kids exclusion safety net (even if text search dragged one in).
           if (kids && type === "Activité" && p.primaryType && KIDS_INCOMPATIBLE.has(p.primaryType)) return;
