@@ -54,12 +54,15 @@ moodKeywords (IMPORTANT — be strict):
        - "terrasse" / "outdoor seating" (only if user mentions outdoor, garden, balcony, view, soleil, plein air)
        - "rooftop" (only if user says rooftop or "sur les toits")
        - "groups" (ONLY when the user EXPLICITLY mentions MULTIPLE people / a group, in the plural:
-          "avec mes collègues", "avec mes amis", "entre amis", "mon équipe", "team",
+          "avec mes collègues", "avec mes amis", "entre amis", "entre potes", "entre copains",
+          "avec mes potes", "avec mes copains", "ma bande", "mon équipe", "team",
           "un groupe de", "anniversaire entre amis", "after work", "EVG", "EVJF",
           "réunion de famille".
           DO NOT add "groups" for SINGULAR companions: "un client", "un ami", "un collègue",
-          "ma femme", "mon mari", "ma copine", "un date", etc. One companion is NOT a group.)
-       - "kids friendly" (only when "avec les enfants", "famille avec enfants", "kids", "enfants")
+          "ma femme", "mon mari", "ma copine", "un pote", "un copain", "un date", etc.
+          One companion is NOT a group.)
+       - "kids friendly" (only when "avec les enfants", "famille avec enfants", "kids",
+          "enfants", "avec les ados", "avec mes ados", "adolescents", "teens", "teenagers")
        - "live music" (only when "concert", "musique live", "live band")
        - "cocktails" (only when "cocktails", "cocktail bar")
        - "wine bar" (only when "bar à vin", "wine bar")
@@ -83,7 +86,7 @@ Other fields:
     "à Paris" -> locationText: null, city: "Paris", country: "France"
     "près de moi" -> locationText: null, city: null
   Always also fill city/country when you fill locationText. Null when the user only mentions a city or nothing.
-- kidsFriendly: true if "avec mes enfants" / "en famille" / "kids" mentioned. Null otherwise (don't default to false).
+- kidsFriendly: true if "avec mes enfants" / "en famille" / "kids" / "avec les ados" / "avec mes adolescents" / "teens" mentioned. Ados count as family-suitable. Null otherwise (don't default to false).
 - priceRange: only if explicitly stated ("cheap"/"€", "mid"/"€€", "fancy"/"upscale"/"€€€"). Else null.
 - radiusKm: only if explicitly stated ("dans les 5 km", "within 10 km"). Else null.
 
@@ -112,7 +115,16 @@ Examples:
 
   "restaurant avec ma femme pour notre anniversaire dans le 6e arrondissement à Paris"
   -> {"type":"Restaurant","moodKeywords":["romantic"],"useCurrentLocation":false,"city":"Paris","country":"France","locationText":"6e arrondissement, Paris","kidsFriendly":null,"priceRange":null,"radiusKm":null}
-  (NOTE: "ma femme" = singular romantic context, NOT groups.)`;
+  (NOTE: "ma femme" = singular romantic context, NOT groups.)
+
+  "je cherche un resto entre potes dans le quartier"
+  -> {"type":"Restaurant","moodKeywords":["groups"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":null,"priceRange":null,"radiusKm":null}
+  (NOTE: "entre potes" = plural buddies → groups. "dans le quartier" → useCurrentLocation.)
+
+  "je cherche une activité avec des ados près de moi"
+  -> {"type":"Activité","moodKeywords":["kids friendly","ados"],"useCurrentLocation":true,"city":null,"country":null,"locationText":null,"kidsFriendly":true,"priceRange":null,"radiusKm":null}
+  (NOTE: "ados" = teenagers → kidsFriendly:true (family-suitable) + keep "ados" as a mood
+   keyword so the text search also pulls teen-targeted activities like escape rooms or VR.)`;
 
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
