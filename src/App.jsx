@@ -381,7 +381,7 @@ const TRANSLATIONS = {
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
     errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
+    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
@@ -737,7 +737,7 @@ const TRANSLATIONS = {
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
     errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
+    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
@@ -3190,6 +3190,10 @@ function TravelAgent() {
   const [outsyQuery, setOutsyQuery] = useState("");
   const [outsyQueryListening, setOutsyQueryListening] = useState(false);
   const [analyzingIntent, setAnalyzingIntent] = useState(false);
+  // When the parser hits a phrase it can't confidently interpret, this holds
+  // the offending terms so the UI can prompt the user to reformulate instead
+  // of running a search with half-understood intent.
+  const [unclearTerms, setUnclearTerms] = useState([]);
   const outsyRecognitionRef = useRef(null);
   const outsyFinalTranscriptRef = useRef("");
   // Refs on the two auto-resizing textareas. We resize them whenever their
@@ -3242,10 +3246,11 @@ function TravelAgent() {
     outsyRecognitionRef.current = rec;
     try { rec.start(); } catch(_) { setOutsyQueryListening(false); }
   };
-  const handleAnalyzeQuery = async () => {
+  const handleAnalyzeQuery = async (ignoreUnclear = false) => {
     const txt = outsyQuery.trim();
     if (!txt || analyzingIntent) return;
     setAnalyzingIntent(true);
+    setUnclearTerms([]);
     try {
       const res = await fetch("/api/parse-intent", {
         method: "POST",
@@ -3253,6 +3258,14 @@ function TravelAgent() {
         body: JSON.stringify({ text: txt, language: prefs.language || "en" }),
       });
       const data = await res.json();
+      // Block the search when the parser flagged terms it couldn't interpret —
+      // surface them to the user so they can reformulate. The user can still
+      // press "Lancer quand même" to proceed with the partial parse.
+      if (!data.error && Array.isArray(data.unclearTerms) && data.unclearTerms.length > 0 && !ignoreUnclear) {
+        setUnclearTerms(data.unclearTerms);
+        setAnalyzingIntent(false);
+        return;
+      }
       if (!data.error) {
         // Reset the soft form fields first so the form reflects exactly the
         // current textarea content, never a leftover from a previous parse.
@@ -5367,7 +5380,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   <textarea
                     ref={outsyTextareaRef}
                     value={outsyQuery}
-                    onChange={e=>setOutsyQuery(e.target.value)}
+                    onChange={e=>{setOutsyQuery(e.target.value); if (unclearTerms.length) setUnclearTerms([]);}}
                     placeholder={outsyQueryListening?(t.recoMoodListening||"À l'écoute..."):(t.askOutsyPlaceholder||"Ex: I'm looking for a rooftop restaurant near me with colleagues")}
                     rows={3}
                     style={{background:COLORS.card,border:`1px solid ${outsyQueryListening?"#e74c3c":COLORS.border}`,borderRadius:10,padding:"12px 56px 12px 14px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%",resize:"none",minHeight:74,boxSizing:"border-box",lineHeight:1.4,overflow:"hidden",textAlign:"justify"}}
@@ -5395,7 +5408,18 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                     )}
                   </div>
                 )}
-                <button onClick={handleAnalyzeQuery} disabled={!outsyQuery.trim() || analyzingIntent}
+                {unclearTerms.length > 0 && (
+                  <div style={{marginTop:10,padding:"10px 12px",background:`${COLORS.dislike||"#d4869b"}11`,border:`1px solid ${COLORS.dislike||"#d4869b"}55`,borderRadius:8,fontSize:12,color:COLORS.text,fontFamily:"'DM Sans',sans-serif",lineHeight:1.4}}>
+                    <div style={{marginBottom:6}}>
+                      ⚠️ {t.unclearWarning || "I couldn't interpret:"} <span style={{fontWeight:600}}>{unclearTerms.map(w => `« ${w} »`).join(", ")}</span>. {t.unclearReformulate || "Can you reword?"}
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={() => setUnclearTerms([])} style={{flex:1,padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:6,color:COLORS.text,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearEdit || "Edit"}</button>
+                      <button onClick={() => handleAnalyzeQuery(true)} style={{flex:1,padding:"6px 10px",background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}66`,borderRadius:6,color:COLORS.accent,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearProceed || "Search anyway"}</button>
+                    </div>
+                  </div>
+                )}
+                <button onClick={() => handleAnalyzeQuery(false)} disabled={!outsyQuery.trim() || analyzingIntent}
                   style={{marginTop:10,width:"100%",padding:"11px 14px",background:COLORS.accent,border:"none",borderRadius:10,color:COLORS.bg,fontSize:13,fontWeight:700,letterSpacing:"0.04em",cursor:(!outsyQuery.trim()||analyzingIntent)?"not-allowed":"pointer",opacity:(!outsyQuery.trim()||analyzingIntent)?0.5:1,fontFamily:"'DM Sans',sans-serif",textTransform:"uppercase"}}>
                   {analyzingIntent ? (t.askOutsyAnalyzing||"Analyzing...") : (t.askOutsyAnalyze||"✨ Analyze my request")}
                 </button>
