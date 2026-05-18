@@ -155,20 +155,24 @@ export default async function handler(req, res) {
         "Hôtel": ["lodging"],
         "Activité": [
           // Cultural & visit
-          "museum", "art_gallery", "botanical_garden", "tourist_attraction", "historical_landmark",
+          "museum", "art_gallery", "botanical_garden", "tourist_attraction",
+          "historical_landmark", "cultural_landmark", "monument", "garden",
+          "observation_deck", "planetarium", "cultural_center",
           // Entertainment & games
           "amusement_park", "performing_arts_theater", "movie_theater",
+          "opera_house", "philharmonic_hall",
           "bowling_alley", "miniature_golf_course", "video_arcade",
           "escape_room", "amusement_center", "adventure_sports_center",
+          "event_venue", "roller_coaster_park",
           // Shows & music
           "concert_hall", "comedy_club", "live_music_venue",
           // Animals
-          "zoo", "aquarium",
+          "zoo", "aquarium", "wildlife_park", "wildlife_refuge",
           // Outdoor & parks
           "park", "playground", "theme_park", "water_park",
           "trampoline_park", "ski_resort", "hiking_area",
           // Sports & leisure
-          "ice_skating_rink", "golf_course", "swimming_pool",
+          "ice_skating_rink", "golf_course", "swimming_pool", "sports_complex",
           "marina", "dog_park", "skateboard_park",
           // Nightlife entertainment
           "casino", "karaoke"
@@ -213,7 +217,7 @@ export default async function handler(req, res) {
         // Identity & location
         'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
         'places.types', 'places.primaryType', 'places.primaryTypeDisplayName',
-        'places.addressDescriptor',
+        'places.addressDescriptor', 'places.addressComponents',
         // Reputation & price
         'places.rating', 'places.userRatingCount', 'places.priceLevel', 'places.businessStatus',
         // Hours
@@ -273,7 +277,13 @@ export default async function handler(req, res) {
       // If mood is specified, run Text Search variants in parallel to find
       // mood-specific places that Nearby's strict primary-type filter misses
       // (rooftop bars classed as 'bar' when user asks for restaurant, etc.)
-      if (mood.trim()) {
+      // Text search runs whenever a mood is set, OR always for Activité —
+      // the includedTypes for activities don't cover every Google sub-type
+      // (event_venue, immersive experiences like Monopoly Lifesized,
+      // exotic primary types). A baseline text search on "things to do" /
+      // "activity" lets Google fill those gaps from its full index.
+      const runTextSearch = mood.trim() || type === "Activité";
+      if (runTextSearch) {
         // Translation table: Google indexes places by language. Searching
         // 'rooftop' in a French-locale data returns nothing because Google
         // categorises the same place under 'Toit-terrasse'. For each known
@@ -316,16 +326,25 @@ export default async function handler(req, res) {
 
         // Build a deduped list of textQueries: variants of the primary
         // keyword (across languages) combined with the type suffix, plus a
-        // 'cleanedMood + type' catch-all.
+        // 'cleanedMood + type' catch-all. When mood is empty (mood-less
+        // Activité), querySet falls back to just the typeSuffix
+        // ("activity"), which sweeps Google's full index for activities
+        // regardless of primaryType.
         const querySet = new Set();
-        for (const variant of expandKeyword(primaryKeyword)) {
-          if (typeSuffix) querySet.add(`${variant} ${typeSuffix}`.trim());
-          querySet.add(variant);
+        if (primaryKeyword) {
+          for (const variant of expandKeyword(primaryKeyword)) {
+            if (typeSuffix) querySet.add(`${variant} ${typeSuffix}`.trim());
+            querySet.add(variant);
+          }
+          if (cleanedMood !== primaryKeyword) {
+            querySet.add(`${cleanedMood} ${typeSuffix}`.trim());
+          }
+        } else if (typeSuffix) {
+          // Mood-less Activité: search by the suffix alone.
+          querySet.add(typeSuffix);
+          if (kids) querySet.add("things to do with kids");
         }
-        if (cleanedMood !== primaryKeyword) {
-          querySet.add(`${cleanedMood} ${typeSuffix}`.trim());
-        }
-        const queries = [...querySet];
+        const queries = [...querySet].filter(q => q && q.length > 0);
 
         // Bigger candidate pool: max=20 per Text Search (was 10). Use
         // locationBias instead of locationRestriction so a slightly-out-of-
