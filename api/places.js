@@ -11,6 +11,40 @@ export default async function handler(req, res) {
   const FIELD_MASK_DETAILS_FULL = 'displayName,formattedAddress,addressComponents,priceLevel,types,primaryType,rating,location,currentOpeningHours,regularOpeningHours,businessStatus';
 
   const extractCuisine = (types, primaryType, primaryTypeDisplayName) => {
+    // Activity sub-type override: when types[] carries a more specific
+    // sub-type than the generic primaryType, prefer it. Google sometimes
+    // classifies an escape room as primaryType=amusement_center (which is
+    // accurate but unhelpful) while listing "escape_room" in types[].
+    // Localized labels keep the badge readable for the user.
+    const ACTIVITY_TYPE_LABELS = {
+      escape_room:           { fr: "Escape game",        en: "Escape room",         es: "Escape room",          de: "Escape Room",        it: "Escape room",         pt: "Escape room",          nl: "Escape room" },
+      trampoline_park:       { fr: "Trampoline park",    en: "Trampoline park",     es: "Parque trampolines",   de: "Trampolinpark",      it: "Parco trampolini",    pt: "Parque trampolins",    nl: "Trampolinepark" },
+      video_arcade:          { fr: "Salle d'arcade",     en: "Arcade",              es: "Arcade",               de: "Spielhalle",         it: "Sala giochi",         pt: "Sala de arcade",       nl: "Arcade" },
+      bowling_alley:         { fr: "Bowling",            en: "Bowling",             es: "Bolera",               de: "Bowling",            it: "Bowling",             pt: "Bowling",              nl: "Bowlingbaan" },
+      miniature_golf_course: { fr: "Mini-golf",          en: "Mini golf",           es: "Minigolf",             de: "Minigolf",           it: "Minigolf",            pt: "Minigolfe",            nl: "Minigolf" },
+      ice_skating_rink:      { fr: "Patinoire",          en: "Ice rink",            es: "Pista patinaje",       de: "Eisbahn",            it: "Pista pattinaggio",   pt: "Pista patinagem",      nl: "IJsbaan" },
+      water_park:            { fr: "Parc aquatique",     en: "Water park",          es: "Parque acuático",      de: "Wasserpark",         it: "Parco acquatico",     pt: "Parque aquático",      nl: "Waterpark" },
+      theme_park:            { fr: "Parc à thème",       en: "Theme park",          es: "Parque temático",      de: "Themenpark",         it: "Parco a tema",        pt: "Parque temático",      nl: "Themapark" },
+      amusement_park:        { fr: "Parc d'attractions", en: "Amusement park",      es: "Parque atracciones",   de: "Vergnügungspark",    it: "Parco divertimenti",  pt: "Parque diversões",     nl: "Pretpark" },
+      observation_deck:      { fr: "Belvédère",          en: "Observation deck",    es: "Mirador",              de: "Aussichtsplattform", it: "Belvedere",           pt: "Miradouro",            nl: "Uitkijkpunt" },
+      planetarium:           { fr: "Planétarium",        en: "Planetarium",         es: "Planetario",           de: "Planetarium",        it: "Planetario",          pt: "Planetário",           nl: "Planetarium" },
+      aquarium:              { fr: "Aquarium",           en: "Aquarium",            es: "Acuario",              de: "Aquarium",           it: "Acquario",            pt: "Aquário",              nl: "Aquarium" },
+      zoo:                   { fr: "Zoo",                en: "Zoo",                 es: "Zoo",                  de: "Zoo",                it: "Zoo",                 pt: "Zoo",                  nl: "Dierentuin" },
+      museum:                { fr: "Musée",              en: "Museum",              es: "Museo",                de: "Museum",             it: "Museo",               pt: "Museu",                nl: "Museum" },
+      art_gallery:           { fr: "Galerie d'art",      en: "Art gallery",         es: "Galería de arte",      de: "Kunstgalerie",       it: "Galleria d'arte",     pt: "Galeria de arte",      nl: "Kunstgalerie" },
+      botanical_garden:      { fr: "Jardin botanique",   en: "Botanical garden",    es: "Jardín botánico",      de: "Botanischer Garten", it: "Giardino botanico",   pt: "Jardim botânico",      nl: "Botanische tuin" },
+      playground:            { fr: "Aire de jeux",       en: "Playground",          es: "Parque infantil",      de: "Spielplatz",         it: "Parco giochi",        pt: "Parque infantil",      nl: "Speeltuin" },
+      karaoke:               { fr: "Karaoké",            en: "Karaoke",             es: "Karaoke",              de: "Karaoke",            it: "Karaoke",             pt: "Karaoke",              nl: "Karaoke" },
+      casino:                { fr: "Casino",             en: "Casino",              es: "Casino",               de: "Casino",             it: "Casinò",              pt: "Casino",               nl: "Casino" },
+    };
+    const allTypesForActivity = [primaryType, ...(types || [])].filter(Boolean);
+    for (const t of allTypesForActivity) {
+      if (ACTIVITY_TYPE_LABELS[t]) {
+        const labels = ACTIVITY_TYPE_LABELS[t];
+        return labels[userLang] || labels.en;
+      }
+    }
+
     const cuisineTypes = [
       'italian','japanese','chinese','french','indian','thai','mexican',
       'american','greek','spanish','mediterranean','british','korean','vietnamese','turkish',
@@ -29,13 +63,14 @@ export default async function handler(req, res) {
         .replace(/_/g,' ')
         .replace(/\b\w/g, c => c.toUpperCase());
     }
-    // Fallback: use Google's display name (localized) if it's not just "Restaurant"
-    // e.g. "Restaurant casher", "Restaurant tunisien", "Italian restaurant"
+    // Fallback: use Google's display name (localized) if it's not just
+    // "Restaurant" / "Bar" / "Café" / "Hotel" — those are redundant with the
+    // type icon on each card. "Museum" was previously in the skip list too
+    // but for Activité it's the most informative badge; keep it.
     const display = primaryTypeDisplayName?.text || primaryTypeDisplayName;
     if (display && typeof display === 'string') {
       const lower = display.toLowerCase().trim();
-      // Skip generic ones
-      const generic = ['restaurant','bar','café','cafe','hotel','lodging','attraction','museum','food'];
+      const generic = ['restaurant','bar','café','cafe','hotel','lodging','food'];
       if (!generic.includes(lower)) {
         // Strip "Restaurant " prefix or " restaurant" suffix to get just the cuisine
         const cleaned = display
@@ -457,6 +492,12 @@ export default async function handler(req, res) {
           // asked for. We reject ALL food/drink/lodging variants, including
           // the ones with weird suffixes (steak_house, pub, food_truck, …)
           // that the previous narrow check missed.
+          //
+          // Theatres and cinemas also need an explicit reject because
+          // Google often lists them with secondary types like event_venue
+          // or tourist_attraction, which slips them through the
+          // includedTypes filter even though we removed the show types
+          // from that list earlier.
           if (type === "Activité" && p.primaryType) {
             const pt = p.primaryType;
             const ACTIVITE_REJECT_FOOD_DRINK = new Set([
@@ -477,9 +518,14 @@ export default async function handler(req, res) {
               "apartment_building", "extended_stay_hotel", "private_guest_room",
               "campground", "cottage", "cabin", "japanese_inn",
             ]);
+            const ACTIVITE_REJECT_SHOWS = new Set([
+              "performing_arts_theater", "concert_hall", "movie_theater",
+              "opera_house", "philharmonic_hall", "live_music_venue", "comedy_club",
+            ]);
             // Catches every "<cuisine>_restaurant" variant (italian_restaurant,
             // sushi_restaurant, …) without listing them all.
             if (ACTIVITE_REJECT_FOOD_DRINK.has(pt) || pt.endsWith("_restaurant")) return;
+            if (ACTIVITE_REJECT_SHOWS.has(pt)) return;
           }
           // Kids exclusion safety net (even if text search dragged one in).
           if (kids && type === "Activité" && p.primaryType && KIDS_INCOMPATIBLE.has(p.primaryType)) return;
