@@ -1,0 +1,81 @@
+name: Weekly parser digest
+
+# Each Monday at 09:00 UTC, fetch the past week's unclear parse-intent terms,
+# ask Claude to suggest prompt improvements, and open a GitHub issue with
+# the digest so the user can validate and merge the additions.
+#
+# Manually triggerable via the "Run workflow" button as well.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Monday 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch digest and open issue
+        uses: actions/github-script@v7
+        env:
+          DIGEST_URL: https://outsy-ai.vercel.app/api/weekly-parse-digest
+          DIGEST_SECRET: ${{ secrets.WEEKLY_DIGEST_SECRET }}
+        with:
+          script: |
+            const res = await fetch(process.env.DIGEST_URL, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${process.env.DIGEST_SECRET}` },
+            });
+            if (!res.ok) {
+              core.setFailed(`Digest endpoint returned ${res.status}: ${await res.text()}`);
+              return;
+            }
+            const data = await res.json();
+
+            if (data.empty || data.count === 0) {
+              console.log('No unclear terms this week — nothing to digest.');
+              return;
+            }
+
+            const date = new Date().toISOString().slice(0, 10);
+            let body = `## 🗣️ Weekly parser digest — ${date}\n\n`;
+            body += `**${data.count} parses with unclear terms**, **${data.uniqueTerms} unique terms**, since \`${data.rangeStart}\`.\n\n`;
+
+            if (data.error) {
+              body += `> ⚠️ Claude meta-analysis failed: \`${data.error}\`. Raw data below.\n\n`;
+              body += '```json\n' + JSON.stringify(data.ranked, null, 2) + '\n```\n';
+            } else {
+              if (Array.isArray(data.suggestions) && data.suggestions.length) {
+                body += `### Suggestions to validate\n\n`;
+                data.suggestions.forEach((s, i) => {
+                  body += `**#${i + 1}. \`${s.term}\`** (×${s.count})  \n`;
+                  body += `> _"${s.example}"_  \n`;
+                  body += `- **Meaning** — ${s.meaning}  \n`;
+                  body += `- **Maps to** — \`${s.maps_to}\`  \n`;
+                  body += `- **Prompt change** — ${s.prompt_addition}\n\n`;
+                });
+              }
+              if (Array.isArray(data.skipped) && data.skipped.length) {
+                body += `### Skipped (too vague / idiomatic)\n\n`;
+                data.skipped.forEach(s => {
+                  body += `- \`${s.term}\` — ${s.reason}\n`;
+                });
+                body += `\n`;
+              }
+            }
+
+            body += `\n---\n`;
+            body += `_Reply with **"OK"** to accept every suggestion, or **"OK sauf #1, #3"** to skip specific ones. Then ask Claude in chat to "process le digest" — Claude will read this issue, open a PR with the validated parser changes, and auto-merge per the CLAUDE.md flow._`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🗣️ Weekly parser digest — ${date}`,
+              body,
+              labels: ['parser-digest'],
+            });
+            console.log(`Issue created with ${data.suggestions?.length || 0} suggestions.`);

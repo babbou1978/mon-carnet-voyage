@@ -198,6 +198,30 @@ Examples:
     // user text the parser received.
     console.log("parse-intent:", JSON.stringify({ text: text.trim(), lang: language, out }));
 
+    // Persist unclear cases to Supabase so the weekly digest job can pull
+    // them. Fire-and-forget: a logging failure must never block a parse.
+    if (out.unclearTerms.length > 0) {
+      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && serviceKey) {
+        fetch(`${supabaseUrl}/rest/v1/parse_unclear_logs`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': serviceKey,
+            'Authorization': `Bearer ${serviceKey}`,
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            text: text.trim(),
+            unclear_terms: out.unclearTerms,
+            parsed_output: out,
+            lang: language || null,
+          }),
+        }).catch(err => console.error("parse_unclear_logs insert failed:", err));
+      }
+    }
+
     return res.status(200).json(out);
   } catch (e) {
     return res.status(500).json({ error: 'server_error', message: String(e) });
