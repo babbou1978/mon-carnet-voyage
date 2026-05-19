@@ -15,14 +15,16 @@ permissions:
   issues: write
   contents: read
 
+# Workflow-level env. Opt into Node 24 now — the runner default switches
+# in June 2026 and Node 20 is removed in September 2026. Setting this here
+# (workflow scope, not job scope) is what GitHub looks at to pick the
+# Node version for JavaScript actions like actions/github-script@v7.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   digest:
     runs-on: ubuntu-latest
-    # Opt into the Node 24 runtime now — the default switches in June 2026
-    # and Node 20 is removed in September 2026. Setting this kills the
-    # deprecation warning without waiting for a new action release.
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
     steps:
       - name: Fetch digest and open issue
         uses: actions/github-script@v7
