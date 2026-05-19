@@ -381,7 +381,7 @@ const TRANSLATIONS = {
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
     errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", ignoreBtn: "Pas pour moi", ignoreToast: "Lieu masqué", ignoreError: "Impossible de masquer", ignoreNeedId: "Lieu sans ID Google — impossible à masquer", ignoredTitle: "🙈 Lieux ignorés", ignoredEmpty: "Aucun lieu masqué", ignoredUnhide: "Réafficher", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
+    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", locationNeeded: "Précise un lieu : une ville ou « près de moi ».", locationUseGps: "📍 Près de moi (GPS)", ignoreBtn: "Pas pour moi", ignoreToast: "Lieu masqué", ignoreError: "Impossible de masquer", ignoreNeedId: "Lieu sans ID Google — impossible à masquer", ignoredTitle: "🙈 Lieux ignorés", ignoredEmpty: "Aucun lieu masqué", ignoredUnhide: "Réafficher", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
@@ -737,7 +737,7 @@ const TRANSLATIONS = {
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
     errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", ignoreBtn: "Not for me", ignoreToast: "Hidden", ignoreError: "Couldn't hide", ignoreNeedId: "No Google place ID — can't hide", ignoredTitle: "🙈 Hidden places", ignoredEmpty: "Nothing hidden", ignoredUnhide: "Show again", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
+    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", locationNeeded: "Specify where to search: a city or 'near me'.", locationUseGps: "📍 Near me (GPS)", ignoreBtn: "Not for me", ignoreToast: "Hidden", ignoreError: "Couldn't hide", ignoreNeedId: "No Google place ID — can't hide", ignoredTitle: "🙈 Hidden places", ignoredEmpty: "Nothing hidden", ignoredUnhide: "Show again", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
@@ -3206,6 +3206,10 @@ function TravelAgent() {
   // the offending terms so the UI can prompt the user to reformulate instead
   // of running a search with half-understood intent.
   const [unclearTerms, setUnclearTerms] = useState([]);
+  // Set when the parsed query is otherwise valid but lacks a location AND
+  // no location is already set in the form. Without this guard, the
+  // auto-search effect waits forever for coords that never come.
+  const [needLocationWarning, setNeedLocationWarning] = useState(false);
   const outsyRecognitionRef = useRef(null);
   const outsyFinalTranscriptRef = useRef("");
   // Refs on the two auto-resizing textareas. We resize them whenever their
@@ -3327,6 +3331,23 @@ function TravelAgent() {
         // radiusKm comes in kilometres; the `distance` state is in metres.
         if (data.radiusKm) setDistance(Math.round(data.radiusKm * 1000));
         // Auto-launch the AI search after the form has been filled. We can't
+        // Refuse to launch the auto-search when there's no location to
+        // search from — neither the parsed query (useCurrentLocation / city /
+        // locationText) nor the form's already-set coords. Without this
+        // guard the pendingAutoSearch effect waits forever for coords that
+        // never come, leaving the user looking at a hanging spinner with
+        // zero feedback.
+        const hasLocationNow = !!(
+          data.useCurrentLocation === true ||
+          data.city || data.locationText ||
+          recoCoords?.lat
+        );
+        if (!hasLocationNow) {
+          setNeedLocationWarning(true);
+          setAnalyzingIntent(false);
+          return;
+        }
+
         // call loadRecos() synchronously here because setState is batched —
         // loadRecos would read stale state. Flip a flag and let an effect
         // below pick it up once the new state (incl. async GPS / geocode)
@@ -3417,6 +3438,46 @@ function TravelAgent() {
     accessible:["wheelchair accessible"],
     "non fumeur":["non fumeur","non-smoking"],
   };
+  // Cuisine words in mood are AND-required against the place's cuisine
+  // field, not loosely OR'd like vibes. Otherwise a sushi restaurant
+  // tagged kids friendly would match a "resto italien avec gosses" query
+  // because "kids friendly" alone is enough to pass the OR test.
+  // Map any localised cuisine token to its canonical English form (which
+  // is how extractCuisine stores it on Google places, and how most users
+  // tag their saved memories). Add new entries as needed.
+  const CUISINE_TO_CANONICAL = {
+    italien: "italian", italienne: "italian", italian: "italian", italiana: "italian",
+    japonais: "japanese", japanese: "japanese", sushi: "sushi", japonaise: "japanese", ramen: "ramen",
+    chinois: "chinese", chinese: "chinese", chinoise: "chinese",
+    "français": "french", francais: "french", french: "french", "française": "french",
+    indien: "indian", indian: "indian", indienne: "indian",
+    thai: "thai", "thaï": "thai", thailandais: "thai", "thaïlandais": "thai",
+    mexicain: "mexican", mexican: "mexican", mexicaine: "mexican",
+    libanais: "lebanese", lebanese: "lebanese", libanaise: "lebanese",
+    marocain: "moroccan", moroccan: "moroccan", marocaine: "moroccan",
+    "coréen": "korean", coreen: "korean", korean: "korean",
+    vietnamien: "vietnamese", vietnamese: "vietnamese", vietnamienne: "vietnamese",
+    turc: "turkish", turkish: "turkish", turque: "turkish",
+    grec: "greek", greek: "greek", grecque: "greek",
+    espagnol: "spanish", spanish: "spanish", espagnole: "spanish",
+    portugais: "portuguese", portuguese: "portuguese", portugaise: "portuguese",
+    "méditerranéen": "mediterranean", mediterraneen: "mediterranean", mediterranean: "mediterranean",
+    britannique: "british", british: "british",
+    "américain": "american", americain: "american", american: "american",
+    argentin: "argentinian", argentinian: "argentinian", argentine: "argentinian",
+    "brésilien": "brazilian", bresilien: "brazilian", brazilian: "brazilian",
+    "péruvien": "peruvian", peruvian: "peruvian",
+    africain: "african", african: "african", africaine: "african",
+    "éthiopien": "ethiopian", ethiopian: "ethiopian",
+    cubain: "cuban", cuban: "cuban",
+    pizza: "pizza", pizzeria: "pizza",
+    burger: "burger", hamburger: "burger",
+    barbecue: "bbq", bbq: "bbq", grill: "bbq", steakhouse: "steakhouse",
+    casher: "kosher", kosher: "kosher",
+    halal: "halal",
+    vegan: "vegan", "végan": "vegan",
+    "végé": "vegetarian", "végétarien": "vegetarian", vegetarien: "vegetarian", vegetarian: "vegetarian",
+  };
   const placeMatchesMood = (p, mood) => {
     if (!mood) return true;
     const moodWords = mood.toLowerCase().split(/[\s,]+/).filter(w=>w.length>2);
@@ -3442,7 +3503,27 @@ function TravelAgent() {
       p.kidsf ? "kids friendly kids family" : "",
     ].filter(Boolean).join(" ");
     const allText = `${name} ${feats} ${desc} ${review} ${allReviews} ${likeTags} ${why} ${pinNote} ${cuisine} ${activityType} ${flags}`;
-    return moodWords.some(kw => {
+    // Split mood words into cuisine-specific (AND requirement on cuisine
+    // field) and vibe (loose OR over allText). "Resto italien avec gosses"
+    // must NOT return a sushi place tagged kids-friendly just because the
+    // "gosses" half of the query matches.
+    const cuisineNeeded = new Set();
+    const vibeWords = [];
+    for (const kw of moodWords) {
+      if (CUISINE_TO_CANONICAL[kw]) cuisineNeeded.add(CUISINE_TO_CANONICAL[kw]);
+      else vibeWords.push(kw);
+    }
+    if (cuisineNeeded.size > 0) {
+      // Place's cuisine MUST match at least one of the requested cuisines.
+      // We also check allText as a fallback (rare cases where the cuisine
+      // is mentioned in name / review but not extracted into the cuisine field).
+      const cuisineHit = [...cuisineNeeded].some(c => cuisine.includes(c) || name.includes(c) || allText.includes(c));
+      if (!cuisineHit) return false;
+    }
+    // No vibe constraints left after the cuisine match → that's enough.
+    if (vibeWords.length === 0) return true;
+    // Vibe match keeps the loose OR semantics.
+    return vibeWords.some(kw => {
       const syns = MOOD_SYNONYMS[kw];
       if (syns) return syns.some(s => allText.includes(s));
       return allText.includes(kw);
@@ -5460,7 +5541,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                   <textarea
                     ref={outsyTextareaRef}
                     value={outsyQuery}
-                    onChange={e=>{setOutsyQuery(e.target.value); if (unclearTerms.length) setUnclearTerms([]);}}
+                    onChange={e=>{setOutsyQuery(e.target.value); if (unclearTerms.length) setUnclearTerms([]); if (needLocationWarning) setNeedLocationWarning(false);}}
                     placeholder={outsyQueryListening?(t.recoMoodListening||"À l'écoute..."):(t.askOutsyPlaceholder||"Ex: I'm looking for a rooftop restaurant near me with colleagues")}
                     rows={3}
                     style={{background:COLORS.card,border:`1px solid ${outsyQueryListening?"#e74c3c":COLORS.border}`,borderRadius:10,padding:"12px 56px 12px 14px",color:COLORS.text,fontFamily:"'DM Sans',sans-serif",fontSize:14,width:"100%",resize:"none",minHeight:74,boxSizing:"border-box",lineHeight:1.4,overflow:"hidden",textAlign:"justify"}}
@@ -5496,6 +5577,17 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                     <div style={{display:"flex",gap:6}}>
                       <button onClick={() => setUnclearTerms([])} style={{flex:1,padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:6,color:COLORS.text,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearEdit || "Edit"}</button>
                       <button onClick={() => handleAnalyzeQuery(true)} style={{flex:1,padding:"6px 10px",background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}66`,borderRadius:6,color:COLORS.accent,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearProceed || "Search anyway"}</button>
+                    </div>
+                  </div>
+                )}
+                {needLocationWarning && (
+                  <div style={{marginTop:10,padding:"10px 12px",background:`${COLORS.accent}11`,border:`1px solid ${COLORS.accent}55`,borderRadius:8,fontSize:12,color:COLORS.text,fontFamily:"'DM Sans',sans-serif",lineHeight:1.4}}>
+                    <div style={{marginBottom:6}}>
+                      📍 {t.locationNeeded || "Precise where to search (a city or 'near me')."}
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={() => { setNeedLocationWarning(false); setLocMode("gps"); setRecoCoords(null); setGpsReady(false); getGPS(); setPendingAutoSearch(true); }} style={{flex:1,padding:"6px 10px",background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}66`,borderRadius:6,color:COLORS.accent,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.locationUseGps || "📍 Near me (GPS)"}</button>
+                      <button onClick={() => setNeedLocationWarning(false)} style={{flex:1,padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:6,color:COLORS.text,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearEdit || "Edit"}</button>
                     </div>
                   </div>
                 )}
