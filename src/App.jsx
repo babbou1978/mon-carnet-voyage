@@ -381,7 +381,7 @@ const TRANSLATIONS = {
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
     errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
+    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", ignoreBtn: "Pas pour moi", ignoreToast: "Lieu masqué", ignoreError: "Impossible de masquer", ignoreNeedId: "Lieu sans ID Google — impossible à masquer", ignoredTitle: "🙈 Lieux ignorés", ignoredEmpty: "Aucun lieu masqué", ignoredUnhide: "Réafficher", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
@@ -737,7 +737,7 @@ const TRANSLATIONS = {
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
     errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
+    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", ignoreBtn: "Not for me", ignoreToast: "Hidden", ignoreError: "Couldn't hide", ignoreNeedId: "No Google place ID — can't hide", ignoredTitle: "🙈 Hidden places", ignoredEmpty: "Nothing hidden", ignoredUnhide: "Show again", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
@@ -2148,7 +2148,7 @@ function FriendsBadge({ friends, friendsData=[], onViewFriend, onSaveFriend, COL
 
 // Unified card actions block: distance + FriendsBadge + Edit/Add button
 // Used in MemoryCard, AI cards, Nearby cards for consistent UX
-function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, onPin, COLORS, t={}, setFriendMemoryModal, addFriendToCarnet }) {
+function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, onPin, onIgnore, COLORS, t={}, setFriendMemoryModal, addFriendToCarnet }) {
   const distLabel = distance != null
     ? (distance >= 1000 ? `${(distance/1000).toFixed(1)}km` : `${Math.round(distance)}m`)
     : null;
@@ -2176,6 +2176,7 @@ function CardActions({ distance, friendsHave, myMem, onEdit, onAdd, onPin, COLOR
       {myMem
         ? <button onClick={()=>onEdit(myMem)} title={t.editBtn||"Edit"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif"}}>✏️</button>
         : <div style={{display:"flex",gap:4}}>
+            {onIgnore && <button onClick={onIgnore} title={t.ignoreBtn||"Not for me"} style={{background:COLORS.card,border:`1px solid ${COLORS.border}`,color:COLORS.muted,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>🙈</button>}
             {onPin && <button onClick={onPin} title={t.pinBtn||"Pin"} style={{background:COLORS.card,border:`1px solid ${COLORS.border}`,color:COLORS.muted,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>📌</button>}
             {onAdd && <button onClick={onAdd} title={t.recoAddFav||"Add"} style={{background:COLORS.card,border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:"50%",width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",padding:0,fontFamily:"'DM Sans',sans-serif",fontWeight:300}}>+</button>}
           </div>
@@ -2728,7 +2729,7 @@ function PlaceCardBody({ place, isActive, isAdjacent, detailsCacheRef, lang, COL
 }
 
 // ─── PlaceSheet: Full place details overlay with photos, actions, reviews ───
-function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin, onEdit }) {
+function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}, friendMemories=[], memories=[], pins=[], onAdd, onPin, onEdit, onIgnore }) {
   const [cardDragX, setCardDragX] = useState(0);
   const [cardDragging, setCardDragging] = useState(false);
   const trackRef = useRef(null);
@@ -2894,6 +2895,13 @@ function PlaceSheet({ place, list=[], index=0, onClose, onNavigate, COLORS, t={}
             <button onClick={() => index < list.length - 1 && onNavigate(index + 1)} disabled={index === list.length - 1}
               style={{background:"none",border:`1px solid ${COLORS.border}`,borderRadius:"50%",width:36,height:36,color:index===list.length-1?COLORS.muted:COLORS.text,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:index===list.length-1?0.4:1}}>›</button>
           </>}
+          {/* Ignore — small, low-prominence button. Doesn't show if the
+              user already has this place as a favorite / pin (no point
+              hiding what they actively saved). */}
+          {onIgnore && !myMem && !myPin && (
+            <button onClick={() => onIgnore(currentPlace)} title={t.ignoreBtn||"Not for me"}
+              style={{background:"none",border:`1px solid ${COLORS.border}`,borderRadius:"50%",width:36,height:36,color:COLORS.muted,fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>🙈</button>
+          )}
           <button onClick={onClose} style={{background:"none",border:`1px solid ${COLORS.border}`,borderRadius:"50%",width:36,height:36,color:COLORS.text,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
         </div>
       </div>
@@ -2985,6 +2993,10 @@ function TravelAgent() {
   const [showProfilePanel, setShowProfilePanel] = useState(false);
   const [prevTab, setPrevTab] = useState("reco");
   const [pins, setPins] = useState([]);
+  // Places the user has explicitly hidden from search results. Stored
+  // server-side (per-user RLS), kept PRIVATE (never sent to Claude as
+  // dislike, never shared with friends). Just a display filter.
+  const [ignoredPlaces, setIgnoredPlaces] = useState([]);
   const scrollPositions = useRef({});
 
   const getPageScroll = () => {
@@ -3482,12 +3494,16 @@ function TravelAgent() {
     //   with the edit pencil, which is confusing)
     // - friend favourites currently shown in heartsToShow
     // - pinned places
+    // - explicitly ignored places (🙈 Pas pour moi)
     const myMemNames = new Set((memories||[]).map(m=>(m.name||"").toLowerCase()));
     const heartNames = new Set((heartsToShow||[]).map(m=>(m.name||"").toLowerCase()));
     const pinNames = new Set((pins||[]).map(p=>(p.name||"").toLowerCase()));
+    const ignoredIds = new Set((ignoredPlaces||[]).map(p => p.google_place_id));
     return moodFilteredNearby.filter(p => {
       const lower = (p.name||"").toLowerCase();
-      return !aiNames.has(lower) && !myMemNames.has(lower) && !heartNames.has(lower) && !pinNames.has(lower);
+      const pid = p.google_place_id || p.id;
+      return !aiNames.has(lower) && !myMemNames.has(lower) && !heartNames.has(lower) && !pinNames.has(lower)
+        && !(pid && ignoredIds.has(pid));
     });
   })();
 
@@ -3648,6 +3664,10 @@ function TravelAgent() {
         // Clear any old caches (different user IDs)
         Object.keys(localStorage).filter(k => k.startsWith("outsy_cache_") && k !== cacheKey).forEach(k => localStorage.removeItem(k));
       }
+      // Load ignored places in parallel — used as a display filter on Lieux
+      // populaires and as a candidate filter when feeding the AI.
+      supabase.from('ignored_places').select('*').eq('user_id', userId).order('ts', { ascending: false })
+        .then(({ data }) => { if (data) setIgnoredPlaces(data); });
       const { data: mems } = await supabase.from('memories').select('*').eq('user_id', userId).order('ts', { ascending: false });
       if (mems) {
         // Auto-migrate legacy "Bar / Café" to "Bar" or "Café"
@@ -4019,6 +4039,42 @@ function TravelAgent() {
   const openPlaceSheet = (place, list) => {
     const idx = list.findIndex(p => (p.name||"").toLowerCase() === (place.name||"").toLowerCase());
     setPlaceSheet({ list, index: idx >= 0 ? idx : 0 });
+  };
+
+  // Hide a place from future search results. Stored per-user, NOT shared
+  // with friends, NEVER sent to Claude (so it doesn't influence the taste
+  // profile against the cuisine / sub-type). Pure display-side filter.
+  const ignorePlace = async (place) => {
+    const placeId = place.google_place_id || place.id;
+    if (!placeId || !userId) {
+      showToast("❌ " + (t.ignoreNeedId || "Can't ignore (no Google place id)"));
+      return;
+    }
+    if (ignoredPlaces.some(p => p.google_place_id === placeId)) return;
+    const entry = { user_id: userId, google_place_id: placeId, name: place.name || place.displayName?.text || "" };
+    const optimistic = { ...entry, id: Date.now(), ts: new Date().toISOString() };
+    setIgnoredPlaces(prev => [optimistic, ...prev]);
+    const { error } = await supabase.from('ignored_places').insert(entry);
+    if (error) {
+      // Roll back optimistic insert on failure
+      setIgnoredPlaces(prev => prev.filter(p => p.id !== optimistic.id));
+      console.error('ignored_places insert:', error);
+      showToast("❌ " + (t.ignoreError || "Couldn't hide place"));
+    } else {
+      showToast("🙈 " + (t.ignoreToast || "Hidden from search"));
+    }
+  };
+
+  const unignorePlace = async (placeId) => {
+    if (!placeId || !userId) return;
+    const prev = ignoredPlaces;
+    setIgnoredPlaces(prev.filter(p => p.google_place_id !== placeId));
+    const { error } = await supabase.from('ignored_places')
+      .delete().eq('user_id', userId).eq('google_place_id', placeId);
+    if (error) {
+      setIgnoredPlaces(prev);  // restore on failure
+      console.error('ignored_places delete:', error);
+    }
   };
 
   const logout = () => supabase.auth.signOut();
@@ -4503,8 +4559,16 @@ function TravelAgent() {
         return dist <= maxDistance;
       });
 
-      // For AI candidates: exclude visited places so AI proposes novel ones
-      nearbyForAI = withinRange.filter(p => !alreadyVisited.has(p.name));
+      // For AI candidates: exclude visited places so AI proposes novel ones,
+      // and explicitly ignored places so Claude doesn't keep re-suggesting
+      // them on every search.
+      const ignoredIdsAI = new Set((ignoredPlaces||[]).map(ip => ip.google_place_id));
+      nearbyForAI = withinRange.filter(p => {
+        if (alreadyVisited.has(p.name)) return false;
+        const pid = p.google_place_id || p.id;
+        if (pid && ignoredIdsAI.has(pid)) return false;
+        return true;
+      });
 
       // Pre-filter by mood: if mood is set, only send mood-matching candidates to AI
       if (recoMood) {
@@ -5332,6 +5396,22 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                 <div className="prefs-card-title">{t.profileNotes}</div>
                 <div className="field"><textarea placeholder={t.profileNotesPlaceholder||"Régime, allergies, contexte, style préféré..."} value={prefs.notes||""} onChange={e=>setPrefs(p=>({...p,notes:e.target.value}))} style={{minHeight:80,textAlign:"justify"}}/></div>
               </div>
+
+              {/* Hidden / ignored places — let the user un-hide if they
+                  changed their mind. Only shown when there's at least one. */}
+              {ignoredPlaces.length > 0 && (
+                <div className="prefs-card">
+                  <div className="prefs-card-title">{t.ignoredTitle || "🙈 Hidden places"}</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:240,overflowY:"auto"}}>
+                    {ignoredPlaces.map(ip => (
+                      <div key={ip.id || ip.google_place_id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,fontSize:13}}>
+                        <span style={{color:COLORS.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginRight:8}}>{ip.name || ip.google_place_id}</span>
+                        <button onClick={() => unignorePlace(ip.google_place_id)} style={{background:"none",border:`1px solid ${COLORS.accent}`,color:COLORS.accent,borderRadius:6,padding:"4px 10px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>{t.ignoredUnhide || "Show again"}</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <button className="prefs-save-btn" onClick={savePrefs}>{t.profileSave}</button>
               {prefsSaved&&<div className="prefs-saved">{t.profileSaved}</div>}
               <button className="prefs-save-btn" style={{borderColor:"#e06060",color:"#e06060",marginTop:4}} onClick={()=>setShowResetModal(true)}>
@@ -5592,6 +5672,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                                     onEdit={setEditMemory}
                                     onAdd={()=>addRecoToCarnet(reco)}
                                     onPin={()=>openPinModal({name:reco.name,type:reco.type||recoType,price:reco.price,city:reco.city,country:reco.country,address:reco.address,cuisine:reco.cuisine,activityType:reco.activityType,google_place_id:reco.google_place_id,lat:reco.lat,lng:reco.lng})}
+                                    onIgnore={()=>ignorePlace(reco)}
                                     COLORS={COLORS}
                                     t={t}
                                     setFriendMemoryModal={setFriendMemoryModal}
@@ -5646,6 +5727,7 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                                 onEdit={setEditMemory}
                                 onAdd={()=>addRecoToCarnet({name:p.name,type:recoType,price:p.price||"",address:p.address,city:p.city||"",country:p.country||"",streetAddress:p.streetAddress||"",cuisine:p.cuisine,googleRating:p.rating,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",google_place_id:p.id||"",primaryTypeDisplayName:p.primaryTypeDisplayName})}
                                 onPin={()=>openPinModal({name:p.name,type:recoType,price:p.price||"",address:p.address,cuisine:p.cuisine,activityType:p.primaryTypeDisplayName?.text||p.primaryTypeDisplayName||"",id:p.id||"",lat:p.location?.latitude||p.lat,lng:p.location?.longitude||p.lng})}
+                                onIgnore={()=>ignorePlace({name:p.name,google_place_id:p.id||p.google_place_id})}
                                 COLORS={COLORS}
                                 t={t}
                                 setFriendMemoryModal={setFriendMemoryModal}
@@ -6082,6 +6164,10 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
           onPin={(p)=>{
             setPendingPlaceSheet(placeSheet);
             openPinModal({name:p.name,type:p.type||recoType,price:p.price||"",address:p.address||p.formattedAddress||"",cuisine:p.cuisine||"",activityType:p.activityType||p.activity_type||"",google_place_id:p.google_place_id||p.id||""});
+            setPlaceSheet(null);
+          }}
+          onIgnore={(p)=>{
+            ignorePlace({name:p.name,google_place_id:p.google_place_id||p.id});
             setPlaceSheet(null);
           }}
           onEdit={(mem)=>{
