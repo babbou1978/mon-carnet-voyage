@@ -19,12 +19,11 @@ jobs:
   digest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      # Use Node 24 from the start — no JavaScript actions involved, so
-      # the Node 20 deprecation warning from actions/github-script@v7
-      # disappears entirely.
-      - uses: actions/setup-node@v4
+      # Use Node 24 from the start — no JavaScript actions on Node 20 in
+      # this workflow, so the deprecation warning disappears entirely.
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
 
