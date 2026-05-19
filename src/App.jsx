@@ -381,7 +381,7 @@ const TRANSLATIONS = {
     followUnfollow: "Se désabonner", followPrivate: "Compte privé", followPublic: "Compte public",
     errorUsernameRequired: "Le pseudo est obligatoire.", errorUsernameTaken: "Ce pseudo est déjà pris.", errorUsernameInvalid: "3-20 caractères, lettres, chiffres, _ ou . uniquement.", profilePhoto: "Photo", profileUsername: "Pseudo", profilePrivacy: "Confidentialité",
     recoLocation: "📍 Localisation & paramètres", recoRadius: "Rayon de recherche",
-    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", locationNeeded: "Précise un lieu : une ville ou « près de moi ».", locationUseGps: "📍 Près de moi (GPS)", ignoreBtn: "Pas pour moi", ignoreToast: "Lieu masqué", ignoreError: "Impossible de masquer", ignoreNeedId: "Lieu sans ID Google — impossible à masquer", ignoredTitle: "🙈 Lieux ignorés", ignoredEmpty: "Aucun lieu masqué", ignoredUnhide: "Réafficher", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
+    recoMood: "Mood / envie", recoMoodPlaceholder: "Ex: rooftop, romantique, brunch...", recoMoodDictate: "Dicter mon envie", recoMoodStop: "Arrêter la dictée", recoMoodListening: "À l'écoute...", recoMoodNotSupported: "La dictée vocale n'est pas disponible dans ce navigateur. Essaie Chrome, Edge ou Safari mobile.", askOutsyHeadline: "Bonjour {name} ! Dis-moi ce que tu cherches, Outsy va t'aider", askOutsyPlaceholder: "Ex: Je cherche un restaurant rooftop avec mes collègues, à côté de moi", askOutsyDictate: "Dicter ma demande", askOutsyAnalyze: "✨ Analyser ma demande", askOutsyAnalyzing: "Analyse en cours...", askOutsyClear: "Effacer", unclearWarning: "Je n'ai pas su interpréter :", unclearReformulate: "Tu peux préciser ?", unclearEdit: "Modifier", unclearProceed: "Lancer quand même", locationNeeded: "Précise un lieu : une ville ou « près de moi ».", locationUseGps: "📍 Près de moi (GPS)", locationUseHere: "Chercher ici :", ignoreBtn: "Pas pour moi", ignoreToast: "Lieu masqué", ignoreError: "Impossible de masquer", ignoreNeedId: "Lieu sans ID Google — impossible à masquer", ignoredTitle: "🙈 Lieux ignorés", ignoredEmpty: "Aucun lieu masqué", ignoredUnhide: "Réafficher", recoType: "Type", recoPrice: "Prix", recoFind: "✨ Demander à Outsy AI", recoFindNearby: "Lieux populaires",
     recoLocating: "Localisation...", recoSearching: "Recherche en cours...",
     recoGPS: "📍 Ma position", recoManual: "✏️ Saisir", recoGPSLoading: "Récupération de votre position...",
     recoHearts: "❤️ Coups de cœur", recoHeartsNear: "Vos favoris & abonnements",
@@ -737,7 +737,7 @@ const TRANSLATIONS = {
     followUnfollow: "Unfollow", followPrivate: "Private account", followPublic: "Public account",
     errorUsernameRequired: "Username is required.", errorUsernameTaken: "This username is already taken.", errorUsernameInvalid: "3-20 characters, letters, numbers, _ or . only.", profilePhoto: "Photo", profileUsername: "Username", profilePrivacy: "Privacy",
     recoLocation: "📍 Location & settings", recoRadius: "Search radius",
-    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", locationNeeded: "Specify where to search: a city or 'near me'.", locationUseGps: "📍 Near me (GPS)", ignoreBtn: "Not for me", ignoreToast: "Hidden", ignoreError: "Couldn't hide", ignoreNeedId: "No Google place ID — can't hide", ignoredTitle: "🙈 Hidden places", ignoredEmpty: "Nothing hidden", ignoredUnhide: "Show again", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
+    recoMood: "Mood / vibe", recoMoodPlaceholder: "E.g. rooftop, romantic, brunch...", recoMoodDictate: "Dictate your vibe", recoMoodStop: "Stop dictation", recoMoodListening: "Listening...", recoMoodNotSupported: "Voice dictation is not available in this browser. Try Chrome, Edge or Safari on mobile.", askOutsyHeadline: "Hi {name}! Tell me what you're looking for and Outsy will help", askOutsyPlaceholder: "E.g. I'm looking for a rooftop restaurant near me, with colleagues", askOutsyDictate: "Dictate your request", askOutsyAnalyze: "✨ Analyze my request", askOutsyAnalyzing: "Analyzing...", askOutsyClear: "Clear", unclearWarning: "I couldn't interpret:", unclearReformulate: "Can you reword?", unclearEdit: "Edit", unclearProceed: "Search anyway", locationNeeded: "Specify where to search: a city or 'near me'.", locationUseGps: "📍 Near me (GPS)", locationUseHere: "Search here:", ignoreBtn: "Not for me", ignoreToast: "Hidden", ignoreError: "Couldn't hide", ignoreNeedId: "No Google place ID — can't hide", ignoredTitle: "🙈 Hidden places", ignoredEmpty: "Nothing hidden", ignoredUnhide: "Show again", recoType: "Type", recoPrice: "Price", recoFind: "✨ Ask Outsy AI", recoFindNearby: "Popular places",
     recoLocating: "Locating...", recoSearching: "Searching...",
     recoGPS: "📍 My location", recoManual: "✏️ Enter", recoGPSLoading: "Getting your location...",
     recoHearts: "❤️ Favorites", recoHeartsNear: "Your favorites & following",
@@ -3331,18 +3331,19 @@ function TravelAgent() {
         // radiusKm comes in kilometres; the `distance` state is in metres.
         if (data.radiusKm) setDistance(Math.round(data.radiusKm * 1000));
         // Auto-launch the AI search after the form has been filled. We can't
-        // Refuse to launch the auto-search when there's no location to
-        // search from — neither the parsed query (useCurrentLocation / city /
-        // locationText) nor the form's already-set coords. Without this
-        // guard the pendingAutoSearch effect waits forever for coords that
-        // never come, leaving the user looking at a hanging spinner with
-        // zero feedback.
-        const hasLocationNow = !!(
+        // Block the auto-search whenever the natural-language query itself
+        // doesn't mention a location. We deliberately ignore the form's
+        // already-set recoCoords here — even if a previous session left
+        // coords behind, we still want the user to confirm WHERE this new
+        // search should run, because the natural-language interface
+        // doesn't carry a visual location indicator. The warning surfaces
+        // a "use current location" button when recoCoords is set so the
+        // confirmation is one click.
+        const hasLocationFromQuery = !!(
           data.useCurrentLocation === true ||
-          data.city || data.locationText ||
-          recoCoords?.lat
+          data.city || data.locationText
         );
-        if (!hasLocationNow) {
+        if (!hasLocationFromQuery) {
           setNeedLocationWarning(true);
           setAnalyzingIntent(false);
           return;
@@ -5585,9 +5586,14 @@ Write all text (headline, signals.label, tip, warning, anchor.ref) in ${langLabe
                     <div style={{marginBottom:6}}>
                       📍 {t.locationNeeded || "Precise where to search (a city or 'near me')."}
                     </div>
-                    <div style={{display:"flex",gap:6}}>
-                      <button onClick={() => { setNeedLocationWarning(false); setLocMode("gps"); setRecoCoords(null); setGpsReady(false); getGPS(); setPendingAutoSearch(true); }} style={{flex:1,padding:"6px 10px",background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}66`,borderRadius:6,color:COLORS.accent,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.locationUseGps || "📍 Near me (GPS)"}</button>
-                      <button onClick={() => setNeedLocationWarning(false)} style={{flex:1,padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:6,color:COLORS.text,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearEdit || "Edit"}</button>
+                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                      <button onClick={() => { setNeedLocationWarning(false); setLocMode("gps"); setRecoCoords(null); setGpsReady(false); getGPS(); setPendingAutoSearch(true); }} style={{flex:"1 1 110px",padding:"6px 10px",background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}66`,borderRadius:6,color:COLORS.accent,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.locationUseGps || "📍 Near me (GPS)"}</button>
+                      {recoCoords?.lat && locationLabel && (
+                        <button onClick={() => { setNeedLocationWarning(false); setPendingAutoSearch(true); }} style={{flex:"1 1 110px",padding:"6px 10px",background:`${COLORS.accent}22`,border:`1px solid ${COLORS.accent}66`,borderRadius:6,color:COLORS.accent,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}} title={locationLabel}>
+                          {(t.locationUseHere || "Search here:") + " " + (locationLabel.length > 24 ? locationLabel.slice(0, 22) + "…" : locationLabel)}
+                        </button>
+                      )}
+                      <button onClick={() => setNeedLocationWarning(false)} style={{flex:"0 0 auto",padding:"6px 10px",background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:6,color:COLORS.text,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.unclearEdit || "Edit"}</button>
                     </div>
                   </div>
                 )}
